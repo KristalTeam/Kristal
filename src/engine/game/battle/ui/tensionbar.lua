@@ -257,7 +257,7 @@ end
 
 function TensionBar:drawBack()
     Draw.setColor(self:hasReducedTension() and PALETTE["tension_back_reduced"] or PALETTE["tension_back"])
-    Draw.drawPart(self.tp_bar_fill, 0, 0, 0, 0, 25, 196 - (self:getPercentageFor250(self.current) * 196) + 1)
+    Draw.drawPart(self.tp_bar_fill, 0, 0, 0, 0, 25, 196 + 1)
 end
 
 --- Get the color for the tension bar's "fill".
