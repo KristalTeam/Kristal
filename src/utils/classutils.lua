@@ -17,7 +17,7 @@ function ClassUtils.getClassName(class, parent_check)
         end
     end
     -- If the class doesn't have a global variable, find the name of the highest class it extends.
-    for i, v in ipairs(class.__includes) do
+    for i, v in ipairs(class.__includes or {}) do
         local name = ClassUtils.getClassName(v, true)
         if name then
             if not parent_check and class.id then
