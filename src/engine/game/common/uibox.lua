@@ -61,7 +61,7 @@ function UIBox:draw()
 
     for i = 1, 4 do
         local cx, cy = self.corners[i][1] * width, self.corners[i][2] * height
-        local sprite = self.corner[math.floor(self.corner_frame)]
+        local sprite = Kristal.Config["simplifyVFX"] and self.corner[1] or self.corner[math.floor(self.corner_frame)]
         local width  = 2 * ((self.corners[i][1] * 2) - 1) * -1
         local height = 2 * ((self.corners[i][2] * 2) - 1) * -1
         Draw.draw(sprite, cx, cy, 0, width, height, sprite:getWidth(), sprite:getHeight())
