@@ -146,13 +146,13 @@ function Cutscene:update()
 
     if #self.during_stack > 0 and not self.paused then
         local to_remove = {}
-        for _,func in ipairs(self.during_stack) do
+        for _, func in ipairs(self.during_stack) do
             local result = func()
             if result == false then
                 table.insert(to_remove, func)
             end
         end
-        for _,v in ipairs(to_remove) do
+        for _, v in ipairs(to_remove) do
             TableUtils.removeValue(self.during_stack, v)
         end
     end
@@ -218,7 +218,9 @@ function Cutscene:resume(...)
     end
 end
 
---- Ends the cutscene.
+--- *(Called internally)* Ends the cutscene.
+---
+--- NOTE: If you want to end a cutscene, use `return`. DO NOT CALL THIS!
 function Cutscene:endCutscene()
     self.ended = true
     self:onEnd()
