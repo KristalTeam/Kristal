@@ -1013,7 +1013,7 @@ end
 
 --- Called when an enemy is defeated by any means, controls recruit status, battle rewards, and removing the enemy from battle
 ---@param reason?    string  The mode the enemy was defeated by - default reasons are `"SPARED"`, `"PACIFIED"` (Non-violent), `"VIOLENCED"`, `"FROZEN"`, `"KILLED"` (Violent), `"DEFEATED"` (Default)
----@param violent?   boolean Whetehr the kill method is classed as violent and would result in the enemy's recruit becoming LOST.
+---@param violent?   boolean Whether the kill method is classed as violent and would result in the enemy's recruit becoming LOST.
 function EnemyBattler:defeat(reason, violent)
     self.done_state = reason or "DEFEATED"
 
