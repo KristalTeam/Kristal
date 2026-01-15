@@ -624,7 +624,7 @@ function DebugSystem:registerSubMenus()
         local item = item_data()
         self:registerOption(
             "give_item",
-            item.name + (item.light and " (Light Item)" or ""),
+            item.name .. (item.light and " (Light Item)" or ""),
             item.description,
             function()
                 Game.inventory:tryGiveItem(item_data())
