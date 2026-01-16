@@ -4,6 +4,7 @@ local TileLayer, super = Class(Object)
 
 function TileLayer:init(map, data)
     data = data or {}
+    assert(data.encoding == "lua", "Tile layer format \"" .. data.encoding .. "\" is not supported. Please set the format to CSV in the map properties.")
 
     self.map_width = data.width or map.width
     self.map_height = data.height or map.height
