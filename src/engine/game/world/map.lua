@@ -84,8 +84,6 @@ function Map:load()
     self.world:addChild(self.timer)
     if self.data then
         self:loadMapData(self.data)
-    else
-        self:addTileLayer(0)
     end
     for _, event in ipairs(self.events) do
         if event.onLoad then
