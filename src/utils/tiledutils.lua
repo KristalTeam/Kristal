@@ -29,6 +29,10 @@ end
 function TiledUtils.parsePropertyList(id, properties)
     properties = properties or {}
     if properties[id] then
+        if type(properties[id]) == "table" and TableUtils.isArray(properties[id]) then
+            -- New Tiled list property. Use as-is.
+            return properties[id]
+        end
         -- Numberless property found, return it as the only value in the list
         return { properties[id] }
     else
@@ -55,6 +59,17 @@ end
 ---@return table result    # The list of property values found.
 ---
 function TiledUtils.parsePropertyMultiList(id, properties)
+    if type(properties[id]) == "table" and TableUtils.isArray(properties[id]) then
+        -- New Tiled list properties.
+        for _,v in ipairs(properties[id]) do
+            -- If it's not all nested lists, make it a nested list.
+            if not (type(v) == "table" and TableUtils.isArray(v)) then
+                return { properties[id] }
+            end
+        end
+        -- Use as-is.
+        return properties[id]
+    end
     local single_list = TiledUtils.parsePropertyList(id, properties)
     if #single_list > 0 then
         -- If a shallower list was found (e.g. "id1", "id2" instead of "id1_1", "id1_2"),
