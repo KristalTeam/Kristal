@@ -43,6 +43,8 @@ else
         waiting = 0,
         end_funcs = {}
     }
+
+    Kristal.LoadedModScripts = {}
 end
 
 function Kristal.fetch(url, options)
@@ -1153,6 +1155,7 @@ function Kristal.clearModState()
     Object._clearCache()
     Draw._clearStacks()
     MOD_LOADING = false
+    Kristal.LoadedModScripts = {}
     -- End the current mod
     Kristal.callEvent(KRISTAL_EVENT.unload)
     Mod = nil
@@ -2003,11 +2006,15 @@ end
 ---@return any ...     The returned values from the script.
 ---@diagnostic disable-next-line: lowercase-global
 function modRequire(path, ...)
-    path = path:gsub("%.", "/")
-    local success, result = Kristal.executeModScript(path, ...)
-    if not success then
-        error("No script found: " .. path)
+    if Kristal.LoadedModScripts[path] ~= nil then
+        return Kristal.LoadedModScripts[path]
     end
+    local path_slashes = path:gsub("%.", "/")
+    local success, result = Kristal.executeModScript(path_slashes, ...)
+    if not success then
+        error("No script found: " .. path_slashes)
+    end
+    Kristal.LoadedModScripts[path] = result
     return result
 end
 
