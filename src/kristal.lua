@@ -2012,6 +2012,7 @@ function modRequire(path, ...)
     local success, result
     if StringUtils.startsWith(path, "libraries.") then
         local _,_, lib_id, remaining_path = string.find(path, "libraries%.([^.]*)%.(.*)")
+        assert(lib_id and remaining_path, "Invalid library require syntax. Expected \"libraries.<lib ID>.<script>\"")
         result = libRequire(lib_id, remaining_path)
     else
         local path_slashes = path:gsub("%.", "/")
