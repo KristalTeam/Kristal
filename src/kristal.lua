@@ -2012,7 +2012,6 @@ function modRequire(path, ...)
     local success, result
     if StringUtils.startsWith(path, "libraries.") then
         local _,_, lib_id, remaining_path = string.find(path, "libraries%.([^.]*)%.(.*)")
-        assert(Mod.info.libraries[lib_id])
         result = libRequire(lib_id, remaining_path)
     else
         local path_slashes = path:gsub("%.", "/")
@@ -2032,11 +2031,17 @@ end
 ---@return any ...     The returned values from the script.
 ---@diagnostic disable-next-line: lowercase-global
 function libRequire(lib, path, ...)
+    assert(Mod.info.libs[lib], string.format("Unknown library \"%s\".", lib))
+    local full_path = "libraries." .. lib .. "." ..path
+    if Kristal.LoadedModScripts[full_path] then
+        return Kristal.LoadedModScripts[full_path]
+    end
     path = path:gsub("%.", "/")
     local success, result = Kristal.executeLibScript(lib, path, ...)
     if not success then
         error("No script found: " .. path)
     end
+    Kristal.LoadedModScripts[full_path] = result
     return result
 end
 
