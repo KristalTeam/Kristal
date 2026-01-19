@@ -2009,10 +2009,17 @@ function modRequire(path, ...)
     if Kristal.LoadedModScripts[path] ~= nil then
         return Kristal.LoadedModScripts[path]
     end
-    local path_slashes = path:gsub("%.", "/")
-    local success, result = Kristal.executeModScript(path_slashes, ...)
-    if not success then
-        error("No script found: " .. path_slashes)
+    local success, result
+    if StringUtils.startsWith(path, "libraries.") then
+        local _,_, lib_id, remaining_path = string.find(path, "libraries%.([^.]*)%.(.*)")
+        assert(Mod.info.libraries[lib_id])
+        result = libRequire(lib_id, remaining_path)
+    else
+        local path_slashes = path:gsub("%.", "/")
+        success, result = Kristal.executeModScript(path_slashes, ...)
+        if not success then
+            error("No script found: " .. path_slashes)
+        end
     end
     Kristal.LoadedModScripts[path] = result
     return result
