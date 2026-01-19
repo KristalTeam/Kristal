@@ -1375,6 +1375,8 @@ function Kristal.loadMod(id, save_id, save_name, after)
 
         -- Add the current library to the libs table (again, with the real final value)
         Mod.libs[lib_id] = lib
+        -- Cache the library to be accessible through modRequire/libRequire
+        Kristal.LoadedModScripts["libraries." .. lib_id .. ".lib"] = lib
     end
 
     Kristal.loadModAssets(mod.id, "all", "", after or function()
