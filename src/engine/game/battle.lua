@@ -85,6 +85,7 @@ local Battle, super = Class(Object)
 ---| "DEFENDINGEND" # The state used after defending ends.
 ---| "VICTORY"  # The state used when the player has won the battle.
 ---| "TRANSITIONOUT"  # The state used when transitioning out of battle.
+---| "CUTSCENE" # The state used when a battle cutscene is active.
 
 function Battle:init()
     super.init(self)

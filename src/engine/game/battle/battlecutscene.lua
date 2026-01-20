@@ -29,7 +29,7 @@ function BattleCutscene:update()
     if self.ended then return end
 
     local done_moving = {}
-    for battler,target in pairs(self.move_targets) do
+    for battler, target in pairs(self.move_targets) do
         if battler.x == target[1] and battler.y == target[2] then
             table.insert(done_moving, battler)
         end
@@ -37,7 +37,7 @@ function BattleCutscene:update()
         local ty = MathUtils.approach(battler.y, target[2], target[3] * DTMULT)
         battler:setPosition(tx, ty)
     end
-    for _,v in ipairs(done_moving) do
+    for _, v in ipairs(done_moving) do
         self.move_targets[v] = nil
     end
 
