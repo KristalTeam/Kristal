@@ -4,54 +4,54 @@
 ---
 ---@class ChaserEnemy : Character
 ---
----@field encounter     string  *[Property `encounter`]* The encounter ID that will trigger when the player collides with the enemy.
----@field enemy         string  *[Property `enemy`]* The actor ID to use for this enemy.
----@field group         string  *[Property `group`]* An arbitrary ID that can be be used to group enemies together in a room. When one enemy in a group is defeated, all enemies in the group are defeated as well. 
+---@field encounter string *[Property `encounter`]* The encounter ID that will trigger when the player collides with the enemy.
+---@field enemy string *[Property `enemy`]* The actor ID to use for this enemy.
+---@field group string *[Property `group`]* An arbitrary ID that can be be used to group enemies together in a room. When one enemy in a group is defeated, all enemies in the group are defeated as well. 
 ---
----@field path          string  *[Property `path`]* The name of a path shape in the current map that the enemy will follow.
----@field speed         number  *[Property `speed`]* The speed that the enemy will move along the path specified in `path`, if defined.
+---@field path string *[Property `path`]* The name of a path shape in the current map that the enemy will follow.
+---@field speed number *[Property `speed`]* The speed that the enemy will move along the path specified in `path`, if defined.
 ---
----@field progress      number  *[Property `progress`]* The initial progress of the enemy along their path, if defined, as a decimal value between 0 and 1.
+---@field progress number *[Property `progress`]* The initial progress of the enemy along their path, if defined, as a decimal value between 0 and 1.
 ---
----@field can_chase     boolean *[Property `chase`]* Whether the enemy will chase after players it catches sight of (Defaults to `true`)
----@field chasing       boolean *[Property `chasing`]* Whether the enemy is chasing the player when they enter the room. (Defaults to `false`)
----@field chase_dist    number  *[Property `chasedist`]* The distance, in pixels, that the enemy can see the player from (Defaults to `200`)
+---@field can_chase boolean *[Property `chase`]* Whether the enemy will chase after players it catches sight of (Defaults to `true`)
+---@field chasing boolean *[Property `chasing`]* Whether the enemy is chasing the player when they enter the room. (Defaults to `false`)
+---@field chase_dist number *[Property `chasedist`]* The distance, in pixels, that the enemy can see the player from (Defaults to `200`)
 ---
 ---@field chase_type CHASETYPE *[Property `chasetype`]* The name of the chasetype to use. See [CHASETYPE](lua://CHASETYPE) for available types.
----@field chase_speed   number  *[Property `chasespeed`]* The speed the enemy will chase the player at, in pixels per frame at 30FPS (Defaults to `9`)
----@field chase_max     number  *[Property `chasemax`]* The maximum speed the enemy will chase the player at, if `chase_accel` is set (Speed is uncapped if unset)
----@field chase_accel   number  *[Property `chaseaccel`]* The acceleration of the enemy when chasing the player, in change of pixels per frame at 30FPS, or a multiplier of speed when in `multiplier` mode.
+---@field chase_speed number *[Property `chasespeed`]* The speed the enemy will chase the player at, in pixels per frame at 30FPS (Defaults to `9`)
+---@field chase_max number *[Property `chasemax`]* The maximum speed the enemy will chase the player at, if `chase_accel` is set (Speed is uncapped if unset)
+---@field chase_accel number *[Property `chaseaccel`]* The acceleration of the enemy when chasing the player, in change of pixels per frame at 30FPS, or a multiplier of speed when in `multiplier` mode.
 ---
 ---@field pace_type PACETYPE *[Property `pacetype`]* The type of pacing that the enemy will do while idling. See [PACETYPE](lua://PACETYPE) for available types.
----@field pace_marker   table   *[Property list `marker`]* The name of a marker, or a list of markers that the enemy will pace between when `wander` pacing.
----@field pace_interval number  *[Property `paceinterval`]* The interval between actions when `wander` pacing (Defaults to `24`)
----@field pace_return   boolean *[Property `pacereturn`]* Whether the enemy should return to its spawn point between every point when its `pace_type` is set to `wander` or `randomwander`. (Defaults to `true`)
----@field pace_speed    number  *[Property `pacespeed`]* The speed at which the enemy walks when `wander` pacing (Defaults to `2`)
----@field swing_divisor number  *[Property `swingdiv`]* A divisor for the speed of the swing of this enemy when swing pacing (Higher number = slower) (Defaults to `24`)
----@field swing_length  number  *[Property `swinglength`]* The full length swing covered by this enemy when swing pacing. The enemy placement position is the center of the line (Defaults to `400`)
+---@field pace_marker table *[Property list `marker`]* The name of a marker, or a list of markers that the enemy will pace between when `wander` pacing.
+---@field pace_interval number *[Property `paceinterval`]* The interval between actions when `wander` pacing (Defaults to `24`)
+---@field pace_return boolean *[Property `pacereturn`]* Whether the enemy should return to its spawn point between every point when its `pace_type` is set to `wander` or `randomwander`. (Defaults to `true`)
+---@field pace_speed number *[Property `pacespeed`]* The speed at which the enemy walks when `wander` pacing (Defaults to `2`)
+---@field swing_divisor number *[Property `swingdiv`]* A divisor for the speed of the swing of this enemy when swing pacing (Higher number = slower) (Defaults to `24`)
+---@field swing_length number *[Property `swinglength`]* The full length swing covered by this enemy when swing pacing. The enemy placement position is the center of the line (Defaults to `400`)
 ---
----@field once          boolean *[Property `once`]* Whether this enemy can only be encountered once (Will not respawn when the room reloads) (Defaults to `false`)
+---@field once boolean *[Property `once`]* Whether this enemy can only be encountered once (Will not respawn when the room reloads) (Defaults to `false`)
 ---
----@field aura          boolean *[Property `aura`]* Whether this enemy will have an aura around it as seen with enemies in Deltarune Chapter 2. Overrides the mod-wide config for enemy auras.
+---@field aura boolean *[Property `aura`]* Whether this enemy will have an aura around it as seen with enemies in Deltarune Chapter 2. Overrides the mod-wide config for enemy auras.
 ---
 ---*[Property `actor`]* Actor to use for this enemy \
 ---*[Property `sprite` or `animation`]* Default sprite/animation to set on this enemy
----@field sprite        ActorSprite 
+---@field sprite ActorSprite 
 ---
----@field chase_timer       number
----@field pace_timer        number
----@field chase_init_speed  number
----@field spawn_x           number
----@field spawn_y           number
----@field pace_index        integer
----@field wandering         boolean
----@field return_to_spawn   boolean
----@field noclip            boolean
----@field enemy_collision   boolean
----@field remove_on_encounter   boolean
----@field encountered       boolean
----@field visible           boolean
----@field reverse_progress  boolean
+---@field chase_timer number
+---@field pace_timer number
+---@field chase_init_speed number
+---@field spawn_x number
+---@field spawn_y number
+---@field pace_index integer
+---@field wandering boolean
+---@field return_to_spawn boolean
+---@field noclip boolean
+---@field enemy_collision boolean
+---@field remove_on_encounter boolean
+---@field encountered boolean
+---@field visible boolean
+---@field reverse_progress boolean
 ---
 ---@overload fun(actor: string|Actor, x?: number, y?: number, properties?: table) : ChaserEnemy
 local ChaserEnemy, super = Class(Character, "enemy")
