@@ -17,12 +17,12 @@
 ---@field chasing       boolean *[Property `chasing`]* Whether the enemy is chasing the player when they enter the room. (Defaults to `false`)
 ---@field chase_dist    number  *[Property `chasedist`]* The distance, in pixels, that the enemy can see the player from (Defaults to `200`)
 ---
----@field chase_type    string  *[Property `chasetype`]* The name of the chasetype to use. See [CHASETYPE](lua://CHASETYPE) for available types.
+---@field chase_type CHASETYPE *[Property `chasetype`]* The name of the chasetype to use. See [CHASETYPE](lua://CHASETYPE) for available types.
 ---@field chase_speed   number  *[Property `chasespeed`]* The speed the enemy will chase the player at, in pixels per frame at 30FPS (Defaults to `9`)
 ---@field chase_max     number  *[Property `chasemax`]* The maximum speed the enemy will chase the player at, if `chase_accel` is set (Speed is uncapped if unset)
 ---@field chase_accel   number  *[Property `chaseaccel`]* The acceleration of the enemy when chasing the player, in change of pixels per frame at 30FPS, or a multiplier of speed when in `multiplier` mode.
 ---
----@field pace_type     string  *[Property `pacetype`]* The type of pacing that the enemy will do while idling. See [PACETYPE](lua://PACETYPE) for available types.
+---@field pace_type PACETYPE *[Property `pacetype`]* The type of pacing that the enemy will do while idling. See [PACETYPE](lua://PACETYPE) for available types.
 ---@field pace_marker   table   *[Property list `marker`]* The name of a marker, or a list of markers that the enemy will pace between when `wander` pacing.
 ---@field pace_interval number  *[Property `paceinterval`]* The interval between actions when `wander` pacing (Defaults to `24`)
 ---@field pace_return   boolean *[Property `pacereturn`]* Whether the enemy should return to its spawn point between every point when its `pace_type` is set to `wander` or `randomwander`. (Defaults to `true`)
