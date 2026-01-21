@@ -70,6 +70,7 @@ end
 function Sprite:canDebugSelect()
     if self.debug_select then
         -- Make the sprite unselectable if it's the parent's "sprite" variable
+        ---@diagnostic disable-next-line: undefined-field
         return not self.parent or self.parent.sprite ~= self
     else
         return self.debug_select
@@ -111,9 +112,9 @@ end
 ---@param name string  The relative path of the sprite to get the full path of.
 function Sprite:getPath(name)
     if self.path ~= "" and name ~= "" then
-        return self.path.."/"..name
+        return self.path .. "/" .. name
     else
-        return self.path..name
+        return self.path .. name
     end
 end
 
@@ -179,7 +180,7 @@ function Sprite:setTextureExact(texture)
         self.texture = texture
     end
     if (not self.texture) and (texture ~= nil) then
-        Kristal.Console:warn("Texture not found: " .. Utils.dump(texture))
+        Kristal.Console:warn("Texture not found: " .. TableUtils.dump(texture))
     end
     self.texture_path = Assets.getTextureID(texture)
     if self.use_texture_size then
@@ -274,7 +275,7 @@ function Sprite:setAnimation(anim)
         if anim.next then
             local next = anim.next
             if type(anim.next) == "table" then
-                next = Utils.pick(anim.next)
+                next = TableUtils.pick(anim.next)
             end
             local old_callback = self.anim_callback
             self.anim_callback = function(s)
@@ -286,7 +287,7 @@ function Sprite:setAnimation(anim)
         end
 
         if not has_routine then
-            self.anim_delay = anim[2] or (1/30)
+            self.anim_delay = anim[2] or (1 / 30)
             self.loop = anim[3] or false
             self.anim_frames = self:parseFrames(anim.frames)
 
@@ -308,29 +309,29 @@ end
 function Sprite:parseFrames(frames)
     if not frames then return end
     local t = {}
-    for k,v in ipairs(frames) do
+    for k, v in ipairs(frames) do
         if type(v) == "number" then
             table.insert(t, v)
         elseif type(v) == "string" then
             local arg_i = string.find(v, "-")
             if arg_i then
-                local num1, num2 = tonumber(string.sub(v,1,arg_i-1)), tonumber(string.sub(v,arg_i+1,-1))
-                for i=num1, num2, (num1 < num2) and 1 or -1 do
+                local num1, num2 = tonumber(string.sub(v, 1, arg_i - 1)), tonumber(string.sub(v, arg_i + 1, -1))
+                for i = num1, num2, (num1 < num2) and 1 or -1 do
                     table.insert(t, i)
                 end
             else
                 arg_i = string.find(v, "*")
                 if arg_i then
-                    local num1, num2 = tonumber(string.sub(v,1,arg_i-1)), tonumber(string.sub(v,arg_i+1,-1))
-                    for i=1,num2 do
+                    local num1, num2 = tonumber(string.sub(v, 1, arg_i - 1)), tonumber(string.sub(v, arg_i + 1, -1))
+                    for i = 1, num2 do
                         table.insert(t, num1)
                     end
                 else
-                    error("Could not parse string at frame index "..k)
+                    error("Could not parse string at frame index " .. k)
                 end
             end
         else
-            error("Frame index "..k.." must be either a number or string")
+            error("Frame index " .. k .. " must be either a number or string")
         end
     end
     return t
@@ -366,7 +367,7 @@ function Sprite:play(speed, loop, on_finished)
     if loop == nil then
         loop = true
     end
-    self:setAnimation({nil, speed, loop, callback = on_finished})
+    self:setAnimation({ nil, speed, loop, callback = on_finished })
 end
 
 function Sprite:resume()
@@ -503,13 +504,13 @@ function Sprite:update()
 end
 
 function Sprite:draw()
-    local r,g,b,a = self:getDrawColor()
+    local r, g, b, a = self:getDrawColor()
     local function drawSprite(...)
         if self.crossfade_alpha > 0 and self.crossfade_texture ~= nil then
-            Draw.setColor(r, g, b, self.crossfade_out and Utils.lerp(a, 0, self.crossfade_alpha) or a)
+            Draw.setColor(r, g, b, self.crossfade_out and MathUtils.lerp(a, 0, self.crossfade_alpha) or a)
             Draw.draw(self.texture, ...)
 
-            Draw.setColor(r, g, b, Utils.lerp(0, a, self.crossfade_alpha))
+            Draw.setColor(r, g, b, MathUtils.lerp(0, a, self.crossfade_alpha))
             Draw.draw(self.crossfade_texture, ...)
         else
             Draw.setColor(r, g, b, a)
@@ -533,16 +534,16 @@ function Sprite:draw()
             if self.wrap_texture_x and self.wrap_texture_y then
                 for i = 1, wrap_width do
                     for j = 1, wrap_height do
-                        drawSprite(x_offset + (i-1) * self.texture:getWidth(), y_offset + (j-1) * self.texture:getHeight())
+                        drawSprite(x_offset + (i - 1) * self.texture:getWidth(), y_offset + (j - 1) * self.texture:getHeight())
                     end
                 end
             elseif self.wrap_texture_x then
                 for i = 1, wrap_width do
-                    drawSprite(x_offset + (i-1) * self.texture:getWidth(), 0)
+                    drawSprite(x_offset + (i - 1) * self.texture:getWidth(), 0)
                 end
             elseif self.wrap_texture_y then
                 for j = 1, wrap_height do
-                    drawSprite(0, y_offset + (j-1) * self.texture:getHeight())
+                    drawSprite(0, y_offset + (j - 1) * self.texture:getHeight())
                 end
             end
         else

@@ -36,7 +36,7 @@ local function include_helper(to, from, seen)
     end
 
     seen[from] = to
-    for k,v in pairs(from) do
+    for k, v in pairs(from) do
         if from.__dont_include and from.__dont_include[k] then
             -- skip
         else
@@ -59,7 +59,7 @@ function _self.clone(other)
 end
 
 local function get_all_includes(class)
-    local includes = {[class] = true}
+    local includes = { [class] = true }
     for _, other in ipairs(class.__includes) do
         if type(other) == "string" then
             other = _G[other]
@@ -82,7 +82,7 @@ function _self.new(class)
     -- mixins
     class = class or {}  -- class can be nil
     class.__includes = class.__includes or {}
-    if getmetatable(class.__includes) then class.__includes = {class.__includes} end
+    if getmetatable(class.__includes) then class.__includes = { class.__includes } end
 
     class.__includes_all = get_all_includes(class)
 
@@ -95,12 +95,12 @@ function _self.new(class)
 
     -- class implementation
     class.__index  = class
-    class.init     = class.init     or class[1] or function() end
-    class.include  = class.include  or _self.include
+    class.init     = class.init or class[1] or function() end
+    class.include  = class.include or _self.include
     class.includes = class.includes or _self.includes
-    class.clone    = class.clone    or _self.clone
+    class.clone    = class.clone or _self.clone
 
-    class.canDeepCopy    = class.canDeepCopy    or function() return true end
+    class.canDeepCopy    = class.canDeepCopy or function() return true end
     class.canDeepCopyKey = class.canDeepCopyKey or function(key) return true end
 
     -- keys that shouldn't be included from this class
@@ -118,6 +118,7 @@ function _self.new(class)
     return setmetatable(class, {__call = function(c, ...)
         ---@type Class
         local o = setmetatable({}, c)
+        ---@diagnostic disable-next-line: invisible
         o:init(...)
         return o
     end})
@@ -129,11 +130,11 @@ if class_commons ~= false and not common then
     ---@diagnostic disable-next-line: lowercase-global
     common = common or {}
     function common.class(name, prototype, parent)
-        return _self.new{__includes = {prototype, parent}}
+        return _self.new({ __includes = { prototype, parent } })
     end
     function common.instance(class, ...)
         return class(...)
     end
 end
 
-return setmetatable(_self, {__call = function(_,...) return _self.new(...) end})
+return setmetatable(_self, { __call = function(_, ...) return _self.new(...) end })

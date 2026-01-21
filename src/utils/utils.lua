@@ -698,6 +698,7 @@ end
 ---@return number new_x # The horizontal position of the new point.
 ---@return number new_y # The vertical position of the new point.
 ---
+---@deprecated Use `MathUtils.lerpPoint` instead. As it does not clamp by default, clamp the percentage yourself if needed.
 function Utils.lerpPoint(x1, y1, x2, y2, t, oob)
     local percentage = oob and t or MathUtils.clamp(t, 0, 1)
     return MathUtils.lerpPoint(x1, y1, x2, y2, percentage)

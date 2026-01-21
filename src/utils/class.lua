@@ -15,7 +15,7 @@ return function(include, id)
         if type(include) == "string" then
             local r = CLASS_NAME_GETTER(include)
             if not r then
-                error{included=include, msg="Failed to include "..include}
+                error({ included = include, msg = "Failed to include " .. include })
             end
             if id == true then
                 id = r.id or include
@@ -27,15 +27,15 @@ return function(include, id)
     local class, super = _Class(o), setmetatable({}, {__index = function(t, k)
         if k == "super" then
             if include ~= nil then
-                include = getmetatable(include) and {include} or include
+                include = getmetatable(include) and { include } or include
                 return include[1].__super
             end
             return nil
         end
         return function(a, ...)
             if include ~= nil then
-                include = getmetatable(include) and {include} or include
-                for _,c in ipairs(include) do
+                include = getmetatable(include) and { include } or include
+                for _, c in ipairs(include) do
                     if c[k] then
                         if a == t then
                             error("\"super:" .. k .. "(self)\" used, expected \"super." .. k .. "(self)\"", 2)
@@ -50,7 +50,7 @@ return function(include, id)
     class.id = id
     class.__super = super
     class.__includers = {}
-    for c,_ in pairs(class.__includes_all) do
+    for c, _ in pairs(class.__includes_all) do
         if c ~= class then
             c.__includers = c.__includers or {}
             table.insert(c.__includers, class)

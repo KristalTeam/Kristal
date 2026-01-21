@@ -11,9 +11,9 @@ GonerKeyboard.MODES = {
         step_y = 40,
         name_y = 80,
         keyboard = {
-            {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"},
-            {"K", "L", "M", "N", "O", "P", "Q", "R", "S", "T"},
-            {"U", "V", "W", "X", "Y", "Z", "BACK", "<<", "END", "<<"}
+            { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J" },
+            { "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T" },
+            { "U", "V", "W", "X", "Y", "Z", "BACK", "<<", "END", "<<" }
         }
     },
     ["lowercase"] = {
@@ -23,12 +23,12 @@ GonerKeyboard.MODES = {
         step_y = 40,
         name_y = 80,
         keyboard = {
-            {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"},
-            {"K", "L", "M", "N", "O", "P", "Q", "R", "S", "T"},
-            {"U", "V", "W", "X", "Y", "Z", "vv", "vv", "vv", "vv"},
-            {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"},
-            {"k", "l", "m", "n", "o", "p", "q", "r", "s", "t"},
-            {"u", "v", "w", "x", "y", "z", "BACK", "<<", "END", "<<"}
+            { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J" },
+            { "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T" },
+            { "U", "V", "W", "X", "Y", "Z", "vv", "vv", "vv", "vv" },
+            { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j" },
+            { "k", "l", "m", "n", "o", "p", "q", "r", "s", "t" },
+            { "u", "v", "w", "x", "y", "z", "BACK", "<<", "END", "<<" }
         }
     }
 }
@@ -81,7 +81,7 @@ function GonerKeyboard:setMode(mode)
 
     -- Fill out defaults
     self.mode = TableUtils.copy(GonerKeyboard.MODES["default"])
-    Utils.merge(self.mode, mode)
+    TableUtils.merge(self.mode, mode)
 
     local choices = self:createKeyboardChoices(self.mode)
     self.choicer:setChoices(choices)
@@ -95,7 +95,7 @@ function GonerKeyboard:createKeyboardChoices(mode)
         local choice_row = {}
         table.insert(key_choices, choice_row)
         for x, key in ipairs(row) do
-            table.insert(choice_row, {key, mode.x + (x - 1) * mode.step_x, mode.y + (y - 1) * mode.step_y})
+            table.insert(choice_row, { key, mode.x + (x - 1) * mode.step_x, mode.y + (y - 1) * mode.step_y })
         end
     end
     return key_choices

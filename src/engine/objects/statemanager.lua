@@ -47,7 +47,7 @@ function StateManager:addState(state, events)
         events = events.registered_events
     end
 
-    for event,func in pairs(events or {}) do
+    for event, func in pairs(events or {}) do
         local event_name = event:lower()
         self.state_events[event_name] = self.state_events[event_name] or {}
         self.state_events[event_name][state] = func
@@ -57,7 +57,7 @@ function StateManager:addState(state, events)
 end
 
 function StateManager:removeState(state)
-    for _,state_callbacks in pairs(self.state_events or {}) do
+    for _, state_callbacks in pairs(self.state_events or {}) do
         state_callbacks[state] = nil
     end
     self.has_state[state] = nil
@@ -73,7 +73,7 @@ function StateManager:getHandler(state)
 end
 
 function StateManager:addEvent(event, state_callbacks)
-    Utils.merge(self.state_events[event:lower()], state_callbacks or {})
+    TableUtils.merge(self.state_events[event:lower()], state_callbacks or {})
 end
 
 function StateManager:removeEvent(event)
@@ -101,7 +101,7 @@ function StateManager:call(event, ...)
 end
 
 function StateManager:doIf(...)
-    local args = {...}
+    local args = { ... }
     if #args == 1 and type(args[1]) == "table" then
         if args[1][self.state] then
             args[1][self.state](self.master)
@@ -109,7 +109,7 @@ function StateManager:doIf(...)
     else
         for i = 1, #args, 2 do
             if self.state == args[i] then
-                args[i+1](self.master)
+                args[i + 1](self.master)
                 break
             end
         end
@@ -157,7 +157,7 @@ function StateManager:setState(state, ...)
         self:call("init")
         self.state_initialized[self.state] = true
     end
-    self.args = {...}
+    self.args = { ... }
     local redirect, redirect_args = self:call("enter", last_state, ...)
     if self.on_state_change then
         self.on_state_change(last_state, state, ...)
@@ -173,11 +173,11 @@ function StateManager:setState(state, ...)
     self.routine_wait = 0
     if self:hasEvent("coroutine") then
         local function wait(time)
-            self.routine_wait =  time
+            self.routine_wait = time
             coroutine.yield()
         end
-        local args = {...}
-        self.routine = coroutine.create(function() self:call("coroutine", wait, Utils.unpack(args)) end)
+        local args = { ... }
+        self.routine = coroutine.create(function() self:call("coroutine", wait, TableUtils.unpack(args)) end)
     else
         self.routine = nil
     end
@@ -200,7 +200,7 @@ function StateManager:pushState(state, ...)
     table.insert(self.routine_stack, self.routine or "no")
 
     self.state = state
-    self.args = {...}
+    self.args = { ... }
     self.routine = nil
 
     if not self.state_initialized[self.state] then
@@ -224,11 +224,11 @@ function StateManager:pushState(state, ...)
     self.routine_wait = 0
     if self:hasEvent("coroutine") then
         local function wait(time)
-            self.routine_wait =  time
+            self.routine_wait = time
             coroutine.yield()
         end
-        local args = {...}
-        self.routine = coroutine.create(function() self:call("coroutine", wait, Utils.unpack(args)) end)
+        local args = { ... }
+        self.routine = coroutine.create(function() self:call("coroutine", wait, TableUtils.unpack(args)) end)
     end
 end
 

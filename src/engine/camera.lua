@@ -223,7 +223,7 @@ end
 ---@param y number
 ---@param amount number
 function Camera:approach(x, y, amount)
-    local angle = Utils.angle(self.x, self.y, x, y)
+    local angle = MathUtils.angle(self.x, self.y, x, y)
     self.x = MathUtils.approach(self.x, x, math.abs(math.cos(angle)) * amount)
     self.y = MathUtils.approach(self.y, y, math.abs(math.sin(angle)) * amount)
     self:keepInBounds()
@@ -523,10 +523,10 @@ function Camera:moveTo(x, y)
         self.lerper.timer = MathUtils.approach(self.lerper.timer, self.lerper.time, DT)
 
         if approach_x and approach_y then
-            self.x, self.y = Utils.lerpPoint(
+            self.x, self.y = MathUtils.lerpPoint(
                 self.lerper.start_x, self.lerper.start_y,
                 target_x, target_y,
-                self.lerper.timer / self.lerper.time)
+                MathUtils.clamp(self.lerper.timer / self.lerper.time, 0, 1))
         elseif approach_x then
             self.x = MathUtils.lerp(self.lerper.start_x, target_x, MathUtils.clamp(self.lerper.timer / self.lerper.time, 0, 1))
             self.y = target_y
