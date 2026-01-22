@@ -209,10 +209,10 @@ function DarkItemMenu:update()
                     self:updateSelectedItem()
                 end)
             elseif item.usable_in == "world" or item.usable_in == "all" then
-                if item.target == "ally" or item.target == "party" then
+                if item:getTarget() == "ally" or item:getTarget() == "party" then
                     self.state = "USE"
 
-                    local target_type = item.target == "ally" and "SINGLE" or "ALL"
+                    local target_type = item:getTarget() == "ally" and "SINGLE" or "ALL"
 
                     if target_type == "SINGLE" then -- yep, deltarune bug
                         self.ui_select:stop()

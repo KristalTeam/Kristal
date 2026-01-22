@@ -114,15 +114,15 @@ function ActionButton:select()
                 ["callback"] = function(menu_item)
                     Game.battle.selected_spell = menu_item
 
-                    if not spell.target or spell.target == "none" then
+                    if not spell:getTarget() or spell:getTarget() == "none" then
                         Game.battle:pushAction("SPELL", nil, menu_item)
-                    elseif spell.target == "ally" then
+                    elseif spell:getTarget() == "ally" then
                         Game.battle:setState("PARTYSELECT", "SPELL")
-                    elseif spell.target == "enemy" then
+                    elseif spell:getTarget() == "enemy" then
                         Game.battle:setState("ENEMYSELECT", "SPELL")
-                    elseif spell.target == "party" then
+                    elseif spell:getTarget() == "party" then
                         Game.battle:pushAction("SPELL", Game.battle.party, menu_item)
-                    elseif spell.target == "enemies" then
+                    elseif spell:getTarget() == "enemies" then
                         Game.battle:pushAction("SPELL", Game.battle:getActiveEnemies(), menu_item)
                     end
                 end
@@ -141,15 +141,15 @@ function ActionButton:select()
                 ["callback"] = function(menu_item)
                     Game.battle.selected_item = menu_item
 
-                    if not item.target or item.target == "none" then
+                    if not item:getTarget() or item:getTarget() == "none" then
                         Game.battle:pushAction("ITEM", nil, menu_item)
-                    elseif item.target == "ally" then
+                    elseif item:getTarget() == "ally" then
                         Game.battle:setState("PARTYSELECT", "ITEM")
-                    elseif item.target == "enemy" then
+                    elseif item:getTarget() == "enemy" then
                         Game.battle:setState("ENEMYSELECT", "ITEM")
-                    elseif item.target == "party" then
+                    elseif item:getTarget() == "party" then
                         Game.battle:pushAction("ITEM", Game.battle.party, menu_item)
-                    elseif item.target == "enemies" then
+                    elseif item:getTarget() == "enemies" then
                         Game.battle:pushAction("ITEM", Game.battle:getActiveEnemies(), menu_item)
                     end
                 end
