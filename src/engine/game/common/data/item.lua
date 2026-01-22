@@ -285,6 +285,8 @@ function Item:getPrice() return self.price end
 function Item:getBuyPrice() return self.buy_price or self:getPrice() end
 function Item:getSellPrice() return self.sell_price or math.ceil(self:getPrice()/2) end
 
+function Item:getTarget() return self.target end
+
 function Item:isSellable() return self.can_sell end
 
 function Item:getStatBonuses() return self.bonuses end

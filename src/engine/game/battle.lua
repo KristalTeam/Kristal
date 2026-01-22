@@ -1662,13 +1662,13 @@ function Battle:powerAct(spell, battler, user, target)
     }
 
     if target == nil then
-        if spell.target == "ally" then
+        if spell:getTarget() == "ally" then
             target = user_battler
-        elseif spell.target == "party" then
+        elseif spell:getTarget() == "party" then
             target = self.party
-        elseif spell.target == "enemy" then
+        elseif spell:getTarget() == "enemy" then
             target = self:getActiveEnemies()[1]
-        elseif spell.target == "enemies" then
+        elseif spell:getTarget() == "enemies" then
             target = self:getActiveEnemies()
         end
     end
@@ -3185,15 +3185,15 @@ end
 ---@param default_enemy?    EnemyBattler
 ---@return PartyBattler[]|EnemyBattler[]|nil
 function Battle:getTargetForItem(item, default_ally, default_enemy)
-    if not item.target or item.target == "none" then
+    if not item:getTarget() or item:getTarget() == "none" then
         return nil
-    elseif item.target == "ally" then
+    elseif item:getTarget() == "ally" then
         return default_ally or self.party[1]
-    elseif item.target == "enemy" then
+    elseif item:getTarget() == "enemy" then
         return default_enemy or self:getActiveEnemies()[1]
-    elseif item.target == "party" then
+    elseif item:getTarget() == "party" then
         return self.party
-    elseif item.target == "enemies" then
+    elseif item:getTarget() == "enemies" then
         return self:getActiveEnemies()
     end
 end

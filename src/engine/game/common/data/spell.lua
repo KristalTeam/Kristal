@@ -60,6 +60,10 @@ function Spell:getTPCost(chara) return self.cost end
 ---@return boolean
 function Spell:isUsable(chara) return self.usable end
 
+--- Gets the target of this spell
+---@return string
+function Spell:getTarget() return self.target end
+
 --- *(Override)* Gets whether the spell can be cast in the world \
 --- *(Always false by default)*
 ---@param chara PartyMember The `PartyMember` the check is being run for
