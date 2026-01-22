@@ -98,7 +98,7 @@ end
 
 --- Get the invulnerability time that will be applied to the soul upon this bullet hitting it.
 ---@return number
-function Bullet:getInvTimer()
+function Bullet:getInvulnTime()
     return self.inv_timer
 end
 
@@ -111,7 +111,7 @@ function Bullet:onDamage(soul)
     if damage > 0 then
         local target = self:getTarget()
         local battlers = Game.battle:hurt(damage, false, target, self:shouldSwoon(damage, target, soul))
-        soul.inv_timer = self:getInvTimer()
+        soul.inv_timer = self:getInvulnTime()
         soul:onDamage(self, damage)
         return battlers
     end
