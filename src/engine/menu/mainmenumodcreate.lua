@@ -181,16 +181,16 @@ end
 
 function MainMenuModCreate:draw()
     love.graphics.setFont(Assets.getFont("main"))
-    Draw.printShadow("Create New Mod", 0, 48, 2, "center", 640)
+    Draw.printShadow("Create New Project", 0, 48, 2, "center", 640)
 
     local menu_x = 64
     local menu_y = 128
 
-    self:drawInputLine("Mod name: ", menu_x, menu_y + (32 * 0), "name")
-    self:drawInputLine("Mod ID:   ", menu_x, menu_y + (32 * 1), "id")
+    self:drawInputLine("Project name: ", menu_x, menu_y + (32 * 0), "name")
+    self:drawInputLine("Project ID:   ", menu_x, menu_y + (32 * 1), "id")
     Draw.printShadow("Base chapter: ", menu_x, menu_y + (32 * 2))
     Draw.printShadow("Edit feature config", menu_x, menu_y + (32 * 3))
-    Draw.printShadow("Create mod", menu_x, menu_y + (32 * 5))
+    Draw.printShadow("Create project", menu_x, menu_y + (32 * 5))
 
     local off = 256
     self:drawSelectionField(menu_x + off, menu_y + (32 * 2), "chapter", self.chapter_options, "CHAPTER")
@@ -199,11 +199,11 @@ function MainMenuModCreate:draw()
     Draw.setColor(COLORS.silver)
 
     if self.selected_option == 1 then
-        Draw.printShadow("The name of your mod. Shows in the menu.", 0, 480 - 32, 2, "center", 640)
+        Draw.printShadow("The name of your project. Shows in the menu.", 0, 480 - 32, 2, "center", 640)
     elseif self.selected_option == 2 then
-        Draw.printShadow("The ID of your mod. Must be unique.", 0, 480 - 32, 2, "center", 640)
+        Draw.printShadow("The ID of your project. Must be unique.", 0, 480 - 32, 2, "center", 640)
     elseif self.selected_option == 3 then
-        Draw.printShadow("The chapter to base your mod off of in", 0, 480 - 64 - 32, 2, "center", 640)
+        Draw.printShadow("The chapter to base your project off of in", 0, 480 - 64 - 32, 2, "center", 640)
         Draw.printShadow("terms of features. Individual features", 0, 480 - 64, 2, "center", 640)
         Draw.printShadow("can be toggled in the config.", 0, 480 - 32, 2, "center", 640)
     elseif self.selected_option == 4 then
@@ -216,7 +216,7 @@ function MainMenuModCreate:draw()
             Draw.setColor(1, 0.6, 0.6)
             Draw.printShadow("You must enter a valid name.", 0, 480 - 32, 2, "center", 640)
         else
-            Draw.printShadow("Create the mod.", 0, 480 - 32, 2, "center", 640)
+            Draw.printShadow("Create the project.", 0, 480 - 32, 2, "center", 640)
         end
     end
 
@@ -462,8 +462,8 @@ end
 function MainMenuModCreate:drawInputLine(name, x, y, id)
     Draw.printShadow(name, x, y)
     love.graphics.setLineWidth(2)
-    local line_x  = x + 128 + 32 + 16
-    local line_x2 = line_x + 416 - 32
+    local line_x  = x + 128 + 32 + 16 + 64
+    local line_x2 = line_x + 416 - 32 - 64
     local line_y = 32 - 4 - 1 + 2
     Draw.setColor(0, 0, 0)
     love.graphics.line(line_x + 2, y + line_y + 2, line_x2 + 2, y + line_y + 2)

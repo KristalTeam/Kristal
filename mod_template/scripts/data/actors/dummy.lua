@@ -11,10 +11,10 @@ function actor:init()
     self.height = 45
 
     -- Hitbox for this actor in the overworld (optional, uses width and height by default)
-    self.hitbox = {0, 25, 19, 14}
+    self.hitbox = { 0, 25, 19, 14 }
 
     -- Color for this actor used in outline areas (optional, defaults to red)
-    self.color = {1, 0, 0}
+    self.color = { 1, 0, 0 }
 
     -- Whether this actor flips horizontally (optional, values are "right" or "left", indicating the flip direction)
     self.flip = nil
@@ -41,13 +41,13 @@ function actor:init()
     self.animations = {
         -- Looping animation with 0.25 seconds between each frame
         -- (even though there's only 1 idle frame)
-        ["idle"] = {"idle", 0.25, true},
+        ["idle"] = { "idle", 0.25, true },
     }
 
     -- Table of sprite offsets (indexed by sprite name)
     self.offsets = {
         -- Since the width and height is the idle sprite size, the offset is 0,0
-        ["idle"] = {0, 0},
+        ["idle"] = { 0, 0 },
     }
 end
 
