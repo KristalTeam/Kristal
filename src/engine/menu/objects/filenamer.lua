@@ -86,6 +86,28 @@ function FileNamer:checkTransition(old, new)
     end
 end
 
+--- Checks whether a user input is a match for a specific naming condition.
+---@param input string  The user input string.
+---@param name string   The current name condition being assessed. If the name begins with `~`, the check will be case-sensitive.
+---@return boolean is_match
+local function checkNameEventMatch(input, name)
+    local prefix = StringUtils.sub(name, 1, 1)
+    
+    local case_sensitive = prefix == "~"
+
+    -- Remove the prefix if it is present as we don't want it in the actual name check
+    if prefix == "\\" or prefix == "~" then
+        name = StringUtils.sub(name, 2, -1)
+    end
+
+    if not case_sensitive then
+        input = input:lower()
+        name = name:lower()
+    end
+
+    return input == name
+end
+
 function FileNamer:setState(state)
     if state == self.state then return end
 
@@ -108,7 +130,7 @@ function FileNamer:setState(state)
             end,
             function(key, x, y, namer)
                 for _, v in pairs(self.crash_names) do
-                    if namer.text .. key == v then
+                    if checkNameEventMatch(namer.text .. key, v) then
                         love.audio.stop()
                         self.stage.timescale = 0
                         for _, child in ipairs(self.stage.children) do
@@ -127,7 +149,7 @@ function FileNamer:setState(state)
     elseif state == "CONFIRM" then
         local confirm_text = self.confirm_text
         for k, v in pairs(self.name_messages) do
-            if k == self.name then
+            if checkNameEventMatch(self.name, k) then
                 confirm_text = v
             end
         end
@@ -139,7 +161,7 @@ function FileNamer:setState(state)
         self.name_zoom = 0
         local allow = true
         for _, v in pairs(self.deny_names) do
-            if v == self.name then
+            if checkNameEventMatch(self.name, v) then
                 allow = false
             end
         end
