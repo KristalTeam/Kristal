@@ -126,7 +126,9 @@ function ActionButton:onMagicSelect()
     self:registerXActions()
     self:registerSpells()
 
-    Game.battle:setState("MENUSELECT", "SPELL")
+    if #Game.battle.menu_items > 0 then
+        Game.battle:setState("MENUSELECT", "SPELL")
+    end
 end
 
 function ActionButton:onItemSelect()
