@@ -129,7 +129,9 @@ function ActionButton:select()
             })
         end
 
-        Game.battle:setState("MENUSELECT", "SPELL")
+        if #Game.battle.menu_items > 0 then
+            Game.battle:setState("MENUSELECT", "SPELL")
+        end
     elseif self.type == "item" then
         Game.battle:clearMenuItems()
         for i,item in ipairs(Game.inventory:getStorage("items")) do
