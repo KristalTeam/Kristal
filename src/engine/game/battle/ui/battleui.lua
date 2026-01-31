@@ -349,24 +349,26 @@ function BattleUI:drawState()
         end
 
         -- Print information about currently selected item
-        local tp_offset, _ = 0, nil --initialize placeholdder variable so it doenst go in global scope
         local current_item = Game.battle.menu_items[Game.battle:getItemIndex()]
-        if current_item.description then
-            Draw.setColor(COLORS.gray)
-            love.graphics.print(current_item.description, 260 + 240, 50)
-            Draw.setColor(1, 1, 1, 1)
-            _, tp_offset = current_item.description:gsub('\n', '\n')
-            tp_offset = tp_offset + 1
-        end
+        if current_item then
+            local tp_offset, _ = 0, nil --initialize placeholdder variable so it doenst go in global scope
+            if current_item.description then
+                Draw.setColor(COLORS.gray)
+                love.graphics.print(current_item.description, 260 + 240, 50)
+                Draw.setColor(1, 1, 1, 1)
+                _, tp_offset = current_item.description:gsub('\n', '\n')
+                tp_offset = tp_offset + 1
+            end
 
-        if current_item.tp and current_item.tp ~= 0 then
-            Draw.setColor(PALETTE["tension_desc"])
-            love.graphics.print(
-                math.floor((current_item.tp / Game:getMaxTension()) * 100) .. "% " .. Game:getConfig("tpName"), 260 + 240, 50 + (tp_offset * 32)
-            )
-            Game:setTensionPreview(current_item.tp)
-        else
-            Game:setTensionPreview(0)
+            if current_item.tp and current_item.tp ~= 0 then
+                Draw.setColor(PALETTE["tension_desc"])
+                love.graphics.print(
+                    math.floor((current_item.tp / Game:getMaxTension()) * 100) .. "% " .. Game:getConfig("tpName"), 260 + 240, 50 + (tp_offset * 32)
+                )
+                Game:setTensionPreview(current_item.tp)
+            else
+                Game:setTensionPreview(0)
+            end
         end
 
         Draw.setColor(1, 1, 1, 1)
@@ -493,7 +495,7 @@ function BattleUI:drawState()
 
                     Draw.setColor(128 / 255, 128 / 255, 128 / 255, 1)
 
-                    
+
                     if ((80 + namewidth + 60 + (font:getWidth(enemy.comment) / 2)) < 415) then
                         love.graphics.print(enemy.comment, 80 + namewidth + 60, 50 + y_off)
                     else
