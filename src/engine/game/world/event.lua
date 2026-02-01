@@ -126,13 +126,15 @@ end
 --- Called when the event is removed
 ---@param parent World|Event
 function Event:onRemove(parent)
-    if self.data then
+    if self.world then
         TableUtils.removeValue(self.world.map.events, self)
-        if self.world.map.events_by_name[self.data.name] then
-            TableUtils.removeValue(self.world.map.events_by_name[self.data.name], self)
-        end
-        if self.world.map.events_by_id[self.data.id] then
-            TableUtils.removeValue(self.world.map.events_by_id[self.data.id], self)
+        if self.data then
+            if self.world.map.events_by_name[self.data.name] then
+                TableUtils.removeValue(self.world.map.events_by_name[self.data.name], self)
+            end
+            if self.world.map.events_by_id[self.data.id] then
+                TableUtils.removeValue(self.world.map.events_by_id[self.data.id], self)
+            end
         end
         if self.layer_name and self.world.map.events_by_layer[self.layer_name] then
             TableUtils.removeValue(self.world.map.events_by_layer[self.layer_name], self)
