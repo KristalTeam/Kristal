@@ -357,8 +357,8 @@ end
 ---
 ---Lerps between two angles properly accounting for wrap arounds
 ---
----@param from number # The starting angle
----@param to number # The starting angle
+---@param from number # The starting angle (in radians)
+---@param to number # The target angle (in radians)
 ---@param factor number # The interpolation factor (0-1)
 ---@return number result # The interpolated angle
 ---
