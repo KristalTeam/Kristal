@@ -184,7 +184,7 @@ end
 
 --- Gets a specific event present in the current map.
 ---@param id string|number  The unique numerical id of an event OR the text id of an event type to get the first instance of.
----@return Event? event The event instnace, or `nil` if it was not found. 
+---@return Event? event The event instnace, or `nil` if it was not found.
 function Map:getEvent(id)
     if type(id) == "number" then
         return self.events_by_id[id]
@@ -671,6 +671,7 @@ function Map:loadObjects(layer, depth, layer_type)
                         obj.unique_id = v.properties["uid"]
                     end
                     obj.layer = depth
+                    obj.layer_name = layer.name
                     obj.data = v
 
                     if v.properties["usetile"] and v.gid and obj.applyTileObject then
