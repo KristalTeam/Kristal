@@ -334,7 +334,7 @@ function Character:walkToSpeed(x, y, speed, facing, keep_facing, after)
     return false
 end
 
---- Walks the character along a given path. 
+--- Walks the character along a given path.
 ---@param path      string|table        The name of a path in the current map file, or a table defining several points (as additional tables) that constitute a path.
 ---@param options   table               A table defining additional properties to control the walk.
 ---|"facing" # The direction the character should face when they finish their walk. If `keep_facing` is `true`, they will instead face way immediately.
@@ -480,40 +480,38 @@ function Character:jumpTo(x, y, speed, time, jump_sprite, land_sprite)
         speed = y
         x, y = self.world.map:getMarker(x)
     end
+
     self.jump_start_x = self.x
     self.jump_start_y = self.y
-    self.jump_x = x
-    self.jump_y = y
+    self.jump_dest_x = x
+    self.jump_dest_y = y
     self.jump_speed = speed or 0
     self.jump_time = time or 1
+
     self.jump_sprite = jump_sprite
     self.land_sprite = land_sprite
-    self.fake_gravity = 0
-    self.jump_arc_y = 0
-    self.jump_timer = 0
-    self.real_y = 0
-    self.drawshadow = false
-    --dark = (global.darkzone + 1)
     self.jump_use_sprites = false
-    self.jump_sprite_timer = 0
-    self.jump_progress = 0
-    self.init = false
-
     if (jump_sprite ~= nil) then
         self.jump_use_sprites = true
     end
-    self.drawshadow = false
+
+    self.jump_init = false
+    self.jump_progress = 0
+    self.jump_timer = 0
+    self.jump_sprite_timer = 0
+    self.jump_fake_gravity = 0
+    self.jump_arc_y = 0
 
     self.jumping = true
 end
 
 function Character:processJump()
-    if (not self.init) then
-        self.fake_gravity = (self.jump_speed / ((self.jump_time * 30) * 0.5))
-        self.init = true
+    if (not self.jump_init) then
+        self.jump_fake_gravity = (self.jump_speed / ((self.jump_time * 30) * 0.5))
+        self.jump_init = true
 
-        self.false_end_x = self.jump_x
-        self.false_end_y = self.jump_y
+        self.jump_false_end_x = self.jump_dest_x
+        self.jump_false_end_y = self.jump_dest_y
         if (self.jump_use_sprites) then
             self.sprite:set(self.land_sprite)
 
@@ -524,14 +522,14 @@ function Character:processJump()
                 {
                     self.x = self.x - 4
                     self.y = self.y + 2
-                    self.false_end_x  = self.false_end_x  - 8
+                    self.jump_false_end_x  = self.jump_false_end_x  - 8
                     self.jump_start_x = self.jump_start_x - 8
                     self.jump_start_y = self.jump_start_y - 8
                 }
                 if (landsprite == spr_susie_dw_landed)
                 {
                     self.x = self.x - 8
-                    self.false_end_x = self.false_end_x - 8
+                    self.jump_false_end_x = self.jump_false_end_x - 8
                     self.jump_start_x = self.jump_start_x + 12
                     self.jump_start_y = self.jump_start_y - 12
                 }
@@ -540,8 +538,8 @@ function Character:processJump()
                     self.y = self.y + 4
                     self.jump_start_y = self.jump_start_y + 8
                     self.jump_start_x = self.jump_start_x -  12
-                    self.false_end_x = self.false_end_x - 6
-                    self.false_end_y = self.false_end_y + 4
+                    self.jump_false_end_x = self.jump_false_end_x - 6
+                    self.jump_false_end_y = self.jump_false_end_y + 4
                 }
                 if (jumpsprite == spr_ralsei_jump)
                 {
@@ -563,17 +561,16 @@ function Character:processJump()
     end
     if (self.jump_progress == 2) then
         self.jump_timer = self.jump_timer + DT
-        self.jump_speed = self.jump_speed - (self.fake_gravity * DTMULT)
+        self.jump_speed = self.jump_speed - (self.jump_fake_gravity * DTMULT)
         self.jump_arc_y = self.jump_arc_y - (self.jump_speed * DTMULT)
-        self.x = MathUtils.lerp(self.jump_start_x, self.false_end_x, (self.jump_timer / self.jump_time))
-        self.real_y = MathUtils.lerp(self.jump_start_y, self.false_end_y, (self.jump_timer / self.jump_time))
 
-        self.x = self.x
-        self.y = self.real_y + self.jump_arc_y
+        self.x = MathUtils.lerp(self.jump_start_x, self.jump_false_end_x, (self.jump_timer / self.jump_time))
+        local real_y = MathUtils.lerp(self.jump_start_y, self.jump_false_end_y, (self.jump_timer / self.jump_time))
+        self.y = real_y + self.jump_arc_y
 
         if (self.jump_timer >= self.jump_time) then
-            self.x = self.jump_x
-            self.y = self.jump_y
+            self.x = self.jump_dest_x
+            self.y = self.jump_dest_y
 
             self.jump_progress = 3
             self.jump_sprite_timer = 0
