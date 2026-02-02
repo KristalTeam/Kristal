@@ -684,6 +684,8 @@ end
 
 
 function Text:getCharPosition(node, state)
+    -- Shake and wave overriding setting state.offset_x/y is intentional, as these effects aren't supposed to stack
+
     if state.shake > 0 then
         if self.timer - state.last_shake >= (1 * DTMULT) then
             state.last_shake = self.timer
