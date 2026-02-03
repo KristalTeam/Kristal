@@ -363,10 +363,10 @@ end
 ---@return number result # The interpolated angle
 ---
 function MathUtils.lerpAngle(from, to, factor)
-    local cs = (1-factor)*math.cos(from) + factor*math.cos(to)
-    local sn = (1-factor)*math.sin(from) + factor*math.sin(to)
+    local cos = (1 - factor) * math.cos(from) + factor * math.cos(to)
+    local sin = (1 - factor) * math.sin(from) + factor * math.sin(to)
 
-    return math.atan2(sn, cs)
+    return math.atan2(sin, cos)
 end
 
 return MathUtils
