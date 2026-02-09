@@ -1,7 +1,8 @@
+---@class Squeak : Event
 local Squeak, super = Class(Event)
 
-function Squeak:init(data)
-    super.init(self, data)
+function Squeak:init(x, y, shape)
+    super.init(self, x, y, shape)
 end
 
 function Squeak:onInteract(player, dir)
