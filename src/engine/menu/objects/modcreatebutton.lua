@@ -5,7 +5,7 @@ local ModCreateButton, super = Class(Object)
 function ModCreateButton:init(width, height)
     super.init(self, 0, 0, width, height)
 
-    self.name = "Create a new mod"
+    self.name = "Create a new project"
     self.subtitle = ""
 
     self.selected = false
