@@ -11,23 +11,28 @@ function BattleUI:init()
         text = Game.battle.encounter.text
     }
 
-    self.encounter_text = Textbox(30, 53, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, "main_mono", nil, true)
+    self.encounter_text = Textbox(30, 53 + 325, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, "main_mono", nil, true)
     self.encounter_text.text.line_offset = 0
     self.encounter_text:setText("")
-    self.encounter_text.debug_rect = {-30, -12, SCREEN_WIDTH+1, 124}
-    self:addChild(self.encounter_text)
+    self.encounter_text.debug_rect = { -30, -12, SCREEN_WIDTH + 1, 124 }
+    Game.battle:addChild(self.encounter_text)
+    self.encounter_text.layer = self.layer + 10
 
-    self.choice_box = Choicebox(56, 49, 529, 103, true)
+    self.choice_box = Choicebox(56, 49 + 325, 529, 103, true)
     self.choice_box.active = false
     self.choice_box.visible = false
-    self:addChild(self.choice_box)
+    Game.battle:addChild(self.choice_box)
+    self.choice_box.layer = self.layer + 10
 
-    self.short_act_text_1 = DialogueText("", 30, 51, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, {wrap = false, line_offset = 0})
-    self.short_act_text_2 = DialogueText("", 30, 51 + 30, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, {wrap = false, line_offset = 0})
-    self.short_act_text_3 = DialogueText("", 30, 51 + 30 + 30, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, {wrap = false, line_offset = 0})
-    self:addChild(self.short_act_text_1)
-    self:addChild(self.short_act_text_2)
-    self:addChild(self.short_act_text_3)
+    self.short_act_text_1 = DialogueText("", 30, 51 + 325, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, { wrap = false, line_offset = 0 })
+    self.short_act_text_2 = DialogueText("", 30, 51 + 325 + 30, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, { wrap = false, line_offset = 0 })
+    self.short_act_text_3 = DialogueText("", 30, 51 + 325 + 30 + 30, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, { wrap = false, line_offset = 0 })
+    Game.battle:addChild(self.short_act_text_1)
+    Game.battle:addChild(self.short_act_text_2)
+    Game.battle:addChild(self.short_act_text_3)
+    self.short_act_text_1.layer = self.layer + 10
+    self.short_act_text_2.layer = self.layer + 10
+    self.short_act_text_3.layer = self.layer + 10
 
     self.action_boxes = {}
     self.attack_boxes = {}
@@ -36,7 +41,7 @@ function BattleUI:init()
 
     local size_offset = 0
     local box_gap = 0
-    
+
     if #Game.battle.party == 3 then
         size_offset = 0
         box_gap = 0
@@ -52,8 +57,8 @@ function BattleUI:init()
         box_gap = 0
     end
 
-    for index,battler in ipairs(Game.battle.party) do
-        local action_box = ActionBox(size_offset+ (index - 1) * (213 + box_gap), 0, index, battler)
+    for index, battler in ipairs(Game.battle.party) do
+        local action_box = ActionBox(size_offset + (index - 1) * (213 + box_gap), 0, index, battler)
         self:addChild(action_box)
         table.insert(self.action_boxes, action_box)
         battler.chara:onActionBox(action_box, false)
@@ -98,7 +103,7 @@ end
 function BattleUI:beginAttack()
     local attack_order = Utils.pickMultiple(Game.battle.normal_attackers, #Game.battle.normal_attackers)
 
-    for _,box in ipairs(self.attack_boxes) do
+    for _, box in ipairs(self.attack_boxes) do
         box:remove()
     end
     self.attack_boxes = {}
@@ -116,9 +121,9 @@ function BattleUI:beginAttack()
         table.insert(self.attack_boxes, attack_box)
 
         if i < #attack_order and last_offset ~= 0 then
-            last_offset = Utils.pick{0, 10, 15}
+            last_offset = TableUtils.pick({ 0, 10, 15 })
         else
-            last_offset = Utils.pick{10, 15}
+            last_offset = TableUtils.pick({ 10, 15 })
         end
     end
 
@@ -127,7 +132,7 @@ end
 
 function BattleUI:endAttack()
     Game.battle.cancel_attack = false
-    for _,box in ipairs(self.attack_boxes) do
+    for _, box in ipairs(self.attack_boxes) do
         box:endAttack()
     end
 end
@@ -189,7 +194,7 @@ function BattleUI:update()
                 self.animation_y = 0
             end
         end
-        
+
         self.y = lower - self.animation_y
 
         for _, box in ipairs(self.action_boxes) do
@@ -204,7 +209,7 @@ function BattleUI:update()
     if self.attacking then
         local all_done = true
 
-        for _,box in ipairs(self.attack_boxes) do
+        for _, box in ipairs(self.attack_boxes) do
             if not box.removing or box.fade_rect.alpha < 1 then
                 all_done = false
                 break
@@ -212,7 +217,7 @@ function BattleUI:update()
         end
 
         if all_done then
-            for _,box in ipairs(self.attack_boxes) do
+            for _, box in ipairs(self.attack_boxes) do
                 box:remove()
             end
             self.attack_boxes = {}
@@ -260,13 +265,13 @@ function BattleUI:drawState()
         local x = 0
         local y = 0
         Draw.setColor(Game.battle.encounter:getSoulColor())
-        Draw.draw(self.heart_sprite, 5 + ((Game.battle.current_menu_x - 1) * 230), 30 + ((Game.battle.current_menu_y - (page*3)) * 30))
+        Draw.draw(self.heart_sprite, 5 + ((Game.battle.current_menu_x - 1) * 230), 30 + ((Game.battle.current_menu_y - (page * 3)) * 30))
 
         local font = Assets.getFont("main")
         love.graphics.setFont(font)
 
         local page_offset = page * 6
-        for i = page_offset+1, math.min(page_offset+6, #Game.battle.menu_items) do
+        for i = page_offset + 1, math.min(page_offset + 6, #Game.battle.menu_items) do
             local item = Game.battle.menu_items[i]
 
             Draw.setColor(1, 1, 1, 1)
@@ -299,7 +304,7 @@ function BattleUI:drawState()
 
                 for _, icon in ipairs(item.icons) do
                     if type(icon) == "string" then
-                        icon = {icon, false, 0, 0, nil}
+                        icon = { icon, false, 0, 0, nil }
                     end
                     if not icon[2] then
                         local texture = Assets.getTexture(icon[1])
@@ -311,7 +316,7 @@ function BattleUI:drawState()
 
             if able then
                 -- Using color like a function feels wrong... should this be called getColor?
-                Draw.setColor(item:color() or {1, 1, 1, 1})
+                Draw.setColor(item:color() or { 1, 1, 1, 1 })
             else
                 Draw.setColor(COLORS.gray)
             end
@@ -325,7 +330,7 @@ function BattleUI:drawState()
 
                 for _, icon in ipairs(item.icons) do
                     if type(icon) == "string" then
-                        icon = {icon, false, 0, 0, nil}
+                        icon = { icon, false, 0, 0, nil }
                     end
                     if icon[2] then
                         local texture = Assets.getTexture(icon[1])
@@ -356,7 +361,9 @@ function BattleUI:drawState()
 
         if current_item.tp and current_item.tp ~= 0 then
             Draw.setColor(PALETTE["tension_desc"])
-            love.graphics.print(math.floor((current_item.tp / Game:getMaxTension()) * 100) .. "% "..Game:getConfig("tpName"), 260 + 240, 50 + (tp_offset * 32))
+            love.graphics.print(
+                math.floor((current_item.tp / Game:getMaxTension()) * 100) .. "% " .. Game:getConfig("tpName"), 260 + 240, 50 + (tp_offset * 32)
+            )
             Game:setTensionPreview(current_item.tp)
         else
             Game:setTensionPreview(0)
@@ -364,10 +371,10 @@ function BattleUI:drawState()
 
         Draw.setColor(1, 1, 1, 1)
         if page < max_page then
-            Draw.draw(self.arrow_sprite, 470, 120 + (math.sin(Kristal.getTime()*6) * 2))
+            Draw.draw(self.arrow_sprite, 470, 120 + (math.sin(Kristal.getTime() * 6) * 2))
         end
         if page > 0 then
-            Draw.draw(self.arrow_sprite, 470, 70 - (math.sin(Kristal.getTime()*6) * 2), 0, 1, -1)
+            Draw.draw(self.arrow_sprite, 470, 70 - (math.sin(Kristal.getTime() * 6) * 2), 0, 1, -1)
         end
 
     elseif Game.battle.state == "ENEMYSELECT" then
@@ -401,7 +408,7 @@ function BattleUI:drawState()
             end
         end
 
-        for index = page_offset+1, math.min(page_offset+3, #enemies) do
+        for index = page_offset + 1, math.min(page_offset + 3, #enemies) do
             local enemy = enemies[index]
             local y_off = (index - page_offset - 1) * 30
 
@@ -409,11 +416,11 @@ function BattleUI:drawState()
                 ---@cast enemy EnemyBattler
                 local name_colors = enemy:getNameColors()
                 if type(name_colors) ~= "table" then
-                    name_colors = {name_colors}
+                    name_colors = { name_colors }
                 end
 
                 if #name_colors <= 1 then
-                    Draw.setColor(name_colors[1] or enemy.selectable and {1, 1, 1} or {0.5, 0.5, 0.5})
+                    Draw.setColor(name_colors[1] or enemy.selectable and { 1, 1, 1 } or { 0.5, 0.5, 0.5 })
                     love.graphics.print(enemy.name, 80, 50 + y_off)
                 else
                     -- Draw the enemy name to a canvas first
@@ -427,7 +434,7 @@ function BattleUI:drawState()
                     for i = 1, #name_colors do
                         -- Draw a pixel for the color
                         Draw.setColor(name_colors[i])
-                        love.graphics.rectangle("fill", i-1, 0, 1, 1)
+                        love.graphics.rectangle("fill", i - 1, 0, 1, 1)
                     end
                     Draw.popCanvas()
 
@@ -439,7 +446,7 @@ function BattleUI:drawState()
                     love.graphics.setShader(shader)
                     -- Send the gradient colors
                     shader:send("colors", color_canvas)
-                    shader:send("colorSize", {#name_colors, 1})
+                    shader:send("colorSize", { #name_colors, 1 })
                     -- Draw the canvas from before to apply the gradient over it
                     Draw.draw(canvas, 80, 50 + y_off)
                     -- Disable the shader
@@ -484,7 +491,7 @@ function BattleUI:drawState()
                 else
                     local namewidth = font:getWidth(enemy.name)
 
-                    Draw.setColor(128/255, 128/255, 128/255, 1)
+                    Draw.setColor(128 / 255, 128 / 255, 128 / 255, 1)
 
                     
                     if ((80 + namewidth + 60 + (font:getWidth(enemy.comment) / 2)) < 415) then
@@ -518,7 +525,7 @@ function BattleUI:drawState()
                     if enemy.selectable then
                         Draw.setColor(PALETTE["battle_mercy_bg"])
                     else
-                        Draw.setColor(127/255, 127/255, 127/255, 1)
+                        Draw.setColor(127 / 255, 127 / 255, 127 / 255, 1)
                     end
                     love.graphics.rectangle("fill", 520, 55 + y_off, 81, 16)
 
@@ -541,33 +548,36 @@ function BattleUI:drawState()
         end
 
         Draw.setColor(1, 1, 1, 1)
-        local arrow_down = page_offset + 3
+
+        local arrow_down = false
+        local i = page_offset + 3
         while true do
-            arrow_down = arrow_down + 1
-            if arrow_down > #enemies then
-                arrow_down = false
+            i = i + 1
+            if i > #enemies then
                 break
-            elseif enemies[arrow_down] then
+            elseif enemies[i] then
                 arrow_down = true
                 break
             end
         end
-        local arrow_up = page_offset + 1
+
+        local arrow_up = false
+        i = page_offset + 1
         while true do
-            arrow_up = arrow_up - 1
-            if arrow_up < 1 then
-                arrow_up = false
+            i = i - 1
+            if i < 1 then
                 break
-            elseif enemies[arrow_up] then
+            elseif enemies[i] then
                 arrow_up = true
                 break
             end
         end
+
         if arrow_down then
-            Draw.draw(self.arrow_sprite, 20, 120 + (math.sin(Kristal.getTime()*6) * 2))
+            Draw.draw(self.arrow_sprite, 20, 120 + (math.sin(Kristal.getTime() * 6) * 2))
         end
         if arrow_up then
-            Draw.draw(self.arrow_sprite, 20, 70 - (math.sin(Kristal.getTime()*6) * 2), 0, 1, -1)
+            Draw.draw(self.arrow_sprite, 20, 70 - (math.sin(Kristal.getTime() * 6) * 2), 0, 1, -1)
         end
     elseif Game.battle.state == "PARTYSELECT" then
         local page = math.ceil(Game.battle.current_menu_y / 3) - 1
@@ -580,7 +590,7 @@ function BattleUI:drawState()
         local font = Assets.getFont("main")
         love.graphics.setFont(font)
 
-        for index = page_offset+1, math.min(page_offset+3, #Game.battle.party) do
+        for index = page_offset + 1, math.min(page_offset + 3, #Game.battle.party) do
             Draw.setColor(1, 1, 1, 1)
             love.graphics.print(Game.battle.party[index].chara:getName(), 80, 50 + ((index - page_offset - 1) * 30))
 
@@ -597,10 +607,10 @@ function BattleUI:drawState()
 
         Draw.setColor(1, 1, 1, 1)
         if page < max_page then
-            Draw.draw(self.arrow_sprite, 20, 120 + (math.sin(Kristal.getTime()*6) * 2))
+            Draw.draw(self.arrow_sprite, 20, 120 + (math.sin(Kristal.getTime() * 6) * 2))
         end
         if page > 0 then
-            Draw.draw(self.arrow_sprite, 20, 70 - (math.sin(Kristal.getTime()*6) * 2), 0, 1, -1)
+            Draw.draw(self.arrow_sprite, 20, 70 - (math.sin(Kristal.getTime() * 6) * 2), 0, 1, -1)
         end
     end
     if Game.battle.state == "ATTACKING" or self.attacking then
@@ -612,7 +622,7 @@ function BattleUI:drawState()
         else
             -- Chapter 1 attack lines
             local has_index = {}
-            for _,box in ipairs(self.attack_boxes) do
+            for _, box in ipairs(self.attack_boxes) do
                 has_index[box.index] = true
             end
             love.graphics.rectangle("fill", has_index[2] and 77 or 2, 78, has_index[2] and 226 or 301, 3)
