@@ -1674,12 +1674,12 @@ function Battle:powerAct(spell, battler, user, target)
         end
     end
 
-    local name = user_battler.chara:getName()
-    if name == "Ralsei" then
+    local name = user_battler.chara:getName():upper()
+    if name == "SUSIE" then
         -- deltarune inconsistency lol
-        name = "RALSEI"
+        name = "Susie"
     end
-    self:setActText("* Your soul shined its power on\n" .. name .. "!", true)
+    self:setActText("* Your SOUL shined its power on\n" .. name .. "!", true)
 
     self.timer:after(7 / 30, function()
         Assets.playSound("boost")
