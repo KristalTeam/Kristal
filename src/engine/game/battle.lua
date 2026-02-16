@@ -1263,6 +1263,7 @@ function Battle:processAction(action)
         local attacksound = battler.chara:getWeapon() and battler.chara:getWeapon():getAttackSound(battler, enemy, action.points) or battler.chara:getAttackSound()
         local attackpitch  = battler.chara:getWeapon() and battler.chara:getWeapon():getAttackPitch(battler, enemy, action.points) or battler.chara:getAttackPitch()
         local src = Assets.stopAndPlaySound(attacksound or "laz_c")
+        assert(src, "Attempted to play non-existent attack sound \"" .. (attacksound or "laz_c") .. "\" for " .. battler.chara:getName())
         src:setPitch(attackpitch or 1)
 
         self.actions_done_timer = 1.2
