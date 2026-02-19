@@ -552,13 +552,23 @@ function Text:isModifier(command)
     return TableUtils.contains(Text.COMMANDS, command) or self.custom_commands[command]
 end
 
+function Text:getModifierColor(color)
+    local event = Kristal.callEvent(KRISTAL_EVENT.onTextColor, color, self)
+    if event ~= nil then
+        return event
+    end
+
+    return Text.COLORS[string.lower(color)]
+end
+
 function Text:processModifier(node, dry)
     if self.custom_commands[node.command] then
         self:processCustomCommand(node, dry)
     elseif node.command == "color" then
-        if Text.COLORS[node.arguments[1]] then
+        local color = self:getModifierColor(node.arguments[1])
+        if color ~= nil then
             -- Did they input a valid color name? Let's use it.
-            self.state.color = Text.COLORS[node.arguments[1]]
+            self.state.color = color
         elseif node.arguments[1] == "reset" then
             -- They want to reset the color.
             self.state.color = self.text_color

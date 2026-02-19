@@ -247,6 +247,7 @@ KRISTAL_EVENT = {
     onTextSound = "onTextSound", -- overrides text scrawl noise / at: DialogueText:playTextSound(current_node) / passes: string:typing_sound, table:current_node, table:current_state / returns: bool
     registerTextCommands = "registerTextCommands", -- new text is ready to recieve custom command table / passes: Text:self / returns: NONE
     getDialogueTextStyle = "getDialogueTextStyle", -- overrides text style / at: DialogueText:init(text, x, y, w, h, options) / passes: string|table:text, table:options / returns: bool
+    onTextColor = "onTextColor", -- intercepts text color command / at: Text:getModifierColor(color) / passes: string:color, Text:self / returns: nil|table
 
     --input events--
     onKeyPressed = "onKeyPressed", -- overrides key is pressed / at: Game:onKeyPressed(key, is_repeat) / passes: string:key, bool:is_repeat / returns: bool
