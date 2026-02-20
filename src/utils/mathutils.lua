@@ -354,4 +354,19 @@ function MathUtils.xor(...)
     return counter % 2 == 1
 end
 
+---
+---Lerps between two angles properly accounting for wrap arounds
+---
+---@param from number # The starting angle (in radians)
+---@param to number # The target angle (in radians)
+---@param factor number # The interpolation factor (0-1)
+---@return number result # The interpolated angle
+---
+function MathUtils.lerpAngle(from, to, factor)
+    local cos = (1 - factor) * math.cos(from) + factor * math.cos(to)
+    local sin = (1 - factor) * math.sin(from) + factor * math.sin(to)
+
+    return math.atan2(sin, cos)
+end
+
 return MathUtils
