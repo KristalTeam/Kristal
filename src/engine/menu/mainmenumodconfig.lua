@@ -229,7 +229,6 @@ function MainMenuModConfig:registerOptions()
     self:registerOption("keepTensionAfterBattle", "Keep Tension After Battle", "Whether TP should be kept after battle instead of reset",                            "selection", {nil, true, false})
     self:registerOption("overworldSpells",        "Overworld Spells",          "Whether spells should be usable in the overworld",                                   "selection", {nil, true, false})
     self:registerOption("damageUnderflowFix",     "Damage Underflow Fix",      "If disabled, negative enemy damage heals the enemy",                                 "selection", {nil, true, false})
-    self:registerOption("oldMagicGlass",          "Old Magic Glass",           "Whether the MagicGlass event uses the new sprite or not",                            "selection", {nil, true, false})
     self:registerOption("darkCandyForm",          "Dark Candy Form",           "Whether to use Dark Candy or Darker Candy",                                          "selection", {nil, "dark", "darker"})
     self:registerOption("canTossLightWeapons",    "Can Toss Light Weapons",    "Whether you can toss weapon items in the Light World inventory",                     "selection", {nil, true, false})
 end
