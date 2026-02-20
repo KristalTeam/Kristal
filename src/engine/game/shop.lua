@@ -57,6 +57,7 @@
 ---
 ---@field background                string      The filepath of the background texture for this shop, relative to `assets/sprites`
 ---@field background_sprite         Sprite      The Sprite instance used to control the background. Not defined in `Shop:init()`.
+---@field background_speed          number      The animation speed of the background texture.
 ---
 ---@field shop_music                string      The filepath of the song to play in this shop, relative to `assets/music`
 ---@field music                     Music       The `Music` instance used to control the shop's music
@@ -71,7 +72,9 @@
 ---
 --- A table defining what will happen when the player leaves the shop.
 --- The keys `map` (target map name), `x` and `y` OR `marker` (target position in map), `facing`, (player facing direction in map), `menu` (return to main menu) can be defined for this table.
----@field leave_options             { x: number, y: number, map: string, marker: string, facing: "up"|"right"|"down"|"left", menu: boolean }
+---@field leave_options             { x: number, y: number, map: string, marker: string, facing: FacingDirection, menu: boolean }
+---
+---@field expand_box                boolean     Whether the right side `info_box` should be expanded.
 ---
 local Shop, super = Class(Object, "shop")
 
@@ -145,9 +148,9 @@ function Shop:init()
 
     self.menu_options = {
         {"Buy",  "BUYMENU" },
-        {"Sell", "SELLMENU"},
-        {"Talk", "TALKMENU"},
-        {"Exit", "LEAVE"   }
+        {"Sell", "SELLMENU" },
+        {"Talk", "TALKMENU" },
+        {"Exit", "LEAVE" }
     }
 
     self.items = {}
@@ -157,20 +160,21 @@ function Shop:init()
     -- SELLMENU
     if Game.inventory.storage_enabled then
         self.sell_options = {
-            {"Sell Items",        "items"},
-            {"Sell Weapons",      "weapons"},
-            {"Sell Armor",        "armors"},
-            {"Sell Pocket Items", "storage"}
+            { "Sell Items", "items" },
+            { "Sell Weapons", "weapons" },
+            { "Sell Armor", "armors" },
+            { "Sell Pocket Items", "storage" }
         }
     else
         self.sell_options = {
-            {"Sell Items",        "items"},
-            {"Sell Weapons",      "weapons"},
-            {"Sell Armor",        "armors"}
+            { "Sell Items", "items" },
+            { "Sell Weapons", "weapons" },
+            { "Sell Armor", "armors" }
         }
     end
 
-    self.background = "ui/shop/bg_seam"
+    self.background = nil
+    self.background_speed = 5 / 30
 
     self.state = "NONE"
     self.state_reason = nil
@@ -187,11 +191,11 @@ function Shop:init()
     self.voice = nil
 
     self.shopkeeper = Shopkeeper()
-    self.shopkeeper:setPosition(SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
+    self.shopkeeper:setPosition(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
     self.shopkeeper.layer = SHOP_LAYERS["shopkeeper"]
     self:addChild(self.shopkeeper)
 
-    self.bg_cover = Rectangle(0, SCREEN_HEIGHT/2, SCREEN_WIDTH, SCREEN_HEIGHT)
+    self.bg_cover = Rectangle(0, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT)
     self.bg_cover:setColor(0, 0, 0)
     self.bg_cover.layer = SHOP_LAYERS["cover"]
     self:addChild(self.bg_cover)
@@ -219,23 +223,21 @@ function Shop:init()
     self.arrow_sprite = Assets.getTexture("ui/page_arrow_down")
 
     self.stat_icons = {
-        ["attack"   ] = Assets.getTexture("ui/shop/icon_attack"   ),
-        ["magic"    ] = Assets.getTexture("ui/shop/icon_magic"    ),
+        ["attack"] = Assets.getTexture("ui/shop/icon_attack"),
+        ["magic"] = Assets.getTexture("ui/shop/icon_magic"),
         ["defense_1"] = Assets.getTexture("ui/shop/icon_defense_1"),
         ["defense_2"] = Assets.getTexture("ui/shop/icon_defense_2"),
     }
 
     self.fade_alpha = 0
     self.fading_out = false
-    self.box_ease_timer = 0
-    self.box_ease_beginning = -8
-    self.box_ease_top = 220 - 48
-    self.box_ease_method = "outExpo"
-    self.box_ease_multiplier = 1
+    self.expand_box = false
 
     self.hide_price = false
 
     self.leave_options = {}
+    
+    self.hide_world = true
 end
 
 --- A function that runs later than `Shop:init()`, primarily setting up UI elements of the shop. \
@@ -250,6 +252,7 @@ function Shop:postInit()
         self.background_sprite = Sprite(self.background, 0, 0)
         self.background_sprite:setScale(2, 2)
         self.background_sprite.layer = SHOP_LAYERS["background"]
+        self.background_sprite:play(self.background_speed, true)
         self:addChild(self.background_sprite)
     end
 
@@ -332,7 +335,7 @@ function Shop:postInit()
     self:addChild(self.right_text)
     self:setRightText("")
 
-    self.talk_dialogue = {self.dialogue_text, self.right_text}
+    self.talk_dialogue = { self.dialogue_text, self.right_text }
 end
 
 --- *(Override)* Runs every time the player selects a topic in the TALK menu. \ 
@@ -370,16 +373,20 @@ end
 function Shop:getVoicedText(text)
     local voice = self:getVoice()
 
-    if not voice then return text end
+    if not voice then
+        return text
+    end
 
     if type(text) == "table" then
         local voiced_text = {}
-        for _,v in ipairs(text) do
-            table.insert(voiced_text, "[voice:"..voice.."]"..v)
+
+        for _, v in ipairs(text) do
+            table.insert(voiced_text, "[voice:" .. voice .. "]" .. v)
         end
+
         return voiced_text
     else
-        return "[voice:"..voice.."]"..text
+        return "[voice:" .. voice .. "]" .. text
     end
 end
 
@@ -435,7 +442,7 @@ end
 --- *(Override)*
 ---@param old shopstate|string
 ---@param new shopstate|string
-function Shop:onStateChange(old,new)
+function Shop:onStateChange(old, new)
     Game.key_repeat = false
     self.buy_confirming = false
     self.sell_confirming = false
@@ -455,15 +462,11 @@ function Shop:onStateChange(old,new)
         self.right_box.visible = true
         self.info_box.visible = true
         self.info_box.height = -8
-        self.box_ease_timer = 0
-        self.box_ease_beginning = -8
         if #self.items > 0 then
-            self.box_ease_top = 220 - 48
+            self.expand_box = true
         else
-            self.box_ease_top = -8
+            self.expand_box = false
         end
-        self.box_ease_method = "outExpo"
-        self.box_ease_multiplier = 1
         self.current_selecting = 1
     elseif new == "SELLMENU" then
         self:setDialogueText("")
@@ -536,8 +539,12 @@ end
 
 --- Leaves the shop with a fade out transition.
 function Shop:leave()
-    self.fading_out = true
-    self.music:fade(0, 20/30)
+    if self:shouldFade() then
+        self.fading_out = true
+        self.music:fade(0, 20 / 30)
+    else
+        self:leaveImmediate()
+    end
 end
 
 --- Leaves the shop instantly, without a transition.
@@ -545,8 +552,10 @@ function Shop:leaveImmediate()
     self:remove()
     Game.shop = nil
     Game.state = "OVERWORLD"
-    Game.fader.alpha = 1
-    Game.fader:fadeIn()
+    if self:shouldFade() then
+        Game.fader.alpha = 1
+        Game.fader:fadeIn()
+    end
     Game.world:setState("GAMEPLAY")
 
     --self.transition_target.shop = nil
@@ -565,6 +574,10 @@ function Shop:leaveImmediate()
     end
 end
 
+function Shop:shouldFade()
+    return self.leave_options["fade"] or self:isWorldHidden()
+end
+
 --- *(Override)* Called whenever the player enters the TALK submenu.
 function Shop:onTalk() end
 
@@ -578,7 +591,7 @@ end
 --- Starts a dialogue with the shopkeeper, setting the state to `DIALOGUE`. Use this function inside of [`Shop:startTalk(topic)`](lua://Shop.startTalk).
 ---@param text string[]|string      One or more lines of dialogue, supporting Text Commands. Additionally supports the command `[emote:name]` which will cause the Shopkeeper's sprite to change to the sprite specified by `name` and `onEmote()` to run.
 ---@param callback? string|fun()    As a function, this argument is called when the dialogue finishes. If it returns `true`, the shop state will not reset when the dialogue finishes. As a string, the shop is set to this state when the dialogue finishes.
-function Shop:startDialogue(text,callback)
+function Shop:startDialogue(text, callback)
 
     local state = "MAINMENU"
     if self.state == "TALKMENU" then
@@ -634,12 +647,12 @@ function Shop:replaceItem(index, item, options)
     end
     if item then
         options = options or {}
-        options["name"]        = options["name"]        or item:getName()
+        options["name"]        = options["name"] or item:getName()
         options["description"] = options["description"] or item:getShopDescription()
-        options["price"]       = options["price"]       or item:getBuyPrice()
-        options["bonuses"]     = options["bonuses"]     or item:getStatBonuses()
-        options["color"]       = options["color"]       or {1, 1, 1, 1}
-        options["flag"]        = options["flag"]        or ("stock_" .. tostring(index) .. "_" .. item.id)
+        options["price"]       = options["price"] or item:getBuyPrice()
+        options["bonuses"]     = options["bonuses"] or item:getStatBonuses()
+        options["color"]       = options["color"] or { 1, 1, 1, 1 }
+        options["flag"]        = options["flag"] or ("stock_" .. tostring(index) .. "_" .. item.id)
 
         options["stock"] = self:getFlag(options["flag"], options["stock"])
 
@@ -657,7 +670,7 @@ end
 ---@param talk      string                              The name of the topic.
 ---@param color?    [number, number, number, number?]   The color that the topic name will appear as. Defaults to white.
 function Shop:registerTalk(talk, color)
-    table.insert(self.talks, {talk, {color=color or COLORS.white}})
+    table.insert(self.talks, { talk, { color = color or COLORS.white } })
 end
 
 --- Replaces one talk topic with another.
@@ -665,7 +678,7 @@ end
 ---@param index     integer                             The index that will be replaced with this topic.
 ---@param color?    [number, number, number, number?]   The color that the topic name will appear as. Defaults to yellow.
 function Shop:replaceTalk(talk, index, color)
-    self.talks[index] = {talk, {color=color or COLORS.yellow}}
+    self.talks[index] = { talk, { color = color or COLORS.yellow } }
 end
 
 --- Registers a talk topic that will appear in the TALK submenu when specific conditions are met. \
@@ -676,7 +689,7 @@ end
 ---@param value?    any                                 The value the flag should be at for the topic to be replaced.
 ---@param color?    [number, number, number, number?]   The color that the topic name will appear as. Defaults to yellow.
 function Shop:registerTalkAfter(talk, index, flag, value, color)
-    table.insert(self.talk_replacements, {index, {talk, {flag=flag or ("talk_" .. tostring(index)), value=value, color=color or COLORS.yellow}}})
+    table.insert(self.talk_replacements, { index, { talk, { flag = flag or ("talk_" .. tostring(index)), value = value, color = color or COLORS.yellow } } })
 end
 
 function Shop:processReplacements()
@@ -696,7 +709,7 @@ end
 
 function Shop:update()
     -- Update talk sprites
-    for _,object in ipairs(self.talk_dialogue) do
+    for _, object in ipairs(self.talk_dialogue) do
         if self.shopkeeper.talk_sprite then
             object.talk_sprite = self.shopkeeper.sprite
         else
@@ -706,33 +719,56 @@ function Shop:update()
 
     super.update(self)
 
-    self.box_ease_timer = math.min(1, self.box_ease_timer + (DT * self.box_ease_multiplier))
-
     if self.state == "BUYMENU" then
-        self.info_box.height = Utils.ease(self.box_ease_beginning, self.box_ease_top, self.box_ease_timer, self.box_ease_method)
+        -- Deltarune constricts the shopbox height (minimenuy) from 200 (bottom/smallest) to 20 (top/tallest)
+        -- Kristal UIBoxes work differently, so our new constraints are height from -8 (smallest) to 172 (tallest)
+        if self.expand_box then
+            if self.info_box.height >= 180 - 8 then
+                self.info_box.height = 180 - 8
+            end
+            if self.info_box.height < 180 - 8 then
+                self.info_box.height = self.info_box.height + 5 * DTMULT
+            end
+            if self.info_box.height < 150 - 8 then
+                self.info_box.height = self.info_box.height + 5 * DTMULT
+            end
+            if self.info_box.height < 100 - 8 then
+                self.info_box.height = self.info_box.height + 8 * DTMULT
+            end
+            if self.info_box.height < 50 - 8 then
+                self.info_box.height = self.info_box.height + 10 * DTMULT
+            end
+        else
+            if self.info_box.height > -8 then
+                self.info_box.height = self.info_box.height - 40 * DTMULT
+            end
+            if self.info_box.height <= -8 then
+                self.info_box.height = -8
+            end
+        end
 
         if self.shopkeeper.slide then
-            local target_x = SCREEN_WIDTH/2 - 80
+            local target_x = SCREEN_WIDTH / 2 - 80
             if self.shopkeeper.x > target_x + 60 then
-                self.shopkeeper.x = Utils.approach(self.shopkeeper.x, target_x, 4 * DTMULT)
+                self.shopkeeper.x = MathUtils.approach(self.shopkeeper.x, target_x, 4 * DTMULT)
             end
             if self.shopkeeper.x > target_x + 40 then
-                self.shopkeeper.x = Utils.approach(self.shopkeeper.x, target_x, 4 * DTMULT)
+                self.shopkeeper.x = MathUtils.approach(self.shopkeeper.x, target_x, 4 * DTMULT)
             end
             if self.shopkeeper.x > target_x then
-                self.shopkeeper.x = Utils.approach(self.shopkeeper.x, target_x, 4 * DTMULT)
+                self.shopkeeper.x = MathUtils.approach(self.shopkeeper.x, target_x, 4 * DTMULT)
             end
         end
     elseif self.shopkeeper.slide then
-        local target_x = SCREEN_WIDTH/2
+        local target_x = SCREEN_WIDTH / 2
         if self.shopkeeper.x < target_x - 50 then
-            self.shopkeeper.x = Utils.approach(self.shopkeeper.x, target_x, 4 * DTMULT)
+            self.shopkeeper.x = MathUtils.approach(self.shopkeeper.x, target_x, 4 * DTMULT)
         end
         if self.shopkeeper.x < target_x - 30 then
-            self.shopkeeper.x = Utils.approach(self.shopkeeper.x, target_x, 4 * DTMULT)
+            self.shopkeeper.x = MathUtils.approach(self.shopkeeper.x, target_x, 4 * DTMULT)
         end
         if self.shopkeeper.x < target_x then
-            self.shopkeeper.x = Utils.approach(self.shopkeeper.x, target_x, 4 * DTMULT)
+            self.shopkeeper.x = MathUtils.approach(self.shopkeeper.x, target_x, 4 * DTMULT)
         end
     end
 
@@ -809,12 +845,23 @@ function Shop:draw()
         else
             Draw.draw(self.heart_sprite, 30 + 420, 230 + 80 + 10 + (self.current_selecting_choice * 30))
             Draw.setColor(COLORS.white)
-            local lines = Utils.split(string.format(self.buy_confirmation_text, string.format(self.currency_text, self.items[self.current_selecting].options["price"] or 0)), "\n")
+            local lines = StringUtils.split(
+                string.format(
+                    self.buy_confirmation_text,
+                    string.format(
+                        self.currency_text,
+                        self.items[self.current_selecting].options["price"] or 0
+                    )
+                ),
+                "\n"
+            )
+
             for i = 1, #lines do
                 love.graphics.print(lines[i], 60 + 400, 420 - 160 + ((i - 1) * 30))
             end
+
             love.graphics.print("Yes", 60 + 420, 420 - 80)
-            love.graphics.print("No",  60 + 420, 420 - 80 + 30)
+            love.graphics.print("No", 60 + 420, 420 - 80 + 30)
         end
         Draw.setColor(COLORS.white)
 
@@ -822,10 +869,10 @@ function Shop:draw()
             local current_item = self.items[self.current_selecting]
             local box_left, box_top = self.info_box:getBorder()
 
-            local left = self.info_box.x - self.info_box.width - (box_left / 2) * 1.5
-            local top = self.info_box.y - self.info_box.height - (box_top / 2) * 1.5
-            local width = self.info_box.width + box_left * 1.5
-            local height = self.info_box.height + box_top * 1.5
+            local left = self.info_box.x - math.floor(self.info_box.width) - (box_left / 2) * 1.5
+            local top = self.info_box.y - math.floor(self.info_box.height) - (box_top / 2) * 1.5
+            local width = math.floor(self.info_box.width) + box_left * 1.5
+            local height = math.floor(self.info_box.height) + box_top * 1.5
 
             Draw.pushScissor()
             Draw.scissor(left, top, width, height)
@@ -845,7 +892,7 @@ function Shop:draw()
 
                     local party_member = Game.party[i]
                     local can_equip = party_member:canEquip(current_item.item)
-                    local head_path = ""
+                    local head_path
 
                     love.graphics.setFont(self.plain_font)
                     Draw.setColor(COLORS.white)
@@ -862,9 +909,25 @@ function Shop:draw()
 
                         elseif current_item.item.type == "weapon" then
                             Draw.draw(self.stat_icons["attack"], offset_x + 470, offset_y + 127 + top)
-                            Draw.draw(self.stat_icons["magic" ], offset_x + 470, offset_y + 147 + top)
-                            self:drawBonuses(party_member, party_member:getWeapon(), current_item.options["bonuses"], "attack", offset_x + 470 + 21, offset_y + 127 + top)
-                            self:drawBonuses(party_member, party_member:getWeapon(), current_item.options["bonuses"], "magic",  offset_x + 470 + 21, offset_y + 147 + top)
+                            Draw.draw(self.stat_icons["magic"], offset_x + 470, offset_y + 147 + top)
+
+                            self:drawBonuses(
+                                party_member,
+                                party_member:getWeapon(),
+                                current_item.options["bonuses"],
+                                "attack",
+                                offset_x + 470 + 21,
+                                offset_y + 127 + top
+                            )
+
+                            self:drawBonuses(
+                                party_member,
+                                party_member:getWeapon(),
+                                current_item.options["bonuses"],
+                                "magic",
+                                offset_x + 470 + 21,
+                                offset_y + 147 + top
+                            )
                         end
                     else
                         head_path = Assets.getTexture(party_member:getHeadIcons() .. "/head_error")
@@ -928,12 +991,24 @@ function Shop:draw()
         if self.sell_confirming then
             Draw.draw(self.heart_sprite, 30 + 420, 230 + 80 + 10 + (self.current_selecting_choice * 30))
             Draw.setColor(COLORS.white)
-            local lines = Utils.split(string.format(self.sell_confirmation_text, string.format(self.currency_text, inventory[self.item_current_selecting]:getSellPrice())), "\n")
+
+            local lines = StringUtils.split(
+                string.format(
+                    self.sell_confirmation_text,
+                    string.format(
+                        self.currency_text,
+                        inventory[self.item_current_selecting]:getSellPrice()
+                    )
+                ),
+                "\n"
+            )
+
             for i = 1, #lines do
                 love.graphics.print(lines[i], 60 + 400, 420 - 160 + ((i - 1) * 30))
             end
+
             love.graphics.print("Yes", 60 + 420, 420 - 80)
-            love.graphics.print("No",  60 + 420, 420 - 80 + 30)
+            love.graphics.print("No", 60 + 420, 420 - 80 + 30)
         end
 
         Draw.setColor(COLORS.white)
@@ -984,7 +1059,7 @@ function Shop:draw()
 
                 -- Draw arrows
                 if not self.sell_confirming then
-                    local sine_off = math.sin((Kristal.getTime()*30)/6) * 3
+                    local sine_off = math.sin((Kristal.getTime() * 30) / 6) * 3
                     if self.item_offset + 4 < (max - 1) then
                         Draw.draw(self.arrow_sprite, 370, 149 + sine_off + 291)
                     end
@@ -1016,10 +1091,10 @@ function Shop:draw()
     end
 
     if self.state == "MAINMENU" or
-       self.state == "BUYMENU"  or
-       self.state == "SELLMENU" or
-       self.state == "SELLING"  or
-       self.state == "TALKMENU" then
+    self.state == "BUYMENU" or
+    self.state == "SELLMENU" or
+    self.state == "SELLING" or
+    self.state == "TALKMENU" then
         Draw.setColor(COLORS.white)
         love.graphics.setFont(self.font)
         love.graphics.print(string.format(self.currency_text, self:getMoney()), 440, 420)
@@ -1059,9 +1134,17 @@ end
 
 --- *(Override)* Draws a background for the shop.
 function Shop:drawBackground()
-    -- Draw a black backdrop
-    Draw.setColor(0, 0, 0, 1)
-    love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+    if self:isWorldHidden() then
+        -- Draw a black backdrop
+        Draw.setColor(0, 0, 0, 1)
+        love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+    end
+end
+
+--- *(Override)* Returns whether the world should be hidden while in the shop.
+---@return boolean Whether the world is hidden.
+function Shop:isWorldHidden()
+    return self.hide_world
 end
 
 ---@param key       string
@@ -1138,17 +1221,9 @@ function Shop:onKeyPressed(key, is_repeat)
             end
             if Input.is("up", key) or Input.is("down", key) then
                 if self.current_selecting >= #self.items + 1 then
-                    self.box_ease_timer = 0
-                    self.box_ease_beginning = self.info_box.height
-                    self.box_ease_top = -8
-                    self.box_ease_method = "linear"
-                    self.box_ease_multiplier = 8
+                    self.expand_box = false
                 elseif (old_selecting >= #self.items + 1) and (self.current_selecting <= #self.items) then
-                    self.box_ease_timer = 0
-                    self.box_ease_beginning = self.info_box.height
-                    self.box_ease_top = 220 - 48
-                    self.box_ease_method = "outExpo"
-                    self.box_ease_multiplier = 1
+                    self.expand_box = true
                 end
             end
         end

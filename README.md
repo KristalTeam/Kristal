@@ -25,14 +25,18 @@ We also have [a subreddit](https://reddit.com/r/Kristal/), but it's less active 
 
 <sup>Kristal's main menu</sup>
 
-![A screenshot of the mod Kris and Susie's Wacky Dark World Adventures by TrashcatYT](https://kristal.cc/screenshots/kris_and_susies_wacky_dark_world_adventures.png)
-
-<sup>[Kris and Susie's Wacky Dark World Adventures](https://gamejolt.com/games/deltarune-kris-and-susies-wacky-dark-world/852417) by [TrashcatYT](https://gamejolt.com/@TrashcatYT)</sup>
-
-![A screenshot of the mod Godhome by Vitellary](https://kristal.cc/screenshots/godhome.png)
+![A screenshot of Godhome by Vitellary](https://kristal.cc/screenshots/godhome.png)
 
 <sup>[Godhome](https://gamebanana.com/mods/376524) by Vitellary</sup>
 
-![A screenshot of the mod Deoxynn by AcousticJamm](https://kristal.cc/screenshots/deoxynn.png)
+![A screenshot of Frozen Heart by Simbel](https://kristal.cc/screenshots/frozen_heart.png)
+
+<sup>[Frozen Heart](https://gamejolt.com/games/frozen-heart/659908) by [Simbel](https://www.youtube.com/@Simbel)</sup>
+
+![A screenshot of Deltamon by Team Paradox](https://kristal.cc/screenshots/deltamon.png)
+
+<sup>[Deltamon](https://gamejolt.com/games/Deltamon/946082) by [Team Paradox](https://gamejolt.com/@TeamParadox)</sup>
+
+![A screenshot of Deoxynn by AcousticJamm](https://kristal.cc/screenshots/deoxynn.png)
 
 <sup>[Deoxynn](https://kristal.cc/screenshots/deoxynn.png) by [AcousticJamm](https://www.guilded.gg/i/240D4G02)</sup>

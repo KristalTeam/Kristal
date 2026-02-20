@@ -63,15 +63,15 @@ end
 --- *If [`line_width`](lua://Arena.line_width) has been changed, this function makes the arena to reflect that change.*
 ---@param shape table<[number, number]>     A table of `{x, y}` coordinates that form a polygon.
 function Arena:setShape(shape)
-    self.shape = Utils.copy(shape, true)
-    self.processed_shape = Utils.copy(shape, true)
+    self.shape = TableUtils.copy(shape, true)
+    self.processed_shape = TableUtils.copy(shape, true)
 
     local min_x, min_y, max_x, max_y
-    for _,point in ipairs(self.shape) do
+    for _, point in ipairs(self.shape) do
         min_x, min_y = math.min(min_x or point[1], point[1]), math.min(min_y or point[2], point[2])
         max_x, max_y = math.max(max_x or point[1], point[1]), math.max(max_y or point[2], point[2])
     end
-    for _,point in ipairs(self.shape) do
+    for _, point in ipairs(self.shape) do
         point[1] = point[1] - min_x
         point[2] = point[2] - min_y
     end
@@ -81,10 +81,10 @@ function Arena:setShape(shape)
     self.processed_width = self.width
     self.processed_height = self.height
 
-    self.left = math.floor(self.x - self.width/2)
-    self.right = math.floor(self.x + self.width/2)
-    self.top = math.floor(self.y - self.height/2)
-    self.bottom = math.floor(self.y + self.height/2)
+    self.left = math.floor(self.x - self.width / 2)
+    self.right = math.floor(self.x + self.width / 2)
+    self.top = math.floor(self.y - self.height / 2)
+    self.bottom = math.floor(self.y + self.height / 2)
 
     self.triangles = love.math.triangulate(Utils.unpackPolygon(self.shape))
 
@@ -92,7 +92,7 @@ function Arena:setShape(shape)
 
     self.clockwise = Utils.isPolygonClockwise(self.shape)
 
-    self.area_collider = PolygonCollider(self, Utils.copy(shape, true))
+    self.area_collider = PolygonCollider(self, TableUtils.copy(shape, true))
 
     self.collider.colliders = {}
     for _,v in ipairs(Utils.getPolygonEdges(self.shape)) do
@@ -105,7 +105,7 @@ end
 ---@param b number
 ---@param a number?
 function Arena:setBackgroundColor(r, g, b, a)
-    self.bg_color = {r, g, b, a or 1}
+    self.bg_color = { r, g, b, a or 1 }
 end
 
 ---@return table
@@ -116,7 +116,7 @@ end
 ---@return number x
 ---@return number y
 function Arena:getCenter()
-    return self:getRelativePos(self.width/2, self.height/2)
+    return self:getRelativePos(self.width / 2, self.height / 2)
 end
 
 ---@return number x
@@ -151,34 +151,38 @@ function Arena:onAdd(parent)
 
     local afterimage_timer = 0
     local afterimage_count = 0
-    Game.battle.timer:during(15/30, function()
-        afterimage_timer = Utils.approach(afterimage_timer, 15, DTMULT)
+    Game.battle.timer:during(
+        15 / 30,
+        function()
+            afterimage_timer = MathUtils.approach(afterimage_timer, 15, DTMULT)
 
-        local real_progress = afterimage_timer / 15
+            local real_progress = afterimage_timer / 15
 
-        self.sprite:setScale(real_progress, real_progress)
-        self.sprite.alpha = 0.5 + (0.5 * real_progress)
-        self.sprite.rotation = (math.pi) * (1 - real_progress)
+            self.sprite:setScale(real_progress, real_progress)
+            self.sprite.alpha = 0.5 + (0.5 * real_progress)
+            self.sprite.rotation = (math.pi) * (1 - real_progress)
 
-        while afterimage_count < math.floor(afterimage_timer) do
-            afterimage_count = afterimage_count + 1
+            while afterimage_count < math.floor(afterimage_timer) do
+                afterimage_count = afterimage_count + 1
 
-            local progress = afterimage_count / 15
+                local progress = afterimage_count / 15
 
-            local afterimg = ArenaSprite(self, center_x, center_y)
-            afterimg:setOrigin(0.5, 0.5)
-            afterimg:setScale(progress, progress)
-            afterimg:fadeOutSpeedAndRemove()
-            afterimg.background = false
-            afterimg.alpha = 0.6 - (0.5 * progress)
-            afterimg.rotation = (math.pi) * (1 - progress)
-            parent:addChild(afterimg)
-            afterimg:setLayer(self.layer + (1 - progress))
+                local afterimg = ArenaSprite(self, center_x, center_y)
+                afterimg:setOrigin(0.5, 0.5)
+                afterimg:setScale(progress, progress)
+                afterimg:fadeOutSpeedAndRemove()
+                afterimg.background = false
+                afterimg.alpha = 0.6 - (0.5 * progress)
+                afterimg.rotation = (math.pi) * (1 - progress)
+                parent:addChild(afterimg)
+                afterimg:setLayer(self.layer + (1 - progress))
+            end
+        end,
+        function()
+            self.sprite:setScale(1)
+            self.sprite.alpha = 1
         end
-    end, function()
-        self.sprite:setScale(1)
-        self.sprite.alpha = 1
-    end)
+    )
 end
 
 ---@param parent Object
@@ -192,33 +196,37 @@ function Arena:onRemove(parent)
 
     local afterimage_timer = 0
     local afterimage_count = 0
-    Game.battle.timer:during(15/30, function()
-        afterimage_timer = Utils.approach(afterimage_timer, 15, DTMULT)
+    Game.battle.timer:during(
+        15 / 30,
+        function()
+            afterimage_timer = MathUtils.approach(afterimage_timer, 15, DTMULT)
 
-        local real_progress = 1 - (afterimage_timer / 15)
+            local real_progress = 1 - (afterimage_timer / 15)
 
-        orig_sprite:setScale(real_progress, real_progress)
-        orig_sprite.alpha = 0.5 + (0.5 * real_progress)
-        orig_sprite.rotation = rotation + ((math.pi) * (1 - real_progress))
+            orig_sprite:setScale(real_progress, real_progress)
+            orig_sprite.alpha = 0.5 + (0.5 * real_progress)
+            orig_sprite.rotation = rotation + ((math.pi) * (1 - real_progress))
 
-        while afterimage_count < math.floor(afterimage_timer) do
-            afterimage_count = afterimage_count + 1
+            while afterimage_count < math.floor(afterimage_timer) do
+                afterimage_count = afterimage_count + 1
 
-            local progress = 1 - (afterimage_count / 15)
+                local progress = 1 - (afterimage_count / 15)
 
-            local afterimg = ArenaSprite(self, orig_sprite.x, orig_sprite.y)
-            afterimg:setOrigin(0.5, 0.5)
-            afterimg:setScale(progress, progress)
-            afterimg:fadeOutSpeedAndRemove()
-            afterimg.background = false
-            afterimg.alpha = 0.6 - (0.5 * progress)
-            afterimg.rotation = rotation + ((math.pi) * (1 - progress))
-            parent:addChild(afterimg)
-            afterimg:setLayer(self.layer + (1 - progress))
+                local afterimg = ArenaSprite(self, orig_sprite.x, orig_sprite.y)
+                afterimg:setOrigin(0.5, 0.5)
+                afterimg:setScale(progress, progress)
+                afterimg:fadeOutSpeedAndRemove()
+                afterimg.background = false
+                afterimg.alpha = 0.6 - (0.5 * progress)
+                afterimg.rotation = rotation + ((math.pi) * (1 - progress))
+                parent:addChild(afterimg)
+                afterimg:setLayer(self.layer + (1 - progress))
+            end
+        end,
+        function()
+            orig_sprite:remove()
         end
-    end, function()
-        orig_sprite:remove()
-    end)
+    )
 end
 
 function Arena:update()

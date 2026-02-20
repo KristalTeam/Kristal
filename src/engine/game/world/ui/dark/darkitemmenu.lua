@@ -123,7 +123,7 @@ function DarkItemMenu:update()
         end
         if header_move ~= 0 then
             local prev_type = self:getCurrentItemType()
-            self.item_header_selected = Utils.clampWrap(self.item_header_selected + header_move, 1, 3)
+            self.item_header_selected = MathUtils.wrapIndex(self.item_header_selected + header_move, 3)
             self.ui_move:stop()
             self.ui_move:play()
             if prev_type ~= self:getCurrentItemType() then
@@ -209,10 +209,10 @@ function DarkItemMenu:update()
                     self:updateSelectedItem()
                 end)
             elseif item.usable_in == "world" or item.usable_in == "all" then
-                if item.target == "ally" or item.target == "party" then
+                if item:getTarget() == "ally" or item:getTarget() == "party" then
                     self.state = "USE"
 
-                    local target_type = item.target == "ally" and "SINGLE" or "ALL"
+                    local target_type = item:getTarget() == "ally" and "SINGLE" or "ALL"
 
                     if target_type == "SINGLE" then -- yep, deltarune bug
                         self.ui_select:stop()

@@ -60,6 +60,10 @@ function Spell:getTPCost(chara) return self.cost end
 ---@return boolean
 function Spell:isUsable(chara) return self.usable end
 
+--- Gets the target of this spell
+---@return string
+function Spell:getTarget() return self.target end
+
 --- *(Override)* Gets whether the spell can be cast in the world \
 --- *(Always false by default)*
 ---@param chara PartyMember The `PartyMember` the check is being run for
@@ -75,7 +79,7 @@ function Spell:onWorldCast(chara) end
 ---@param tag string
 ---@return boolean
 function Spell:hasTag(tag)
-    return Utils.containsValue(self.tags, tag)
+    return TableUtils.contains(self.tags, tag)
 end
 
 --- *(Override)* Gets the message that appears when this spell is cast in battle

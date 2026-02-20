@@ -21,7 +21,7 @@ function character:init()
     elseif Game.chapter == 3 then
         self.title = "Dark Prince\nDark-World being.\nHas friends."
     else
-        self.title = "Dark Hero\nRecords and faces\nThe fate."
+        self.title = "Dark Hero\nRecords and faces\nthe fate."
     end
 
     -- Determines which character the soul comes from (higher number = higher priority)
@@ -109,10 +109,20 @@ function character:init()
     self.weapon_icon = "ui/menu/equip/scarf"
 
     -- Equipment (saved to the save file)
-    self:setWeapon("red_scarf")
-    if Game.chapter >= 2 then
+    if Game.chapter <= 2 then
+        self:setWeapon("red_scarf")
+        if Game.chapter == 2 then
+            self:setArmor(1, "amber_card")
+            self:setArmor(2, "white_ribbon")
+        end
+    elseif Game.chapter == 3 then
+        self:setWeapon("fiberscarf")
         self:setArmor(1, "amber_card")
-        self:setArmor(2, "white_ribbon")
+        self:setArmor(2, "glowwrist")
+    elseif Game.chapter >= 4 then
+        self:setWeapon("flexscarf")
+        self:setArmor(1, "gingerguard")
+        self:setArmor(2, "glowwrist")
     end
 
     -- Default light world equipment item IDs (saves current equipment)
@@ -182,7 +192,7 @@ function character:onLevelUp(level)
 end
 
 function character:onPowerSelect(menu)
-    if Utils.random() <= 0.03 then
+    if MathUtils.random() <= 0.03 then
         menu.ralsei_dog = true
     else
         menu.ralsei_dog = false

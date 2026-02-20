@@ -102,11 +102,11 @@ function OverworldActionBox:draw()
         Draw.setColor(1, 1, 1, 1)
 
         local name = self.chara:getName():upper()
-        local spacing = 5 - name:len()
+        local spacing = 5 - StringUtils.len(name)
 
         local off = 0
-        for i = 1, name:len() do
-            local letter = name:sub(i, i)
+        for i = 1, StringUtils.len(name) do
+            local letter = StringUtils.sub(name, i, i)
             love.graphics.print(letter, 51 + off, 16 - 1)
             off = off + font:getWidth(letter) + spacing
         end

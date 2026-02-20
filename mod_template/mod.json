@@ -1,22 +1,22 @@
 {
-    // The ID of your mod. Should be unique!!
+    // The ID of your project. Should be unique!!
     "id": "{id}",
     // Displays on the main menu.
     "name": "{name}",
     // Displays underneath the name. Optional.
     "subtitle": "",
 
-    // The version of your mod.
+    // The version of your project.
     "version": "v1.0.0",
-    // What version of the engine your mod was made with.
+    // What version of the engine your project was made with.
     "engineVer": "{engineVer}",
 
-    // The Deltarune chapter you'd like to base your mod off of.
+    // The Deltarune chapter you'd like to base your project off of.
     // Do keep in mind that you can control chapter-specific features
     // one by one using the config below.
     "chapter": {chapter},
 
-    // The map that you start in when first starting the mod.
+    // The map that you start in when first starting the project.
     "map": "room1",
 
     // The party. The first character is the player.
@@ -44,16 +44,16 @@
         }
     },
 
-    // Should never be true, but just in case. Restarts the entire engine when leaving the mod.
+    // Should never be true, but just in case. Restarts the entire engine when leaving the project.
     // If you need this, you're most likely doing something wrong.
     "hardReset": false,
 
-    // Whether the mod is hidden from the mod selection.
+    // Whether the project is hidden from the project selection.
     "hidden": false,
 
-    // Whether the game window's title should be set to the mod's name, and the icon to the image
+    // Whether the game window's title should be set to the project's name, and the icon to the image
     // in the file `window_icon.png`.
-    // When your mod is configured as the engine's target mod, it's automatically done unless if
+    // When your project is configured as the engine's target project, it's automatically done unless if
     // this option is explicitly set to false; else, it's done if this is set to true.
     "setWindowTitleAndIcon": null,
 

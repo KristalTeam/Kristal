@@ -46,7 +46,7 @@ function SnowGraveSpell:update()
         for i, enemy in ipairs(Game.battle.enemies) do
             if enemy then
                 enemy.hit_count = 0
-                enemy:hurt(self.damage + Utils.round(math.random(100)), self.caster, enemy.onDefeatFatal)
+                enemy:hurt(self.damage + Utils.round(MathUtils.random(100)), self.caster, enemy.onDefeatFatal)
                 if enemy.health > 0 then
                     enemy:flash()
                 end

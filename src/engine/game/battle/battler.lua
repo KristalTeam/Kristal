@@ -74,12 +74,15 @@ function Battler:setActor(actor, use_overlay)
 
     if self.sprite         then self:removeChild(self.sprite)         end
     if self.overlay_sprite then self:removeChild(self.overlay_sprite) end
+    self:createSprite(use_overlay)
+end
 
-    self.sprite = self.actor:createSprite()
+function Battler:createSprite(use_overlay)
+    self.sprite = self.actor and self.actor:createSprite() or Sprite()
     self:addChild(self.sprite)
 
     if use_overlay ~= false then
-        self.overlay_sprite = self.actor:createSprite()
+        self.overlay_sprite = self.actor and self.actor:createSprite() or Sprite()
         self.overlay_sprite.visible = false
         self:addChild(self.overlay_sprite)
     end
@@ -89,11 +92,11 @@ end
 ---@param overlay boolean?  Whether the overlay should be visible. If unset, will invert whatever the current visibility state is.
 function Battler:toggleOverlay(overlay)
     if overlay == nil then
-        overlay = self.sprite.visible
+        overlay = self.sprite and self.sprite.visible or false
     end
     if self.overlay_sprite then
         self.overlay_sprite.visible = overlay
-        self.sprite.visible = not overlay
+        if self.sprite then self.sprite.visible = not overlay end
     end
 end
 
@@ -152,6 +155,15 @@ function Battler:sparkle(r, g, b)
     end, 4)
 end
 
+--- Creates a standard "healing effect" (flash, sparkles).
+---@param r? number
+---@param g? number
+---@param b? number
+function Battler:healEffect(r, g, b)
+    self:flash()
+    self:sparkle(r, g, b)
+end
+
 --- Creates a status text on the battler. \
 --- Used for information such as damage numbers, being downed, or missing a hit
 ---@param x?        number  The x-coordinate the message should appear at, relative to the battler.
@@ -166,8 +178,9 @@ end
 ---|"msg"       # The path to the sprite, relative to `ui/battle/message`, to use
 ---@param color?    table   The color used to draw the status message, defaulting to white
 ---@param kill?     boolean Whether this status should cause all other statuses to disappear.
+---@param delay?    number  The number of frames before this message first appears
 ---@return DamageNumber
-function Battler:statusMessage(x, y, type, arg, color, kill)
+function Battler:statusMessage(x, y, type, arg, color, kill, delay)
     x, y = self:getRelativePos(x, y)
 
     local offset = 0
@@ -175,7 +188,7 @@ function Battler:statusMessage(x, y, type, arg, color, kill)
         offset = (self.hit_count * 20)
     end
 
-    local percent = DamageNumber(type, arg, x + 4, y + 20 - offset, color)
+    local percent = DamageNumber(type, arg, x + 4, y + 20 - offset, color, delay)
     if kill then
         percent.kill_others = true
     end
@@ -218,15 +231,16 @@ function Battler:spawnSpeechBubble(text, options)
     if not options["style"] and self.dialogue_bubble then
         options["style"] = self.dialogue_bubble
     end
+    local x, y
+    local spr = self.sprite or self
     if not options["right"] then
-        local x, y = self.sprite:getRelativePos(0, self.sprite.height/2, Game.battle)
+        x, y = spr:getRelativePos(0, spr.height/2, Game.battle)
         x, y = x + self.dialogue_offset[1], y + self.dialogue_offset[2]
-        bubble = SpeechBubble(text, x, y, options, self)
     else
-        local x, y = self.sprite:getRelativePos(self.sprite.width, self.sprite.height/2, Game.battle)
+        x, y = spr:getRelativePos(spr.width, spr.height/2, Game.battle)
         x, y = x - self.dialogue_offset[1], y + self.dialogue_offset[2]
-        bubble = SpeechBubble(text, x, y, options, self)
     end
+    bubble = SpeechBubble(text, x, y, options, self)
     self.bubble = bubble
     self:onBubbleSpawn(bubble)
     bubble:setCallback(function()
@@ -252,6 +266,9 @@ function Battler:onBubbleRemove(bubble) end
 ---@param animation string|table
 ---@param callback? fun(ActorSprite)
 function Battler:setAnimation(animation, callback)
+    if not self.sprite then
+        self:createSprite()
+    end
     return self.sprite:setAnimation(animation, callback)
 end
 
@@ -265,6 +282,21 @@ function Battler:getActiveSprite()
     end
 end
 
+--- Shorthand for [`ActorSprite:setSprite()`](lua://ActorSprite.setSprite) and [`ActorSprite:play()`](lua://ActorSprite.play)
+---@param sprite?   string
+---@param speed?    number
+---@param loop?     boolean
+---@param after?    fun(ActorSprite)
+function Battler:setSprite(sprite, speed, loop, after)
+    if not self.sprite then
+        self:createSprite()
+    end
+    self.sprite:setSprite(sprite)
+    if not self.sprite.directional and speed then
+        self.sprite:play(speed, loop, after)
+    end
+end
+
 --- Shorthand for calling [`ActorSprite:setCustomSprite()`](lua://ActorSprite.setCustomSprite) and then [`ActorSprite:play()`](lua://ActorSprite.play)
 ---@param sprite?   string
 ---@param ox?       number
@@ -273,9 +305,19 @@ end
 ---@param loop?     boolean
 ---@param after?    fun(ActorSprite)
 function Battler:setCustomSprite(sprite, ox, oy, speed, loop, after)
+    if not self.sprite then
+        self:createSprite()
+    end
     self.sprite:setCustomSprite(sprite, ox, oy)
     if not self.sprite.directional and speed then
         self.sprite:play(speed, loop, after)
+    end
+end
+
+--- Sets the Battler's sprite back to their default
+function Battler:resetSprite()
+    if self.sprite then
+        self.sprite:resetSprite()
     end
 end
 
@@ -292,7 +334,7 @@ function Battler:update()
     end
 
     if self.alert_timer > 0 then
-        self.alert_timer = Utils.approach(self.alert_timer, 0, DTMULT)
+        self.alert_timer = MathUtils.approach(self.alert_timer, 0, DTMULT)
         if self.alert_timer == 0 then
             self.alert_icon:remove()
             self.alert_icon = nil

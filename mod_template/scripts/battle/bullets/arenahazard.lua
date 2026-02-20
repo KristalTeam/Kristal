@@ -1,5 +1,9 @@
+---@class ArenaHazard : Bullet
 local ArenaHazard, super = Class(Bullet)
 
+---@param x number # The X position of the bullet
+---@param y number # The Y position of the bullet
+---@param rot number # The rotation (in radians) of the bullet
 function ArenaHazard:init(x, y, rot)
     -- Last argument = sprite path
     super.init(self, x, y, "bullets/arenahazard")

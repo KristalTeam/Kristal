@@ -22,17 +22,17 @@ function FrozenEnemy:init(actor, x, y, properties)
         actor = Registry.createActor(actor)
     end
     local w, h = actor:getSize()
-    super.init(self, x, y, {w, h}, properties)
+    super.init(self, x, y, { w, h }, properties)
 
     properties = properties or {}
 
-    self.text = {"* (It's frozen solid...)"}
+    self.text = { "* (It's frozen solid...)" }
 
     self:setOrigin(0.5, 1)
     self:setScale(2)
 
     self.sprite = actor:createSprite()
-    self.sprite.facing = properties and properties["facing"] or "left"
+    self.sprite:setFacing(properties and properties["facing"] or "left")
     if not self.sprite:setAnimation("frozen") then
         self.sprite:setAnimation("hurt")
     end

@@ -7,9 +7,10 @@ local BattleCutscene, super = Class(Cutscene)
 
 local function _true() return true end
 
----@param group fun(cutscene: Cutscene, ...)
+---@overload fun(func: BattleCutsceneFunc, ...)
+---@param group string
 ---@param id? string
----@param ... unknown
+---@param ... any
 function BattleCutscene:init(group, id, ...)
     local scene, args = self:parseFromGetter(Registry.getBattleCutscene, group, id, ...)
 
@@ -28,15 +29,15 @@ function BattleCutscene:update()
     if self.ended then return end
 
     local done_moving = {}
-    for battler,target in pairs(self.move_targets) do
+    for battler, target in pairs(self.move_targets) do
         if battler.x == target[1] and battler.y == target[2] then
             table.insert(done_moving, battler)
         end
-        local tx = Utils.approach(battler.x, target[1], target[3] * DTMULT)
-        local ty = Utils.approach(battler.y, target[2], target[3] * DTMULT)
+        local tx = MathUtils.approach(battler.x, target[1], target[3] * DTMULT)
+        local ty = MathUtils.approach(battler.y, target[2], target[3] * DTMULT)
         battler:setPosition(tx, ty)
     end
-    for _,v in ipairs(done_moving) do
+    for _, v in ipairs(done_moving) do
         self.move_targets[v] = nil
     end
 
@@ -329,7 +330,7 @@ local function waitForEncounterText() return Game.battle.battle_ui.encounter_tex
 ---|"wait"      # Whether the cutscene should automatically suspend itself until the textbox advances. (Defaults to `true`, unless `advance` is false.)
 ---@return fun() finished A function that returns `true` when the textbox has been advanced. (Only use if `options["wait"]` is set to `false`.)
 function BattleCutscene:text(text, portrait, actor, options)
-    if type(actor) == "table" then
+    if type(actor) == "table" and not isClass(actor) then
         options = actor
         ---@diagnostic disable-next-line: cast-local-type
         actor = nil
@@ -343,6 +344,9 @@ function BattleCutscene:text(text, portrait, actor, options)
     options = options or {}
 
     actor = actor or self.textbox_actor
+    if isClass(actor) and actor:includes(Battler) then
+        actor = actor.actor
+    end
 
     Game.battle.battle_ui.encounter_text:setActor(actor)
     Game.battle.battle_ui.encounter_text:setFace(portrait, options["x"], options["y"])
@@ -410,25 +414,25 @@ end
 ---@return table?   bubbles         A table of all bubbles created by this function call.
 function BattleCutscene:battlerText(battlers, text, options)
     options = options or {}
+    local _battlers = {} ---@type Battler[]
     if type(battlers) == "string" then
-        local id = battlers
-        battlers = {}
+        local id = battlers ---@type string
         for _,battler in ipairs(Game.battle.enemies) do
             if battler.id == id then
-                table.insert(battlers, battler)
+                table.insert(_battlers, battler)
             end
         end
         for _,battler in ipairs(Game.battle.party) do
             if battler.chara.id == id then
-                table.insert(battlers, battler)
+                table.insert(_battlers, battler)
             end
         end
     elseif isClass(battlers) then
-        battlers = {battlers}
+        _battlers = {battlers}
     end
     local wait = options["wait"] or options["wait"] == nil
     local bubbles = {}
-    for _,battler in ipairs(battlers) do
+    for _,battler in ipairs(_battlers) do
         local bubble
         if not options["x"] and not options["y"] then
             bubble = battler:spawnSpeechBubble(text, options)

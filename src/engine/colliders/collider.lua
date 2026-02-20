@@ -2,6 +2,14 @@
 ---@overload fun(...) : Collider
 local Collider = Class()
 
+---@class Collider.Mode
+---@field invert boolean?
+---@field inside boolean?
+
+---@param parent Object
+---@param x number?
+---@param y number?
+---@param mode Collider.Mode
 function Collider:init(parent, x, y, mode)
     self.parent = parent
 
@@ -76,7 +84,7 @@ end
 function Collider:getLocalPoints(tf1,tf2, ...)
     local points = {...}
     if type(points[1]) == "table" then
-        points = Utils.copy(points[1])
+        points = TableUtils.copy(points[1])
     end
     if type(points[1]) == "table" then
         if tf2 then

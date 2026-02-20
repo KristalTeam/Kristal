@@ -267,7 +267,7 @@ function DialogueText:playTextSound(current_node)
 
     local no_sound = { "\n", " ", "^", "!", ".", "?", ",", ":", "/", "\\", "|", "*" }
 
-    if (Utils.containsValue(no_sound, current_node.character)) then
+    if (TableUtils.contains(no_sound, current_node.character)) then
         return
     end
 
@@ -303,7 +303,7 @@ function DialogueText:isNodeInstant(node)
 end
 
 function DialogueText:isModifier(command)
-    return Utils.containsValue(DialogueText.COMMANDS, command) or super.isModifier(self, command)
+    return TableUtils.contains(DialogueText.COMMANDS, command) or super.isModifier(self, command)
 end
 
 function DialogueText:registerCommand(command, func, options)

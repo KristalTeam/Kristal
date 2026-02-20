@@ -122,6 +122,11 @@ local palette_data = {
     ["tension_max"] = { 255 / 255, 208 / 255, 32 / 255, 1 },
     ["tension_maxtext"] = { 1, 1, 0, 1 },
     ["tension_desc"] = { 255 / 255, 160 / 255, 64 / 255, 1 },
+
+    ["tension_back_reduced"] = { 0, 0, 128 / 255, 1 },
+    ["tension_decrease_reduced"] = { 0, 0, 1, 1 },
+    ["tension_fill_reduced"] = { 0, 63 / 255, 191 / 255, 1 },
+    ["tension_max_reduced"] = { 0, 95 / 255, 159 / 255, 1 }
 }
 ---@type table<PaletteIndex, number[]>
 PALETTE = {}
@@ -160,6 +165,7 @@ ALPHABET = { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n
 FACINGS = { "right", "down", "left", "up" }
 
 -- Different chase types that can be used by ChaserEnemys.
+---@enum CHASETYPE
 CHASETYPE = { "linear", "multiplier", "flee" }
 
 --- Different pace types that can be used by ChaserEnemys. \
@@ -167,6 +173,7 @@ CHASETYPE = { "linear", "multiplier", "flee" }
 --- `randomwander`    - Wanders between the enemy spawn point and several markers at random. \
 --- `verticalswing`   - Moves along a sinusodial wave on the y-axis. \
 --- `horizontalswing` - Moves along a sinusodial wave on the x-axis.
+---@enum PACETYPE
 PACETYPE = { "wander", "randomwander", "verticalswing", "horizontalswing"}
 
 -- exposed events called by Kristal
@@ -216,7 +223,7 @@ KRISTAL_EVENT = {
     --gameplay events--
     onBorderDraw = "onBorderDraw", -- game border draw time / at: [HOOK]love.draw(...)J\love.load(args) / passes: string:border, love.Image:border_texture / returns: NONE
     onFootstep = "onFootstep", -- character walk cycle advances / at: Character:onFootstep(num) / passes: Character:self, int:num / returns: NONE
-    
+
     --game variable events--
     getConfig = "getConfig", -- intercept mod's config value / at: Game:getConfig(key, merge, deep_merge) / passes: string:key / returns: nil|any
     getPaletteColor = "getPaletteColor", -- intercept rgba color pallete value / at: (metatable@PALETTE).__index(t,i) / passes: string:i / returns: nil|table
@@ -242,6 +249,7 @@ KRISTAL_EVENT = {
     onTextSound = "onTextSound", -- overrides text scrawl noise / at: DialogueText:playTextSound(current_node) / passes: string:typing_sound, table:current_node, table:current_state / returns: bool
     registerTextCommands = "registerTextCommands", -- new text is ready to recieve custom command table / passes: Text:self / returns: NONE
     getDialogueTextStyle = "getDialogueTextStyle", -- overrides text style / at: DialogueText:init(text, x, y, w, h, options) / passes: string|table:text, table:options / returns: bool
+    onTextColor = "onTextColor", -- intercepts text color command / at: Text:getModifierColor(color) / passes: string:color, Text:self / returns: nil|table
 
     --input events--
     onKeyPressed = "onKeyPressed", -- overrides key is pressed / at: Game:onKeyPressed(key, is_repeat) / passes: string:key, bool:is_repeat / returns: bool
@@ -256,6 +264,7 @@ KRISTAL_EVENT = {
     loadLayer = "loadLayer", -- overrides the map loading the tile layer data on layer depth, when true / at: Map:loadMapData(data) / passes: Map:self, table:layer, number:depth / returns: bool
     onMapBorder = "onMapBorder", -- intercept game border for this map / at: World:setupMap(map, ...), World:mapTransition(...) / passes: Map:map, string:map_music/ returns: string
     onMapMusic = "onMapMusic", -- intercept game border for this map / at: World:setupMap(map, ...), World:mapTransition(...) / passes: Map:map, string:map_music / returns: string
+    loadObject = "loadObject", -- overrides loading an object / at: Map:loadObjects(data) / passes: World:self, name:string, table:data / returns: Event?
 
     --debug events--
     registerDebugContext = "registerDebugContext", -- new debug ContextMenu created / at: DebugSystem:onMousePressed(x, y, button, istouch, presses), DebugSystem:openObjectContext(object) / passes: ContextMenu:context, Object:selected_object / return: NONE

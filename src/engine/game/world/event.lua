@@ -1,6 +1,6 @@
 --- Events are used as the base class for objects in the Overworld (in most cases)
 --- Custom events should be defined in `scripts/world/events` and extend from this class. They will receive an id based on their filepath from this location.
---- Custom events only ever recieve a `data` argument in their `init()` function that contains all of the data about the object in the map. 
+--- Custom events only ever recieve a `data` argument in their `init()` function that contains all of the data about the object in the map.
 --- Included in the `data` table is the `properties` table, which contains every property in the object's `Custom Properties` in Tiled.
 --- Events can be placed in maps by placing a shape on any `objects` layer and setting its name to the id of the event that should be created.
 ---
@@ -13,6 +13,8 @@
 ---@field sprite            Sprite?
 ---@field unique_id         string
 ---@field world             World       The world that this event is contained in
+---@field data              table
+---@field layer_name        string
 ---
 ---@overload fun(x: number, y: number, shape: table) : Event
 ---@overload fun(data: table) : Event
@@ -27,11 +29,11 @@ local Event, super = Class(Object)
 ---@overload fun(self: Event, data?: table)
 ---@overload fun(self: Event, x?: number, y?: number, shape?: {[1]: number, [2]: number, [3]: table?})
 function Event:init(x, y, width, height)
-    local shape = {0,0}
+    local shape = { 0, 0 }
     if type(width) == "table" then
         shape = width
     elseif type(width) == "number" then
-        shape = {width,height}
+        shape = { width, height }
     end
     if type(x) == "table" then
         local data = x
@@ -43,7 +45,7 @@ function Event:init(x, y, width, height)
     super.init(self, x, y, shape[1], shape[2])
 
     if shape[3] then
-        self.collider = Utils.colliderFromShape(self, {shape = "polygon", polygon = shape[3]})
+        self.collider = TiledUtils.colliderFromShape(self, { shape = "polygon", polygon = shape[3] })
     end
 
     -- Default collider (Object width and height)
@@ -64,10 +66,10 @@ function Event:init(x, y, width, height)
     self.sprite = nil
 
     -- Duration that the player cannot interact with any event after interacting with this one, in seconds (defaults to `5/30`)
-    self.interact_buffer = (5/30)
+    self.interact_buffer = (5 / 30)
 end
 
---- The below callbacks are set back to `nil` to ensure collision checks are 
+--- The below callbacks are set back to `nil` to ensure collision checks are
 --- only run on objects that define collision code
 
 --- *(Override)* Called whenever the player interacts with this event
@@ -112,7 +114,7 @@ function Event:onLoad() end
 function Event:postLoad() end
 
 --- Called when the event is added as the child of another object
----@param parent Object
+---@param parent World|Event
 function Event:onAdd(parent)
     if parent:includes(World) then
         self.world = parent
@@ -122,14 +124,20 @@ function Event:onAdd(parent)
 end
 
 --- Called when the event is removed
----@param parent Object
+---@param parent World|Event
 function Event:onRemove(parent)
-    if self.data then
-        if self.world.map.events_by_name[self.data.name] then
-            Utils.removeFromTable(self.world.map.events_by_name[self.data.name], self)
+    if self.world then
+        TableUtils.removeValue(self.world.map.events, self)
+        if self.data then
+            if self.world.map.events_by_name[self.data.name] then
+                TableUtils.removeValue(self.world.map.events_by_name[self.data.name], self)
+            end
+            if self.world.map.events_by_id[self.data.id] then
+                TableUtils.removeValue(self.world.map.events_by_id[self.data.id], self)
+            end
         end
-        if self.world.map.events_by_id[self.data.id] then
-            Utils.removeFromTable(self.world.map.events_by_id[self.data.id], self)
+        if self.layer_name and self.world.map.events_by_layer[self.layer_name] then
+            TableUtils.removeValue(self.world.map.events_by_layer[self.layer_name], self)
         end
     end
     if parent:includes(World) or parent.world then
@@ -155,7 +163,7 @@ end
 function Event:setFlag(flag, value)
     local uid = self:getUniqueID()
     if uid then
-        Game:setFlag(uid..":"..flag, value)
+        Game:setFlag(uid .. ":" .. flag, value)
     end
 end
 
@@ -166,7 +174,7 @@ end
 function Event:getFlag(flag, default)
     local uid = self:getUniqueID()
     if uid then
-        return Game:getFlag(uid..":"..flag, default)
+        return Game:getFlag(uid .. ":" .. flag, default)
     else
         return default
     end
@@ -176,11 +184,11 @@ end
 --- This variant of `Game:addFlag()` interacts with flags specific to this event's unique id
 ---@param flag      string  The name of the flag to add to
 ---@param amt?      number  (Defaults to `1`)
----@return number new_value
+---@return number? new_value
 function Event:addFlag(flag, amt)
     local uid = self:getUniqueID()
     if uid then
-        return Game:addFlag(uid..":"..flag, amt)
+        return Game:addFlag(uid .. ":" .. flag, amt)
     end
 end
 
@@ -203,7 +211,7 @@ function Event:setSprite(texture, speed, use_size)
             self.collider = Hitbox(self, 0, 0, self.sprite.width * 2, self.sprite.height * 2)
         end
         if use_size or use_size == nil then
-            self:setSize(self.sprite.width*2, self.sprite.height*2)
+            self:setSize(self.sprite.width * 2, self.sprite.height * 2)
         end
     elseif self.sprite then
         self:removeChild(self.sprite)

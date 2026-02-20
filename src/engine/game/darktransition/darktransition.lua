@@ -38,7 +38,7 @@ function DarkTransition:init(final_y, options)
         local x, y = character:localToScreenPos(0, 0)
         x = x / 2
         y = y / 2
-        local movement = (options["movement_table"] or {1, -1})[i] or 0
+        local movement = (options["movement_table"] or { 1, -1 })[i] or 0
         local sprite_holder = self:addChild(Object(x, y))
         local data = {
             x = x,
@@ -259,8 +259,11 @@ function DarkTransition:draw()
 
                 local r_color = { r_darkest, r_darkest, r_darkest, 1 }
 
-                self:drawDoor(self.rx, self.ry, (self.rw * self.rsize[i]), (self.rh * self.rsize[i]),
-                    -math.rad(self.rsize[i]), r_color)
+                self:drawDoor(
+                    self.rx, self.ry,
+                    (self.rw * self.rsize[i]), (self.rh * self.rsize[i]),
+                    -math.rad(self.rsize[i]), r_color
+                )
             end
         end
     end
@@ -547,7 +550,6 @@ function DarkTransition:draw()
                 data.sprite_2:set("white")
                 data.sprite_3:set("dark")
                 data.top = data.sprite_3.texture:getHeight()
-                print(data.top)
 
                 data.sprite_1.cutout_bottom = 0
                 data.sprite_2.cutout_top = data.top
@@ -560,7 +562,7 @@ function DarkTransition:draw()
     end
     if (self.con == 31) then
         self.timer = self.timer + 1 * DTMULT
-        for _,data in ipairs(self.character_data) do
+        for _, data in ipairs(self.character_data) do
             data.sprite_1:setFrame(math.floor(self.index / 4) + 1)
             data.sprite_2:setFrame(math.floor(self.index / 4) + 1)
             data.sprite_3:setFrame(math.floor(self.index / 4) + 1)
@@ -611,7 +613,7 @@ function DarkTransition:draw()
                 end
 
                 if data.top >= 2 then
-                    local x = ((data.x + 3) + math.random((data.sprite_1.width - 6)))
+                    local x = ((data.x + 3) + math.random(data.sprite_3.texture:getWidth() - 6))
                     local y = (data.y + data.top)
 
                     for _ = 1, particle_amount do
@@ -634,8 +636,8 @@ function DarkTransition:draw()
             self.con      = 32
 
             for _, data in ipairs(self.character_data) do
-                data.x = Utils.round(data.x)
-                data.y = Utils.round(data.y)
+                data.x = MathUtils.round(data.x)
+                data.y = MathUtils.round(data.y)
 
                 data.sprite_1:set("smear")
                 data.sprite_1:setFrame(1)

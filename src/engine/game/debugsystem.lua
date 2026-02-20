@@ -10,6 +10,8 @@
 ---
 ---@field filtered_flags_list   string[]        A list of filtered flag keys that should show in the flags menu
 ---
+---@field music                 Music
+---
 ---@overload fun(...) : DebugSystem
 local DebugSystem, super = Class(Object)
 
@@ -42,6 +44,8 @@ function DebugSystem:init()
 
     self.menus = {}
     self.exclusive_menus = {}
+    self.menu_entry_callbacks = {}
+    self.menu_leave_callbacks = {}
 
     self:refresh()
 
@@ -73,7 +77,7 @@ function DebugSystem:init()
     self.context = nil
     self.last_context = nil
 
-    self.search_text = { "" }
+    self.search = { "" }
 
     self.menu_y = 0
     self.menu_target_y = 0
@@ -82,9 +86,13 @@ function DebugSystem:init()
 
     self.mouse_clicked = false
 
+    self.selected_waves = {}
+
     self.playing_sound = nil
     self.old_music_volume = 1
     self.music_needs_reset = false
+
+    self.music = Music()
 
     self.flag_type = "any"
     self.flag_query = { "" }
@@ -98,8 +106,8 @@ function DebugSystem:init()
 end
 
 function DebugSystem:getStage()
-    if Gamestate.current() then
-        return Gamestate.current().stage
+    if Kristal.getState() then
+        return Kristal.getState().stage
     end
 end
 
@@ -156,44 +164,51 @@ function DebugSystem:onMousePressed(x, y, button, istouch, presses)
                     self.context = ContextMenu("Debug")
                     if Game.world then
                         if Game.world.player then
-                            self.context:addMenuItem("Teleport", "Teleport the player to\nthe current position.",
-                                                     function ()
-                                                         Game.world.player:setScreenPos(Input.getCurrentCursorPosition())
-                                                         Game.world.player:interpolateFollowers()
-                                                         self:selectObject(Game.world.player)
-                                                     end)
+                            self.context:addMenuItem(
+                                "Teleport",
+                                "Teleport the player to\nthe current position.",
+                                function()
+                                    Game.world.player:setScreenPos(Input.getCurrentCursorPosition())
+                                    Game.world.player:interpolateFollowers()
+                                    self:selectObject(Game.world.player)
+                                end)
                         else
-                            self.context:addMenuItem("Spawn player", "Spawn the player at the\ncurrent position.",
-                                                     function ()
-                                                         Game.world:spawnPlayer(0, 0, Game.party[1]:getActor())
-                                                         Game.world.player:setScreenPos(Input.getCurrentCursorPosition())
-                                                         Game.world.player:interpolateFollowers()
-                                                         self:selectObject(Game.world.player)
-                                                     end)
+                            self.context:addMenuItem(
+                                "Spawn player",
+                                "Spawn the player at the\ncurrent position.",
+                                function()
+                                    Game.world:spawnPlayer(0, 0, Game.party[1]:getActor())
+                                    Game.world.player:setScreenPos(Input.getCurrentCursorPosition())
+                                    Game.world.player:interpolateFollowers()
+                                    self:selectObject(Game.world.player)
+                                end)
                         end
                     end
                     if self.copied_object then
-                        self.context:addMenuItem("Paste", "Paste the copied object.", function ()
+                        self.context:addMenuItem("Paste", "Paste the copied object.", function()
                             self:pasteObject()
                         end)
                     end
-                    self.context:addMenuItem("Select object", "Select an object by name.", function ()
-                        self.window = DebugWindow("Select Object", "Enter the name of the object to select.", "input",
-                                                  function (text)
-                                                      local stage = self:getStage()
-                                                      if stage then
-                                                          local objects = stage:getObjects()
-                                                          Object.startCache()
-                                                          for _, instance in ipairs(objects) do
-                                                              if Utils.getClassName(instance):lower() == text:lower() then
-                                                                  self:selectObject(instance)
-                                                                  self:openObjectContext(instance)
-                                                                  break
-                                                              end
-                                                          end
-                                                          Object.endCache()
-                                                      end
-                                                  end)
+                    self.context:addMenuItem("Select object", "Select an object by name.", function()
+                        self.window = DebugWindow(
+                            "Select Object",
+                            "Enter the name of the object to select.",
+                            "input",
+                            function(text)
+                                local stage = self:getStage()
+                                if stage then
+                                    local objects = stage:getObjects()
+                                    Object.startCache()
+                                    for _, instance in ipairs(objects) do
+                                        if ClassUtils.getClassName(instance):lower() == text:lower() then
+                                            self:selectObject(instance)
+                                            self:openObjectContext(instance)
+                                            break
+                                        end
+                                    end
+                                    Object.endCache()
+                                end
+                            end)
                         self.window:setPosition(Input.getCurrentCursorPosition())
                         self:addChild(self.window)
                     end)
@@ -209,7 +224,7 @@ function DebugSystem:onMousePressed(x, y, button, istouch, presses)
 end
 
 function DebugSystem:openObjectContext(object)
-    self.context = object:getDebugOptions(ContextMenu(Utils.getClassName(object)))
+    self.context = object:getDebugOptions(ContextMenu(ClassUtils.getClassName(object)))
     self.last_context = self.context
 
     Kristal.callEvent(KRISTAL_EVENT.registerDebugContext, self.context, self.object)
@@ -244,7 +259,7 @@ function DebugSystem:pasteObject(object)
         object:addChild(new_object)
     else
         -- We're not pasting into an object
-        if self.copied_object_parent then
+        if self.copied_object_parent ~= nil then
             self.copied_object_parent:addChild(new_object)
         else
             self:getStage():addChild(new_object)
@@ -253,7 +268,7 @@ function DebugSystem:pasteObject(object)
 
     new_object:setScreenPos(Input.getCurrentCursorPosition())
     self:selectObject(new_object)
-    if self.copied_object_temp then
+    if self.copied_object_temp ~= nil then
         self.copied_object = nil
         self.copied_object_parent = nil
         self.copied_object_temp = false
@@ -261,7 +276,7 @@ function DebugSystem:pasteObject(object)
 end
 
 function DebugSystem:unselectObject()
-    if self.object then
+    if self.object ~= nil then
         self.object:removeFX(self.flash_fx)
     end
     self.object = nil
@@ -269,17 +284,17 @@ function DebugSystem:unselectObject()
 end
 
 function DebugSystem:onMouseReleased(x, y, button, istouch, presses)
-    if self.window then
+    if self.window ~= nil then
         self.grabbing = false
         self.window:onMouseReleased(x, y, button, istouch, presses)
         return
     end
 
-    if self.context then
+    if self.context ~= nil then
         self.context:onMouseReleased(x, y, button, istouch, presses)
     end
     if button == 1 or button == 2 then
-        if self.grabbing then
+        if self.grabbing ~= nil then
             self.grabbing = false
         end
     end
@@ -289,7 +304,6 @@ function DebugSystem:detectObject(x, y)
     -- TODO: Z-Order should take priority!!
     local object_size = math.huge
     local hierarchy_size = -1
-    local found = false
     local object = nil
 
     local stage = self:getStage()
@@ -307,7 +321,6 @@ function DebugSystem:detectObject(x, y)
                         hierarchy_size = new_hierarchy_size
                         object_size = new_object_size
                         object = instance
-                        found = true
                     end
                 end
             end
@@ -318,14 +331,19 @@ function DebugSystem:detectObject(x, y)
 end
 
 function DebugSystem:registerConfigOption(menu, name, description, value, callback)
-    self:registerOption(menu, name, function ()
-                            return self:appendBool(description, Kristal.Config[value])
-                        end, function ()
-                            Kristal.Config[value] = not Kristal.Config[value]
-                            if callback then
-                                callback()
-                            end
-                        end)
+    self:registerOption(
+        menu,
+        name,
+        function()
+            return self:appendBool(description, Kristal.Config[value])
+        end,
+        function()
+            Kristal.Config[value] = not Kristal.Config[value]
+            if callback then
+                callback()
+            end
+        end
+    )
 end
 
 function DebugSystem:appendBool(desc, bool)
@@ -335,9 +353,9 @@ end
 function DebugSystem:refresh()
     self.menus = {}
     self.exclusive_menus = {}
-    self.exclusive_menus["OVERWORLD"] = {"encounter_select", "select_shop", "select_map", "cutscene_select", "legend_select"}
-    self.exclusive_menus["LEGEND"] = {"legend_select"}
-    self.exclusive_menus["BATTLE"] = {"wave_select"}
+    self.exclusive_menus["OVERWORLD"] = { "encounter_select", "select_shop", "select_map", "cutscene_select", "legend_select" }
+    self.exclusive_menus["LEGEND"] = { "legend_select" }
+    self.exclusive_menus["BATTLE"] = { "wave_select", "wave_select_multiple" }
     self:registerMenu("main", "~ KRISTAL DEBUG ~")
     self.current_menu = "main"
     self.menu_history = {}
@@ -345,6 +363,7 @@ function DebugSystem:refresh()
     self:registerSubMenus()
     Kristal.callEvent(KRISTAL_EVENT.registerDebugOptions, self)
     self:setFlagFilterDefaults()
+    self.selected_waves = {}
 end
 
 function DebugSystem:setFlagFilterDefaults()
@@ -358,18 +377,18 @@ function DebugSystem:addToExclusiveMenu(state, id)
         self.exclusive_menus[state] = {}
     end
     if type(id) == "table" then
-        Utils.merge(self.exclusive_menus[state], id)
+        TableUtils.merge(self.exclusive_menus[state], id)
     else
         table.insert(self.exclusive_menus[state], id)
     end
 end
 
-function DebugSystem:fadeMusicOut()
+function DebugSystem:fadeMusicOut(fade_to)
     local music = Game:getActiveMusic()
     if music then
         self.old_music_volume = music.volume
         self.music_needs_reset = true
-        music:fade(0.15, 0.5)
+        music:fade(fade_to or 0.15, 0.5)
     end
 end
 
@@ -388,6 +407,7 @@ function DebugSystem:returnMenu()
     if #self.menu_history == 0 then
         self:closeMenu()
     else
+        self:leaveMenu()
         self.menu_target_y = self.menu_history[#self.menu_history].target_y
         self:enterMenu(self.menu_history[#self.menu_history].name, self.menu_history[#self.menu_history].soul, true)
         table.remove(self.menu_history, #self.menu_history)
@@ -402,6 +422,14 @@ function DebugSystem:registerMenu(id, name, type)
     }
 end
 
+function DebugSystem:registerMenuEntry(id, func)
+    self.menu_entry_callbacks[id] = func
+end
+
+function DebugSystem:registerMenuLeave(id, func)
+    self.menu_leave_callbacks[id] = func
+end
+
 function DebugSystem:enterMenu(menu, soul, skip_history)
     if not skip_history then
         table.insert(self.menu_history, {
@@ -411,13 +439,19 @@ function DebugSystem:enterMenu(menu, soul, skip_history)
         })
     end
     self.current_menu = menu
-    self.current_selecting = soul or 1
+    self.current_selecting = soul or self.current_selecting or 1
+    self:updateBounds(self:getValidOptions())
 
-    if self.menus[self.current_menu].type == "search" then
-        self.search = { "" }
-        --self:sortMenuOptions(self.current_menu)
+    if (self.menu_entry_callbacks[self.current_menu]) then
+        self.menu_entry_callbacks[self.current_menu]()
+    end
 
-        self:startTextInput()
+    self.search = { "" }
+end
+
+function DebugSystem:leaveMenu()
+    if (self.menu_leave_callbacks[self.current_menu]) then
+        self.menu_leave_callbacks[self.current_menu]()
     end
 end
 
@@ -429,22 +463,17 @@ function DebugSystem:startTextInput(tbl)
         clear_after_submit = false
     })
 
-    TextInput.submit_callback = function (...)
+    TextInput.submit_callback = function()
         Assets.playSound("ui_select")
-        self.current_selecting = self.current_selecting + 1
         self:updateBounds(self:getValidOptions())
         TextInput.endInput()
-        if (self.current_selecting == 0) then
-            self:returnMenu()
-        end
-        --love.keyboard.setKeyRepeat(true)
     end
 
     Input.clear("down")
     Input.clear("gamepad:lsdown")
     Input.clear("gamepad:dpdown")
 
-    TextInput.pressed_callback = function (key)
+    TextInput.pressed_callback = function(key)
         if not Input.shouldProcess(key) then return end
 
         if key == "down" or key == "gamepad:lsdown" or key == "gamepad:dpdown" then
@@ -460,18 +489,21 @@ function DebugSystem:startTextInput(tbl)
 end
 
 function DebugSystem:sortMenuOptions(options, filter)
-    table.sort(options, function (a, b)
-        return a.name < b.name
-    end)
+    table.sort(
+        options,
+        function(a, b)
+            return a.name < b.name
+        end
+    )
     if filter then
-        local copied_options = Utils.copy(options)
+        local copied_options = TableUtils.copy(options)
 
         -- Make two tables, one for starting WITH the filter, and one for CONTAINING the filter.
 
         local start_with = {}
         for i = #copied_options, 1, -1 do
             local item = copied_options[i]
-            if Utils.startsWith(item.name:lower(), filter:lower()) then
+            if StringUtils.startsWith(item.name:lower(), filter:lower()) then
                 table.insert(start_with, 1, item)
                 table.remove(copied_options, i)
             end
@@ -480,13 +512,13 @@ function DebugSystem:sortMenuOptions(options, filter)
         local contains = {}
         for i = #copied_options, 1, -1 do
             local item = copied_options[i]
-            if Utils.contains(item.name:lower(), filter:lower()) then
+            if StringUtils.contains(item.name:lower(), filter:lower()) then
                 table.insert(contains, 1, item)
                 table.remove(copied_options, i)
             end
         end
 
-        Utils.clear(options)
+        TableUtils.clear(options)
         for _, item in ipairs(start_with) do
             table.insert(options, item)
         end
@@ -500,36 +532,59 @@ end
 function DebugSystem:registerSubMenus()
     self:registerMenu("engine_options", "Engine Options")
     self:registerConfigOption("engine_options", "Show FPS", "Toggle the FPS display.", "showFPS")
-    self:registerOption("engine_options", "Target FPS", function ()
-                            local fps_text = Kristal.Config["fps"] > 0 and tostring(Kristal.Config["fps"]) or "Unlimited"
-                            return "Set the target FPS. (" .. fps_text .. ")"
-                        end, function ()
-                            self:enterMenu("engine_option_fps", 1)
-                        end)
-    self:registerConfigOption("engine_options", "VSync", "Toggle Vsync.", "vSync", function ()
-        love.window.setVSync(Kristal.Config["vSync"] and 1 or 0)
-    end)
+    self:registerOption(
+        "engine_options",
+        "Target FPS",
+        function()
+            local fps_text = Kristal.Config["fps"] > 0 and tostring(Kristal.Config["fps"]) or "Unlimited"
+            return "Set the target FPS. (" .. fps_text .. ")"
+        end,
+        function()
+            self:enterMenu("engine_option_fps", 1)
+        end
+    )
+
+    self:registerConfigOption(
+        "engine_options",
+        "VSync",
+        "Toggle Vsync.",
+        "vSync",
+        function()
+            love.window.setVSync(Kristal.Config["vSync"] and 1 or 0)
+        end
+    )
+
     self:registerConfigOption("engine_options", "Frame Skip", "Toggle frame skipping.", "frameSkip")
-    self:registerOption("engine_options", "Print Performance", "Show performance in the console.",
-                        function () PERFORMANCE_TEST_STAGE = "UPDATE" end)
-    self:registerOption("engine_options", "Force GC", "Force a garbage collection.",
-                        function () collectgarbage("collect") end)
-    self:registerOption("engine_options", "Force Crash", "Force a crash.", function () error("Debug crash!") end)
-    self:registerOption("engine_options", "Back", "Go back to the previous menu.", function () self:returnMenu() end)
+    self:registerOption("engine_options", "Print Performance", "Show performance in the console.", function() PERFORMANCE_TEST_STAGE = "UPDATE" end)
+    self:registerOption("engine_options", "Force GC", "Force a garbage collection.", function() collectgarbage("collect") end)
+    self:registerOption("engine_options", "Force Crash", "Force a crash.", function() error("Debug crash!") end)
+    self:registerOption("engine_options", "Back", "Go back to the previous menu.", function() self:returnMenu() end)
 
     self:registerMenu("engine_option_fps", "Target FPS")
-    self:registerOption("engine_option_fps", "Unlimited", "Set the target FPS to unlimited.",
-                        function ()
-                            Kristal.Config["fps"] = 0; FRAMERATE = 0
-                        end)
-    for _,fps in ipairs({30, 60, 120, 144, 165, 240}) do
-        self:registerOption("engine_option_fps", fps, "Set the target FPS to "..fps..".",
-                            function ()
-                                Kristal.Config["fps"] = fps; FRAMERATE = fps
-                            end)
+    self:registerOption(
+        "engine_option_fps",
+        "Unlimited",
+        "Set the target FPS to unlimited.",
+        function()
+            Kristal.Config["fps"] = 0
+            FRAMERATE = 0
+        end
+    )
+
+    for _, fps in ipairs({ 30, 60, 120, 144, 165, 240 }) do
+        self:registerOption(
+            "engine_option_fps",
+            tostring(fps),
+            "Set the target FPS to " .. fps .. ".",
+            function()
+                Kristal.Config["fps"] = fps
+                FRAMERATE = fps
+            end
+        )
     end
-    self:registerOption("engine_option_fps", "Custom", "Set the target FPS to a custom value.", function ()
-        self.window = DebugWindow("Enter FPS", "Enter the target FPS youd like.", "input", function (text)
+
+    self:registerOption("engine_option_fps", "Custom", "Set the target FPS to a custom value.", function()
+        self.window = DebugWindow("Enter FPS", "Enter the target FPS youd like.", "input", function(text)
             local fps = tonumber(text)
             if fps then
                 Kristal.Config["fps"] = fps
@@ -539,192 +594,479 @@ function DebugSystem:registerSubMenus()
         self.window:setPosition(Input.getCurrentCursorPosition())
         self:addChild(self.window)
     end)
-    self:registerOption("engine_option_fps", "Back", "Go back to the previous menu.", function () self:returnMenu() end)
+
+    self:registerOption("engine_option_fps", "Back", "Go back to the previous menu.", function() self:returnMenu() end)
     
     self:registerMenu("fast_forward", "Fast Forward")
-    self:registerOption("fast_forward", "[Toggle]", 
-                        function () return self:appendBool("Speed up the engine.", FAST_FORWARD) end,
-                        function () FAST_FORWARD = not FAST_FORWARD end)
-    for _,speed in ipairs({0.05, 0.1, 0.2, 0.5, 1.5, 2, 5, 10}) do
-        self:registerOption("fast_forward", "x"..speed, "Set the fast forward speed to x"..speed.." multiplier.",
-                            function ()
-                                FAST_FORWARD_SPEED = speed
-                            end)
+    self:registerOption(
+        "fast_forward",
+        "[Toggle]",
+        function() return self:appendBool("Speed up the engine.", FAST_FORWARD) end,
+        function() FAST_FORWARD = not FAST_FORWARD end
+    )
+
+    for _, speed in ipairs({ 0.05, 0.1, 0.2, 0.5, 1.5, 2, 5, 10 }) do
+        self:registerOption(
+            "fast_forward",
+            "x" .. speed,
+            "Set the fast forward speed to x" .. speed .. " multiplier.",
+            function()
+                FAST_FORWARD_SPEED = speed
+            end
+        )
     end
-    self:registerOption("fast_forward", "Back", "Go back to the previous menu.", function () self:returnMenu() end)
+
+    self:registerOption("fast_forward", "Back", "Go back to the previous menu.", function() self:returnMenu() end)
 
     self:registerMenu("give_item", "Give Item", "search")
 
     for id, item_data in pairs(Registry.items) do
         local item = item_data()
-        self:registerOption("give_item", item.name + (item.light and " (Light Item)" or ""), item.description, function ()
-            Game.inventory:tryGiveItem(item_data())
-        end)
+        self:registerOption(
+            "give_item",
+            item.name .. (item.light and " (Light Item)" or ""),
+            item.description,
+            function()
+                Game.inventory:tryGiveItem(item_data())
+            end
+        )
     end
 
     self:registerMenu("select_map", "Select Map", "search")
     -- Registry.map_data instead of Registry.maps
     for id, _ in pairs(Registry.map_data) do
-        self:registerOption("select_map", id, "Teleport to this map.", function ()
-            if Game.world.cutscene then
-                Game.world:stopCutscene()
+        self:registerOption(
+            "select_map",
+            id,
+            "Teleport to this map.",
+            function()
+                if Game.world.cutscene then
+                    Game.world:stopCutscene()
+                end
+                Game.lock_movement = false
+                Game.world:loadMap(id)
+                self:closeMenu()
             end
-            Game.lock_movement = false
-            Game.world:loadMap(id)
-            self:closeMenu()
-        end)
+        )
     end
 
 
     self:registerMenu("encounter_select", "Encounter Select", "search")
     -- loop through registry and add menu options for all encounters
     for id, _ in pairs(Registry.encounters) do
-        self:registerOption("encounter_select", id, "Start this encounter.", function ()
-            Game:encounter(id)
-            self:closeMenu()
-        end)
+        self:registerOption(
+            "encounter_select",
+            id,
+            "Start this encounter.",
+            function()
+                Game:encounter(id)
+                self:closeMenu()
+            end
+        )
     end
 
     self:registerMenu("select_shop", "Enter Shop", "search")
     for id, _ in pairs(Registry.shops) do
-        self:registerOption("select_shop", id, "Enter this shop.", function ()
-            Game:enterShop(id)
-            self:closeMenu()
-        end)
+        self:registerOption(
+            "select_shop",
+            id,
+            "Enter this shop.",
+            function()
+                Game:enterShop(id)
+                self:closeMenu()
+            end
+        )
     end
 
     self:registerMenu("cutscene_select", "Cutscene Select", "search")
-    
-    -- add a cutscene stopper
-    self:registerOption("cutscene_select", "[Stop Current Cutscene]", "Stop the current playing cutscene.", function ()
-        if Game.world:hasCutscene() then
-            Game.world:stopCutscene()
+
+    self:registerOption(
+        "cutscene_select",
+        "[Stop Current Cutscene]",
+        "Stop the current playing cutscene.",
+        function()
+            if Game.world:hasCutscene() then
+                Game.world:stopCutscene()
+            end
+            self:closeMenu()
         end
-        self:closeMenu()
-    end)
-    
+    )
+
     -- loop through registry and add menu options for all cutscenes
     for group, cutscene in pairs(Registry.world_cutscenes) do
         if type(cutscene) == "table" then
             for id, _ in pairs(cutscene) do
-                self:registerOption("cutscene_select", group .. "." .. id, "Start this cutscene.", function ()
-                    if not Game.world:hasCutscene() then
-                        Game.world:startCutscene(group, id)
+                self:registerOption(
+                    "cutscene_select",
+                    group .. "." .. id,
+                    "Start this cutscene.",
+                    function()
+                        if not Game.world:hasCutscene() then
+                            Game.world:startCutscene(group, id)
+                        end
+                        self:closeMenu()
                     end
-                    self:closeMenu()
-                end)
+                )
             end
         else
-            self:registerOption("cutscene_select", group, "Start this cutscene.", function ()
-                if not Game.world:hasCutscene() then
-                    Game.world:startCutscene(group)
+            self:registerOption(
+                "cutscene_select",
+                group,
+                "Start this cutscene.",
+                function()
+                    if not Game.world:hasCutscene() then
+                        Game.world:startCutscene(group)
+                    end
+                    self:closeMenu()
                 end
-                self:closeMenu()
-            end)
+            )
         end
     end
 
     self:registerMenu("legend_select", "Legend Select", "search")
 
-    -- add a legend stopper
-    self:registerOption("legend_select", "[Stop Current Legend]", "Stop the current playing Legend.", function ()
-        if Game.state == "LEGEND" then
-            Game.legend.cutscene:onEnd()
+    self:registerOption(
+        "legend_select",
+        "[Stop Current Legend]",
+        "Stop the current playing Legend.",
+        function()
+            if Game.state == "LEGEND" then
+                Game.legend.cutscene:onEnd()
+            end
+            self:closeMenu()
         end
-        self:closeMenu()
-    end)
+    )
 
     -- loop through registry and add menu options for all legends
     for cutscene, _ in pairs(Registry.legend_cutscenes) do
-        self:registerOption("legend_select", cutscene, "Start this legend.", function ()
-            if Game.state ~= "LEGEND" then
-                Game:fadeIntoLegend(cutscene)
+        self:registerOption(
+            "legend_select",
+            cutscene,
+            "Start this legend.",
+            function()
+                if Game.state ~= "LEGEND" then
+                    Game:fadeIntoLegend(cutscene)
+                end
+                self:closeMenu()
             end
-            self:closeMenu()
-        end)
+        )
     end
 
     self:registerMenu("wave_select", "Wave Select", "search")
-    
+
     -- add a wave stopper
-    self:registerOption("wave_select", "[Stop Current Wave]", "Stop the current playing wave.", function ()
-        if Game.battle:getState() == "DEFENDING" then
-            Game.battle.encounter:onWavesDone()
+    self:registerOption(
+        "wave_select",
+        "[Stop Current Wave]",
+        "Stop the current playing wave.",
+        function()
+            if Game.battle:getState() == "DEFENDING" then
+                Game.battle:endWaves()
+            end
+            self:closeMenu()
         end
-        self:closeMenu()
-    end)
-    
+    )
+
     -- loop through registry and add menu options for all waves
     local waves_list = {}
     for id, _ in pairs(Registry.waves) do
         table.insert(waves_list, id)
     end
 
-    table.sort(waves_list, function (a, b)
+    table.sort(waves_list, function(a, b)
         return a < b
     end)
 
     for _, id in ipairs(waves_list) do
-        self:registerOption("wave_select", id, "Start this wave.", function ()
-            if Game.battle:getState() == "ACTIONSELECT" then
-                Game.battle:setState("DEFENDINGBEGIN", { id })
+        self:registerOption(
+            "wave_select",
+            id,
+            "Start this wave.",
+            function()
+                if Game.battle:getState() == "ACTIONSELECT" then
+                    Game.battle:setState("DEFENDINGBEGIN", { id })
+                end
+                self:closeMenu()
             end
-            self:closeMenu()
-        end)
+        )
+    end
+
+    self:registerMenu("wave_select_multiple", "Multiple Wave Select", "search")
+
+    self:registerOption(
+        "wave_select_multiple",
+        "[Start Waves]",
+        "Start the selected waves.",
+        function()
+            if #self.selected_waves > #Game.battle:getActiveEnemies() then
+                return false
+            end
+            -- WARNING: Prepare eye bleach before reading function
+            if Game.battle:getState() == "ACTIONSELECT" then
+                -- Step 1: Creates a table of enemies that can (normally) use each wave
+                local enemy_matches = {}
+                for _, wave in ipairs(self.selected_waves) do
+                    enemy_matches[wave] = {}
+                    for _, enemy in ipairs(Game.battle:getActiveEnemies()) do
+                        if TableUtils.contains(enemy.waves, wave) then
+                            table.insert(enemy_matches[wave], enemy)
+                        end
+                    end
+                end
+                -- Step 2: Assign waves to enemies
+                -- Table for waves that don't get a match at this stage
+                local assign_randomly = {}
+                for i = 0, #self.selected_waves do
+                    for wave, enemies in pairs(enemy_matches) do
+                        -- Process the least matches first
+                        if #enemies == i then
+                            -- Skip over everything that didn't get a match
+                            if i == 0 then
+                                table.insert(assign_randomly, wave)
+                                goto continue
+                            end
+                            local success
+                            -- Find the first enemy that can use this wave and set it on them
+                            for _, enemy in ipairs(enemies) do
+                                if not enemy.selected_wave then
+                                    enemy.selected_wave = wave
+                                    success = true
+                                    break
+                                end
+                            end
+
+                            -- Oops! Accidentally assigned all of the enemies this fit on already
+                            if not success then
+                                table.insert(assign_randomly, wave)
+                            end
+                        end
+                        ::continue::
+                    end
+                end
+                -- Step 3: All the waves we couldn't assign before get chucked on enemies randomly
+                for _, wave in ipairs(assign_randomly) do
+                    for _, enemy in ipairs(Game.battle:getActiveEnemies()) do
+                        if not enemy.selected_wave then
+                            enemy.selected_wave = wave
+                            break
+                        end
+                    end
+                end
+                Game.battle:setState("DEFENDINGBEGIN", self.selected_waves)
+            end
+        end,
+        nil,
+        function()
+            return #self.selected_waves > #Game.battle:getActiveEnemies() and COLORS.silver or COLORS.white
+        end
+    )
+
+    self:registerOption(
+        "wave_select_multiple",
+        "[Clear Selection]",
+        "Clear the currently selected waves.",
+        function()
+            self.selected_waves = {}
+        end
+    )
+
+    -- self:registerOption(
+    --     "wave_select_multiple",
+    --     "[Stop Current Wave]",
+    --     "Stop the current playing wave.",
+    --     function()
+    --         if Game.battle:getState() == "DEFENDING" then
+    --             Game.battle:endWaves()
+    --         end
+    --         self:closeMenu()
+    --     end
+    -- )
+
+    table.sort(waves_list, function(a, b)
+        return a < b
+    end)
+
+    local function getWaveSpaceString()
+        return "(" .. #self.selected_waves .. "/" .. #Game.battle:getActiveEnemies() .. ")"
+    end
+
+    for _, id in ipairs(waves_list) do
+        self:registerOption(
+            "wave_select_multiple",
+            id,
+            function()
+                if TableUtils.contains(self.selected_waves, id) then
+                    return "Remove this wave from the selected group. " .. getWaveSpaceString()
+                end
+                return "Add this wave to the selected group. " .. getWaveSpaceString()
+            end,
+            function()
+                if TableUtils.contains(self.selected_waves, id) then
+                    TableUtils.removeValue(self.selected_waves, id)
+                elseif #self.selected_waves < #Game.battle:getActiveEnemies() then
+                    table.insert(self.selected_waves, id)
+                else
+                    return false
+                end
+            end,
+            nil,
+            function()
+                return TableUtils.contains(self.selected_waves, id) and COLORS.aqua or #self.selected_waves >= #Game.battle:getActiveEnemies() and COLORS.silver or COLORS.white
+            end
+        )
     end
 
     self:registerMenu("sound_test", "Sound Test", "search")
+    self:registerMenuEntry(
+        "sound_test",
+        function()
+            self:fadeMusicOut()
+        end
+    )
+
+    self:registerMenuLeave(
+        "sound_test",
+        function()
+            self:fadeMusicIn()
+        end
+    )
 
     for id, _ in pairs(Assets.sounds) do
-        self:registerOption("sound_test", id, "Play this sound.", function ()
-            if self.playing_sound then
-                self.playing_sound:stop()
+        self:registerOption(
+            "sound_test",
+            id,
+            "Play this sound.",
+            function()
+                if self.playing_sound then
+                    self.playing_sound:stop()
+                end
+                self.playing_sound = Assets.playSound(id)
             end
-            self.playing_sound = Assets.playSound(id)
-        end)
+        )
+    end
+
+    self:registerMenu("music_test", "Music Test", "search")
+    self:registerMenuEntry(
+        "music_test",
+        function()
+            self:fadeMusicOut(0)
+        end
+    )
+    self:registerMenuLeave(
+        "music_test",
+        function()
+            self:fadeMusicIn()
+            self.music:fade(
+                0, 0.5,
+                function()
+                    self.music:stop()
+                end
+            )
+        end
+    )
+
+    for id, _ in pairs(Assets.data.music) do
+        self:registerOption(
+            "music_test",
+            id,
+            "Play this music track.",
+            function()
+                self.music:setVolume(1)
+                self.music:play(id)
+            end,
+            nil,
+            function()
+                return self.music:isPlaying() and self.music.current == id and COLORS.aqua or COLORS.white
+            end
+        )
     end
 
     self:registerMenu("change_party", "Change Party", "search")
 
     for id, _ in pairs(Registry.party_members) do
-        self:registerOption("change_party", id, "Add or remove this party member from the party.", function ()
-            if (Game:hasPartyMember(id)) then
-                local char = Game.world:getPartyCharacterInParty(id)
-                local first_follower_char
-                if char then
-                    if char == Game.world.player then
-                        for _,party in ipairs(Game.party) do
-                            if id ~= party.id then
-                                first_follower_char = Game.world:getPartyCharacterInParty(party)
-                                if first_follower_char then
-                                    first_follower_char:convertToPlayer()
-                                    break
+        self:registerOption(
+            "change_party",
+            id,
+            "Add or remove this party member from the party.",
+            function()
+                if (Game:hasPartyMember(id)) then
+                    local char = Game.world:getPartyCharacterInParty(id)
+                    local first_follower_char
+                    if char then
+                        if char == Game.world.player then
+                            for _, party in ipairs(Game.party) do
+                                if id ~= party.id then
+                                    first_follower_char = Game.world:getPartyCharacterInParty(party)
+                                    if first_follower_char then
+                                        first_follower_char:convertToPlayer()
+                                        break
+                                    end
                                 end
                             end
                         end
+                        char:remove()
                     end
-                    char:remove()
-                end
-                Game:removePartyMember(id)
-            else
-                Game:addPartyMember(id)
-                if Game.world.player then
-                    Game.world:spawnFollower(Game.party_data[id]:getActor(), {party = id})
+                    Game:removePartyMember(id)
                 else
-                    local x, y = Game.world.camera:getPosition()
-                    Game.world:spawnPlayer(x, y, Game.party_data[id]:getActor(), id)
+                    Game:addPartyMember(id)
+                    if Game.world.player then
+                        Game.world:spawnFollower(Game.party_data[id]:getActor(), { party = id })
+                    else
+                        local x, y = Game.world.camera:getPosition()
+                        Game.world:spawnPlayer(x, y, Game.party_data[id]:getActor(), id)
+                    end
                 end
+            end,
+            nil,
+            function()
+                return Game:hasPartyMember(id) and COLORS.aqua or COLORS.white
             end
+        )
+    end
+
+    -- TODO: toggle rather than only give
+
+    self:registerMenu("give_spell", "Give Spell", "search")
+
+    for id, _ in pairs(Registry.party_members) do
+        self:registerMenu("give_spell_" .. id, "Give Spell to " .. id, "search")
+        for spell_id, _ in pairs(Registry.spells) do
+            self:registerOption(
+                "give_spell_" .. id,
+                spell_id,
+                function()
+                    local member = Game.party_data[id]
+                    return member and (not member:hasSpell(spell_id) and "Give this spell to " .. id .. "." or "Take this spell from " .. id .. ".") or "???" -- Failsafe (when would this happen?)
+                end,
+                function()
+                    local member = Game.party_data[id]
+                    if member then
+                        if not member:hasSpell(spell_id) then
+                            member:addSpell(spell_id)
+                        else
+                            member:removeSpell(spell_id)
+                        end
+                    end
+                end,
+                nil,
+                function()
+                    return Game.party_data[id]:hasSpell(spell_id) and COLORS.aqua or COLORS.white
+                end
+            )
+        end
+
+        self:registerOption("give_spell", id, "Give a spell to this party member.", function()
+            self:enterMenu("give_spell_" .. id, 1)
         end)
     end
-    
+
     self:registerMenu("border_menu", "Border Test", "search")
-    
-    local borders = Utils.getFilesRecursive("assets/sprites/borders", ".png")
+
+    local borders = FileSystemUtils.getFilesRecursive("assets/sprites/borders", ".png")
     if Mod then
-        Utils.merge(borders, Utils.getFilesRecursive(Mod.info.path.."/assets/sprites/borders", ".png"))
-        for _,mod_lib in pairs(Mod.libs) do
-            Utils.merge(borders, Utils.getFilesRecursive(mod_lib.info.path.."/assets/sprites/borders", ".png"))
+        TableUtils.merge(borders, FileSystemUtils.getFilesRecursive(Mod.info.path .. "/assets/sprites/borders", ".png"))
+        for _, mod_lib in pairs(Mod.libs) do
+            TableUtils.merge(borders, FileSystemUtils.getFilesRecursive(mod_lib.info.path .. "/assets/sprites/borders", ".png"))
         end
     end
 
@@ -732,109 +1074,308 @@ function DebugSystem:registerSubMenus()
         table.insert(borders, key)
     end
 
-    for _,border in ipairs(Utils.removeDuplicates(borders)) do
+    for _, border in ipairs(TableUtils.removeDuplicates(borders)) do
         self:registerOption("border_menu", border, "Switch to the border \"" .. border .. "\".", function() Game:setBorder(border) end)
     end
 end
 
 function DebugSystem:registerDefaults()
-    local in_game = function () return Kristal.getState() == Game end
-    local in_battle = function () return in_game() and Game.state == "BATTLE" end
-    local in_overworld = function () return in_game() and Game.state == "OVERWORLD" end
+    local in_game = function() return Kristal.getState() == Game end
+    local in_battle = function() return in_game() and Game.state == "BATTLE" end
+    local in_overworld = function() return in_game() and Game.state == "OVERWORLD" end
     local in_legend = function() return in_game() and Game.state == "LEGEND" end
 
     -- Global
-    self:registerConfigOption("main", "Object Selection Pausing",
-                              "Pauses the game when the object selection menu is opened.", "objectSelectionSlowdown")
 
-    self:registerOption("main", "Engine Options", "Configure various noningame options.", function ()
-        self:enterMenu("engine_options", 1)
-    end)
-
-    self:registerOption("main", "Fast Forward", function () return self:appendBool("Speed up the engine.", FAST_FORWARD) end,
-                                                function () self:enterMenu("fast_forward", 1)
-    end)
-    
-    self:registerOption("main", "Debug Rendering",
-                        function () return self:appendBool("Draw debug information.", DEBUG_RENDER) end,
-                        function () DEBUG_RENDER = not DEBUG_RENDER end)
-    self:registerOption("main", "Hotswap", "Swap out code from the files. Might be unstable.",
-                        function ()
-                            Hotswapper.scan(); self:refresh()
-                        end)
-    self:registerOption("main", "Reload", "Reload the mod. Hold shift to\nnot temporarily save.", function ()
-        if Kristal.getModOption("hardReset") then
-            love.event.quit("restart")
-        else
-            if Mod then
-                Kristal.quickReload(Input.shift() and "save" or "temp")
-            else
-                Kristal.returnToMenu()
-            end
+    self:registerOption(
+        "main",
+        "Engine Options",
+        "Configure various noningame options.",
+        function()
+            self:enterMenu("engine_options", 1)
         end
-    end)
-
-    self:registerOption("main", "Noclip",
-                        function () return self:appendBool("Toggle interaction with solids.", NOCLIP) end,
-                        function () NOCLIP = not NOCLIP end,
-                        in_game
     )
 
-    self:registerOption("main", "Give Item", "Give an item.", function ()
-                            self:enterMenu("give_item", 0)
-                        end, in_game)
+    self:registerConfigOption("main", "Selection Timestop", "Pauses the game when the object selection menu is opened.", "objectSelectionSlowdown")
 
-    self:registerOption("main", "Portrait Viewer", "Enter the portrait viewer menu.", function ()
-                            self:setState("FACES")
-                        end, in_game)
+    self:registerOption(
+        "main",
+        "Fast Forward",
+        function()
+            return self:appendBool("Speed up the engine.", FAST_FORWARD)
+        end,
+        function()
+            self:enterMenu("fast_forward", 1)
+        end
+    )
 
-    self:registerOption("main", "Flag Editor", "Enter the flag editor menu.", function ()
-                            self:setState("FLAGS")
-                        end, in_game)
+    self:registerOption(
+        "main",
+        "Debug Rendering",
+        function() return self:appendBool("Draw debug information.", DEBUG_RENDER) end,
+        function() DEBUG_RENDER = not DEBUG_RENDER end
+    )
 
-    self:registerOption("main", "Sound Test", "Enter the sound test menu.", function ()
-                            self:fadeMusicOut()
-                            self:enterMenu("sound_test", 0)
-                        end, in_game)
+    self:registerOption(
+        "main",
+        "Hotswap",
+        "Swap out code from the files. Might be unstable.",
+        function()
+            Hotswapper.scan()
+            self:refresh()
+        end
+    )
 
-    self:registerOption("main", "Change Party", "Enter the party change menu.", function ()
-                            self:enterMenu("change_party", 0)
-                        end, in_game)
-                        
-    self:registerOption("main", "Border Test", "Enter the border test menu.", function() 
-                            self:enterMenu("border_menu", 0)
-                        end, function() return in_game() and Kristal.Config["borders"] == "dynamic" end)
+    local not_loading = function() return not Kristal.isLoading() and Kristal.getState() ~= LoadingState end
+
+    if Mod then
+        local hard_reset = Kristal.getModOption("hardReset")
+        if hard_reset then
+            self:registerOption(
+                "main", "Reload", "Reload the mod.",
+                function()
+                    love.event.quit("restart")
+                end,
+                not_loading
+            )
+        else
+            self:registerOption(
+                "main",
+                "Reload (tempsave)",
+                "Reload the mod, creating a temporary save.",
+                function()
+                    if Kristal.getModOption("hardReset") then
+                        love.event.quit("restart")
+                    elseif Mod then
+                        Kristal.quickReload("temp")
+                    end
+                end,
+                not_loading
+            )
+
+            if not hard_reset then
+                self:registerOption(
+                    "main",
+                    "Reload (from save)",
+                    "Reload the mod from your current save.",
+                    function()
+                        Kristal.quickReload("save")
+                    end,
+                    not_loading
+                )
+            end
+        end
+    else
+        -- we're not in a mod, so just return to main menu (which should reload assets)
+        self:registerOption(
+            "main",
+            "Reload",
+            "Reload the engine.",
+            function()
+                Kristal.returnToMenu()
+            end,
+            not_loading
+        )
+    end
+
+    self:registerOption(
+        "main",
+        "Noclip",
+        function() return self:appendBool("Toggle interaction with solids.", NOCLIP) end,
+        function() NOCLIP = not NOCLIP end,
+        in_game
+    )
+
+    self:registerOption(
+        "main",
+        "Give Item",
+        "Give an item.",
+        function()
+            self:enterMenu("give_item", 0)
+        end,
+        in_game
+    )
+
+    self:registerOption(
+        "main", "Give Money", "Give an amount of money.",
+        function()
+            self.window = DebugWindow(
+                "Enter Money", "Enter the money amount you'd like.", "input",
+                function(text)
+                    local money = tonumber(text)
+                    if money then
+                        if Game:isLight() then
+                            Game.lw_money = Game.lw_money + money
+                        else
+                            Game.money = Game.money + money
+                        end
+                        Assets.stopAndPlaySound("bell_bounce_short")
+                    end
+                end
+            )
+
+            self.window:setPosition(Input.getCurrentCursorPosition())
+            self:addChild(self.window)
+        end,
+        in_game
+    )
+
+    self:registerOption(
+        "main",
+        "Portrait Viewer",
+        "Enter the portrait viewer menu.",
+        function()
+            self:setState("FACES")
+        end,
+        in_game
+    )
+
+    self:registerOption(
+        "main",
+        "Flag Editor",
+        "Enter the flag editor menu.",
+        function()
+            self:setState("FLAGS")
+        end,
+        in_game
+    )
+
+    self:registerOption(
+        "main",
+        "Sound Test",
+        "Enter the sound test menu.",
+        function()
+            self:enterMenu("sound_test", 0)
+        end,
+        in_game
+    )
+
+    self:registerOption(
+        "main",
+        "Music Test",
+        "Enter the music test menu.",
+        function()
+            self:enterMenu("music_test", 0)
+        end,
+        in_game
+    )
+
+    self:registerOption(
+        "main",
+        "Change Party",
+        "Enter the party change menu.",
+        function()
+            self:enterMenu("change_party", 0)
+        end,
+        in_game
+    )
+
+    self:registerOption(
+        "main",
+        "Border Test",
+        "Enter the border test menu.",
+        function()
+            self:enterMenu("border_menu", 0)
+        end,
+        function()
+            return in_game() and Kristal.Config["borders"] == "dynamic"
+        end
+    )
+
+    self:registerOption(
+        "main",
+        "Give Spell",
+        "Give a spell to a party member.",
+        function()
+            self:enterMenu("give_spell", 0)
+        end,
+        in_game
+    )
 
     -- World specific
-    self:registerOption("main", "Select Map", "Switch to a new map.", function ()
-                            self:enterMenu("select_map", 0)
-                        end, in_overworld)
+    self:registerOption(
+        "main",
+        "Select Map",
+        "Switch to a new map.",
+        function()
+            self:enterMenu("select_map", 0)
+        end,
+        in_overworld
+    )
 
-    self:registerOption("main", "Start Encounter", "Start an encounter.", function ()
-                            self:enterMenu("encounter_select", 0)
-                        end, in_overworld)
+    self:registerOption(
+        "main",
+        "Start Encounter",
+        "Start an encounter.",
+        function()
+            self:enterMenu("encounter_select", 0)
+        end,
+        in_overworld
+    )
 
-    self:registerOption("main", "Enter Shop", "Enter a shop.", function ()
-                            self:enterMenu("select_shop", 0)
-                        end, in_overworld)
+    self:registerOption(
+        "main",
+        "Enter Shop",
+        "Enter a shop.",
+        function()
+            self:enterMenu("select_shop", 0)
+        end,
+        in_overworld
+    )
 
-    self:registerOption("main", "Play Cutscene", "Play a cutscene.", function ()
-                            self:enterMenu("cutscene_select", 0)
-                        end, in_overworld)
+    self:registerOption(
+        "main",
+        "Play Cutscene",
+        "Play a cutscene.",
+        function()
+            self:enterMenu("cutscene_select", 0)
+        end,
+        in_overworld
+    )
 
-    self:registerOption("main", "Play Legend", "Play a legend cutscene.", function ()
-                            self:enterMenu("legend_select", 0)
-                        end, function() return in_overworld() or in_legend() end)
+    self:registerOption(
+        "main",
+        "Play Legend",
+        "Play a legend cutscene.",
+        function()
+            self:enterMenu("legend_select", 0)
+        end,
+        function()
+            return in_overworld() or in_legend()
+        end
+    )
 
     -- Battle specific
-    self:registerOption("main", "Start Wave", "Start a wave.", function ()
-                            self:enterMenu("wave_select", 0)
-                        end, in_battle)
+    self:registerOption(
+        "main",
+        "Start Wave",
+        "Start a wave.",
+        function()
+            self:enterMenu("wave_select", 0)
+        end,
+        in_battle
+    )
 
-    self:registerOption("main", "End Battle", "Instantly complete a battle.", function ()
-                            Game.battle:setState("VICTORY")
-                            self:closeMenu()
-                        end, in_battle)
+    self:registerOption(
+        "main",
+        "Start Multiple Waves",
+        "Start multiple waves at once.",
+        function()
+            self:enterMenu("wave_select_multiple", 0)
+        end,
+        in_battle
+    )
+
+    self:registerOption(
+        "main",
+        "End Battle",
+        "Instantly complete a battle.",
+        function()
+            Game.battle:setState("VICTORY")
+            self:closeMenu()
+        end,
+        in_battle
+    )
 end
 
 function DebugSystem:getValidOptions()
@@ -851,12 +1392,20 @@ function DebugSystem:getValidOptions()
     return options
 end
 
-function DebugSystem:registerOption(menu, name, description, func, visible_func)
+---@param menu string
+---@param name string
+---@param description string|fun():string
+---@param func function
+---@param visible_func? fun():boolean
+---@param color? fun():table
+---@return nil
+function DebugSystem:registerOption(menu, name, description, func, visible_func, color)
     table.insert(self.menus[menu].options, {
         name = name,
         description = description,
         func = func,
-        visible_func = visible_func
+        visible_func = visible_func,
+        color = color,
     })
 end
 
@@ -873,10 +1422,18 @@ end
 function DebugSystem:openMenu()
     Assets.playSound("ui_select")
     self:setState("MENU")
+
+    if (self.current_menu ~= nil) then
+        self:enterMenu(self.current_menu, nil, true)
+    end
 end
 
 function DebugSystem:closeMenu()
     self:setState("IDLE")
+
+    if (self.current_menu ~= nil) then
+        self:leaveMenu()
+    end
 end
 
 function DebugSystem:setState(state, reason)
@@ -928,43 +1485,43 @@ function DebugSystem:onStateChange(old, new)
         self.circle_anim_timer = 0
 
         if Game.flags then
-            local flags = Utils.getKeys(Game.flags)
+            local flags = TableUtils.getKeys(Game.flags)
             if self.flag_type ~= "any" then
-                flags = Utils.filter(flags, function (v)
-                    return type(Game:getFlag(v)) == self.flag_type
-                end)
+                flags = TableUtils.filter(
+                    flags,
+                    function(v)
+                        return type(Game:getFlag(v)) == self.flag_type
+                    end
+                )
             end
             if self.flag_query and self.flag_query[1] ~= "" then
-                local invert, mode = Utils.startsWith(self.flag_filter_mode, "invert_")
+                local invert, mode = StringUtils.startsWith(self.flag_filter_mode, "invert_")
                 if mode == "pattern" then
-                    flags = Utils.filter(flags, function (v)
-                        local cond = string.match(v, self.flag_query[1])
-                        return invert and not cond or cond and not invert
-                    end)
+                    flags = TableUtils.filter(
+                        flags,
+                        function(v)
+                            local cond = string.match(v, self.flag_query[1])
+                            return invert and not cond or cond and not invert
+                        end
+                    )
                 elseif mode == "startsWith" then
-                    flags = Utils.filter(flags, function (v)
-                        local cond = Utils.startsWith(v, self.flag_query[1])
+                    flags = TableUtils.filter(flags, function(v)
+                        local cond = StringUtils.startsWith(v, self.flag_query[1])
                         return invert and not cond or cond and not invert
                     end)
                 end
             end
-            self.filtered_flags_list = Utils.copy(flags)
+            self.filtered_flags_list = TableUtils.copy(flags)
         end
 
         OVERLAY_OPEN = true
     elseif new == "FLAG_FILTERS" then
         self.temp_flag_type = self.flag_type
         self.temp_flag_filter_mode = self.flag_filter_mode
-        self.temp_flag_query = Utils.copy(self.flag_query)
+        self.temp_flag_query = TableUtils.copy(self.flag_query)
         -- Force update TextInput to start showing current query
         self:startTextInput(self.temp_flag_query)
         TextInput.endInput()
-    end
-
-    self:fadeMusicIn()
-
-    if old == "IDLE" and new == "MENU" and self.current_menu == "sound_test" then
-        self:fadeMusicOut()
     end
 end
 
@@ -996,8 +1553,6 @@ function DebugSystem:updateBounds(options)
         if y_off + self.menu_target_y > (scroll_limit * 32) then
             self.menu_target_y = self.menu_target_y + ((scroll_limit * 32) - (y_off + self.menu_target_y))
         end
-
-
 
         self.heart_target_y = (self.current_selecting - 1) * 32 + 35 + 32 + (is_search and 64 or 0) + self.menu_target_y
         if (self.current_selecting == 0) and is_search then
@@ -1044,18 +1599,25 @@ function DebugSystem:onKeyPressed(key, is_repeat)
             self:returnMenu()
             return
         end
+
         if Input.isConfirm(key) and not is_repeat then
-            local option = options[self.current_selecting]
-            if option then
-                if self.current_menu ~= "sound_test" then
-                    Assets.playSound("ui_select")
+            if (self.menus[self.current_menu].type == "search") and (self.current_selecting == 0) and not TextInput.active then
+                Assets.playSound("ui_select")
+                self:startTextInput()
+            else
+                local option = options[self.current_selecting]
+                if option then
+                    local failsound = option.func() == false
+                    if failsound then
+                        Assets.playSound("ui_cant_select")
+                    elseif self.current_menu ~= "sound_test" then
+                        Assets.playSound("ui_select")
+                    end
                 end
-                option.func()
             end
         end
 
-        local is_search = (self.menus[self.current_menu].type == "search")
-        local limit = is_search and 0 or 1
+        local limit = (self.menus[self.current_menu].type == "search") and 0 or 1
         if Input.is("down", key) and (not is_repeat or self.current_selecting < #options) then
             Assets.playSound("ui_move")
             self.current_selecting = self.current_selecting + 1
@@ -1065,9 +1627,6 @@ function DebugSystem:onKeyPressed(key, is_repeat)
             self.current_selecting = self.current_selecting - 1
         end
         self:updateBounds(options)
-        if is_search and (self.current_selecting == 0) and not TextInput.active then
-            self:startTextInput()
-        end
     elseif self.state == "SELECTION" and not is_repeat then
         -- Gamepad
         if (key == "gamepad:a") and Input.usingGamepad() then
@@ -1128,25 +1687,35 @@ function DebugSystem:onKeyPressed(key, is_repeat)
                     Game:setFlag(flag_name, not Game:getFlag(flag_name))
                     Assets.playSound("ui_select")
                 elseif type(Game:getFlag(flag_name)) == "number" then
-                    self.window = DebugWindow("Edit Flag (number) - \"".. flag_name .."\"", "Enter a new value for this flag.", "input", function (text)
-                        local num = tonumber(text)
-                        if num then
-                            Game:setFlag(flag_name, num)
-                            Assets.playSound("ui_select")
-                        else
-                            Assets.playSound("ui_cant_select")
+                    self.window = DebugWindow(
+                        "Edit Flag (number) - \"" .. flag_name .. "\"",
+                        "Enter a new value for this flag.",
+                        "input",
+                        function(text)
+                            local num = tonumber(text)
+                            if num then
+                                Game:setFlag(flag_name, num)
+                                Assets.playSound("ui_select")
+                            else
+                                Assets.playSound("ui_cant_select")
+                            end
                         end
-                    end)
+                    )
                     self.window:setPosition(Input.getCurrentCursorPosition())
                     self:addChild(self.window)
                     self.window.input_lines[1] = Game:getFlag(flag_name)
                     TextInput.cursor_x = string.len(Game:getFlag(flag_name))
                     Assets.playSound("ui_select")
                 elseif type(Game:getFlag(flag_name)) == "string" then
-                    self.window = DebugWindow("Edit Flag (string) - \"".. flag_name .."\"", "Enter a new value for this flag.", "input", function (text)
-                        Game:setFlag(flag_name, text)
-                        Assets.playSound("ui_select")
-                    end)
+                    self.window = DebugWindow(
+                        "Edit Flag (string) - \"" .. flag_name .. "\"",
+                        "Enter a new value for this flag.",
+                        "input",
+                        function(text)
+                            Game:setFlag(flag_name, text)
+                            Assets.playSound("ui_select")
+                        end
+                    )
                     self.window:setPosition(Input.getCurrentCursorPosition())
                     self.window.input_lines[1] = Game:getFlag(flag_name)
                     TextInput.cursor_x = string.len(Game:getFlag(flag_name))
@@ -1159,7 +1728,7 @@ function DebugSystem:onKeyPressed(key, is_repeat)
         end
 
         local counter = 0
-        for _,flag in ipairs(self.filtered_flags_list) do
+        for _, flag in ipairs(self.filtered_flags_list) do
             counter = counter + 1
         end
         counter = counter + 1
@@ -1178,30 +1747,26 @@ function DebugSystem:onKeyPressed(key, is_repeat)
             Assets.playSound("ui_cancel")
             self:setState("FLAGS")
         elseif Input.isConfirm(key) then
-            -- Flag type
-            if self.current_selecting == 1 then
-                local types = {"any", "boolean", "string", "number"}
-                local current_index = Utils.getIndex(types, self.temp_flag_type) or 0
-                local new_index = Utils.clampWrap(current_index + 1, #types)
+            if self.current_selecting == 1 then -- Flag type
+                local types = { "any", "boolean", "string", "number" }
+                local current_index = TableUtils.getIndex(types, self.temp_flag_type) or 0
+                local new_index = MathUtils.wrapIndex(current_index + 1, #types)
                 local new = types[new_index]
                 self.temp_flag_type = new
                 Assets.playSound("ui_select")
-            -- Filter query
-            elseif self.current_selecting == 2 then
+            elseif self.current_selecting == 2 then -- Filter query
                 -- Start TextInput but remove the down to cancel input
                 self:startTextInput(self.temp_flag_query)
                 TextInput.pressed_callback = nil
                 Assets.playSound("ui_select")
-            -- Filter type
-            elseif self.current_selecting == 3 then
-                local types = {"pattern", "invert_pattern", "startsWith", "invert_startsWith"}
-                local current_index = Utils.getIndex(types, self.temp_flag_filter_mode) or 0
-                local new_index = Utils.clampWrap(current_index + 1, #types)
+            elseif self.current_selecting == 3 then -- Filter type
+                local types = { "pattern", "invert_pattern", "startsWith", "invert_startsWith" }
+                local current_index = TableUtils.getIndex(types, self.temp_flag_filter_mode) or 0
+                local new_index = MathUtils.wrapIndex(current_index + 1, #types)
                 local new = types[new_index]
                 self.temp_flag_filter_mode = new
                 Assets.playSound("ui_select")
-            -- Reset Filter
-            elseif self.current_selecting == 4 then
+            elseif self.current_selecting == 4 then -- Reset Filter
                 self.temp_flag_type = "any"
                 self.temp_flag_query = { "" }
                 self.temp_flag_filter_mode = "pattern"
@@ -1210,11 +1775,10 @@ function DebugSystem:onKeyPressed(key, is_repeat)
                 -- Force update TextInput
                 self:startTextInput(self.temp_flag_query)
                 TextInput.endInput()
-            -- Save and Return
-            elseif self.current_selecting == 5 then
+            elseif self.current_selecting == 5 then -- Save and Return
                 self.flag_type = self.temp_flag_type
                 self.flag_filter_mode = self.temp_flag_filter_mode
-                self.flag_query = Utils.copy(self.temp_flag_query)
+                self.flag_query = TableUtils.copy(self.temp_flag_query)
                 Assets.playSound("ui_select")
                 self:setState("FLAGS")
             end
@@ -1308,9 +1872,9 @@ function DebugSystem:update()
         end
 
         for state, menus in pairs(self.exclusive_menus) do
-            if Utils.containsValue(menus, self.current_menu) and Game.state ~= state then
+            if TableUtils.contains(menus, self.current_menu) and Game.state ~= state then
                 local states = excluded_states[self.current_menu] or {}
-                if not Utils.containsValue(states, Game.state) then
+                if not TableUtils.contains(states, Game.state) then
                     self:refresh()
                 end
             end
@@ -1320,7 +1884,9 @@ function DebugSystem:update()
 end
 
 function DebugSystem:onWheelMoved(x, y)
-    self.faces_y = self.faces_y + (y * 32)
+    if self.state == "FACES" then
+        self.faces_y = self.faces_y + (y * 32)
+    end
 end
 
 function DebugSystem:draw()
@@ -1332,7 +1898,7 @@ function DebugSystem:draw()
     local menu_alpha = 0
     local circle_alpha = 1
 
-    local circle_progress = Utils.lerp(0, 2, self.circle_anim_timer / 1.4, true)
+    local circle_progress = MathUtils.lerp(0, 2, self.circle_anim_timer / 1.4)
 
     if self.state ~= "IDLE" then
         menu_y = Utils.ease(-32, 0, self.menu_anim_timer, "outExpo")
@@ -1340,7 +1906,7 @@ function DebugSystem:draw()
     else
         menu_y = Utils.ease(0, -32, self.menu_anim_timer, "outExpo")
         menu_alpha = Utils.ease(1, 0, self.menu_anim_timer, "outExpo")
-        circle_alpha = Utils.lerp(1, 0, self.menu_anim_timer / 1.4, true)
+        circle_alpha = MathUtils.lerp(1, 0, self.menu_anim_timer / 1.4)
     end
 
     local text_offset = menu_x + 19
@@ -1372,12 +1938,16 @@ function DebugSystem:draw()
             Draw.setColor(COLORS.silver)
             love.graphics.line(line_x, y + line_y, line_x2, y + line_y)
 
-            TextInput.draw({
-                x = x,
-                y = y,
-                font = self.font,
-                print = function (text, x, y) self:printShadow(text, x, y) end,
-            })
+            if TextInput.active then
+                TextInput.draw({
+                    x = x,
+                    y = y,
+                    font = self.font,
+                    print = function(text, x, y) self:printShadow(text, x, y) end,
+                })
+            else
+                self:printShadow(self.search[1], x, y, COLORS.white)
+            end
         end
 
         header_name = self.menus[self.current_menu].name
@@ -1390,23 +1960,33 @@ function DebugSystem:draw()
         local options = self:getValidOptions()
         for index, option in ipairs(options) do
             local name = option.name
+            local color = option.color
             if type(name) == "function" then
                 name = name()
             end
-            self:printShadow(name, text_offset + 19,
-                             y_off + menu_y + (index - 1) * 32 + 16 + (is_search and 64 or 0) + self.menu_y)
+            if type(color) == "function" then
+                color = color()
+            end
+            self:printShadow(name, text_offset + 19, y_off + menu_y + (index - 1) * 32 + 16 + (is_search and 64 or 0) + self.menu_y, color)
         end
         Draw.popScissor()
 
-        local option = options[self.current_selecting]
-        if option and option.description then
-            local description = option.description
-            if type(description) == "function" then
-                description = description()
-            end
-            local width, wrapped = self.font:getWrap(description, 580)
+        if is_search and self.current_selecting == 0 then
+            local width, wrapped = self.font:getWrap("Press CONFIRM to search", 580)
             for i, line in ipairs(wrapped) do
                 self:printShadow(line, 0, 480 + (32 * i) - (32 * (#wrapped + 1)), COLORS.gray, "center", 640)
+            end
+        else
+            local option = options[self.current_selecting]
+            if option and option.description then
+                local description = option.description
+                if type(description) == "function" then
+                    description = description()
+                end
+                local width, wrapped = self.font:getWrap(description, 580)
+                for i, line in ipairs(wrapped) do
+                    self:printShadow(line, 0, 480 + (32 * i) - (32 * (#wrapped + 1)), COLORS.gray, "center", 640)
+                end
             end
         end
     elseif self.state == "FACES" then
@@ -1418,15 +1998,18 @@ function DebugSystem:draw()
 
         local textures = {}
         for _, id in pairs(Assets.texture_ids) do
-            if Utils.startsWith(id, "face/") then
+            if StringUtils.startsWith(id, "face/") then
                 table.insert(textures, id:sub(6))
             end
         end
 
         -- Sort textures alphabetically
-        table.sort(textures, function (a, b)
-            return a:lower() < b:lower()
-        end)
+        table.sort(
+            textures,
+            function(a, b)
+                return a:lower() < b:lower()
+            end
+        )
 
         Draw.pushScissor()
         Draw.scissorPoints(0, 92, 640, 480 - 32 - 16)
@@ -1439,7 +2022,7 @@ function DebugSystem:draw()
         local faces_per_row = 4
         local total_height = (math.ceil(#textures / faces_per_row) * gap)
 
-        self.faces_y = Utils.clamp(self.faces_y, -(total_height - 480 + 48 + 96), 0)
+        self.faces_y = MathUtils.clamp(self.faces_y, -(total_height - 480 + 48 + 96), 0)
 
         for i, texture_id in ipairs(textures) do
             local x = (i - 1) % faces_per_row
@@ -1452,12 +2035,14 @@ function DebugSystem:draw()
 
             local mx, my = Input.getCurrentCursorPosition()
 
-            if mx > x_offset + (x * gap) and mx < x_offset + (x * gap) + width and
-            my > y_offset + (self.faces_y + (y * gap)) and my < y_offset + (self.faces_y + (y * gap)) + height then
+            if mx > x_offset + (x * gap) and
+            mx < x_offset + (x * gap) + width and
+            my > y_offset + (self.faces_y + (y * gap)) and
+            my < y_offset + (self.faces_y + (y * gap)) + height then
+
                 love.graphics.setLineWidth(2)
                 Draw.setColor(0, 1, 1, 1)
-                love.graphics.rectangle("line", x_offset + (x * gap) - 1, y_offset + (self.faces_y + (y * gap)) - 1,
-                                        width + 2, height + 2)
+                love.graphics.rectangle("line", x_offset + (x * gap) - 1, y_offset + (self.faces_y + (y * gap)) - 1, width + 2, height + 2)
                 Draw.setColor(1, 1, 1, 1)
 
                 name = texture_id
@@ -1469,7 +2054,7 @@ function DebugSystem:draw()
 
                 if self.mouse_clicked then
                     if self.state_reason then
-                        local split = Utils.split(texture_id, "/")
+                        local split = StringUtils.split(texture_id, "/")
                         local face  = split[#split]
                         local path  = split[#split - 1]
 
@@ -1489,7 +2074,7 @@ function DebugSystem:draw()
                         self.clicked_name = texture_id
                         local filename = texture_id
                         -- Remove everything before the last slash
-                        filename = Utils.split(filename, "/")[#Utils.split(filename, "/")]
+                        filename = StringUtils.split(filename, "/")[#StringUtils.split(filename, "/")]
                         love.system.setClipboardText(filename)
                     end
                     Assets.playSound("ui_select")
@@ -1526,12 +2111,10 @@ function DebugSystem:draw()
         self:printShadow("Filter Settings", text_offset + 19, y_off + menu_y + 16 + self.menu_y)
         if Game.flags then
             for index, key in pairs(self.filtered_flags_list) do
-                local print_key,   key_sx   = Utils.squishAndTrunc(key                      , self.font, 480 - 32, 1, 0.6, "...")
-                local print_value, value_sx = Utils.squishAndTrunc(tostring(Game.flags[key]), self.font, 160 - 32, 1, 0.6, "...")
-                self:printShadow(print_key   , text_offset + 19, y_off + menu_y + index * 32 + 16 + self.menu_y,
-                                     nil           , nil    , nil, key_sx  )
-                self:printShadow(print_value, 480 + 16         , y_off + menu_y + index * 32 + 16 + self.menu_y,
-                                     { 1, 1, 1, 1 }, "right", nil, value_sx)
+                local print_key, key_sx   = StringUtils.squishAndTrunc(key, self.font, 480 - 32, 1, 0.6, "...")
+                local print_value, value_sx = StringUtils.squishAndTrunc(tostring(Game:getFlag(key)), self.font, 160 - 32, 1, 0.6, "...")
+                self:printShadow(print_key, text_offset + 19, y_off + menu_y + index * 32 + 16 + self.menu_y, nil, nil, nil, key_sx)
+                self:printShadow(print_value, 480 + 16, y_off + menu_y + index * 32 + 16 + self.menu_y, { 1, 1, 1, 1 }, "right", nil, value_sx)
             end
         end
         Draw.popScissor()
@@ -1544,43 +2127,41 @@ function DebugSystem:draw()
 
         Draw.setColor(1, 1, 1, 1)
 
-        self:printShadow("Flag type:"     , text_offset + 19, y_off + menu_y + 16 + 32*0 + self.menu_y)
-        self:printShadow("Filter query:"  , text_offset + 19, y_off + menu_y + 16 + 32*1 + self.menu_y)
-        self:printShadow("Filter Mode:"   , text_offset + 19, y_off + menu_y + 16 + 32*2 + self.menu_y)
-        self:printShadow("Reset Filter"   , text_offset + 19, y_off + menu_y + 16 + 32*4 + self.menu_y)
-        self:printShadow("Save and Return", text_offset + 19, y_off + menu_y + 16 + 32*5 + self.menu_y)
+        self:printShadow("Flag type:", text_offset + 19, y_off + menu_y + 16 + (32 * 0) + self.menu_y)
+        self:printShadow("Filter query:", text_offset + 19, y_off + menu_y + 16 + (32 * 1) + self.menu_y)
+        self:printShadow("Filter Mode:", text_offset + 19, y_off + menu_y + 16 + (32 * 2) + self.menu_y)
+        self:printShadow("Reset Filter", text_offset + 19, y_off + menu_y + 16 + (32 * 4) + self.menu_y)
+        self:printShadow("Save and Return", text_offset + 19, y_off + menu_y + 16 + (32 * 5) + self.menu_y)
 
         local name = "Press CANCEL to go back without saving."
         local name_offset = 0
-        -- Flag type
         if self.current_selecting == 1 then
+            -- Flag type
             if self.temp_flag_type == "any" then
                 name = "Shows all flag types."
             else
                 name = "Shows only " .. self.temp_flag_type .. " flags."
             end
-        -- Filter query
         elseif self.current_selecting == 2 then
+            -- Filter query
             name = "A query to filter flags by.\nSet FILTER MODE to change how this value is used."
             name_offset = -32
-        -- Filter mode
         elseif self.current_selecting == 3 then
-            local invert, mode = Utils.startsWith(self.temp_flag_filter_mode, "invert_")
+            -- Filter mode
+            local invert, mode = StringUtils.startsWith(self.temp_flag_filter_mode, "invert_")
             if mode == "pattern" then
                 name = "Filters to " .. (invert and "hide" or "show") .. " flags whose names match to\nthe FILTER QUERY"
             elseif mode == "startsWith" then
                 name = "Filters to " .. (invert and "hide" or "show") .. " flags whose names start with\nthe FILTER QUERY"
             end
             name_offset = -32
-        -- Reset Filter
         elseif self.current_selecting == 4 then
+            -- Reset Filter
             name = "Resets the filter to it's default settings."
         end
 
-        self:printShadow(self.temp_flag_type       , -16, y_off + menu_y + 16 + 32*0 + self.menu_y,
-                             {1, 1, 1, 1}, "right", 640)
-        self:printShadow(self.temp_flag_filter_mode, -16, y_off + menu_y + 16 + 32*2 + self.menu_y,
-                             {1, 1, 1, 1}, "right", 640)
+        self:printShadow(self.temp_flag_type, -16, y_off + menu_y + 16 + 32 * 0 + self.menu_y, { 1, 1, 1, 1 }, "right", 640)
+        self:printShadow(self.temp_flag_filter_mode, -16, y_off + menu_y + 16 + 32 * 2 + self.menu_y, { 1, 1, 1, 1 }, "right", 640)
 
         -- Draw underline for TextInput
         local line_width = 320
@@ -1601,8 +2182,8 @@ function DebugSystem:draw()
             x = x,
             y = y,
             font = self.font,
-            print = function (text, x, y)
-                local text, scale = Utils.squishAndTrunc(text, self.font, 320, 1, 0.4, "...")
+            print = function(text, x, y)
+                local text, scale = StringUtils.squishAndTrunc(text, self.font, 320, 1, 0.4, "...")
                 self:printShadow(text, x, y, nil, nil, nil, scale)
             end,
         })
@@ -1638,7 +2219,7 @@ function DebugSystem:draw()
                 useobject = self.last_hovered
             else
                 self.last_hovered = object
-                self.hover_alpha = Utils.clamp(self.hover_alpha + DT / fadespeed, 0, 1)
+                self.hover_alpha = MathUtils.clamp(self.hover_alpha + DT / fadespeed, 0, 1)
             end
             Draw.setColor(0, 1, 1, self.hover_alpha)
             love.graphics.setLineWidth(1)
@@ -1651,7 +2232,7 @@ function DebugSystem:draw()
             love.graphics.pop()
 
             local tooltip_font = Assets.getFont("main", 16)
-            local tooltip_text = Utils.getClassName(useobject) or ""
+            local tooltip_text = ClassUtils.getClassName(useobject) or ""
 
             local tooltip_width = tooltip_font:getWidth(tooltip_text)
             local tooltip_height = tooltip_font:getHeight()
@@ -1683,8 +2264,7 @@ function DebugSystem:draw()
             love.graphics.print(tooltip_text, tooltip_x, tooltip_y)
         end
 
-        self:printShadow(string.format("Mouse: (%i, %i)", mx, my), 12, 480 - 32 + Utils.lerp(16, 0, menu_alpha),
-                         { 1, 1, 1, 1 })
+        self:printShadow(string.format("Mouse: (%i, %i)", mx, my), 12, 480 - 32 + MathUtils.lerp(16, 0, menu_alpha), { 1, 1, 1, 1 })
 
         if not object then
             self.hover_alpha = self.hover_alpha - DT / fadespeed
@@ -1704,9 +2284,9 @@ function DebugSystem:draw()
             end
 
             if self.object and self.current_text_align == target_text_align and not Kristal.Console.is_open then
-                self.selected_alpha = Utils.clamp(self.selected_alpha + (DT / 0.2), 0, 1)
+                self.selected_alpha = MathUtils.clamp(self.selected_alpha + (DT / 0.2), 0, 1)
             else
-                self.selected_alpha = Utils.clamp(self.selected_alpha - (DT / 0.2), 0, 1)
+                self.selected_alpha = MathUtils.clamp(self.selected_alpha - (DT / 0.2), 0, 1)
             end
 
             if self.selected_alpha == 0 then
@@ -1722,28 +2302,27 @@ function DebugSystem:draw()
             local limit = SCREEN_WIDTH - 24
 
             local inc = 1
-            self:printShadow("Selected: " .. Utils.getClassName(object), x_offset, (32 * inc) + 10,
-                             { 1, 1, 1, self.selected_alpha }, self.current_text_align, limit)
+            local color = { 1, 1, 1, self.selected_alpha }
+            self:printShadow("Selected: " .. ClassUtils.getClassName(object), x_offset, (32 * inc) + 10, color, self.current_text_align, limit)
             inc = inc + 1
-            self:printShadow(string.format("Position: (%i, %i)", object.x, object.y), x_offset, (32 * inc) + 10,
-                             { 1, 1, 1, self.selected_alpha }, self.current_text_align, limit)
+            self:printShadow(string.format("Position: (%i, %i)", object.x, object.y), x_offset, (32 * inc) + 10, color, self.current_text_align, limit)
             inc = inc + 1
-            self:printShadow(string.format("Screen Pos: (%i, %i)", screen_x, screen_y), x_offset, (32 * inc) + 10,
-                             { 1, 1, 1, self.selected_alpha }, self.current_text_align, limit)
+            self:printShadow(string.format("Screen Pos: (%i, %i)", screen_x, screen_y), x_offset, (32 * inc) + 10, color, self.current_text_align, limit)
             inc = inc + 1
 
             if object.object_id then
-                self:printShadow("World ID: " .. object.object_id, x_offset, (32 * inc) + 10,
-                                 { 1, 1, 1, self.selected_alpha }, self.current_text_align, limit)
+                self:printShadow("World ID: " .. object.object_id, x_offset, (32 * inc) + 10, color, self.current_text_align, limit)
                 inc = inc + 1
             end
-
             local info = object:getDebugInfo()
 
+            local small = #info > 7
+
             for i, line in ipairs(info) do
-                self:printShadow(line, x_offset, (32 * inc) + 10, { 1, 1, 1, self.selected_alpha },
-                                 self.current_text_align, limit)
-                inc = inc + 1
+                self:printShadow(
+                    line, x_offset, (32 * inc) + ((i - 1) * (small and 16 or 32)) + 10, { 1, 1, 1, self.selected_alpha },
+                    self.current_text_align, limit * (small and 2 or 1), small and 0.5 or 1
+                )
             end
         end
 
@@ -1751,7 +2330,7 @@ function DebugSystem:draw()
     else
         self.hover_alpha = 0
     end
-    self.hover_alpha = Utils.clamp(self.hover_alpha, 0, 1)
+    self.hover_alpha = MathUtils.clamp(self.hover_alpha, 0, 1)
 
     self:printShadow(header_name, 0, 16, COLORS.white, "center", 640)
 
@@ -1772,11 +2351,11 @@ function DebugSystem:printShadow(text, x, y, color, align, limit, sx, sy)
     -- Draw the shadow, offset by two pixels to the bottom right
     love.graphics.setFont(self.font)
     Draw.setColor({ 0, 0, 0, color[4] })
-    love.graphics.printf(text, x + 2, y + 2, limit or self.font:getWidth(text), align or "left", 0, sx or 1, sy or 1)
+    love.graphics.printf(text, x + 2, y + 2, limit or self.font:getWidth(text), align or "left", 0, sx or 1, sy or sx or 1)
 
     -- Draw the main text
     Draw.setColor(color)
-    love.graphics.printf(text, x, y, limit or self.font:getWidth(text), align or "left", 0, sx or 1, sy or 1)
+    love.graphics.printf(text, x, y, limit or self.font:getWidth(text), align or "left", 0, sx or 1, sy or sx or 1)
 end
 
 return DebugSystem

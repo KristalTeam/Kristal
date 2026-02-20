@@ -1,7 +1,9 @@
 local actor, super = Class(Actor, "susie_lw")
 
-function actor:init()
+function actor:init(style)
     super.init(self)
+
+    local susie_style = style or Game:getConfig("susieStyle")
 
     -- Display name (optional)
     self.name = "Susie"
@@ -23,7 +25,7 @@ function actor:init()
     -- Path to this actor's sprites (defaults to "")
     self.path = "party/susie/light"
     -- This actor's default sprite or animation, relative to the path (defaults to "")
-    if Game:getConfig("susieStyle") == 1 then
+    if susie_style == 1 then
         self.default = "walk_bangs"
     else
         self.default = "walk"
@@ -32,7 +34,7 @@ function actor:init()
     -- Sound to play when this actor speaks (optional)
     self.voice = "susie"
     -- Path to this actor's portrait for dialogue (optional)
-    if Game.chapter == 1 then
+    if susie_style == 1 then
         self.portrait_path = "face/susie_bangs"
     else
         self.portrait_path = "face/susie"

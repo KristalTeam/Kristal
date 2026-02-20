@@ -202,8 +202,9 @@ end
 function MainMenuModConfig:registerOptions()
     self.options = {}
 
-    self:registerOption("enableStorage",          "Enable Storage",            "Extra 48-slot item storage",                                                         "selection", {nil, true, false})
+    self:registerOption("storageSlots",           "Storage Slots",             "The amount of storage slots in the dark world inventory",                            "selection", {nil, 0, 12, 24, 36}) -- unhardcode
     self:registerOption("enableRecruits",         "Enable Recruits",           "Enable recruit messages and menu",                                                   "selection", {nil, true, false})
+    self:registerOption("recruitsProgressSpaces", "Recruits Progress Spaces",  "Whether the recruits progress in the menu will have spaces between the amounts",     "selection", {nil, true, false})
     self:registerOption("smallSaveMenu",          "Small Save Menu",           "Single-file save menu with no storage/recruits options",                             "selection", {nil, true, false})
     self:registerOption("lessEquipments",         "Less Equipments",           "Reduces the amount of available weapons and armor slots in the inventory",           "selection", {nil, true, false})
     self:registerOption("partyActions",           "X-Actions",                 "Whether X-Actions appear in spell menu by default",                                  "selection", {nil, true, false})
@@ -214,6 +215,9 @@ function MainMenuModConfig:registerOptions()
     self:registerOption("oldTensionBar",          "Old Tension Bar",           "Whether the Tension Bar uses blocky corners or not.",                                "selection", {nil, true, false})
     self:registerOption("oldUIPositions",         "Old UI Positions",          "Whether to use Chapter 1 positions of UI elements or not.",                          "selection", {nil, true, false})
     self:registerOption("oldGameOver",            "Old Game Over",             "Whether to use Chapter 1 game over or not.",                                         "selection", {nil, true, false})
+    self:registerOption("oldRudeBuster",          "Old Rude Buster",           "Whether to use Chapter 1/2 Rude Buster damage calculation and effect.",              "selection", {nil, true, false})
+    self:registerOption("oldPacify",              "Old Pacify",                "Whether to remove the animation from the Pacify spell",                              "selection", {nil, true, false})
+    self:registerOption("oldDualHealFormula",     "Old Dual Heal Formula",     "Whether to use Chapter 1 Dual Heal calculation or not",                              "selection", {nil, true, false})
     self:registerOption("targetSystem",           "Targeting System",          "Whether battles should use the targeting system or not",                             "selection", {nil, true, false})
     self:registerOption("soulInvBetweenWaves",    "Keep Soul Invulnerability", "Whether the soul invulnerability will carry between waves in battles",               "selection", {nil, true, false})
     self:registerOption("speechBubble",           "Speech Bubble Style",       "The default style for enemy speech bubbles",                                         "selection", {nil, "round", "cyber"}) -- unhardcode
@@ -224,6 +228,7 @@ function MainMenuModConfig:registerOptions()
     self:registerOption("pacifyGlow",             "Tired/Pacify Glow",         "Whether TIRED enemy names and pacifying spells should flash white",                  "selection", {nil, true, false})
     self:registerOption("tiredMessages",          "Tired Messages",            "Whether a TIRED message should appear when an enemy becomes TIRED",                  "selection", {nil, true, false})
     self:registerOption("awakeMessages",          "Awake Messages",            "Whether an enemy leaving TIRED should display an AWAKE message",                     "selection", {nil, true, false})
+    self:registerOption("checkActDescription",    "Check Act Description",     "Whether the \"Check\" act in battle says \"Useless analysis\" or not",               "selection", {nil, true, false})
     self:registerOption("prioritySpareableText",  "Priority Spareable Text",   "Whether enemies' spareable text should be prioritized over tired / low-health text", "selection", {nil, true, false})
     self:registerOption("pushBlockInputLock",     "Push Block Input Locking",  "Whether pushing a block should freeze the player",                                   "selection", {nil, true, false})
     self:registerOption("keepTensionAfterBattle", "Keep Tension After Battle", "Whether TP should be kept after battle instead of reset",                            "selection", {nil, true, false})

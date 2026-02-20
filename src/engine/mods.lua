@@ -23,25 +23,25 @@ end
 ---@param failed_mods table[]
 function Mods.loadData(data, failed_mods)
     self.failed_mods = failed_mods or {}
-    for mod_id,mod_data in pairs(data) do
+    for mod_id, mod_data in pairs(data) do
         if self.data[mod_id] then
             local old_mod = self.data[mod_id]
             if old_mod.name then
                 self.named[old_mod.name] = nil
             end
-            Utils.removeFromTable(self.list, old_mod)
+            TableUtils.removeValue(self.list, old_mod)
         end
 
         -- convert image data into images
         if mod_data.preview_data then
             mod_data.preview = {}
-            for _,img_data in ipairs(mod_data.preview_data) do
+            for _, img_data in ipairs(mod_data.preview_data) do
                 table.insert(mod_data.preview, love.graphics.newImage(img_data))
             end
         end
         if mod_data.icon_data then
             mod_data.icon = {}
-            for _,img_data in ipairs(mod_data.icon_data) do
+            for _, img_data in ipairs(mod_data.icon_data) do
                 table.insert(mod_data.icon, love.graphics.newImage(img_data))
             end
         end
@@ -52,7 +52,7 @@ function Mods.loadData(data, failed_mods)
         mod_data.script_chunks = {}
 
         mod_data.libs = mod_data.libs or {}
-        for _,lib_data in pairs(mod_data.libs) do
+        for _, lib_data in pairs(mod_data.libs) do
             lib_data.script_chunks = {}
         end
 
@@ -78,26 +78,26 @@ function Mods.sortLibraries(mod)
     local unsorted = {}
     local sorted_lookup = {}
 
-    for lib_id,_ in pairs(mod.libs) do
+    for lib_id, _ in pairs(mod.libs) do
         table.insert(unsorted, lib_id)
     end
 
     while #unsorted > 0 do
         local new_unsorted = {}
 
-        for _,lib_id in ipairs(unsorted) do
+        for _, lib_id in ipairs(unsorted) do
             local lib_data = mod.libs[lib_id]
 
             local failed = false
 
-            for _,dependency in ipairs(lib_data["dependencies"] or {}) do
+            for _, dependency in ipairs(lib_data["dependencies"] or {}) do
                 if not sorted_lookup[dependency] then
                     failed = true
                     break
                 end
             end
 
-            for _,dependency in ipairs(lib_data["optionalDependencies"] or {}) do
+            for _, dependency in ipairs(lib_data["optionalDependencies"] or {}) do
                 if mod.libs[dependency] and not sorted_lookup[dependency] then
                     failed = true
                     break
@@ -113,8 +113,14 @@ function Mods.sortLibraries(mod)
         end
 
         if #new_unsorted == #unsorted then
-            for _,lib_id in ipairs(new_unsorted) do
-                Kristal.Console:warn("Issue loading mod '" .. mod.id .. "' - Dependencies for library '" .. lib_id .. "' failed to load, likely circular dependency")
+            for _, lib_id in ipairs(new_unsorted) do
+                Kristal.Console:warn(
+                    string.format(
+                        "Issue loading mod '%s' - Dependencies for library '%s' failed to load, likely circular dependency",
+                        mod.id,
+                        lib_id
+                    )
+                )
 
                 table.insert(sorted, lib_id)
             end
@@ -148,13 +154,13 @@ function Mods.getAndLoadMod(id)
     end
 
     if not mod.loaded_scripts then
-        for _,path in ipairs(Utils.getFilesRecursive(mod.path, ".lua")) do
-            mod.script_chunks[path] = love.filesystem.load(mod.path.."/"..path..".lua")
+        for _, path in ipairs(FileSystemUtils.getFilesRecursive(mod.path, ".lua")) do
+            mod.script_chunks[path] = love.filesystem.load(mod.path .. "/" .. path .. ".lua")
         end
 
-        for _,lib in pairs(mod.libs) do
-            for _,path in ipairs(Utils.getFilesRecursive(lib.path, ".lua")) do
-                lib.script_chunks[path] = love.filesystem.load(lib.path.."/"..path..".lua")
+        for _, lib in pairs(mod.libs) do
+            for _, path in ipairs(FileSystemUtils.getFilesRecursive(lib.path, ".lua")) do
+                lib.script_chunks[path] = love.filesystem.load(lib.path .. "/" .. path .. ".lua")
             end
         end
 

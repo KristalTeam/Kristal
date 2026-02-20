@@ -62,6 +62,9 @@ function MainMenuModList:onEnter(old_state)
     elseif #self.list.mods > 0 then
         self.list.active = true
         self.list.visible = true
+
+        self.menu.selected_mod = self:getSelectedMod()
+        self.menu.selected_mod_button = self:getSelectedButton()
     end
 end
 
@@ -72,7 +75,7 @@ function MainMenuModList:onLeave(new_state)
     end
 
     self.active = false
-    
+
     self.menu.heart:setColor(Kristal.getSoulColor())
     self.menu.heart_outline.visible = false
 end
@@ -102,7 +105,7 @@ function MainMenuModList:onKeyPressed(key, is_repeat)
 
             elseif mod then
                 Assets.stopAndPlaySound("ui_select")
-                if (mod["useSaves"] == "has_saves" and (#love.filesystem.getDirectoryItems( "saves/"..mod.id ) > 0))
+                if (mod["useSaves"] == "has_saves" and (#love.filesystem.getDirectoryItems("saves/" .. mod.id) > 0))
                 or (mod["useSaves"] ~= "has_saves" and mod["useSaves"])
                 or (mod["useSaves"] == nil and not mod["encounter"]) then
                     self.menu:setState("FILESELECT")
@@ -117,9 +120,9 @@ function MainMenuModList:onKeyPressed(key, is_repeat)
             if mod then
                 Assets.stopAndPlaySound("ui_select")
 
-                local is_favorited = Utils.containsValue(Kristal.Config["favorites"], mod.id)
+                local is_favorited = TableUtils.contains(Kristal.Config["favorites"], mod.id)
                 if is_favorited then
-                    Utils.removeFromTable(Kristal.Config["favorites"], mod.id)
+                    TableUtils.removeValue(Kristal.Config["favorites"], mod.id)
                 else
                     table.insert(Kristal.Config["favorites"], mod.id)
                 end
@@ -186,7 +189,15 @@ function MainMenuModList:draw()
         if #self.list.mods == 0 then
             -- Draw introduction text if no mods exist
 
-            self.intro_text = {{1, 1, 1, 1}, "Welcome to Kristal,\nthe DELTARUNE fangame engine!\n\nAdd mods to the ", {1, 1, 0, 1}, "mods folder", {1, 1, 1, 1}, "\nto continue."}
+            self.intro_text = {
+                { 1, 1, 1, 1 },
+                "Welcome to Kristal,\nthe DELTARUNE fangame engine!\n\nAdd mods to the ",
+                { 1, 1, 0, 1 },
+                "mods folder",
+                { 1, 1, 1, 1 },
+                "\nto continue."
+            }
+
             Draw.printShadow(self.intro_text, 0, 160 - 8, 2, "center", 640)
 
             local string_part_1 = "Press "
@@ -304,7 +315,7 @@ function MainMenuModList:checkCompatibility()
     local success = false
     local highest_version
 
-    for _,version in ipairs(self.engine_versions[mod.id]) do
+    for _, version in ipairs(self.engine_versions[mod.id]) do
         if not highest_version or highest_version < version then
             highest_version = version
         end
@@ -355,13 +366,13 @@ function MainMenuModList:buildModListFavorited()
     
     -- Sort them by favorites or filepath
     table.sort(self.mods, function(a, b)
-        local a_fav = Utils.containsValue(Kristal.Config["favorites"], a.id)
-        local b_fav = Utils.containsValue(Kristal.Config["favorites"], b.id)
+        local a_fav = TableUtils.contains(Kristal.Config["favorites"], a.id)
+        local b_fav = TableUtils.contains(Kristal.Config["favorites"], b.id)
         return (a_fav and not b_fav) or (a_fav == b_fav and a.path:lower() < b.path:lower())
     end)
     
     -- Add mods to the list
-    for _,mod in ipairs(self.mods) do
+    for _, mod in ipairs(self.mods) do
         -- Create the mod button
         local button = ModButton(mod.name or mod.id, 424, 62, mod)
         self.list:addMod(button)
@@ -371,13 +382,17 @@ function MainMenuModList:buildModListFavorited()
             local chunk = love.filesystem.load(mod.preview_script_path)
             local success, result = pcall(chunk, mod.path)
             if success then
+                self.scripts[mod.id] = result
                 button.preview_script = result
+
+                result.fade = 0
+                result.selected = false
 
                 if result.init then
                     result:init(mod, button)
                 end
             else
-                Kristal.Console:warn("preview.lua error in "..mod.name..": "..result)
+                Kristal.Console:warn("preview.lua error in " .. mod.name .. ": " .. result)
             end
         end
 
@@ -385,17 +400,17 @@ function MainMenuModList:buildModListFavorited()
         local engine_ver = mod and mod["engineVer"]
         if type(engine_ver) == "table" then
             local versions = {}
-            for _,ver in ipairs(engine_ver) do
+            for _, ver in ipairs(engine_ver) do
                 table.insert(versions, SemVer(ver))
             end
             self.engine_versions[mod.id] = versions
         elseif type(engine_ver) == "string" then
-            self.engine_versions[mod.id] = {SemVer(engine_ver)}
+            self.engine_versions[mod.id] = { SemVer(engine_ver) }
         else
-            self.engine_versions[mod.id] = {Kristal.Version}
+            self.engine_versions[mod.id] = { Kristal.Version }
         end
     end
-    
+
     -- Add the mod create button
     local create_button = ModCreateButton(424 + 70, 42)
     self.list:addMod(create_button)
@@ -411,7 +426,7 @@ function MainMenuModList:buildModListFavorited()
     else
         self.list:select(1, true)
     end
-    
+
     -- Hide list if there are no mods
     if #self.list.mods == 0 then
         self.list.active = false
@@ -452,17 +467,17 @@ function MainMenuModList:buildModList()
     self.engine_versions = {}
 
     -- Get all non-hidden mods for the mod list
-    self.mods = Utils.filter(Kristal.Mods.getMods(), function(mod) return not mod.hidden end)
+    self.mods = TableUtils.filter(Kristal.Mods.getMods(), function(mod) return not mod.hidden end)
 
     -- Sort them by favorites or filepath
     table.sort(self.mods, function(a, b)
-        local a_fav = Utils.containsValue(Kristal.Config["favorites"], a.id)
-        local b_fav = Utils.containsValue(Kristal.Config["favorites"], b.id)
+        local a_fav = TableUtils.contains(Kristal.Config["favorites"], a.id)
+        local b_fav = TableUtils.contains(Kristal.Config["favorites"], b.id)
         return (a_fav and not b_fav) or (a_fav == b_fav and a.path:lower() < b.path:lower())
     end)
 
     -- Add mods to the list
-    for _,mod in ipairs(self.mods) do
+    for _, mod in ipairs(self.mods) do
         -- Create the mod button
         local button = ModButton(mod.name or mod.id, 424, 62, mod)
         self.list:addMod(button)
@@ -478,19 +493,22 @@ function MainMenuModList:buildModList()
                 self.scripts[mod.id] = result
                 button.preview_script = result
 
+                result.fade = 0
+                result.selected = false
+
                 if result.init then
                     result:init(mod, button)
                 end
             else
-                Kristal.Console:warn("preview.lua error in "..mod.name..": "..result)
+                Kristal.Console:warn("preview.lua error in " .. mod.name .. ": " .. result)
             end
         end
 
         -- Load the mod's preview music
         if mod.preview_music_path then
             self.music_options[mod.id] = {
-                volume = mod["previewVolume"]     or 1,
-                sync   = mod["previewMusicSync"]  or false,
+                volume = mod["previewVolume"] or 1,
+                sync   = mod["previewMusicSync"] or false,
                 pause  = mod["previewMusicPause"] or false,
                 loop   = mod["previewMusicLoop"] == nil and true or mod["previewMusicLoop"],
             }
@@ -507,14 +525,14 @@ function MainMenuModList:buildModList()
         local engine_ver = mod and mod["engineVer"]
         if type(engine_ver) == "table" then
             local versions = {}
-            for _,ver in ipairs(engine_ver) do
+            for _, ver in ipairs(engine_ver) do
                 table.insert(versions, SemVer(ver))
             end
             self.engine_versions[mod.id] = versions
         elseif type(engine_ver) == "string" then
-            self.engine_versions[mod.id] = {SemVer(engine_ver)}
+            self.engine_versions[mod.id] = { SemVer(engine_ver) }
         else
-            self.engine_versions[mod.id] = {Kristal.Version}
+            self.engine_versions[mod.id] = { Kristal.Version }
         end
     end
 
@@ -536,9 +554,9 @@ function MainMenuModList:buildModList()
 
     -- TODO: Mod menus
     if TARGET_MOD then
-        local target_button,index = self.list:getById(TARGET_MOD)
+        local target_button, index = self.list:getById(TARGET_MOD)
         if not index then
-            error("No mod found: "..TARGET_MOD)
+            error("No mod found: " .. TARGET_MOD)
         else
             self.list:select(index, true)
         end

@@ -4,10 +4,10 @@
 ---@see LegendCutscene  # For functions specific to legend cutscene scripts.
 ---
 ---@class Cutscene : Class
----@overload fun(func: fun(cutscene: Cutscene, ...), ...) : Cutscene
+---@overload fun(func: CutsceneFunc, ...) : Cutscene
 local Cutscene, super = Class()
 
----@param func fun(cutscene: Cutscene, ...)
+---@param func CutsceneFunc
 ---@param ... unknown
 function Cutscene:init(func, ...)
     self.wait_timer = 0
@@ -142,18 +142,18 @@ end
 function Cutscene:update()
     if self.ended then return end
 
-    self.wait_timer = Utils.approach(self.wait_timer, 0, DT)
+    self.wait_timer = MathUtils.approach(self.wait_timer, 0, DT)
 
     if #self.during_stack > 0 and not self.paused then
         local to_remove = {}
-        for _,func in ipairs(self.during_stack) do
+        for _, func in ipairs(self.during_stack) do
             local result = func()
             if result == false then
                 table.insert(to_remove, func)
             end
         end
-        for _,v in ipairs(to_remove) do
-            Utils.removeFromTable(self.during_stack, v)
+        for _, v in ipairs(to_remove) do
+            TableUtils.removeValue(self.during_stack, v)
         end
     end
 
@@ -218,7 +218,9 @@ function Cutscene:resume(...)
     end
 end
 
---- Ends the cutscene.
+--- *(Called internally)* Ends the cutscene.
+---
+--- NOTE: If you want to end a cutscene, use `return`. DO NOT CALL THIS!
 function Cutscene:endCutscene()
     self.ended = true
     self:onEnd()
@@ -226,15 +228,14 @@ end
 
 --- Starts executing a new cutscene script specified by `func`.
 ---@param func function|string  The new cutscene script.
----@param ... unknown           Additional arguments to pass to the new cutscene.
----@return unknown
+---@param ... any           Additional arguments to pass to the new cutscene.
+---@return any
 function Cutscene:gotoCutscene(func, ...)
     if self.getter then
         local new_func, args = self:parseFromGetter(self.getter, func, ...)
         return new_func(self, unpack(args))
-    else
-        return func(self, ...)
     end
+    return func(self, ...)
 end
 
 --- Plays a sound.
@@ -245,7 +246,7 @@ end
 function Cutscene:playSound(sound, volume, pitch)
     local src = Assets.playSound(sound, volume, pitch)
     return function()
-        if not Utils.containsValue(Assets.sound_instances[sound], src) then
+        if not TableUtils.contains(Assets.sound_instances[sound], src) then
             return true
         end
     end

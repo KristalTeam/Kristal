@@ -49,7 +49,7 @@ function WarpDoor:init(x, y, properties)
         if properties["name"..i] then
             self.names[i] = properties["name"..i]
         else
-            self.names[i] = Utils.titleCase(properties["map"..i])
+            self.names[i] = StringUtils.titleCase(properties["map"..i])
         end
         if properties["flag"..i] then
             self.flags[i] = properties["flag"..i]
