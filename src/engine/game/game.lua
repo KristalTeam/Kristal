@@ -470,17 +470,17 @@ function Game:load(data, index, fade)
 
     self.lw_money = data.lw_money or 2
 
-    self.border = data.border
-    if not self.border then
-        self.border = self.light and "leaves" or "castle"
-    end
-
     local map = nil
     local room_id = data.room_id or Kristal.getModOption("map")
     if room_id then
         map = Registry.createMap(room_id, self.world)
 
         self.light = map.light or false
+    end
+
+    self.border = data.border
+    if not self.border then
+        self.border = self.light and "leaves" or "castle"
     end
 
     self.default_equip_slots = data.default_equip_slots or 0
