@@ -42,7 +42,7 @@ function Bullet:init(x, y, texture)
     end
 
     -- Default collider to half this object's size
-    self.collider = Hitbox(self, self.width/4, self.height/4, self.width/2, self.height/2)
+    self.collider = Hitbox(self, self.width / 4, self.height / 4, self.width / 2, self.height / 2)
 
     -- TP added when you graze this bullet (Also given each frame after the first graze, 30x less at 30FPS)
     self.tp = nil

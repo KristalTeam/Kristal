@@ -8,7 +8,7 @@ function RudeBusterBeam:init(red, x, y, tx, ty, after)
     self:setOrigin(0.5, 0.5)
     self:setScale(2)
 
-    self:play(1/30, true)
+    self:play(1 / 30, true)
 
     self.target_x = tx
     self.target_y = ty
@@ -39,7 +39,7 @@ function RudeBusterBeam:update()
     self.alpha = MathUtils.approach(self.alpha, 1, 0.25 * DTMULT)
 
     local dir = Utils.angle(self.x, self.y, self.target_x, self.target_y)
-    self.rotation = self.rotation + (Utils.angleDiff(dir, self.rotation) / 4) * DTMULT
+    self.rotation = self.rotation + (MathUtils.angleDiff(dir, self.rotation) / 4) * DTMULT
 
     self.bolt_timer = self.bolt_timer + DTMULT
     if Input.pressed("confirm") and not self.pressed then
@@ -47,7 +47,7 @@ function RudeBusterBeam:update()
         self.chosen_bolt = self.bolt_timer
     end
 
-    if Utils.dist(self.x, self.y, self.target_x, self.target_y) <= 40 then
+    if MathUtils.dist(self.x, self.y, self.target_x, self.target_y) <= 40 then
         if not self.final_bolt_set then
             self.final_bolt_set = true
             self.final_bolt = self.bolt_timer
@@ -58,8 +58,8 @@ function RudeBusterBeam:update()
                 -- Values are rounded since we have to account for different framerates
                 -- Don't use floor or ceil since frame rate occasionally drops on low end devices
                 -- Which will throw off the values
-                self.chosen_bolt = Utils.round(self.chosen_bolt)
-                self.final_bolt = Utils.round(self.final_bolt)
+                self.chosen_bolt = MathUtils.round(self.chosen_bolt)
+                self.final_bolt = MathUtils.round(self.final_bolt)
                 if self.chosen_bolt > 0 then
                     if self.chosen_bolt == self.final_bolt then
                         damage_bonus = 30
@@ -114,7 +114,7 @@ function RudeBusterBeam:update()
         sprite.layer = self.layer - 0.01
         sprite.graphics.grow_y = -0.1
         sprite.graphics.remove_shrunk = true
-        sprite:play(1/15, true)
+        sprite:play(1 / 15, true)
         self.parent:addChild(sprite)
     end
 
