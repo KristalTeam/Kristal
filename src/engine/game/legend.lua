@@ -21,10 +21,10 @@ function Legend:init(cutscene, options)
 
     self.layers = {
         ["background"] = 0,
-        ["panel"     ] = 5,
-        ["cover"     ] = 10,
-        ["text"      ] = 15,
-        ["fader"     ] = 20
+        ["panel"] = 5,
+        ["cover"] = 10,
+        ["text"] = 15,
+        ["fader"] = 20
     }
 
     self.background = Sprite("intro/background")
@@ -47,11 +47,13 @@ end
 function Legend:onFinish(skip)
     self:remove()
     Game.state = "OVERWORLD"
-    Game.world.fader:fadeIn(function()
-        if not Game.world:hasCutscene() then
-            Game.lock_movement = false
-        end
-    end, { speed = 2, music = true })
+    Game.world.fader:fadeIn(
+        function()
+            if not Game.world:hasCutscene() then
+                Game.lock_movement = false
+            end
+        end, { speed = 2, music = true }
+    )
 end
 
 function Legend:onAddToStage(parent)
