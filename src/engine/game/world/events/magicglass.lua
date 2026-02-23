@@ -14,8 +14,14 @@
 ---@overload fun(...) : MagicGlass
 local MagicGlass, super = Class(Event)
 
+---@param x number
+---@param y number
+---@param shape EventShape
+---@param properties table
 function MagicGlass:init(x, y, shape, properties)
     super.init(self, x, y, shape)
+
+    properties = properties or {}
 
     self.texture = Assets.getTexture(properties["new_sprite"] and "world/events/magical_glass_new" or "world/events/magical_glass")
 
