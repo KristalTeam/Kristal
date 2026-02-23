@@ -108,7 +108,7 @@ function LightItemMenu:draw()
     end
 
     Draw.setColor(PALETTE["world_text"])
-    love.graphics.print("USE" , 20 , 284)
+    love.graphics.print("USE", 20, 284)
     love.graphics.print("INFO", 116, 284)
     love.graphics.print("DROP", 230, 284)
 

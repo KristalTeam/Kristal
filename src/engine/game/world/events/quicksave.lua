@@ -9,6 +9,10 @@
 ---@overload fun(...) : QuicksaveEvent
 local QuicksaveEvent, super = Class(Event)
 
+---@param x number
+---@param y number
+---@param shape {[1]: number, [2]: number, [3]: table?}? Shape data for this event. First two indexes are the width and height of the object. The third (optional) index is polygon data.
+---@param marker string? The name of the marker to use for spawning the party when loading the quicksave
 function QuicksaveEvent:init(x, y, shape, marker)
     super.init(self, x, y, shape)
     self.marker = marker

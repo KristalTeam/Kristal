@@ -65,7 +65,7 @@ end
 
 --- Writes some text at the given coordinates on the screen.
 ---@param text  string  The text to display.
----@param pos   LegendCutscene.TEXT_POSITIONS|table<number, number> A table of the x and y coordinates to start writing the text at. See `LegendCutscene.TEXT_POSITIONS` for a set of default text positions.
+---@param pos LegendCutscene.TEXT_POSITIONS|[number, number] A table of the x and y coordinates to start writing the text at. See `LegendCutscene.TEXT_POSITIONS` for a set of default text positions.
 ---@return DialogueText dialogue
 function LegendCutscene:text(text, pos)
     local x, y = 0, 0

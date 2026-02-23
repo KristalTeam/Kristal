@@ -960,32 +960,32 @@ end
 ---
 function Utils.getLineIntersect(x1, y1, x2, y2, x3, y3, x4, y4, seg1, seg2)
     -- Get the slopes of the lines
-    local m1 = (y1-y2)/(x1-x2)
-    local m2 = (y3-y4)/(x3-x4)
+    local m1 = (y1 - y2) / (x1 - x2)
+    local m2 = (y3 - y4) / (x3 - x4)
 
     -- Get the offsets of the lines
-    local b1 = -(m1*x1-y1) or y1
-    local b2 = -(m2*x3-y3) or y3
+    local b1 = -(m1 * x1 - y1) or y1
+    local b2 = -(m2 * x3 - y3) or y3
 
     -- Make x and y variables
     local x = nil
     local y = nil
 
     -- Check whether any of the lines are vertical
-    if (x1-x2) == 0 then
+    if (x1 - x2) == 0 then
         -- Find x and y
         x = x1
-        y = m2*x+b2
-    elseif (x3-x4) == 0 then
+        y = m2 * x + b2
+    elseif (x3 - x4) == 0 then
         -- Find x and y
         x = x3
-        y = m1*x+b1
+        y = m1 * x + b1
     else
         -- Find x and y
-        x = (b2-b1)/(m1-m2)
-        y = m1*x+b1
+        x = (b2 - b1) / (m1 - m2)
+        y = m1 * x + b1
     end
- 
+
     -- Check if the lines are parallel or the same
     if m1 == m2 and b1 ~= b2 then
         return false, "The lines are parallel."
@@ -995,12 +995,12 @@ function Utils.getLineIntersect(x1, y1, x2, y2, x3, y3, x4, y4, seg1, seg2)
 
     -- Check if x and y are out of the segment bounds
     if seg1 or seg2 then
-        local min,max = math.min, math.max
-        if seg1 and (x<min(x1, x2) or x>max(x1, x2) or y<min(y1, y2) or y>max(y1, y2)) then
-            return false, "The lines don't intersect." 
+        local min, max = math.min, math.max
+        if seg1 and (x < min(x1, x2) or x > max(x1, x2) or y < min(y1, y2) or y > max(y1, y2)) then
+            return false, "The lines don't intersect."
         end
-        if seg2 and (x<min(x3, x4) or x>max(x3, x4) or y<min(y3, y4) or y>max(y3, y4)) then
-            return false, "The lines don't intersect." 
+        if seg2 and (x < min(x3, x4) or x > max(x3, x4) or y < min(y3, y4) or y > max(y3, y4)) then
+            return false, "The lines don't intersect."
         end
     end
     return x, y
@@ -1030,15 +1030,15 @@ function Utils.getPolygonOffset(points, dist)
         local e1, e2 = edges[i], edges[(i % #edges) + 1]
 
         -- Offset the points of the edges by the given distance
-        local p1x, p1y = offsetPoint(e1[1][1], e1[1][2], e1.angle + sign * (math.pi/2), dist)
-        local p2x, p2y = offsetPoint(e1[2][1], e1[2][2], e1.angle + sign * (math.pi/2), dist)
-        local p3x, p3y = offsetPoint(e2[1][1], e2[1][2], e2.angle + sign * (math.pi/2), dist)
-        local p4x, p4y = offsetPoint(e2[2][1], e2[2][2], e2.angle + sign * (math.pi/2), dist)
+        local p1x, p1y = offsetPoint(e1[1][1], e1[1][2], e1.angle + sign * (math.pi / 2), dist)
+        local p2x, p2y = offsetPoint(e1[2][1], e1[2][2], e1.angle + sign * (math.pi / 2), dist)
+        local p3x, p3y = offsetPoint(e2[1][1], e2[1][2], e2.angle + sign * (math.pi / 2), dist)
+        local p4x, p4y = offsetPoint(e2[2][1], e2[2][2], e2.angle + sign * (math.pi / 2), dist)
 
         -- Add the intersection point of the two offset edges to the new polygon
-        local ix, iy = Utils.getLineIntersect(p1x,p1y, p2x,p2y, p3x,p3y, p4x,p4y)
+        local ix, iy = Utils.getLineIntersect(p1x, p1y, p2x, p2y, p3x, p3y, p4x, p4y)
         if ix then
-            table.insert(new_polygon, {ix, iy})
+            table.insert(new_polygon, { ix, iy })
         end
     end
 
@@ -1056,7 +1056,7 @@ end
 ---
 function Utils.unpackPolygon(points)
     local line = {}
-    for _,point in ipairs(points) do
+    for _, point in ipairs(points) do
         table.insert(line, point[1])
         table.insert(line, point[2])
     end
@@ -1075,7 +1075,7 @@ end
 ---
 function Utils.getPolygonBounds(points)
     local min_x, min_y, max_x, max_y
-    for _,point in ipairs(points) do
+    for _, point in ipairs(points) do
         min_x, min_y = math.min(min_x or point[1], point[1]), math.min(min_y or point[2], point[2])
         max_x, max_y = math.max(max_x or point[1], point[1]), math.max(max_y or point[2], point[2])
     end

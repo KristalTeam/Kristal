@@ -22,7 +22,7 @@ local Forcefield, super = Class(Event)
 
 ---@param x number
 ---@param y number
----@param shape? {[1]: number, [2]: number, [3]: table?}
+---@param shape EventShape?
 ---@param properties? table
 function Forcefield:init(x, y, shape, properties)
     super.init(self, x, y, shape)

@@ -26,10 +26,10 @@ function SleepMistEffect:draw()
     local amp = math.sin(self.siner / 9) * 30
     local x, y = math.sin(self.siner / 6) * amp, (math.cos(self.siner / 6) * amp) / 2
 
-    local r,g,b,a = self:getDrawColor()
+    local r, g, b, a = self:getDrawColor()
     Draw.setColor(r, g, b, a * 0.8)
-    Draw.draw(self.texture, x, y, 0, 3, 2, self.texture:getWidth()/2, self.texture:getHeight()/2)
-    Draw.draw(self.texture, -x, -y, 0, 3, 2, self.texture:getWidth()/2, self.texture:getHeight()/2)
+    Draw.draw(self.texture, x, y, 0, 3, 2, self.texture:getWidth() / 2, self.texture:getHeight() / 2)
+    Draw.draw(self.texture, -x, -y, 0, 3, 2, self.texture:getWidth() / 2, self.texture:getHeight() / 2)
 
     super.draw(self)
 end

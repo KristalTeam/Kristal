@@ -197,9 +197,9 @@ function Item:onCheck()
                 table.insert(text, check)
             end
         end
-        Game.world:showText({{"* \""..self:getName().."\" - "..(self:getCheck()[1] or "")}, text})
+        Game.world:showText({ { "* \"" .. self:getName() .. "\" - " .. (self:getCheck()[1] or "") }, text })
     else
-        Game.world:showText("* \""..self:getName().."\" - "..self:getCheck())
+        Game.world:showText("* \"" .. self:getName() .. "\" - " .. self:getCheck())
     end
 end
 --- *(Override)* Called when the item is tossed \
@@ -283,7 +283,7 @@ end
 function Item:getPrice() return self.price end
 
 function Item:getBuyPrice() return self.buy_price or self:getPrice() end
-function Item:getSellPrice() return self.sell_price or math.ceil(self:getPrice()/2) end
+function Item:getSellPrice() return self.sell_price or math.ceil(self:getPrice() / 2) end
 
 function Item:getTarget() return self.target end
 
@@ -311,7 +311,7 @@ end
 ---@param target Battler[]|PartyBattler|PartyBattler[]|EnemyBattler|EnemyBattler[]
 ---@return string
 function Item:getBattleText(user, target)
-    return "* "..user.chara:getName().." used the "..self:getUseName().."!"
+    return "* " .. user.chara:getName() .. " used the " .. self:getUseName() .. "!"
 end
 
 --[[ Misc Functions ]]--

@@ -36,7 +36,7 @@ function ModList:getSelectedId()
 end
 
 function ModList:getById(id)
-    for i,v in ipairs(self.mods) do
+    for i, v in ipairs(self.mods) do
         if v.id == id then
             return v, i
         end
@@ -182,7 +182,7 @@ function ModList:draw()
     -- Draw the scrollbar (only if we have to)
     if #self.mods > 5 then
         -- Draw the scrollbar background
-        Draw.setColor({0, 0, 0, 0.5})
+        Draw.setColor({ 0, 0, 0, 0.5 })
         love.graphics.rectangle("fill", self.width + 2, 0, 4, self.height)
 
         local scrollbar_height = (self.height / self.mod_list_height) * self.height

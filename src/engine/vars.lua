@@ -131,8 +131,8 @@ local palette_data = {
 ---@type table<PaletteIndex, number[]>
 PALETTE = {}
 setmetatable(PALETTE, {
-    __index = function (t, i) return Kristal.callEvent(KRISTAL_EVENT.getPaletteColor, i) or palette_data[i] end,
-    __newindex = function (t, k, v) palette_data[k] = v end,
+    __index = function(t, i) return Kristal.callEvent(KRISTAL_EVENT.getPaletteColor, i) or palette_data[i] end,
+    __newindex = function(t, k, v) palette_data[k] = v end,
 })
 
 COLORS = {
@@ -157,7 +157,7 @@ COLORS = {
     yellow = { 1, 1, 0, 1 }
 }
 for _, v in pairs(COLORS) do
-    setmetatable(v, { __call = function (c, a) return { c[1], c[2], c[3], a or 1 } end })
+    setmetatable(v, { __call = function(c, a) return { c[1], c[2], c[3], a or 1 } end })
 end
 
 ALPHABET = { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u",
@@ -174,7 +174,7 @@ CHASETYPE = { "linear", "multiplier", "flee" }
 --- `verticalswing`   - Moves along a sinusodial wave on the y-axis. \
 --- `horizontalswing` - Moves along a sinusodial wave on the x-axis.
 ---@enum PACETYPE
-PACETYPE = { "wander", "randomwander", "verticalswing", "horizontalswing"}
+PACETYPE = { "wander", "randomwander", "verticalswing", "horizontalswing" }
 
 -- exposed events called by Kristal
 --
@@ -214,9 +214,9 @@ KRISTAL_EVENT = {
     postLoad = "postLoad", -- after mod loads save data and current map or encounter / at: Game:load(data, index, fade) / passes: NONE / returns: NONE
     postInit = "postInit", -- mod & libraries have finished initialization and registration / at: Game:enter(previous_state, save_id, save_name, fade) / passes: bool:is_new_file / returns: NONE
     preUpdate = "preUpdate", -- overrides game update / at: Game:update() / passes: number:DT / returns: bool
-	postUpdate = "postUpdate", -- update finished processing / at: Game:update() / passes: number:DT / returns: NONE
-	preDraw = "preDraw", -- overrides game draw, always pops final graphics state after / at: Game:draw() / passes: NONE / returns: bool
-	postDraw = "postDraw", -- finished drawing / at: Game:draw() / passes: NONE / returns: NONE
+    postUpdate = "postUpdate", -- update finished processing / at: Game:update() / passes: number:DT / returns: NONE
+    preDraw = "preDraw", -- overrides game draw, always pops final graphics state after / at: Game:draw() / passes: NONE / returns: bool
+    postDraw = "postDraw", -- finished drawing / at: Game:draw() / passes: NONE / returns: NONE
     save = "save", -- game is about to be saved / at: Game:save(x, y) / passes: table:save_data / returns: NONE
     unload = "unload", -- current game execution is stopped and data unloaded / at: Kristal.clearModState() / passes: NONE / returns: NONE
 
@@ -268,7 +268,7 @@ KRISTAL_EVENT = {
 
     --debug events--
     registerDebugContext = "registerDebugContext", -- new debug ContextMenu created / at: DebugSystem:onMousePressed(x, y, button, istouch, presses), DebugSystem:openObjectContext(object) / passes: ContextMenu:context, Object:selected_object / return: NONE
-	registerDebugOptions = "registerDebugOptions", -- DebugSystem is ready to recieve custom debug options / passes: DebugSystem:self / returns: NONE
+    registerDebugOptions = "registerDebugOptions", -- DebugSystem is ready to recieve custom debug options / passes: DebugSystem:self / returns: NONE
 
     --asset registration events-- (sorted by execution order)
     onRegisterActors = "onRegisterActors", -- actor scripts finished registering / in: Registry.initActors() / passes: NONE / returns: NONE

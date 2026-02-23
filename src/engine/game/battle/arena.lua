@@ -33,8 +33,8 @@ function Arena:init(x, y, shape)
 
     self:setOrigin(0.5, 0.5)
 
-    self.color = {0, 0.75, 0}
-    self.bg_color = {0, 0, 0}
+    self.color = { 0, 0.75, 0 }
+    self.bg_color = { 0, 0, 0 }
 
     self.x = math.floor(self.x)
     self.y = math.floor(self.y)
@@ -42,7 +42,7 @@ function Arena:init(x, y, shape)
     self.collider = ColliderGroup(self)
 
     self.line_width = 4 -- must call setShape again if u change this
-    self:setShape(shape or {{0, 0}, {142, 0}, {142, 142}, {0, 142}})
+    self:setShape(shape or { { 0, 0 }, { 142, 0 }, { 142, 142 }, { 0, 142 } })
 
     self.sprite = ArenaSprite(self)
     self:addChild(self.sprite)
@@ -56,7 +56,7 @@ end
 ---@param width     number
 ---@param height    number
 function Arena:setSize(width, height)
-    self:setShape{{0, 0}, {width, 0}, {width, height}, {0, height}}
+    self:setShape({ { 0, 0 }, { width, 0 }, { width, height }, { 0, height } })
 end
 
 --- Sets the arena to the polygon `shape`. \
@@ -88,14 +88,14 @@ function Arena:setShape(shape)
 
     self.triangles = love.math.triangulate(Utils.unpackPolygon(self.shape))
 
-    self.border_line = {Utils.unpackPolygon(Utils.getPolygonOffset(self.shape, self.line_width/2))}
+    self.border_line = { Utils.unpackPolygon(Utils.getPolygonOffset(self.shape, self.line_width / 2)) }
 
     self.clockwise = Utils.isPolygonClockwise(self.shape)
 
     self.area_collider = PolygonCollider(self, TableUtils.copy(shape, true))
 
     self.collider.colliders = {}
-    for _,v in ipairs(Utils.getPolygonEdges(self.shape)) do
+    for _, v in ipairs(Utils.getPolygonEdges(self.shape)) do
         table.insert(self.collider.colliders, LineCollider(self, v[1][1], v[1][2], v[2][1], v[2][2]))
     end
 end
@@ -243,8 +243,10 @@ function Arena:update()
     local soul = Game.battle.soul
     if soul and Game.battle.soul.collidable then
         Object.startCache()
-        local angle_diff = self.clockwise and -(math.pi/2) or (math.pi/2)
-        for _,line in ipairs(self.collider.colliders) do
+        local angle_diff = self.clockwise and -(math.pi / 2) or (math.pi / 2)
+        for _, line in ipairs(self.collider.colliders) do
+            ---@cast line LineCollider
+
             local angle
             while soul:collidesWith(line) do
                 if not angle then

@@ -87,7 +87,7 @@ end
 ---@param target Battler[]|EnemyBattler|PartyBattler|EnemyBattler[]|PartyBattler[]
 ---@return string
 function Spell:getCastMessage(user, target)
-    return "* "..user.chara:getName().." cast "..self:getCastName().."!"
+    return "* " .. user.chara:getName() .. " cast " .. self:getCastName() .. "!"
 end
 
 --- *(Override)* Gets the animation that is set when this spell is cast in battle

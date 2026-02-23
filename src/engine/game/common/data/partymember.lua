@@ -94,7 +94,7 @@ function PartyMember:init()
     -- Determines which character the soul comes from (higher number = higher priority)
     self.soul_priority = 2
     -- The color of this character's soul (optional, defaults to red)
-    self.soul_color = {1, 0, 0}
+    self.soul_color = { 1, 0, 0 }
 
     -- Whether the party member can act (defaults to true)
     self.has_act = true
@@ -149,7 +149,7 @@ function PartyMember:init()
     self.lw_armor_default = "light/bandage"
 
     -- Character color (for action box outline and hp bar)
-    self.color = {1, 1, 1}
+    self.color = { 1, 1, 1 }
     -- Damage color (for the number when attacking enemies) (defaults to the main color)
     self.dmg_color = nil
     -- Attack bar color (for the target bar used in attack mode) (defaults to the main color)
@@ -191,15 +191,15 @@ function PartyMember:init()
 
     -- Light world EXP requirements
     self.lw_exp_needed = {
-        [ 1] = 0,
-        [ 2] = 10,
-        [ 3] = 30,
-        [ 4] = 70,
-        [ 5] = 120,
-        [ 6] = 200,
-        [ 7] = 300,
-        [ 8] = 500,
-        [ 9] = 800,
+        [1] = 0,
+        [2] = 10,
+        [3] = 30,
+        [4] = 70,
+        [5] = 120,
+        [6] = 200,
+        [7] = 300,
+        [8] = 500,
+        [9] = 800,
         [10] = 1200,
         [11] = 1700,
         [12] = 2500,
@@ -270,7 +270,7 @@ function PartyMember:onActionBox(box, overworld) end
 -- Getters
 
 function PartyMember:getName() return self.name end
-function PartyMember:getTitle() return "LV"..self:getLevel().." "..self.title end
+function PartyMember:getTitle() return "LV" .. self:getLevel() .. " " .. self.title end
 function PartyMember:getLevel() return self.level end
 
 function PartyMember:getLightLV() return self.lw_lv end
@@ -278,7 +278,7 @@ function PartyMember:getLightEXP() return self.lw_exp end
 function PartyMember:getLightEXPNeeded(lv) return self.lw_exp_needed[lv] or 0 end
 
 function PartyMember:getSoulPriority() return self.soul_priority end
-function PartyMember:getSoulColor() return Utils.unpackColor(self.soul_color or {1, 0, 0}) end
+function PartyMember:getSoulColor() return Utils.unpackColor(self.soul_color or { 1, 0, 0 }) end
 
 function PartyMember:hasAct() return self.has_act end
 function PartyMember:hasSpells() return self.has_spells end
@@ -354,13 +354,30 @@ function PartyMember:getAttackPitch() return self.attack_pitch end
 
 ---@return number x
 ---@return number y
-function PartyMember:getBattleOffset() return unpack(self.battle_offset or {0, 0}) end
+function PartyMember:getBattleOffset()
+    if self.battle_offset ~= nil then
+        return self.battle_offset[1], self.battle_offset[2]
+    end
+    return 0, 0
+end
+
 ---@return number x
 ---@return number y
-function PartyMember:getHeadIconOffset() return unpack(self.head_icon_offset or {0, 0}) end
+function PartyMember:getHeadIconOffset()
+    if self.head_icon_offset ~= nil then
+        return self.head_icon_offset[1], self.head_icon_offset[2]
+    end
+    return 0, 0
+end
+
 ---@return number x
 ---@return number y
-function PartyMember:getMenuIconOffset() return unpack(self.menu_icon_offset or {0, 0}) end
+function PartyMember:getMenuIconOffset()
+    if self.menu_icon_offset ~= nil then
+        return self.menu_icon_offset[1], self.menu_icon_offset[2]
+    end
+    return 0, 0
+end
 
 ---@param main PartyMember
 function PartyMember:getGameOverMessage(main) return self.gameover_message end
@@ -509,7 +526,7 @@ end
 --- Removes a spell from this party member's available spells
 ---@param spell string|Spell
 function PartyMember:removeSpell(spell)
-    for i,v in ipairs(self.spells) do
+    for i, v in ipairs(self.spells) do
         if v == spell or (type(spell) == "string" and v.id == spell) then
             table.remove(self.spells, i)
             return
@@ -521,7 +538,7 @@ end
 ---@param spell string|Spell
 ---@return boolean has_spell
 function PartyMember:hasSpell(spell)
-    for i,v in ipairs(self.spells) do
+    for _, v in ipairs(self.spells) do
         if v == spell or (type(spell) == "string" and v.id == spell) then
             return true
         end
@@ -535,7 +552,7 @@ end
 ---@param replacement string
 function PartyMember:replaceSpell(spell, replacement)
     local tempspells = {}
-    for _,v in ipairs(self.spells) do
+    for _, v in ipairs(self.spells) do
         if v == spell or (type(spell) == "string" and v.id == spell) then
             table.insert(tempspells, Registry.createSpell(replacement))
         else
@@ -636,7 +653,7 @@ end
 ---@return number
 function PartyMember:getEquipmentBonus(stat)
     local total = 0
-    for _,item in ipairs(self:getEquipment()) do
+    for _, item in ipairs(self:getEquipment()) do
         total = total + item:getStatBonus(stat)
     end
     return total
@@ -645,7 +662,7 @@ end
 ---@param light? boolean
 function PartyMember:getStats(light)
     local stats = TableUtils.copy(self:getBaseStats(light))
-    for _,item in ipairs(self:getEquipment()) do
+    for _, item in ipairs(self:getEquipment()) do
         for stat, amount in pairs(item:getStatBonuses()) do
             if stats[stat] then
                 stats[stat] = stats[stat] + amount
@@ -700,9 +717,9 @@ end
 
 function PartyMember:convertToLight()
     local last_weapon = self:getWeapon()
-    local last_armors = {self:getArmor(1), self:getArmor(2)}
+    local last_armors = { self:getArmor(1), self:getArmor(2) }
 
-    self.equipped = {weapon = nil, armor = {}}
+    self.equipped = { weapon = nil, armor = {} }
 
     if last_weapon then
         local result = last_weapon:convertToLightEquip(self)
@@ -751,7 +768,7 @@ function PartyMember:convertToDark()
     local last_weapon = self:getWeapon()
     local last_armor = self:getArmor(1)
 
-    self.equipped = {weapon = nil, armor = {}}
+    self.equipped = { weapon = nil, armor = {} }
 
     if last_weapon then
         local result = last_weapon:convertToDarkEquip(self)
@@ -780,7 +797,7 @@ end
 -- Saving & Loading
 
 function PartyMember:saveEquipment()
-    local result = {weapon = nil, armor = {}}
+    local result = { weapon = nil, armor = {} }
     if self.equipped.weapon then
         result.weapon = self.equipped.weapon:save()
     end
@@ -803,16 +820,16 @@ function PartyMember:loadEquipment(data)
                     weapon:load(data.weapon)
                     self:setWeapon(weapon)
                 else
-                    Kristal.Console:error("Could not load weapon \""..data.weapon.id.."\"")
+                    Kristal.Console:error("Could not load weapon \"" .. data.weapon.id .. "\"")
                 end
             else
-                Kristal.Console:error("Could not load weapon \"".. data.weapon.id .."\"")
+                Kristal.Console:error("Could not load weapon \"" .. data.weapon.id .. "\"")
             end
         else
             if Registry.getItem(data.weapon) then
                 self:setWeapon(data.weapon)
             else
-                Kristal.Console:error("Could not load weapon \"".. (data.weapon or "nil") .."\"")
+                Kristal.Console:error("Could not load weapon \"" .. (data.weapon or "nil") .. "\"")
             end
         end
     end
@@ -820,7 +837,7 @@ function PartyMember:loadEquipment(data)
         self:setArmor(i, nil)
     end
     if data.armor then
-        for k,v in pairs(data.armor) do
+        for k, v in pairs(data.armor) do
             if type(v) == "table" then
                 if Registry.getItem(v.id) then
                     local armor = Registry.createItem(v.id)
@@ -828,16 +845,16 @@ function PartyMember:loadEquipment(data)
                         armor:load(v)
                         self:setArmor(tonumber(k), armor)
                     else
-                        Kristal.Console:error("Could not load armor \""..v.id.."\"")
+                        Kristal.Console:error("Could not load armor \"" .. v.id .. "\"")
                     end
                 else
-                    Kristal.Console:error("Could not load armor \""..v.id.."\"")
+                    Kristal.Console:error("Could not load armor \"" .. v.id .. "\"")
                 end
             else
                 if Registry.getItem(v) then
                     self:setArmor(tonumber(k), v)
                 else
-                    Kristal.Console:error("Could not load armor \"".. (v or "nil") .."\"")
+                    Kristal.Console:error("Could not load armor \"" .. (v or "nil") .. "\"")
                 end
             end
         end
@@ -847,7 +864,7 @@ end
 ---@return string[] spells An array of the spell IDs this party member knows 
 function PartyMember:saveSpells()
     local result = {}
-    for _,v in pairs(self.spells) do
+    for _, v in pairs(self.spells) do
         table.insert(result, v.id)
     end
     return result
@@ -856,11 +873,11 @@ end
 ---@param data string[] An array of the spell IDs this party member knows
 function PartyMember:loadSpells(data)
     self.spells = {}
-    for _,v in ipairs(data) do
+    for _, v in ipairs(data) do
         if Registry.getSpell(v) then
             self:addSpell(v)
         else
-            Kristal.Console:error("Could not load spell \"".. (v or "nil") .."\"")
+            Kristal.Console:error("Could not load spell \"" .. (v or "nil") .. "\"")
         end
     end
 end

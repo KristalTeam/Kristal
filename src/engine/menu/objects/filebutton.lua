@@ -87,7 +87,7 @@ function FileButton:draw()
         love.graphics.print(self.name, 50, 10)
 
         -- Draw the time shadow
-        local time_x = self.width-64-self.font:getWidth(self.time) + 2
+        local time_x = self.width - 64 - self.font:getWidth(self.time) + 2
         Draw.setColor(0, 0, 0)
         love.graphics.print(self.time, time_x + 2, 10 + 2)
         -- Draw the time
@@ -112,7 +112,7 @@ function FileButton:draw()
     else
         -- Draw the shadow for choice 1
         Draw.setColor(0, 0, 0)
-        love.graphics.print(self.choices[1], 70+2, 44+2)
+        love.graphics.print(self.choices[1], 70 + 2, 44 + 2)
         -- Draw choice 1
         if self.selected_choice == 1 then
             Draw.setColor(1, 1, 1)
@@ -123,7 +123,7 @@ function FileButton:draw()
 
         -- Draw the shadow for choice 2
         Draw.setColor(0, 0, 0)
-        love.graphics.print(self.choices[2], 250+2, 44+2)
+        love.graphics.print(self.choices[2], 250 + 2, 44 + 2)
         -- Draw choice 2
         if self.selected_choice == 2 then
             Draw.setColor(1, 1, 1)

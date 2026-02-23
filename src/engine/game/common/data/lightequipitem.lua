@@ -5,7 +5,7 @@
 local LightEquipItem, super = Class(Item)
 
 function LightEquipItem:showEquipText()
-    Game.world:showText("* You equipped the "..self:getName()..".")
+    Game.world:showText("* You equipped the " .. self:getName() .. ".")
 end
 
 function LightEquipItem:onWorldUse(target)
@@ -27,7 +27,7 @@ function LightEquipItem:onWorldUse(target)
         end
         chara:setArmor(1, self)
     else
-        error("LightEquipItem "..self.id.." invalid type: "..self.type)
+        error("LightEquipItem " .. self.id .. " invalid type: " .. self.type)
     end
 
     self:onEquip(chara, replacing)
@@ -75,7 +75,7 @@ function LightEquipItem:createArmorItems()
             armor_result = Registry.createItem(armor_result)
         end
         if armor_result and isClass(armor_result) then
-            return {armor_result}
+            return { armor_result }
         else
             return {}
         end

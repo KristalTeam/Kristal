@@ -63,20 +63,23 @@ function DialogueText:resetState()
 end
 
 function DialogueText:processInitialNodes()
-    self:drawToCanvas(function ()
-                          local i = 1
-                          while i <= #self.nodes do
-                              local current_node = self.nodes[i]
-                              self:processNode(current_node, false)
-                              self.state.current_node = self.state.current_node + 1
-                              self.state.progress = self.state.typed_characters
-                              i = i + 1
-                              -- If the current mode is a typewriter...
-                              if not self.state.skipping and not self:isNodeInstant(current_node) then
-                                  break
-                              end
-                          end
-                      end, true)
+    self:drawToCanvas(
+        function()
+            local i = 1
+            while i <= #self.nodes do
+                local current_node = self.nodes[i]
+                self:processNode(current_node, false)
+                self.state.current_node = self.state.current_node + 1
+                self.state.progress = self.state.typed_characters
+                i = i + 1
+                -- If the current mode is a typewriter...
+                if not self.state.skipping and not self:isNodeInstant(current_node) then
+                    break
+                end
+            end
+        end,
+        true
+    )
 end
 
 function DialogueText:setText(text, callback, line_callback)
@@ -200,25 +203,27 @@ function DialogueText:update()
     end
 
     if self.state.typing then
-        self:drawToCanvas(function ()
-            while (math.floor(self.state.progress) > self.state.typed_characters) or self.state.skipping do
-                local current_node = self.nodes[self.state.current_node]
+        self:drawToCanvas(
+            function()
+                while (math.floor(self.state.progress) > self.state.typed_characters) or self.state.skipping do
+                    local current_node = self.nodes[self.state.current_node]
 
-                if current_node == nil then
-                    self.state.typing = false
-                    break
+                    if current_node == nil then
+                        self.state.typing = false
+                        break
+                    end
+
+                    self:playTextSound(current_node)
+                    self:processNode(current_node, false)
+
+                    if self.state.skipping then
+                        self.state.progress = self.state.typed_characters
+                    end
+
+                    self.state.current_node = self.state.current_node + 1
                 end
-
-                self:playTextSound(current_node)
-                self:processNode(current_node, false)
-
-                if self.state.skipping then
-                    self.state.progress = self.state.typed_characters
-                end
-
-                self.state.current_node = self.state.current_node + 1
             end
-        end)
+        )
     end
 
     self:updateTalkSprite(self.state.talk_anim and self.state.typing)
@@ -277,8 +282,8 @@ function DialogueText:playTextSound(current_node)
             return
         end
         if self:getActor()
-            and (self:getActor():getVoice() or "default") == self.state.typing_sound
-            and self:getActor():onTextSound(current_node, self.state) then
+        and (self:getActor():getVoice() or "default") == self.state.typing_sound
+        and self:getActor():onTextSound(current_node, self.state) then
             return
         end
         Assets.playSound("voice/" .. self.state.typing_sound)

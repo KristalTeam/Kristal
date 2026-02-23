@@ -6,7 +6,7 @@ function Rectangle:init(x, y, width, height)
     super.init(self, x, y)
     self.width = width
     self.height = height
-    self.color = {1, 1, 1}
+    self.color = { 1, 1, 1 }
 
     self.line = false
     self.line_width = 1

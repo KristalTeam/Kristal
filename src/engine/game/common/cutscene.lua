@@ -36,33 +36,33 @@ function Cutscene:parseFromGetter(getter, cutscene, id, ...)
     self.getter = getter
     if type(cutscene) == "function" then
         self.id = "<function>"
-        return cutscene, {id, ...}
+        return cutscene, { id, ... }
     elseif type(cutscene) == "string" then
-        local dotsplit = Utils.split(cutscene, ".")
+        local dotsplit = StringUtils.split(cutscene, ".")
         if #dotsplit > 1 then
             local scene = getter(dotsplit[1], dotsplit[2])
 
             if scene then
                 self.id = cutscene
-                return scene, {id, ...}
+                return scene, { id, ... }
             else
-                error("No cutscene found: "..cutscene)
+                error("No cutscene found: " .. cutscene)
             end
         else
             local scene, grouped = getter(cutscene, id)
             if scene then
                 if grouped then
-                    self.id = cutscene.."."..id
-                    return scene, {...}
+                    self.id = cutscene .. "." .. id
+                    return scene, { ... }
                 else
                     self.id = cutscene
-                    return scene, {id, ...}
+                    return scene, { id, ... }
                 end
             else
                 if type(id) == "string" then
-                    error("No cutscene found: "..cutscene.."."..id)
+                    error("No cutscene found: " .. cutscene .. "." .. id)
                 else
-                    error("No cutscene found: "..cutscene)
+                    error("No cutscene found: " .. cutscene)
                 end
             end
         end
@@ -198,9 +198,9 @@ end
 --- Any additional return values from `Cutscene:canResume()` are passed through into `Cutscene:resume(...)`.
 ---@return boolean success Whether the cutscene successfully resumed.
 function Cutscene:tryResume()
-    local result, a,b,c,d,e,f = self:canResume()
+    local result, a, b, c, d, e, f = self:canResume()
     if result then
-        self:resume(a,b,c,d,e,f)
+        self:resume(a, b, c, d, e, f)
         return true
     end
     return false
