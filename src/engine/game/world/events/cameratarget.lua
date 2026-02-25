@@ -78,8 +78,8 @@ function CameraTarget:onExit(chara)
 
         local approach_speed = self.return_time or self.return_speed or self.time or self.speed
         local approach_type = (self.return_time and "time") or
-                              (self.return_speed and "speed") or
-                              (self.time and "time") or "speed"
+            (self.return_speed and "speed") or
+            (self.time and "time") or "speed"
 
         if self.lock_x then
             self.world.camera:setModifier("x", nil, approach_speed, approach_type)

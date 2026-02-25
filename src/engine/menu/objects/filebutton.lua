@@ -65,28 +65,14 @@ function FileButton:getHeartPos()
     end
 end
 
-function FileButton:drawCoolRectangle(x, y, w, h)
-    -- Make sure the line is a single pixel wide
-    love.graphics.setLineWidth(1)
-    love.graphics.setLineStyle("rough")
-    -- Set the color
-    Draw.setColor(self:getDrawColor())
-    -- Draw the rectangles
-    love.graphics.rectangle("line", x, y, w + 1, h + 1)
-    -- Increase the width and height by one instead of two to produce the broken effect
-    love.graphics.rectangle("line", x - 1, y - 1, w + 2, h + 2)
-    love.graphics.rectangle("line", x - 2, y - 2, w + 5, h + 5)
-    -- Here too
-    love.graphics.rectangle("line", x - 3, y - 3, w + 6, h + 6)
-end
-
 function FileButton:draw()
     -- Draw the transparent background
     Draw.setColor(0, 0, 0, 0.5)
     love.graphics.rectangle("fill", 0, 0, self.width, self.height)
 
     -- Draw the rectangle outline
-    self:drawCoolRectangle(0, 0, self.width, self.height)
+    Draw.setColor(self:getDrawColor())
+    Draw.drawMenuRectangle(0, 0, self.width, self.height)
 
     -- Draw text inside the button rectangle
     Draw.pushScissor()
@@ -101,7 +87,7 @@ function FileButton:draw()
         love.graphics.print(self.name, 50, 10)
 
         -- Draw the time shadow
-        local time_x = self.width-64-self.font:getWidth(self.time) + 2
+        local time_x = self.width - 64 - self.font:getWidth(self.time) + 2
         Draw.setColor(0, 0, 0)
         love.graphics.print(self.time, time_x + 2, 10 + 2)
         -- Draw the time
@@ -126,7 +112,7 @@ function FileButton:draw()
     else
         -- Draw the shadow for choice 1
         Draw.setColor(0, 0, 0)
-        love.graphics.print(self.choices[1], 70+2, 44+2)
+        love.graphics.print(self.choices[1], 70 + 2, 44 + 2)
         -- Draw choice 1
         if self.selected_choice == 1 then
             Draw.setColor(1, 1, 1)
@@ -137,7 +123,7 @@ function FileButton:draw()
 
         -- Draw the shadow for choice 2
         Draw.setColor(0, 0, 0)
-        love.graphics.print(self.choices[2], 250+2, 44+2)
+        love.graphics.print(self.choices[2], 250 + 2, 44 + 2)
         -- Draw choice 2
         if self.selected_choice == 2 then
             Draw.setColor(1, 1, 1)

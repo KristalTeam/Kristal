@@ -11,7 +11,7 @@ function AttackBox:init(battler, offset, index, x, y)
     self.offset = offset
     self.index = index
 
-    self.head_sprite = Sprite(battler.chara:getHeadIcons().."/head", 21, 19)
+    self.head_sprite = Sprite(battler.chara:getHeadIcons() .. "/head", 21, 19)
     self.head_sprite:setOrigin(0.5, 0.5)
     self:addChild(self.head_sprite)
 
@@ -78,13 +78,13 @@ end
 
 function AttackBox:update()
     if self.removing or Game.battle.cancel_attack then
-        self.fade_rect.alpha = Utils.approach(self.fade_rect.alpha, 1, 0.08 * DTMULT)
+        self.fade_rect.alpha = MathUtils.approach(self.fade_rect.alpha, 1, 0.08 * DTMULT)
     end
 
     if not self.attacked then
         self.bolt:move(-AttackBox.BOLTSPEED * DTMULT, 0)
 
-        self.afterimage_timer = self.afterimage_timer + DTMULT/2
+        self.afterimage_timer = self.afterimage_timer + DTMULT / 2
         while math.floor(self.afterimage_timer) > self.afterimage_count do
             self.afterimage_count = self.afterimage_count + 1
             local afterimg = AttackBar(self.bolt.x, 0, 6, 38)
@@ -98,18 +98,18 @@ function AttackBox:update()
     if not Game.battle.cancel_attack and Input.pressed("confirm") then
         self.flash = 1
     else
-        self.flash = Utils.approach(self.flash, 0, DTMULT/5)
+        self.flash = MathUtils.approach(self.flash, 0, DTMULT / 5)
     end
 
     super.update(self)
 end
 
 function AttackBox:draw()
-    local target_color = {self.battler.chara:getAttackBarColor()}
-    local box_color = {self.battler.chara:getAttackBoxColor()}
+    local target_color = { self.battler.chara:getAttackBarColor() }
+    local box_color = { self.battler.chara:getAttackBoxColor() }
 
     if self.flash > 0 then
-        box_color = Utils.lerp(box_color, {1, 1, 1}, self.flash)
+        box_color = ColorUtils.mergeColor(box_color, { 1, 1, 1 }, self.flash)
     end
 
     love.graphics.setLineWidth(2)

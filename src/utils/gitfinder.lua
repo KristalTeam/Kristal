@@ -30,10 +30,10 @@ function GitFinder:fetchCurrentCommit()
         -- Read the ref's correspending file, which contains the hash of the commit that it points to
         local commit, _ = love.filesystem.read(".git/" .. ref)
         if not commit then return end
-        return Utils.trim(commit)
+        return StringUtils.trim(commit)
     else -- HEAD is detached
         -- The file just contains the hash of the commit it's at
-        return Utils.trim(head)
+        return StringUtils.trim(head)
     end
 end
 
@@ -71,7 +71,7 @@ function GitFinder:fetchLatestCommit(callback)
         "https://api.github.com/repos/KristalTeam/Kristal/commits/" .. tostring(ref),
         {
             headers = {
-                ["Accept"] = "application/vnd.github.VERSION.sha"
+                ["Accept"] = "application/vnd.github.sha"
             },
             callback = callback
         }

@@ -20,13 +20,13 @@ function spell:init()
     self.target = "enemies"
 
     -- Tags that apply to this spell
-    self.tags = {"ice", "fatal", "damage"}
+    self.tags = { "ice", "fatal", "damage" }
 end
 
 function spell:getTPCost(chara)
     local cost = super.getTPCost(self, chara)
     if chara and chara:checkWeapon("thornring") then
-        cost = Utils.round(cost / 2)
+        cost = MathUtils.round(cost / 2)
     end
     return cost
 end

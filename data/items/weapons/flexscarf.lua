@@ -19,7 +19,7 @@ function item:init()
     self.description = "A scarf that is warm and fuzzy, but with\na metal core that lets it keep its shape."
 
     -- Default shop price (sell price is halved)
-    self.price = 720
+    self.price = Game.chapter <= 3 and 620 or 720
     -- Whether the item can be sold
     self.can_sell = true
 

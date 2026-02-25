@@ -1,0 +1,3 @@
+---@alias CutsceneFunc fun(cutscene: Cutscene, ...)
+---@alias WorldCutsceneFunc fun(cutscene: WorldCutscene, ...)
+---@alias BattleCutsceneFunc fun(cutscene: BattleCutscene, ...)

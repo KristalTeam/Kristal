@@ -14,11 +14,13 @@
 ---@field lock_movement     boolean
 ---@field key_repeat        boolean
 ---@field started           boolean
----@field border            Border
+---@field border            string|Border
 ---
 ---@field previous_state    string
 ---@field state             string
 ---@field music             Music
+---
+---@field encounter_enemies Character[]|string[]
 ---
 ---@field chapter           integer
 ---@field save_name         string
@@ -33,7 +35,7 @@
 ---@field lw_money          integer
 ---@field level_up_count    integer
 ---@field temp_followers    table<[string, number]|string>
----@field flags             table<[string, any]>
+---@field flags             table<string, any>
 ---@field party             PartyMember[]
 ---@field party_data        PartyMember[]
 ---@field recruits_data     Recruit[]
@@ -41,6 +43,8 @@
 ---@field fader             Fader
 ---@field max_followers     integer
 ---@field is_new_file       boolean
+---
+---@field died_once         boolean?
 local Game = {}
 
 function Game:clear()
@@ -51,7 +55,7 @@ function Game:clear()
         self.battle.music:stop()
     end
     if self.stage then
-        for _,child in ipairs(self.stage.children) do
+        for _, child in ipairs(self.stage.children) do
             self.stage:removeFromStage(child)
         end
     end
@@ -85,13 +89,18 @@ function Game:enter(previous_state, save_id, save_name, fade)
 
     self.quick_save = nil
 
+    self.event_registry = EventRegistry()
+    self.builtin_event_registry = EventRegistry()
+
+    self:registerBuiltInEvents()
+
     Kristal.callEvent(KRISTAL_EVENT.init)
 
     self.lock_movement = false
 
     fade = fade ~= false
     if type(save_id) == "table" then
-        local save = save_id
+        local save = save_id ---@type SaveData
         save_id = save_name
         save_name = nil
         self:load(save, save_id, fade)
@@ -123,6 +132,73 @@ function Game:enter(previous_state, save_id, save_name, fade)
     end
 end
 
+--- Register a new event class with the given ID.
+---@param id string                    The ID of the event.
+---@param constructor fun(data):Event  A constructor function that takes event data and returns an event instance.
+function Game:registerEvent(id, constructor)
+    self.event_registry:register(id, constructor)
+end
+
+--- Responsible for registering all built-in events.
+function Game:registerBuiltInEvents()
+    local registry = Game.builtin_event_registry
+
+    -- Unfortunately, we have to defer all of these...
+
+    local function getCharaX(data)
+        if data.gid then
+            local tx, _, tw, _ = Game.world.map:getTileObjectRect(data)
+            return tx + tw / 2
+        end
+        return data.center_x
+    end
+
+    local function getCharaY(data)
+        if data.gid then
+            local _, ty, _, th = Game.world.map:getTileObjectRect(data)
+            return ty + th
+        end
+        return data.center_y
+    end
+
+    local function getShapeData(data)
+        return { data.width, data.height, data.polygon }
+    end
+
+    local function getRectData(data)
+        return { data.width, data.height }
+    end
+
+    registry:register("savepoint", function(data) return Savepoint(data.center_x, data.center_y, data.properties) end)
+    registry:register("interactable", function(data) return Interactable(data.x, data.y, getShapeData(data), data.properties) end)
+    registry:register("script", function(data) return Script(data.x, data.y, getShapeData(data), data.properties) end)
+    registry:register("transition", function(data) return Transition(data.x, data.y, getShapeData(data), data.properties) end)
+    registry:register("npc", function(data) return NPC(data.properties["actor"], getCharaX(data), getCharaY(data), data.properties) end)
+    registry:register("enemy", function(data) return ChaserEnemy(data.properties["actor"], getCharaX(data), getCharaY(data), data.properties) end)
+    registry:register("outline", function(data) return Outline(data.x, data.y, getRectData(data)) end)
+    registry:register("silhouette", function(data) return Silhouette(data.x, data.y, getRectData(data)) end)
+    registry:register("slidearea", function(data) return SlideArea(data.x, data.y, getRectData(data), data.properties) end)
+    registry:register("mirror", function(data) return MirrorArea(data.x, data.y, getRectData(data), data.properties) end)
+    registry:register("chest", function(data) return TreasureChest(data.center_x, data.center_y, data.properties) end)
+    registry:register("cameratarget", function(data) return CameraTarget(data.x, data.y, getShapeData(data), data.properties) end)
+    registry:register("hideparty", function(data) return HideParty(data.x, data.y, getShapeData(data), data.properties.alpha) end)
+    registry:register("setflag", function(data) return SetFlagEvent(data.x, data.y, getShapeData(data), data.properties) end)
+    registry:register("cybertrash", function(data) return CyberTrashCan(data.center_x, data.center_y, data.properties) end)
+    registry:register("forcefield", function(data) return Forcefield(data.x, data.y, getRectData(data), data.properties) end)
+    registry:register("pushblock", function(data) return PushBlock(data.x, data.y, getRectData(data), data.properties) end)
+    registry:register("tilebutton", function(data) return TileButton(data.x, data.y, getRectData(data), data.properties) end)
+    registry:register("magicglass", function(data) return MagicGlass(data.x, data.y, getRectData(data), data.properties) end)
+    registry:register("warpdoor", function(data) return WarpDoor(data.x, data.y, data.properties) end)
+    registry:register("darkfountain", function(data) return DarkFountain(data.x, data.y, data.properties) end)
+    registry:register("fountainfloor", function(data) return FountainFloor(data.x, data.y, getRectData(data)) end)
+    registry:register("quicksave", function(data) return QuicksaveEvent(data.x, data.y, getShapeData(data), data.properties["marker"]) end)
+    registry:register("sprite", function(data)
+        local sprite = Sprite(data.properties["texture"], data.x, data.y)
+        sprite:play(data.properties["speed"], true)
+        sprite:setScale(data.properties["scalex"] or 2, data.properties["scaley"] or 2)
+        return sprite
+    end)
+end
 
 function Game:leave()
     self:clear()
@@ -160,7 +236,7 @@ function Game:setBorder(border, time)
 end
 
 function Game:returnToMenu()
-    self.fader:fadeOut(Kristal.returnToMenu, {speed = 0.5, music = 10/30})
+    self.fader:fadeOut(Kristal.returnToMenu, { speed = 0.5, music = 10 / 30 })
     Kristal.hideBorder(0.5)
     self.state = "EXIT"
 end
@@ -170,7 +246,7 @@ end
 ---@param deep_merge?   boolean
 ---@return any
 function Game:getConfig(key, merge, deep_merge)
-    local default_config = Kristal.ChapterConfigs[Utils.clamp(self.chapter, 1, #Kristal.ChapterConfigs)]
+    local default_config = Kristal.ChapterConfigs[MathUtils.clamp(self.chapter, 1, #Kristal.ChapterConfigs)]
 
     if not Mod then return default_config[key] end
 
@@ -187,7 +263,7 @@ function Game:getConfig(key, merge, deep_merge)
     elseif default_value ~= nil and mod_value == nil then
         return default_value
     elseif type(default_value) == "table" and merge then
-        return Utils.merge(Utils.copy(default_value, true), mod_value, deep_merge)
+        return TableUtils.merge(TableUtils.copy(default_value, true), mod_value, deep_merge)
     else
         return mod_value
     end
@@ -264,28 +340,29 @@ function Game:save(x, y)
         elseif type(x) == "table" then
             data.spawn_position = x
         elseif x and y then
-            data.spawn_position = {x, y}
+            data.spawn_position = { x, y }
         end
     end
 
     data.party = {}
-    for _,party in ipairs(self.party) do
+    for _, party in ipairs(self.party) do
         table.insert(data.party, party.id)
     end
-    
+
     data.default_equip_slots = self.default_equip_slots
+    data.default_storage_slots = self.default_storage_slots
 
     data.inventory = self.inventory:save()
     data.light_inventory = self.light_inventory:save()
     data.dark_inventory = self.dark_inventory:save()
 
     data.party_data = {}
-    for k,v in pairs(self.party_data) do
+    for k, v in pairs(self.party_data) do
         data.party_data[k] = v:save()
     end
-    
+
     data.recruits_data = {}
-    for k,v in pairs(self.recruits_data) do
+    for k, v in pairs(self.recruits_data) do
         data.recruits_data[k] = v:save()
     end
 
@@ -320,7 +397,7 @@ function Game:load(data, index, fade)
     self.stage:addChild(self.fader)
 
     if fade then
-        self.fader:fadeIn(nil, {alpha = 1, speed = 0.5})
+        self.fader:fadeIn(nil, { alpha = 1, speed = 0.5 })
     end
 
     self.battle = nil
@@ -330,7 +407,7 @@ function Game:load(data, index, fade)
     self.max_followers = Kristal.getModOption("maxFollowers") or 10
 
     self.light = false
-    
+
     -- Used to carry the soul invulnerability frames between waves
     self.old_soul_inv_timer = 0
 
@@ -348,26 +425,26 @@ function Game:load(data, index, fade)
 
     self:initPartyMembers()
     if data.party_data then
-        for k,v in pairs(data.party_data) do
+        for k, v in pairs(data.party_data) do
             if self.party_data[k] then
                 self.party_data[k]:load(v)
             end
         end
     end
-    
+
     self.party = {}
-    for _,id in ipairs(data.party or Kristal.getModOption("party") or {"kris"}) do
+    for _, id in ipairs(data.party or Kristal.getModOption("party") or { "kris" }) do
         local ally = self:getPartyMember(id)
         if ally then
             table.insert(self.party, ally)
         else
-            Kristal.Console:error("Could not load party member \"" ..id.."\"")
+            Kristal.Console:error("Could not load party member \""  .. id .. "\"")
         end
     end
-    
+
     self:initRecruits()
     if data.recruits_data then
-        for k,v in pairs(data.recruits_data) do
+        for k, v in pairs(data.recruits_data) do
             if self.recruits_data[k] then
                 self.recruits_data[k]:load(v)
             end
@@ -378,7 +455,7 @@ function Game:load(data, index, fade)
         self.temp_followers = data.temp_followers
     else
         self.temp_followers = {}
-        for _,id in ipairs(Kristal.getModOption("followers") or {}) do
+        for _, id in ipairs(Kristal.getModOption("followers") or {}) do
             table.insert(self.temp_followers, id)
         end
     end
@@ -393,11 +470,6 @@ function Game:load(data, index, fade)
 
     self.lw_money = data.lw_money or 2
 
-    self.border = data.border
-    if not self.border then
-        self.border = self.light and "leaves" or "castle"
-    end
-
     local map = nil
     local room_id = data.room_id or Kristal.getModOption("map")
     if room_id then
@@ -405,10 +477,32 @@ function Game:load(data, index, fade)
 
         self.light = map.light or false
     end
-    
-    self.default_equip_slots = data.default_equip_slots or 48
-    if self.is_new_file and Game:getConfig("lessEquipments") then
+
+    self.border = data.border
+    if not self.border then
+        self.border = self.light and "leaves" or "castle"
+    end
+
+    self.default_equip_slots = data.default_equip_slots or 0
+    if Game:getConfig("lessEquipments") and self.default_equip_slots <= 12 then
         self.default_equip_slots = 12
+    else
+        self.default_equip_slots = 48
+    end
+
+    self.default_storage_slots = data.default_storage_slots or 0
+    -- Check if a mod is still using the deprecated "enableStorage" config
+    if Game:getConfig("enableStorage") ~= nil then
+        Kristal.Console:warn("Using deprecated mod option 'enableStorage', switch to 'storageSlots' option instead")
+        if Game:getConfig("enableStorage") or self.default_storage_slots > 0 then
+            self.default_storage_slots = 24
+        else
+            self.default_storage_slots = 0
+        end
+    else
+        if Game:getConfig("storageSlots") > self.default_storage_slots then
+            self.default_storage_slots = Game:getConfig("storageSlots")
+        end
     end
 
     if self.light then
@@ -425,16 +519,16 @@ function Game:load(data, index, fade)
     if data.dark_inventory then
         self.dark_inventory:load(data.dark_inventory)
     end
-    
+
     if data.inventory then
         self.inventory:load(data.inventory)
     else
         local default_inv = Kristal.getModOption("inventory") or {}
         if not self.light and not default_inv["key_items"] then
-            default_inv["key_items"] = {"cell_phone"}
+            default_inv["key_items"] = { "cell_phone" }
         end
-        for storage,items in pairs(default_inv) do
-            for i,item in ipairs(items) do
+        for storage, items in pairs(default_inv) do
+            for i, item in ipairs(items) do
                 self.inventory:setItem(storage, i, item)
             end
         end
@@ -445,11 +539,11 @@ function Game:load(data, index, fade)
     -- Party members have to be converted to light initially, due to dark world defaults
     if loaded_light ~= self.light then
         if self.light then
-            for _,chara in pairs(self.party_data) do
+            for _, chara in pairs(self.party_data) do
                 chara:convertToLight()
             end
         else
-            for _,chara in pairs(self.party_data) do
+            for _, chara in pairs(self.party_data) do
                 chara:convertToDark()
             end
         end
@@ -460,7 +554,10 @@ function Game:load(data, index, fade)
             Game:setFlag("has_cell_phone", Kristal.getModOption("cell") ~= false)
         end
 
-        for id,equipped in pairs(Kristal.getModOption("equipment") or {}) do
+        for id, equipped in pairs(Kristal.getModOption("equipment") or {}) do
+            if not self.party_data[id] then
+                error("Attempted to set up equipment for non-existent member " .. id)
+            end
             if equipped["weapon"] then
                 self.party_data[id]:setWeapon(equipped["weapon"] ~= "" and equipped["weapon"] or nil)
             end
@@ -472,7 +569,7 @@ function Game:load(data, index, fade)
                         if not main_armor:includes(LightEquipItem) then
                             error("Cannot set 2nd armor, 1st armor must be a LightEquipItem")
                         end
-                        main_armor:setArmor(2, armors[i])
+                        self.party_data[id]:setArmor(2, armors[i])
                     else
                         self.party_data[id]:setArmor(i, armors[i] ~= "" and armors[i] or nil)
                     end
@@ -497,13 +594,12 @@ function Game:load(data, index, fade)
     Kristal.DebugSystem:refresh()
 
     self.started = true
-    
-    self.nothing_warn = true
+
     if self.is_new_file then
         if Kristal.getModOption("encounter") then
             self:encounter(Kristal.getModOption("encounter"), false)
         elseif Kristal.getModOption("shop") then
-            self:enterShop(Kristal.getModOption("shop"), {menu = true})
+            self:enterShop(Kristal.getModOption("shop"), { menu = true })
         end
     end
 
@@ -548,7 +644,7 @@ function Game:convertToLight()
 
     self.inventory = inventory:convertToLight()
 
-    for _,chara in pairs(self.party_data) do
+    for _, chara in pairs(self.party_data) do
         chara:convertToLight()
     end
 end
@@ -559,7 +655,7 @@ function Game:convertToDark()
 
     self.inventory = inventory:convertToDark()
 
-    for _,chara in pairs(self.party_data) do
+    for _, chara in pairs(self.party_data) do
         chara:convertToDark()
     end
 
@@ -574,11 +670,10 @@ function Game:gameOver(x, y)
     Kristal.hideBorder(0)
 
     self.state = "GAMEOVER"
-    if self.battle   then self.battle  :remove() end
-    if self.world    then self.world   :remove() end
-    if self.shop     then self.shop    :remove() end
-    if self.gameover then self.gameover:remove() end
-    if self.legend   then self.legend  :remove() end
+
+    for _, child in ipairs(self.stage.children) do
+        child:remove()
+    end
 
     self.gameover = GameOver(x or 0, y or 0)
     self.stage:addChild(self.gameover)
@@ -613,7 +708,7 @@ end
 
 ---@param ... unknown
 function Game:saveQuick(...)
-    self.quick_save = Utils.copy(self:save(...), true)
+    self.quick_save = TableUtils.copy(self:save(...), true)
 end
 
 ---@param fade? boolean
@@ -813,7 +908,7 @@ function Game:removePartyMember(chara)
     if type(chara) == "string" then
         chara = self:getPartyMember(chara)
     end
-    Utils.removeFromTable(self.party, chara)
+    TableUtils.removeValue(self.party, chara)
     return chara
 end
 
@@ -859,7 +954,7 @@ function Game:movePartyMember(chara, index)
 end
 
 ---@param chara string|PartyMember
----@return integer
+---@return integer?
 function Game:getPartyIndex(chara)
     if type(chara) == "string" then
         chara = self:getPartyMember(chara)
@@ -971,7 +1066,7 @@ function Game:giveTension(amount)
     local start = self:getTension()
     self:setTension(self:getTension() + amount)
     if self:getTension() > self:getMaxTension() then
-        Game:setTension(self:getMaxTension())
+        self:setTension(self:getMaxTension())
     end
     self:setTensionPreview(0)
     return self:getTension() - start
@@ -999,7 +1094,7 @@ end
 ---@param amount        number
 ---@param dont_clamp?   boolean
 function Game:setTension(amount, dont_clamp)
-    Game.tension = dont_clamp and amount or Utils.clamp(amount, 0, Game.max_tension)
+    Game.tension = dont_clamp and amount or MathUtils.clamp(amount, 0, Game.max_tension)
 end
 
 ---@return number
@@ -1017,6 +1112,22 @@ function Game:getMaxTension()
     return Game.max_tension or 100
 end
 
+function Game:isWorldHidden()
+    if not self.world then
+        return true
+    end
+
+    if self.state == "BATTLE" and self.battle and self.battle:isWorldHidden() then
+        return true
+    end
+
+    if self.state == "SHOP" and self.shop and self.shop:isWorldHidden() then
+        return true
+    end
+
+    return false
+end
+
 function Game:update()
     if self.state == "EXIT" then
         self.fader:update()
@@ -1029,7 +1140,7 @@ function Game:update()
         if self.world.player then
             self.world.player.visible = true
         end
-        for _,follower in ipairs(self.world.followers) do
+        for _, follower in ipairs(self.world.followers) do
             follower.visible = true
         end
     end
@@ -1038,29 +1149,19 @@ function Game:update()
         return
     end
 
-    if (self.state == "BATTLE" and self.battle and self.battle:isWorldHidden()) or
-       (self.state == "SHOP"   and self.shop) then
-        self.world.active = false
-        self.world.visible = false
-    else
-        self.world.active = true
-        self.world.visible = true
+    if self.world then
+        if self:isWorldHidden() then
+            self.world.active = false
+            self.world.visible = false
+        else
+            self.world.active = true
+            self.world.visible = true
+        end
     end
 
     self.playtime = self.playtime + DT
 
     self.stage:update()
-    
-    if not self.shop and not self.battle and not (self.world and self.world.map and self.world.map.id) then
-        if self.nothing_warn then Kristal.Console:warn("No map, shop nor encounter were loaded") end
-        if Kristal.getModOption("hardReset") then
-            love.event.quit("restart")
-        else
-            Kristal.returnToMenu()
-        end
-    else
-        self.nothing_warn = false
-    end
 
     Kristal.callEvent(KRISTAL_EVENT.postUpdate, DT)
 end

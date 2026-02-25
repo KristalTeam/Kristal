@@ -225,7 +225,7 @@ setInfo("FileVersion", windows_ver)
 setInfo("ProductVersion", windows_ver)
 setInfo("FileDescription", file_description)
 setInfo("InternalName", "Kristal")
-setInfo("LegalCopyright", "Copyright © 2025 Kristal Team")
+setInfo("LegalCopyright", "Copyright © 2026 Kristal Team")
 setInfo("OriginalFilename", "kristal.exe")
 setInfo("ProductName", "Kristal")
 

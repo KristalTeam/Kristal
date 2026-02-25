@@ -19,8 +19,8 @@ return {
             cutscene:text("* Hey,[wait:5] think I can break\nthis wall?", "smile")
 
             -- Get the bottom-center of the broken wall
-            local x = event.x + event.width/2
-            local y = event.y + event.height/2
+            local x = event.x + event.width / 2
+            local y = event.y + event.height / 2
 
             -- Move Susie up to the wall over 0.75 seconds
             cutscene:walkTo(susie, x, y + 40, 0.75, "up")
@@ -51,7 +51,7 @@ return {
             cutscene:wait(1.5)
 
             -- owie
-            susie:setAnimation({"away_scratch", 0.25, true})
+            susie:setAnimation({ "away_scratch", 0.25, true })
             susie:shake(4)
             Assets.playSound("wing")
 

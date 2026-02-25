@@ -4,12 +4,17 @@ local TileLayer, super = Class(Object)
 
 function TileLayer:init(map, data)
     data = data or {}
+    assert(data.encoding == "lua", "Tile layer format \"" .. data.encoding .. "\" is not supported. Please set the format to CSV in the map properties.")
 
     self.map_width = data.width or map.width
     self.map_height = data.height or map.height
 
-    super.init(self, data.offsetx or 0, data.offsety or 0, self.map_width * map.tile_width,
-        self.map_height * map.tile_height)
+    super.init(
+        self,
+        data.offsetx or 0, data.offsety or 0,
+        self.map_width * map.tile_width,
+        self.map_height * map.tile_height
+    )
 
     self.map = map
     self.name = data.name
@@ -49,7 +54,7 @@ function TileLayer:setTile(x, y, tileset, ...)
         local args = { ... }
         if #args == 2 then -- x, y
             self.tile_data[index] = first_id + (args[1] + (args[2] * tiles.columns))
-        else               -- tile index
+        else -- tile index
             self.tile_data[index] = first_id + args[1]
         end
     end
@@ -84,15 +89,21 @@ function TileLayer:draw()
             local tx = ((i - 1) % self.map_width) * grid_w
             local ty = math.floor((i - 1) / self.map_width) * grid_h
 
-            local gid, flip_x, flip_y, flip_diag = Utils.parseTileGid(xid)
+            local gid, flip_x, flip_y, flip_diag = TiledUtils.parseTileGid(xid)
             local tileset, id = self.map:getTileset(gid)
             if tileset then
                 if not tileset:getAnimation(id) then
                     tileset:drawGridTile(id, tx, ty, grid_w, grid_h, flip_x, flip_y, flip_diag)
                 else
-                    table.insert(self.animated_tiles,
-                        { tileset = tileset, id = id, x = tx, y = ty, flip_x = flip_x, flip_y = flip_y,
-                            flip_diag = flip_diag })
+                    table.insert(
+                        self.animated_tiles,
+                        {
+                            tileset = tileset, id = id,
+                            x = tx, y = ty,
+                            flip_x = flip_x, flip_y = flip_y,
+                            flip_diag = flip_diag
+                        }
+                    )
                 end
             end
         end

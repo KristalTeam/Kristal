@@ -115,7 +115,7 @@ function DarkEquipMenu:getStatsPreview()
     local party = self.party:getSelected()
     local current_stats = party:getStats()
     if self.state == "ITEMS" and self:canEquipSelected() then
-        local preview_stats = Utils.copy(party.stats)
+        local preview_stats = TableUtils.copy(party.stats)
         local equipment = self:getEquipPreview()
         for i = 1, 3 do
             if equipment[i] then
@@ -265,11 +265,11 @@ function DarkEquipMenu:update()
         if Input.pressed("down", true) then
             self.selected_item[type] = self.selected_item[type] + 1
         end
-        self.selected_item[type] = Utils.clamp(self.selected_item[type], 1, max_items)
+        self.selected_item[type] = MathUtils.clamp(self.selected_item[type], 1, max_items)
         if self.selected_item[type] ~= old_selected then
             local min_scroll = math.max(1, self.selected_item[type] - 5)
             local max_scroll = math.min(math.max(1, max_items - 5), self.selected_item[type])
-            self.item_scroll[type] = Utils.clamp(self.item_scroll[type], min_scroll, max_scroll)
+            self.item_scroll[type] = MathUtils.clamp(self.item_scroll[type], min_scroll, max_scroll)
 
             self.ui_move:stop()
             self.ui_move:play()
@@ -326,7 +326,7 @@ function DarkEquipMenu:draw()
     love.graphics.rectangle("fill", 188, -24, 6, 139)
     love.graphics.rectangle("fill", -24, 109, 58, 6)
     love.graphics.rectangle("fill", 130, 109, 160, 6)
-    love.graphics.rectangle("fill", 422, 109, 81, 6)
+    love.graphics.rectangle("fill", 422, 109, 79, 6)
     love.graphics.rectangle("fill", 241, 109, 6, 192)
 
     Draw.setColor(1, 1, 1, 1)
@@ -513,11 +513,10 @@ function DarkEquipMenu:drawAbilityPreview(index, x, y, abilities, compare)
     local name = abilities[index] and abilities[index].name or nil
     local comp_name = compare[index] and compare[index].name or nil
     if abilities[index] and abilities[index].icon then
-        local yoff = self.state == "ITEMS" and -6 or 2
         local texture = Assets.getTexture(abilities[index].icon)
         if texture then
             Draw.setColor(abilities[index].color)
-            Draw.draw(texture, x, y + yoff, 0, 2, 2)
+            Draw.draw(texture, x, y + 2, 0, 2, 2)
         end
     end
     if name ~= comp_name then

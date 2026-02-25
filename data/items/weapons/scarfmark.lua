@@ -49,7 +49,10 @@ function item:init()
 
     -- Character reactions
     self.reactions = {
-        susie = "Heheh...",
+        susie = {
+            susie = "Heheh...",
+            ralsei = "Don't write that on it!!"
+        },
         ralsei = "I'll keep my place.",
         noelle = "Look, ribbon dancing!",
     }

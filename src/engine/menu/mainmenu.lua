@@ -1,4 +1,4 @@
----@class MainMenu
+---@class MainMenu : StateManagedClass
 local MainMenu = {}
 
 MainMenu.BACKGROUND_SHADER = love.graphics.newShader([[
@@ -122,6 +122,9 @@ function MainMenu:enter()
     })
 
     GitFinder:fetchLatestCommit(function(status, body, headers)
+        if status == nil then return end -- request failed somehow (no SSL?)
+        if status < 200 or status >= 300 then return end -- non-success status code
+
         local current_commit = GitFinder:fetchCurrentCommit()
         if current_commit ~= body then
             self.ver_string = "v" .. tostring(Kristal.Version)
@@ -131,6 +134,11 @@ function MainMenu:enter()
             self.ver_string = self.ver_string .. " (outdated!)"
         end
     end)
+
+    if TARGET_MOD then
+        self.selected_mod = self.mod_list:getSelectedMod()
+        self.selected_mod_button = self.mod_list:getSelectedButton()
+    end
 end
 
 function MainMenu:leave()
@@ -243,16 +251,16 @@ function MainMenu:update()
                 if not v:isPlaying() then
                     v:stop()
                 elseif self.mod_list.music_options[k].pause then
-                    v:fade(0, 0.5, function (music) music:pause() end)
+                    v:fade(0, 0.5, function(music) music:pause() end)
                 else
-                    v:fade(0, 0.5, function (music) music:stop() end)
+                    v:fade(0, 0.5, function(music) music:stop() end)
                 end
             end
         end
     end
 
     -- Update background animation and alpha
-    self.animation_sine = self.animation_sine + (1 * DTMULT)
+    self.animation_sine = self.animation_sine + DTMULT
 
     if (self.background_alpha < 0.5) then
         self.background_alpha = self.background_alpha + (0.04 - (self.background_alpha / 14)) * DTMULT
@@ -298,6 +306,8 @@ function MainMenu:draw()
     -- Draw the menu background
     self:drawBackground()
 
+    love.graphics.setFont(self.menu_font)
+
     -- Draw the engine version
     self:drawVersion()
 
@@ -333,8 +343,10 @@ function MainMenu:draw()
 end
 
 function MainMenu:drawBackground()
-    -- This code was originally 30 fps, so we need a deltatime variable to multiply some values by
-    local dt_mult = DT * 30
+    local background_index = self.animation_sine / 12
+    local background_mult = self.background_alpha * 20
+    local background_offset = 10 - background_mult
+    local background_offset_inv = -10 - background_mult
 
     if not (TARGET_MOD and self.selected_mod.preview) then
         -- We need to draw the background on a canvas
@@ -346,24 +358,20 @@ function MainMenu:drawBackground()
         self.BACKGROUND_SHADER:send("bg_sine", self.animation_sine)
         self.BACKGROUND_SHADER:send("bg_mag", 6)
         self.BACKGROUND_SHADER:send("wave_height", 240)
-        self.BACKGROUND_SHADER:send("texsize",
-            { self.background_image_wave:getWidth(), self.background_image_wave:getHeight() })
+        self.BACKGROUND_SHADER:send("texsize", { self.background_image_wave:getWidth(), self.background_image_wave:getHeight() })
 
         self.BACKGROUND_SHADER:send("sine_mul", 1)
         Draw.setColor(1, 1, 1, self.background_alpha * 0.8)
-        Draw.draw(self.background_image_wave, 0, math.floor(-10 - (self.background_alpha * 20)))
+        Draw.draw(self.background_image_wave, 0, math.floor(background_offset_inv))
         self.BACKGROUND_SHADER:send("sine_mul", -1)
-        Draw.draw(self.background_image_wave, 0, math.floor(-10 - (self.background_alpha * 20)))
+        Draw.draw(self.background_image_wave, 0, math.floor(background_offset_inv))
         Draw.setColor(1, 1, 1, 1)
 
         love.graphics.setShader()
 
-        self:drawAnimStrip(self.background_image_animation, (self.animation_sine / 12), 0,
-            (((10 - (self.background_alpha * 20)) + 240) - 70), (self.background_alpha * 0.46))
-        self:drawAnimStrip(self.background_image_animation, ((self.animation_sine / 12) + 0.4), 0,
-            (((10 - (self.background_alpha * 20)) + 240) - 70), (self.background_alpha * 0.56))
-        self:drawAnimStrip(self.background_image_animation, ((self.animation_sine / 12) + 0.8), 0,
-            (((10 - (self.background_alpha * 20)) + 240) - 70), (self.background_alpha * 0.7))
+        self:drawAnimStrip(self.background_image_animation, background_index, 0, background_offset + 240 - 70, (self.background_alpha * 0.46))
+        self:drawAnimStrip(self.background_image_animation, background_index + 0.4, 0, background_offset + 240 - 70, (self.background_alpha * 0.56))
+        self:drawAnimStrip(self.background_image_animation, background_index + 0.8, 0, background_offset + 240 - 70, (self.background_alpha * 0.7))
 
         -- Reset canvas to draw to
         Draw.popCanvas()
@@ -381,12 +389,11 @@ function MainMenu:drawBackground()
             local canvas = Draw.pushCanvas(320, 240, { clear = false })
             love.graphics.clear(0, 0, 0, 1)
 
-            self:drawAnimStrip(mod.preview, (self.animation_sine / 12), 0, (10 - (self.background_alpha * 20)),
-                (self.background_alpha * 0.46))
-            self:drawAnimStrip(mod.preview, ((self.animation_sine / 12) + 0.4), 0, (10 - (self.background_alpha * 20)),
-                (self.background_alpha * 0.56))
-            self:drawAnimStrip(mod.preview, ((self.animation_sine / 12) + 0.8), 0, (10 - (self.background_alpha * 20)),
-                (self.background_alpha * 0.7))
+            local index = self.animation_sine / 12
+
+            self:drawAnimStrip(mod.preview, index, 0, background_offset, (self.background_alpha * 0.46))
+            self:drawAnimStrip(mod.preview, index + 0.4, 0, background_offset, (self.background_alpha * 0.56))
+            self:drawAnimStrip(mod.preview, index + 0.8, 0, background_offset, (self.background_alpha * 0.7))
 
             Draw.popCanvas()
 
@@ -454,8 +461,7 @@ function MainMenu:drawVersion()
                 elseif Kristal.Version > mod_version then
                     op = ">"
                 end
-                love.graphics.print(" " .. op .. " v" .. tostring(mod_version), 4 + self.small_font:getWidth(ver_string),
-                    ver_y)
+                love.graphics.print(" " .. op .. " v" .. tostring(mod_version), 4 + self.small_font:getWidth(ver_string), ver_y)
             end
         end
     else

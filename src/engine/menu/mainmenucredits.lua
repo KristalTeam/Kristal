@@ -20,12 +20,12 @@ function MainMenuCredits:init(menu)
         {
             "Kristal Engine",
             {
-                {"Lead Developers", COLORS.silver},
+                { "Lead Developers", COLORS.silver },
                 "NyakoFox",
                 "SylviBlossom",
                 "vitellary",
                 "",
-                {"Assets", COLORS.silver},
+                { "Assets", COLORS.silver },
                 "Toby Fox",
                 "Temmie Chang",
                 "DELTARUNE team",
@@ -33,46 +33,59 @@ function MainMenuCredits:init(menu)
                 "",
             },
             {
-                {"GitHub Contributors", COLORS.silver},
+                { "GitHub Contributors", COLORS.silver },
+                "Abbe",
                 "AcousticJamm",
                 "Agent 7",
                 "AlexGamingSW",
                 "Archie-osu",
+                "Azrael",
                 "Bor",
-                "Dobby233Liu",
-                "FireRainV",
-                "HUECYCLES",
-                "Lionmeow",
-                "Luna"
+                "CosmicPikachu001",
+                "DiamondDeltahedron"
             }
         },
         {
             "Kristal Engine",
             {
-                {"GitHub Contributors", COLORS.silver},
+                { "GitHub Contributors", COLORS.silver },
+                "Dobby233Liu",
+                "Elioze",
+                "FireRainV",
+                "HUECYCLES",
+                "Hyperboid",
+                "isakube",
                 "J.A.R.U.",
+                "Lionmeow",
+                "Luna",
+            },
+            {
+                { "GitHub Contributors", COLORS.silver },
                 "MCdeDaxia",
                 "MrOinky",
+                "NelleMonelle",
+                "Nextop",
+                "nightpool",
                 "prokube",
                 "Simbel",
                 "sjl057",
-                "skarph",
-                "TFLTV",
-                "WIL-TZY",
-                ""
-            },
+                "skarph"
+            }
+        },
+        {
+            "Kristal Engine",
             {
-                {"GitHub Contributors", COLORS.silver},
+                { "GitHub Contributors", COLORS.silver },
+                "SuperOfSrb2",
+                "TFLTV",
+                "TheSkerch",
+                "Verozity",
+                "WIL-TZY",
+                "YeetusSnoopy",
                 "",
                 "",
                 "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
+                ""
             }
         }
     }
@@ -129,7 +142,7 @@ function MainMenuCredits:onKeyPressed(key, is_repeat)
         page_dir = "right"
     end
 
-    page_now = Utils.clamp(page_now, 1, #self.pages)
+    page_now = MathUtils.clamp(page_now, 1, #self.pages)
 
     if page_now ~= self.selected_page then
         self.selected_page = page_now
@@ -143,7 +156,7 @@ end
 
 function MainMenuCredits:update()
     if self.scroll_timer > 0 then
-        self.scroll_timer = Utils.approach(self.scroll_timer, 0, DT)
+        self.scroll_timer = MathUtils.approach(self.scroll_timer, 0, DT)
     end
 end
 

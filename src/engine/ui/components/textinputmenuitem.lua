@@ -8,8 +8,9 @@ local TextInputMenuItemComponent, super = Class(AbstractMenuItemComponent)
 function TextInputMenuItemComponent:init(options)
     options = options or {}
     super.init(self, FillSizing(), FixedSizing(options.height or 32), nil, options)
-    self.input = {options.starting or ""}
+    self.input = { options.starting or "" }
     self.options = options
+    self.cursor_color = options.cursor_color
 end
 
 function TextInputMenuItemComponent:onSelected()
@@ -50,6 +51,7 @@ function TextInputMenuItemComponent:draw()
             y = 0,
             font = font,
             print = function(text, x, y) love.graphics.print(text, x, y) end,
+            cursor_color = self.cursor_color
         })
     else
         love.graphics.setFont(font)

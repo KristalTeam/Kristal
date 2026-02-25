@@ -36,7 +36,7 @@ function ModList:getSelectedId()
 end
 
 function ModList:getById(id)
-    for i,v in ipairs(self.mods) do
+    for i, v in ipairs(self.mods) do
         if v.id == id then
             return v, i
         end
@@ -44,7 +44,7 @@ function ModList:getById(id)
 end
 
 function ModList:clearMods()
-    for _,v in ipairs(self.mods) do
+    for _, v in ipairs(self.mods) do
         self.mod_container:removeChild(v)
     end
     self.mods = {}
@@ -56,8 +56,11 @@ end
 function ModList:addMod(mod)
     table.insert(self.mods, mod)
     self.mod_container:addChild(mod)
-    mod:setPosition(4, self.mod_list_height + 4)
-    self.mod_list_height = self.mod_list_height + mod.height + 8
+
+    local padding = Kristal.Config["brokenMenuBoxes"] and 4 or 6
+
+    mod:setPosition(4, self.mod_list_height + padding)
+    self.mod_list_height = self.mod_list_height + mod.height + (padding * 2)
     if (self.selected == 0) and (#self.mods == 1) then
         self.selected = 1
         mod:onSelect()
@@ -156,7 +159,7 @@ function ModList:setScroll(scroll)
     local min_selected_scroll = math.max(selected and (selected.y + selected.height + 4 - self.height) or 0, 0)
     local max_selected_scroll = math.min(selected and (selected.y - 4) or max_scroll, max_scroll)
 
-    self.scroll_target = Utils.clamp(scroll, min_selected_scroll, max_selected_scroll)
+    self.scroll_target = MathUtils.clamp(scroll, min_selected_scroll, max_selected_scroll)
 end
 
 function ModList:update()
@@ -179,7 +182,7 @@ function ModList:draw()
     -- Draw the scrollbar (only if we have to)
     if #self.mods > 5 then
         -- Draw the scrollbar background
-        Draw.setColor({0, 0, 0, 0.5})
+        Draw.setColor({ 0, 0, 0, 0.5 })
         love.graphics.rectangle("fill", self.width + 2, 0, 4, self.height)
 
         local scrollbar_height = (self.height / self.mod_list_height) * self.height

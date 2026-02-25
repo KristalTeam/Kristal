@@ -18,6 +18,8 @@
 ---
 ---@field defeated_enemies      table
 ---
+---@field reduced_tension       boolean
+---
 ---@overload fun(...) : Encounter
 local Encounter = Class()
 
@@ -44,6 +46,9 @@ function Encounter:init()
 
     -- A copy of Battle.defeated_enemies, used to determine how an enemy has been defeated.
     self.defeated_enemies = nil
+
+    -- Whether tension is reduced for this encounter.
+    self.reduced_tension = false
 end
 
 -- Callbacks
@@ -74,14 +79,16 @@ function Encounter:onCharacterTurn(battler, undo) end
 
 --- *(Override)* Called when [`Battle:setState()`](lua://Battle.setState) is called. \
 --- *Changing the state to something other than `new`, or returning `true` will stop the standard state change code for this state change from occurring.*
----@param old string
----@param new string
+---@param old BattleState
+---@param new BattleState
+---@param reason string
 ---@return boolean?
-function Encounter:beforeStateChange(old, new) end
+function Encounter:beforeStateChange(old, new, reason) end
 --- *(Override)* Called when [`Battle:setState()`](lua://Battle.setState) is called, after any state change code has run.
----@param old string
----@param new string
-function Encounter:onStateChange(old, new) end
+---@param old BattleState
+---@param new BattleState
+---@param reason string
+function Encounter:onStateChange(old, new, reason) end
 
 --- *(Override)* Called when an [`ActionButton`](lua://ActionButton.init) is selected.
 ---@param battler   PartyBattler
@@ -126,9 +133,10 @@ function Encounter:onReturnToWorld(events) end
 
 --- *(Override)* Called whenever dialogue is about to start, if this returns a value, it will be unpacked and passed
 --- into [`Battle:startCutscene(...)`](lua://Battle.startCutscene), as an alternative to standard dialogue.
----@return table?
+---@return string|BattleCutsceneFunc?, any
 function Encounter:getDialogueCutscene() end
 
+--- *(Override)* Called to modify the victory money earned from the battle.
 ---@param money integer     Current victory money based on normal money calculations
 ---@return integer? money
 function Encounter:getVictoryMoney(money) end
@@ -143,10 +151,11 @@ function Encounter:getVictoryText(text, money, xp) end
 
 function Encounter:update() end
 
---- *(Override)* Called before anything has been rendered each frame. Usable to draw custom backgrounds for specific encounters.
+--- *(Override)* Called after everything has been rendered each frame. Usable to draw custom effects for specific encounters.
 ---@param fade number   The opacity of the background when fading in/out of the world.
 function Encounter:draw(fade) end
---- *(Override)* Called after everything has been rendered each frame. Usable to draw custom effects for specific encounters.
+
+--- *(Override)* Called before anything has been rendered each frame. Usable to draw custom backgrounds for specific encounters.
 ---@param fade number   The opacity of the background when fading in/out of the world.
 function Encounter:drawBackground(fade) end
 
@@ -183,7 +192,7 @@ function Encounter:addEnemy(enemy, x, y, ...)
             enemy_obj:setPosition(x, y)
         end
     else
-        for _,enemy in ipairs(enemies) do
+        for _, enemy in ipairs(enemies) do
             enemy.target_x = enemy.target_x - 10
             enemy.target_y = enemy.target_y - 45
             if not transition then
@@ -209,9 +218,23 @@ function Encounter:addEnemy(enemy, x, y, ...)
     return enemy_obj
 end
 
---- *(Override)* Called to receive the encounter text to be displayed each turn. (Not called on turn one, [`text`](lua://Encounter.text) is used instead.) \
---- *By default, gets an encounter text from a random enemy, falling back on the encounter's [encounter `text`](lua://Encounter.text) if none have encounter text.*
----@return string
+--- *(Override)* Called to receive the initial encounter text to be displayed on the first turn.
+--- (Not called on any other turns unless [`getEncounterText`](lua://Encounter.getEncounterText) can't find any usable text.) \
+--- *By default, returns the [encounter `text`](lua://Encounter.text).*
+---@return string|string[] text # If a table, you should use [next] to advance the text
+---@return string? portrait # The portrait to show
+---@return PartyBattler|PartyMember|Actor|string? actor # The actor to use for the text settings (ex. voice, portrait settings)
+function Encounter:getInitialEncounterText()
+    return self.text
+end
+
+--- *(Override)* Called to receive the encounter text to be displayed each turn.
+--- (Not called on turn one, [`getInitialEncounterText`](lua://Encounter.getInitialEncounterText) is used instead.) \
+--- *By default, gets an encounter text from a random enemy, falling back on the encounter's
+--- [encounter text](lua://Encounter.getInitialEncounterText) if none have encounter text.*
+---@return string|string[] text # If a table, you should use [next] to advance the text
+---@return string? portrait # The portrait to show
+---@return PartyBattler|PartyMember|Actor|string? actor # The actor to use for the text settings (ex. voice, portrait settings)
 function Encounter:getEncounterText()
     local enemies = Game.battle:getActiveEnemies()
     local enemy = Utils.pick(enemies, function(v)
@@ -224,7 +247,7 @@ function Encounter:getEncounterText()
     if enemy then
         return enemy:getEncounterText()
     else
-        return self.text
+        return self:getInitialEncounterText()
     end
 end
 
@@ -233,7 +256,7 @@ end
 ---@return Wave[]
 function Encounter:getNextWaves()
     local waves = {}
-    for _,enemy in ipairs(Game.battle:getActiveEnemies()) do
+    for _, enemy in ipairs(Game.battle:getActiveEnemies()) do
         local wave = enemy:selectWave()
         if wave then
             table.insert(waves, wave)
@@ -261,8 +284,8 @@ function Encounter:getPartyPosition(index)
 
     local battler = Game.battle.party[index]
     local ox, oy = battler.chara:getBattleOffset()
-    x = x + (battler.actor:getWidth()/2 + ox) * 2
-    y = y + (battler.actor:getHeight()  + oy) * 2
+    x = x + (battler.actor:getWidth() / 2 + ox) * 2
+    y = y + (battler.actor:getHeight() + oy) * 2
     return x, y
 end
 
@@ -284,14 +307,14 @@ function Encounter:getSoulSpawnLocation()
         local battler = Game.battle.party[Game.battle:getPartyIndex(main_chara.id)]
 
         if battler then
-            if main_chara.soul_offset then
-                return battler:localToScreenPos(main_chara.soul_offset[1], main_chara.soul_offset[2])
+            if main_chara:getActor():getSoulOffset() then
+                return battler:localToScreenPos(main_chara:getActor():getSoulOffset())
             else
-                return battler:localToScreenPos((battler.sprite.width/2) - 4.5, battler.sprite.height/2)
+                return battler:localToScreenPos((battler.sprite.width / 2) - 4.5, battler.sprite.height / 2)
             end
         end
     end
-    return -9, -9
+    return 0, 0
 end
 
 --- *(Override)* Called when enemy dialogue is finished and closed, before the transition into a wave.
@@ -327,14 +350,14 @@ end
 ---@param flag  string
 ---@param value any
 function Encounter:setFlag(flag, value)
-    Game:setFlag("encounter#"..self.id..":"..flag, value)
+    Game:setFlag("encounter#" .. self.id .. ":" .. flag, value)
 end
 
 ---@param flag      string
 ---@param default?  any
 ---@return any
 function Encounter:getFlag(flag, default)
-    return Game:getFlag("encounter#"..self.id..":"..flag, default)
+    return Game:getFlag("encounter#" .. self.id .. ":" .. flag, default)
 end
 
 --- Increments a numerical flag by `amount`.
@@ -342,7 +365,40 @@ end
 ---@param amount?   number  (Defaults to `1`)
 ---@return number
 function Encounter:addFlag(flag, amount)
-    return Game:addFlag("encounter#"..self.id..":"..flag, amount)
+    return Game:addFlag("encounter#" .. self.id .. ":" .. flag, amount)
+end
+
+--- Checks if the encounter has reduced tension.
+--- @return boolean reduced Whether the encounter has reduced tension.
+function Encounter:hasReducedTension()
+    return self.reduced_tension
+end
+
+--- Returns the tension gained from defending.
+--- Returns 2% if reduced tension, otherwise 16%.
+---@param battler PartyBattler The current battler about to defend.
+---@return number tension The tension gained from defending.
+function Encounter:getDefendTension(battler)
+    if self:hasReducedTension() then
+        return 2
+    end
+    return 16
+end
+
+--- *(Override)* Whether automatic healing while downed is enabled in this encounter. \
+--- *By default, returns `true`.*
+---@param battler PartyBattler The current battler about to auto-heal.
+---@return boolean
+function Encounter:isAutoHealingEnabled(battler)
+    return true
+end
+
+--- *(Override)* Whether a party member can get swooned in this encounter or not.
+--- *By default, returns `true` for everyone.*
+---@param target PartyBattler The current target.
+---@return boolean
+function Encounter:canSwoon(target)
+    return true
 end
 
 return Encounter

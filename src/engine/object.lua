@@ -113,6 +113,9 @@
 ---@field parent Object|nil The object's parent.
 ---@field children table A list of all of this object's children.
 ---
+---@field world           World?
+---@field persistent      boolean
+---
 ---@overload fun(x?:number, y?:number, width?:number, height?:number) : Object
 local Object = Class()
 
@@ -323,17 +326,17 @@ function Object:onRemoveFromStage(stage) end
 --
 
 ---@class physics_table
----@field speed_x           number  The horizontal speed of the object, in pixels per frame at 30FPS.
----@field speed_y           number  The vertical speed of the object, in pixels per frame at 30FPS.
----@field speed             number  The speed the object will move in the angle of its direction, in pixels per frame at 30FPS.
----@field direction         number  The angle at which the object will move, in radians.
----@field friction          number  The amount the object's speed will slow down, per frame at 30FPS.
----@field gravity           number  The amount the object's speed will accelerate towards its gravity direction, per frame at 30FPS.
----@field gravity_direction number  The angle at which the object's gravity will accelerate towards, in radians.
----@field spin              number  The amount this object's direction will change, in radians per frame at 30FPS.
----@field match_rotation    boolean Whether the object's rotation should also define its direction. (Defaults to false)
----@field move_target?      table   A table containing data defined by `Object:slideTo()` or `Object:slideToSpeed()`.
----@field move_path?        table   A table containing data defined by `Object:slidePath()`.
+---@field speed_x           number?  The horizontal speed of the object, in pixels per frame at 30FPS.
+---@field speed_y           number?  The vertical speed of the object, in pixels per frame at 30FPS.
+---@field speed             number?  The speed the object will move in the angle of its direction, in pixels per frame at 30FPS.
+---@field direction         number?  The angle at which the object will move, in radians.
+---@field friction          number?  The amount the object's speed will slow down, per frame at 30FPS.
+---@field gravity           number?  The amount the object's speed will accelerate towards its gravity direction, per frame at 30FPS.
+---@field gravity_direction number?  The angle at which the object's gravity will accelerate towards, in radians.
+---@field spin              number?  The amount this object's direction will change, in radians per frame at 30FPS.
+---@field match_rotation    boolean? Whether the object's rotation should also define its direction. (Defaults to false)
+---@field move_target?      table?   A table containing data defined by `Object:slideTo()` or `Object:slideToSpeed()`.
+---@field move_path?        table?   A table containing data defined by `Object:slidePath()`.
 
 --- Resets all of the object's `physics` table values to their default values, \
 --- making it so it will stop moving if it was before.
@@ -496,6 +499,7 @@ end
 ---@overload fun(self:Object, marker:string, time?:number, ease?:string, after?:function): success:boolean
 ---@param x      number   The new `x` value to approach.
 ---@param y      number   The new `y` value to approach.
+---@diagnostic disable-next-line: undefined-doc-param
 ---@param marker string   A map marker whose position the object should approach.
 ---@param time?  number   The amount of time, in seconds, that the slide should take. (Defaults to 1 second)
 ---@param ease?  string   The ease type to use when moving to the new position. (Defaults to "linear")
@@ -537,6 +541,7 @@ end
 ---@overload fun(self:Object, marker:string, speed?:number, after?:function): success:boolean
 ---@param x      number   The new `x` value to approach.
 ---@param y      number   The new `y` value to approach.
+---@diagnostic disable-next-line: undefined-doc-param
 ---@param marker string   A map marker whose position the object should approach.
 ---@param speed? number   The amount that the object's `x` and `y` should approach the specified position, in pixels per frame at 30FPS. (Defaults to 4)
 ---@param after? function A function that will be called when the target position is reached. Receives no arguments.
@@ -631,7 +636,7 @@ function Object:slidePath(path, options)
 
     local length = 0
     for i = 1, #path - 1 do
-        length = length + Utils.dist(path[i][1], path[i][2], path[i + 1][1], path[i + 1][2])
+        length = length + MathUtils.dist(path[i][1], path[i][2], path[i + 1][1], path[i + 1][2])
     end
 
     self.physics.move_target = nil
@@ -719,6 +724,7 @@ function Object:getScale() return self.scale_x, self.scale_y end
 ---@param g  number The green value to set for the object's `color`.
 ---@param b  number The blue value to set for the object's `color`.
 ---@param a? number The value to set `alpha` to. (Doesn't change alpha if unspecified)
+---@diagnostic disable-next-line: undefined-doc-param
 ---@param color table The value to set `color` to. Can optionally define a 4th value to set alpha.
 function Object:setColor(r, g, b, a)
     if type(r) == "table" then
@@ -968,6 +974,7 @@ end
 ---@overload fun(self:Object, speed:number)
 ---@param x number The value to set `physics.speed_x` to.
 ---@param y number The value to set `physics.speed_y` to.
+---@diagnostic disable-next-line: undefined-doc-param
 ---@param speed number The value to set `physics.speed` to.
 function Object:setSpeed(x, y)
     if x and y then
@@ -991,7 +998,7 @@ function Object:getSpeedDir()
         else
             local speed_x, speed_y = self.physics.speed_x or 0, self.physics.speed_y or 0
             if speed_x ~= 0 or speed_y ~= 0 then
-                return Utils.dist(0, 0, speed_x, speed_y), Utils.angle(0, 0, speed_x, speed_y)
+                return MathUtils.dist(0, 0, speed_x, speed_y), Utils.angle(0, 0, speed_x, speed_y)
             end
         end
     end
@@ -1035,8 +1042,10 @@ end
 ---@return number|nil width The `width` of the collider, in pixels.
 ---@return number|nil height The `height` of the collider, in pixels.
 function Object:getHitbox()
-    if self.collider and self.collider:includes(Hitbox) then
-        return self.collider.x, self.collider.y, self.collider.width, self.collider.height
+    local collider = self.collider
+    if collider and collider:includes(Hitbox) then
+        ---@cast collider Hitbox
+        return collider.x, collider.y, collider.width, collider.height
     end
 end
 
@@ -1089,24 +1098,27 @@ end
 function Object:getDebugOptions(context)
     context:addMenuItem("Delete", "Delete this object", function()
         self:remove()
-        if Kristal.DebugSystem then
+        if Kristal.DebugSystem ~= nil then
             Kristal.DebugSystem:unselectObject()
         end
     end)
-    context:addMenuItem("Clone", "Clone this object", function()
-        local clone = self:clone()
-        clone:removeFX("debug_flash")
-        self.parent:addChild(clone)
-        clone:setScreenPos(Input.getMousePosition())
-        Kristal.DebugSystem:selectObject(clone)
-    end)
+
+    if self.parent ~= nil then
+        context:addMenuItem("Clone", "Clone this object", function()
+            local clone = self:clone() ---@type Object
+            clone:removeFX("debug_flash")
+            self.parent:addChild(clone)
+            clone:setScreenPos(Input.getMousePosition())
+            Kristal.DebugSystem:selectObject(clone)
+        end)
+    end
     context:addMenuItem("Copy", "Copy this object to paste it later", function()
         Kristal.DebugSystem:copyObject(self)
     end)
     context:addMenuItem("Cut", "Cut this object to paste it later", function()
         Kristal.DebugSystem:cutObject(self)
     end)
-    if Kristal.DebugSystem and Kristal.DebugSystem.copied_object then
+    if Kristal.DebugSystem ~= nil and Kristal.DebugSystem.copied_object ~= nil then
         context:addMenuItem("Paste Into", "Paste the copied object into this one", function()
             Kristal.DebugSystem:pasteObject(self)
         end)
@@ -1284,7 +1296,7 @@ function Object:removeFX(id)
         if fx.parent == self then
             fx.parent = nil
         end
-        Utils.removeFromTable(self.draw_fx, fx)
+        TableUtils.removeValue(self.draw_fx, fx)
         return fx
     end
 end
@@ -1294,15 +1306,19 @@ function Object:applyTransformTo(transform, floor_x, floor_y)
     if not floor_x then
         transform:translate(self.x, self.y)
     else
-        transform:translate(Utils.floor(self.x, floor_x), Utils.floor(self.y, floor_y))
+        transform:translate(MathUtils.floorToMultiple(self.x, floor_x), MathUtils.floorToMultiple(self.y, floor_y))
     end
     if self.parent and self.parent.camera and (self.parallax_x or self.parallax_y or self.parallax_origin_x or self.parallax_origin_y) then
-        local px, py = self.parent.camera:getParallax(self.parallax_x or 1, self.parallax_y or 1, self.parallax_origin_x,
-            self.parallax_origin_y)
+        local px, py = self.parent.camera:getParallax(
+            self.parallax_x or 1,
+            self.parallax_y or 1,
+            self.parallax_origin_x,
+            self.parallax_origin_y
+        )
         if not floor_x then
             transform:translate(px, py)
         else
-            transform:translate(Utils.floor(px, floor_x), Utils.floor(py, floor_y))
+            transform:translate(MathUtils.floorToMultiple(px, floor_x), MathUtils.floorToMultiple(py, floor_y))
         end
     end
     if self.flip_x or self.flip_y then
@@ -1318,12 +1334,12 @@ function Object:applyTransformTo(transform, floor_x, floor_y)
     if not floor_x then
         transform:translate(-ox, -oy)
     else
-        transform:translate(-Utils.floor(ox, floor_x), -Utils.floor(oy, floor_y))
+        transform:translate(-MathUtils.floorToMultiple(ox, floor_x), -MathUtils.floorToMultiple(oy, floor_y))
     end
     if self.rotation ~= 0 then
         local ox, oy = self:getRotationOriginExact()
         if floor_x then
-            ox, oy = Utils.floor(ox, floor_x), Utils.floor(oy, floor_y)
+            ox, oy = MathUtils.floorToMultiple(ox, floor_x), MathUtils.floorToMultiple(oy, floor_y)
         end
         transform:translate(ox, oy)
         transform:rotate(self.rotation)
@@ -1332,7 +1348,7 @@ function Object:applyTransformTo(transform, floor_x, floor_y)
     if self.scale_x ~= 1 or self.scale_y ~= 1 then
         local ox, oy = self:getScaleOriginExact()
         if floor_x then
-            ox, oy = Utils.floor(ox, floor_x), Utils.floor(oy, floor_y)
+            ox, oy = MathUtils.floorToMultiple(ox, floor_x), MathUtils.floorToMultiple(oy, floor_y)
         end
         transform:translate(ox, oy)
         transform:scale(self.scale_x, self.scale_y)
@@ -1346,7 +1362,7 @@ function Object:applyTransformTo(transform, floor_x, floor_y)
         if not floor_x then
             transform:translate(shake_x, shake_y)
         else
-            transform:translate(Utils.floor(shake_x, floor_x), Utils.floor(shake_y, floor_y))
+            transform:translate(MathUtils.floorToMultiple(shake_x, floor_x), MathUtils.floorToMultiple(shake_y, floor_y))
         end
     end
     Utils.popPerformance()
@@ -1422,13 +1438,13 @@ function Object:getFullScale()
 end
 
 --- Returns whether the object has been clicked this frame.
----@param number? button The mouse button to check. If not provided, it will check all buttons available.
+---@param button? number The mouse button to check. If not provided, it will check all buttons available.
 ---@return boolean success Whether the object was clicked.
 ---@return number button The mouse button that clicked the object. Useful if the 'button' argument was not provided.
 function Object:clicked(button)
     if not button then
         local used_button = 0
-        for i=1, Input.mouse_button_max do
+        for i = 1, Input.mouse_button_max do
             local success, success_button = self:clicked(i)
             used_button = math.max(used_button, success_button)
             if success then
@@ -1489,6 +1505,9 @@ end
 ---@param child T The object to be added.
 ---@return T child The object that was added.
 function Object:addChild(child)
+    if not isClass(child) or not child:includes(Object) then
+        error("Cannot add non-Object as child to Object")
+    end
     child.parent = self
     if self.stage and child.stage ~= self.stage then
         self.stage:addToStage(child)
@@ -1565,7 +1584,7 @@ function Object:sortChildren()
 end
 
 function Object:updateChildList()
-    local to_remove = Utils.copy(self.children_to_remove)
+    local to_remove = TableUtils.copy(self.children_to_remove)
     self.children_to_remove = {}
     for child, _ in pairs(to_remove) do
         for i, v in ipairs(self.children) do
@@ -1816,31 +1835,31 @@ function Object:updatePhysicsTransform()
     end
 
     if physics.speed and physics.speed ~= 0 then
-        physics.speed = Utils.approach(physics.speed, 0, (physics.friction or 0) * DTMULT)
+        physics.speed = MathUtils.approach(physics.speed, 0, (physics.friction or 0) * DTMULT)
         self:move(math.cos(direction), math.sin(direction), physics.speed * DTMULT)
     end
 
     if (physics.speed_x and physics.speed_x ~= 0) or (physics.speed_y and physics.speed_y ~= 0) then
-        physics.speed_x = Utils.approach(physics.speed_x or 0, 0, (physics.friction or 0) * DTMULT)
-        physics.speed_y = Utils.approach(physics.speed_y or 0, 0, (physics.friction or 0) * DTMULT)
+        physics.speed_x = MathUtils.approach(physics.speed_x or 0, 0, (physics.friction or 0) * DTMULT)
+        physics.speed_y = MathUtils.approach(physics.speed_y or 0, 0, (physics.friction or 0) * DTMULT)
         self:move(physics.speed_x, physics.speed_y, DTMULT)
     end
 
     if physics.move_target then
         local next_x, next_y = self.x, self.y
         if physics.move_target.speed then
-            local angle = Utils.angle(self.x, self.y, physics.move_target.x, physics.move_target.y)
-            next_x = Utils.approach(self.x, physics.move_target.x,
-                physics.move_target.speed * math.abs(math.cos(angle)) * DTMULT)
-            next_y = Utils.approach(self.y, physics.move_target.y,
-                physics.move_target.speed * math.abs(math.sin(angle)) * DTMULT)
+            local angle = MathUtils.angle(self.x, self.y, physics.move_target.x, physics.move_target.y)
+            next_x = MathUtils.approach(self.x, physics.move_target.x,
+                                        physics.move_target.speed * math.abs(math.cos(angle)) * DTMULT)
+            next_y = MathUtils.approach(self.y, physics.move_target.y,
+                                        physics.move_target.speed * math.abs(math.sin(angle)) * DTMULT)
         elseif physics.move_target.time then
-            physics.move_target.timer = Utils.approach(physics.move_target.timer, physics.move_target.time, DT)
+            physics.move_target.timer = MathUtils.approach(physics.move_target.timer, physics.move_target.time, DT)
 
             next_x = Utils.ease(physics.move_target.start_x, physics.move_target.x,
-                (physics.move_target.timer / physics.move_target.time), physics.move_target.ease)
+                                (physics.move_target.timer / physics.move_target.time), physics.move_target.ease)
             next_y = Utils.ease(physics.move_target.start_y, physics.move_target.y,
-                (physics.move_target.timer / physics.move_target.time), physics.move_target.ease)
+                                (physics.move_target.timer / physics.move_target.time), physics.move_target.ease)
         end
         if physics.move_target.move_func then
             physics.move_target.move_func(self, next_x - self.x, next_y - self.y)
@@ -1860,13 +1879,13 @@ function Object:updatePhysicsTransform()
             physics.move_path.progress = (physics.move_path.timer / physics.move_path.time) * physics.move_path.length
         end
         if not physics.move_path.loop then
-            physics.move_path.progress = Utils.clamp(physics.move_path.progress, 0, physics.move_path.length)
+            physics.move_path.progress = MathUtils.clamp(physics.move_path.progress, 0, physics.move_path.length)
         else
             physics.move_path.progress = physics.move_path.progress % physics.move_path.length
         end
         local eased_progress = Utils.ease(0, physics.move_path.length,
-            (physics.move_path.progress / physics.move_path.length), physics.move_path
-            .ease)
+                                          (physics.move_path.progress / physics.move_path.length), physics.move_path
+                                          .ease)
         local target_x, target_y = Utils.getPointOnPath(physics.move_path.path, eased_progress)
         if physics.move_path.move_func then
             physics.move_path.move_func(self, target_x - self.x, target_y - self.y)
@@ -1887,7 +1906,7 @@ function Object:updateGraphicsTransform()
     if not graphics then return end
 
     if graphics.fade and graphics.fade ~= 0 and self.alpha ~= graphics.fade_to then
-        self.alpha = Utils.approach(self.alpha, graphics.fade_to, graphics.fade * DTMULT)
+        self.alpha = MathUtils.approach(self.alpha, graphics.fade_to, graphics.fade * DTMULT)
         if self.alpha == graphics.fade_to then
             graphics.fade = 0
             graphics.fade_to = 0
@@ -1898,8 +1917,8 @@ function Object:updateGraphicsTransform()
     end
 
     if (graphics.grow and graphics.grow ~= 0)
-        or (graphics.grow_x and graphics.grow_x ~= 0)
-        or (graphics.grow_y and graphics.grow_y ~= 0) then
+    or (graphics.grow_x and graphics.grow_x ~= 0)
+    or (graphics.grow_y and graphics.grow_y ~= 0) then
         self.scale_x = self.scale_x + ((graphics.grow_x or 0) + (graphics.grow or 0)) * DTMULT
         self.scale_y = self.scale_y + ((graphics.grow_y or 0) + (graphics.grow or 0)) * DTMULT
     end
@@ -1913,22 +1932,28 @@ function Object:updateGraphicsTransform()
         self.rotation = self.rotation + graphics.spin * DTMULT
     end
 
-    if (graphics.shake_x and graphics.shake_x ~= 0) or (graphics.shake_y and graphics.shake_y ~= 0) then
-        graphics.shake_timer = (graphics.shake_timer or 0) + DT
-        while graphics.shake_timer >= (graphics.shake_delay or (2 / 30)) do
-            graphics.shake_x = (graphics.shake_x or 0) * -1
-            graphics.shake_y = (graphics.shake_y or 0) * -1
-            graphics.shake_timer = graphics.shake_timer - (graphics.shake_delay or (2 / 30))
+    local friction = graphics.shake_friction or 0
+    local shake_x = graphics.shake_x or 0
+    local shake_y = graphics.shake_y or 0
+    local timer = graphics.shake_timer or 0
+    local delay = graphics.shake_delay or (2 / 30)
+
+    if (shake_x ~= 0) or (shake_y ~= 0) then
+        graphics.shake_timer = timer + DT
+
+        while graphics.shake_timer >= delay do
+            shake_x = (MathUtils.approach(shake_x, 0, friction)) * -1
+            shake_y = (MathUtils.approach(shake_y, 0, friction)) * -1
+            graphics.shake_timer = graphics.shake_timer - delay
         end
-        if graphics.shake_friction and graphics.shake_friction ~= 0 then
-            graphics.shake_x = Utils.approach(graphics.shake_x or 0, 0, graphics.shake_friction * DTMULT)
-            graphics.shake_y = Utils.approach(graphics.shake_y or 0, 0, graphics.shake_friction * DTMULT)
-        end
+
+        graphics.shake_x = shake_x
+        graphics.shake_y = shake_y
     end
 end
 
 function Object:onClone(src)
-    if self.parent and self.parent.children and not Utils.containsValue(self.parent.children, self) then
+    if self.parent and self.parent.children and not TableUtils.contains(self.parent.children, self) then
         self.parent = nil
     end
     self.stage = nil

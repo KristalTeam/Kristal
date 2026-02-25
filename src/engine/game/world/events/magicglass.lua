@@ -14,13 +14,19 @@
 ---@overload fun(...) : MagicGlass
 local MagicGlass, super = Class(Event)
 
-function MagicGlass:init(x, y, shape)
+---@param x number
+---@param y number
+---@param shape EventShape
+---@param properties table
+function MagicGlass:init(x, y, shape, properties)
     super.init(self, x, y, shape)
 
-    self.texture = Assets.getTexture("world/events/magical_glass")
+    properties = properties or {}
 
-    self.tiles_x = math.floor(self.width/40)
-    self.tiles_y = math.floor(self.height/40)
+    self.texture = Assets.getTexture(properties["new_sprite"] and "world/events/magical_glass_new" or "world/events/magical_glass")
+
+    self.tiles_x = math.floor(self.width / 40)
+    self.tiles_y = math.floor(self.height / 40)
 
     self.glass_colliders = {}
     self.tile_alphas = {}
@@ -38,9 +44,9 @@ end
 
 function MagicGlass:update()
     Object.startCache()
-    for i,collider in ipairs(self.glass_colliders) do
+    for i, collider in ipairs(self.glass_colliders) do
         local any_collided = false
-        for _,char in ipairs(Game.stage:getObjects(Character)) do
+        for _, char in ipairs(Game.stage:getObjects(Character)) do
             if collider:collidesWith(char) then
                 any_collided = true
                 break
@@ -49,7 +55,7 @@ function MagicGlass:update()
         if any_collided then
             self.tile_alphas[i] = 1
         else
-            self.tile_alphas[i] = Utils.lerp(self.tile_alphas[i], 0, 0.125 * DTMULT)
+            self.tile_alphas[i] = MathUtils.clamp(MathUtils.lerp(self.tile_alphas[i], 0, 0.125 * DTMULT), 0, 1)
         end
     end
     Object.endCache()
@@ -58,7 +64,7 @@ function MagicGlass:update()
 end
 
 function MagicGlass:draw()
-    local r,g,b,a = self:getDrawColor()
+    local r, g, b, a = self:getDrawColor()
 
     local id = 1
     for i = 1, self.tiles_x do

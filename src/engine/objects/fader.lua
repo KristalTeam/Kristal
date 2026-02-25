@@ -97,14 +97,17 @@ end
 ---| "music"    # The speed to fade the music at, or whether to fade it at all (Defaults to fade speed)
 function Fader:transition(middle_callback, end_callback, options)
     options = options or {}
-    self:fadeOut(function()
-        if middle_callback then
-            middle_callback()
-        end
-        options.alpha = nil
-        options.music = nil
-        self:fadeIn(end_callback, options)
-    end, options)
+    self:fadeOut(
+        function()
+            if middle_callback then
+                middle_callback()
+            end
+            options.alpha = nil
+            options.music = nil
+            self:fadeIn(end_callback, options)
+        end,
+        options
+    )
 end
 
 --- Starts a fade out with the given options. \
@@ -181,7 +184,7 @@ function Fader:update()
 end
 
 function Fader:draw()
-    local color = Utils.copy(self.fade_color)
+    local color = TableUtils.copy(self.fade_color)
     local alpha = self.alpha * (color[4] or 1)
 
     if self.blocky then

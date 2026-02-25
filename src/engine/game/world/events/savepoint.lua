@@ -29,7 +29,7 @@ function Savepoint:init(x, y, properties)
     self.solid = true
 
     self:setOrigin(0.5, 0.5)
-    self:setSprite("world/events/savepoint", 1/6)
+    self:setSprite("world/events/savepoint", 1 / 6)
 
     self.used = false
 
@@ -60,7 +60,7 @@ function Savepoint:onTextEnd()
     if not self.world then return end
 
     if self.heals then
-        for _,party in pairs(Game.party_data) do
+        for _, party in pairs(Game.party_data) do
             party:heal(math.huge, false)
         end
     end
@@ -81,11 +81,11 @@ function Savepoint:update()
         self.sprite.alpha = 0.5
 
         if Game.world.player then
-            local dist = Utils.dist(self.x, self.y, Game.world.player.x, Game.world.player.y)
+            local dist = MathUtils.dist(self.x, self.y, Game.world.player.x, Game.world.player.y)
 
 
             if dist <= 80 then
-                self.sprite.alpha = math.min(1, ((1 - (dist/80)) + 0.5))
+                self.sprite.alpha = math.min(1, ((1 - (dist / 80)) + 0.5))
             end
         end
     end
@@ -95,7 +95,7 @@ end
 function Savepoint:getDebugInfo()
     local info = super.getDebugInfo(self)
     if Game:isLight() and Game.world.player then
-        table.insert(info, "Player Distance: " .. Utils.dist(self.x, self.y, Game.world.player.x, Game.world.player.y))
+        table.insert(info, "Player Distance: " .. MathUtils.dist(self.x, self.y, Game.world.player.x, Game.world.player.y))
         table.insert(info, "Alpha: " .. self.sprite.alpha)
     end
     return info

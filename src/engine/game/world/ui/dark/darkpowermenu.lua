@@ -17,7 +17,7 @@ function DarkPowerMenu:init()
     self.heart_sprite = Assets.getTexture("player/heart")
     self.arrow_sprite = Assets.getTexture("ui/page_arrow_down")
 
-    self.tp_sprite = Game:getConfig("oldUIPositions") and Assets.getTexture("ui/menu/caption_tp_old") or Assets.getTexture("ui/menu/caption_tp")
+    self.tp_sprite = Assets.getTexture("ui/menu/caption_tp")
 
     self.caption_sprites = {
           ["char"] = Assets.getTexture("ui/menu/caption_char"),
@@ -129,9 +129,9 @@ function DarkPowerMenu:update()
             local spell = self:getSpells()[self.selected_spell]
             if self:canCast(spell) then
                 self.state = "USE"
-                if spell.target == "ally" or spell.target == "party" then
+                if spell:getTarget() == "ally" or spell:getTarget() == "party" then
 
-                    local target_type = spell.target == "ally" and "SINGLE" or "ALL"
+                    local target_type = spell:getTarget() == "ally" and "SINGLE" or "ALL"
 
                     self:selectParty(target_type, spell)
                 else
@@ -149,12 +149,12 @@ function DarkPowerMenu:update()
         if Input.pressed("down", true) then
             self.selected_spell = self.selected_spell + 1
         end
-        self.selected_spell = Utils.clamp(self.selected_spell, 1, #spells)
+        self.selected_spell = MathUtils.clamp(self.selected_spell, 1, #spells)
         if self.selected_spell ~= old_selected then
             local spell_limit = self:getSpellLimit()
             local min_scroll = math.max(1, self.selected_spell - (spell_limit - 1))
             local max_scroll = math.min(math.max(1, #spells - (spell_limit - 1)), self.selected_spell)
-            self.scroll_y = Utils.clamp(self.scroll_y, min_scroll, max_scroll)
+            self.scroll_y = MathUtils.clamp(self.scroll_y, min_scroll, max_scroll)
 
             self.ui_move:stop()
             self.ui_move:play()
@@ -193,9 +193,9 @@ function DarkPowerMenu:draw()
     Draw.setColor(PALETTE["world_border"])
     love.graphics.rectangle("fill", -24, 104, 525, 6)
     if Game:getConfig("oldUIPositions") then
-        love.graphics.rectangle("fill", 212, 104, 6, 196)
+        love.graphics.rectangle("fill", 212, 104, 6, 191)
     else
-        love.graphics.rectangle("fill", 212, 104, 6, 200)
+        love.graphics.rectangle("fill", 212, 104, 6, 193)
     end
 
     Draw.setColor(1, 1, 1, 1)

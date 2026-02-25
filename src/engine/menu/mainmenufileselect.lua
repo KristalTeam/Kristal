@@ -49,7 +49,7 @@ function MainMenuFileSelect:onEnter(old_state)
     self.files = {}
     for i = 1, 3 do
         local data = Kristal.loadData("file_" .. i, self.mod.id)
-        local button = FileButton(self, i, data, 110, 110 + 90 * (i - 1), 422, 82)
+        local button = FileButton(self, i, data, 110, 110 + 90 * (i - 1), 422, Kristal.Config["brokenMenuBoxes"] and 82 or 78)
         if i == 1 then
             button.selected = true
         end
@@ -231,11 +231,11 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
         if Input.is("down", key) then self.selected_y = self.selected_y + 1 end
         if Input.is("left", key) then self.selected_x = self.selected_x - 1 end
         if Input.is("right", key) then self.selected_x = self.selected_x + 1 end
-        self.selected_y = Utils.clamp(self.selected_y, 1, 4)
+        self.selected_y = MathUtils.clamp(self.selected_y, 1, 4)
         if self.selected_y <= 3 then
             self.selected_x = 1
         else
-            self.selected_x = Utils.clamp(self.selected_x, 1, 3)
+            self.selected_x = MathUtils.clamp(self.selected_x, 1, 3)
         end
         if last_x ~= self.selected_x or last_y ~= self.selected_y then
             Assets.stopAndPlaySound("ui_move")
@@ -310,7 +310,7 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
         if Input.is("up", key) then self.selected_y = self.selected_y - 1 end
         if Input.is("down", key) then self.selected_y = self.selected_y + 1 end
         self.selected_x = 1
-        self.selected_y = Utils.clamp(self.selected_y, 1, 4)
+        self.selected_y = MathUtils.clamp(self.selected_y, 1, 4)
         if last_x ~= self.selected_x or last_y ~= self.selected_y then
             Assets.stopAndPlaySound("ui_move")
             self:updateSelected()
@@ -348,7 +348,7 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
         if Input.is("up", key) then self.selected_y = self.selected_y - 1 end
         if Input.is("down", key) then self.selected_y = self.selected_y + 1 end
         self.selected_x = 1
-        self.selected_y = Utils.clamp(self.selected_y, 1, 4)
+        self.selected_y = MathUtils.clamp(self.selected_y, 1, 4)
         if last_x ~= self.selected_x or last_y ~= self.selected_y then
             Assets.stopAndPlaySound("ui_move")
             self:updateSelected()
@@ -360,7 +360,7 @@ end
 
 function MainMenuFileSelect:update()
     if self.result_timer > 0 then
-        self.result_timer = Utils.approach(self.result_timer, 0, DT)
+        self.result_timer = MathUtils.approach(self.result_timer, 0, DT)
         if self.result_timer == 0 then
             self.result_text = nil
         end
@@ -454,7 +454,7 @@ function MainMenuFileSelect:getHeartPos()
         local button = self:getSelectedFile()
         local hx, hy = button:getHeartPos()
         local x, y = button:getRelativePos(hx, hy)
-        return x + 9, y + 9
+        return x + 9, y + (Kristal.Config["brokenMenuBoxes"] and 11 or 13)
     elseif self.selected_y == 4 then
         return self.bottom_row_heart[self.selected_x] + 9, 390 + 9
     end

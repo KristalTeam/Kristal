@@ -17,10 +17,10 @@ function Actor:init()
 
     -- A table that defines where the Soul should be placed on this actor if they are a player.
     -- First value is x, second value is y.
-    self.soul_offset = {10, 24}
+    self.soul_offset = { 10, 24 }
 
     -- Color for this actor used in outline areas (optional, defaults to red)
-    self.color = {1, 0, 0}
+    self.color = { 1, 0, 0 }
 
     -- Whether this actor flips horizontally (optional, values are "right" or "left", indicating the flip direction)
     self.flip = nil
@@ -29,6 +29,12 @@ function Actor:init()
     self.path = ""
     -- This actor's default sprite or animation, relative to the path (defaults to "")
     self.default = ""
+
+    -- This actor's default sprite. Optional.
+    self.default_sprite = nil
+
+    -- This actor's default animation. Optional.
+    self.default_anim = nil
 
     -- Sound to play when this actor speaks (optional)
     self.voice = nil
@@ -144,9 +150,9 @@ function Actor:getSpeechBubbleFontSize() return self.speech_bubble_font_size end
 function Actor:getIndentString() return self.indent_string end
 
 function Actor:getPortraitPath() return self.portrait_path end
-function Actor:getPortraitOffset() return unpack(self.portrait_offset or {0, 0}) end
+function Actor:getPortraitOffset() return unpack(self.portrait_offset or { 0, 0 }) end
 function Actor:getMiniface() return self.miniface end
-function Actor:getMinifaceOffset() return unpack(self.miniface_offset or {0, 0}) end
+function Actor:getMinifaceOffset() return unpack(self.miniface_offset or { 0, 0 }) end
 
 function Actor:getFlipDirection(sprite) return self.flip or self.flip_sprites[sprite] end
 
@@ -159,7 +165,7 @@ function Actor:getMirrorSprites() return self.mirror_sprites end
 function Actor:getMirrorSprite(sprite) return self:getMirrorSprites()[sprite] end
 
 function Actor:hasOffset(sprite) return self.offsets[sprite] ~= nil end
-function Actor:getOffset(sprite) return unpack(self.offsets[sprite] or {0, 0}) end
+function Actor:getOffset(sprite) return unpack(self.offsets[sprite] or { 0, 0 }) end
 function Actor:onTextSound(node, state) end
 
 -- Misc Functions
@@ -169,18 +175,18 @@ end
 
 -- horrific
 function Actor:parseSpriteOptions(full_sprite, ignore_frames)
-    local prefix = self:getSpritePath().."/"
-    local is_relative, relative_sprite = Utils.startsWith(full_sprite, prefix)
+    local prefix = self:getSpritePath() .. "/"
+    local is_relative, relative_sprite = StringUtils.startsWith(full_sprite, prefix)
     if not is_relative and self:getSpritePath() ~= "" then
-        return {""}
+        return { "" }
     end
 
-    local result = {relative_sprite}
+    local result = { relative_sprite }
 
     if not ignore_frames then
         local frames_for = Assets.getFramesFor(full_sprite)
         if frames_for then
-            local success, frames_sprite = Utils.startsWith(frames_for, prefix)
+            local success, frames_sprite = StringUtils.startsWith(frames_for, prefix)
             if success then
                 table.insert(result, frames_sprite)
             end
@@ -188,15 +194,15 @@ function Actor:parseSpriteOptions(full_sprite, ignore_frames)
         end
     end
 
-    local dirs = {"left", "right", "up", "down"}
+    local dirs = { "left", "right", "up", "down" }
 
     for _, dir in ipairs(dirs) do
-        local success, dir_sprite = Utils.endsWith(full_sprite, "_"..dir)
+        local success, dir_sprite = StringUtils.endsWith(full_sprite, "_" .. dir)
         if not success then
-            success, dir_sprite = Utils.endsWith(full_sprite, "/"..dir)
+            success, dir_sprite = StringUtils.endsWith(full_sprite, "/" .. dir)
         end
         if success then
-            local relative, sprite = Utils.startsWith(dir_sprite, prefix)
+            local relative, sprite = StringUtils.startsWith(dir_sprite, prefix)
             if relative then
                 table.insert(result, sprite)
             end

@@ -47,7 +47,7 @@ function CyberTrashCan:getDebugInfo()
         if not Game:isLight() then
             table.insert(info, "Money: " .. Game:getConfig("darkCurrencyShort") .. " " .. self.money)
         else
-            table.insert(info, Game:getConfig("lightCurrency").. ": " .. Game:getConfig("lightCurrencyShort") .. " " .. self.money)
+            table.insert(info, Game:getConfig("lightCurrency") .. ": " .. Game:getConfig("lightCurrencyShort") .. " " .. self.money)
         end
     end
     table.insert(info, "Opened: " .. (self:getFlag("opened") and "True" or "False"))
@@ -77,34 +77,41 @@ function CyberTrashCan:onInteract(player, dir)
 
         local name, success, result_text
         if self.item then
+            ---@type string|Item
             local item = self.item
             if type(self.item) == "string" then
                 item = Registry.createItem(self.item)
             end
+
+            ---@cast item -string
+
             success, result_text = Game.inventory:tryGiveItem(item)
             name = item:getName()
         elseif self.money then
-            name = self.money.." "..Game:getConfig("darkCurrency")
+            name = self.money .. " " .. Game:getConfig("darkCurrency")
             success = true
-            result_text = "* ([color:yellow]"..name.."[color:reset] was added to your [color:yellow]MONEY HOLE[color:reset].)"
+            result_text = "* ([color:yellow]" .. name .. "[color:reset] was added to your [color:yellow]MONEY HOLE[color:reset].)"
             Game.money = Game.money + self.money
         end
 
         if name then
             if self.item then
-                self.world:showText({
-                    "* (You dug through the trash...)",
-                    "* (And found a "..name.."!)",
-                    result_text,
-                }, function()
-                    if not success then
-                        self:setFlag("opened", false)
+                self.world:showText(
+                    {
+                        "* (You dug through the trash...)",
+                        "* (And found a " .. name .. "!)",
+                        result_text,
+                    },
+                    function()
+                        if not success then
+                            self:setFlag("opened", false)
+                        end
                     end
-                end)
+                )
             else
                 self.world:showText({
                     "* (You dug through the trash...)",
-                    "* (And found $"..self.money.."!)",
+                    "* (And found $" .. self.money .. "!)",
                     result_text,
                 })
             end

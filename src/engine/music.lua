@@ -190,7 +190,7 @@ function Music:canResume()
 end
 
 function Music:remove()
-    Utils.removeFromTable(_handlers, self)
+    TableUtils.removeValue(_handlers, self)
     if self.source then
         self.source:stop()
         self.source = nil
@@ -235,7 +235,7 @@ end
 local function update()
     for _,handler in ipairs(_handlers) do
         if handler.fade_speed ~= 0 and handler.volume ~= handler.target_volume then
-            handler.volume = Utils.approach(handler.volume, handler.target_volume, DT / handler.fade_speed)
+            handler.volume = MathUtils.approach(handler.volume, handler.target_volume, DT / handler.fade_speed)
 
             if handler.volume == handler.target_volume then
                 handler.fade_speed = 0

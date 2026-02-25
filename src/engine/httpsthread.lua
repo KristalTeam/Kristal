@@ -17,7 +17,17 @@ while true do
         local headers = msg.headers or {}
         local data = msg.data or nil
 
-        local response, body, out_headers = https.request(url, {method=method, data=data, headers=headers})
-        out_channel:push({key=key, response=response, body=body, headers=out_headers})
+        local response, body, out_headers = https.request(url, {
+            method = method,
+            data = data,
+            headers = headers
+        })
+
+        out_channel:push({
+            key = key,
+            response = response,
+            body = body,
+            headers = out_headers
+        })
     end
 end

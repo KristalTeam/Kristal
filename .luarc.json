@@ -1,0 +1,47 @@
+{
+    "runtime": {
+        "version": "LuaJIT"
+    },
+
+    "workspace": {
+        "ignoreDir": [
+            "/.github/",
+            "/.vscode/",
+
+            "/assets/",
+            "/build/",
+            "/configs/",
+            "/data/",
+            "/data_templates/",
+            "/docs/",
+            "/lib/",
+            "/luadoc_meta/.buildDocs.lua",
+            "/mod_template/",
+            "/mods/",
+            "/output/",
+
+            "/conf.lua"
+        ]
+    },
+
+    "docScriptPath": "/luadoc_meta/.buildDocs.lua",
+    "workspace.library": [
+        "${addons}/love2d/module/library",
+        "${3rd}/love2d/library"
+    ],
+    "type": {
+        "weakUnionCheck": true,
+        "weakNilCheck": true
+    },
+    "runtime.builtin": {
+        "utf8": "enable"
+    },
+    "runtime.special": {
+        "love.filesystem.load": "loadfile",
+        "modRequire": "require"
+    },
+    "diagnostics.disable": [
+        "duplicate-set-field",
+        "need-check-nil"
+    ]
+}

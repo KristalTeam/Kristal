@@ -28,8 +28,8 @@ function SnowGraveSpell:init(user)
     self.bg = Assets.getTexture("effects/icespell/gradient")
 
     self.bg_snowfall = Assets.getTexture("effects/icespell/snowfall")
-    self.bg_snowfall:setWrap('repeat','repeat')
-    self.bg_snowfall_quad = love.graphics.newQuad( 0, 0, 640, 480, self.bg_snowfall:getWidth(), self.bg_snowfall:getHeight())
+    self.bg_snowfall:setWrap('repeat', 'repeat')
+    self.bg_snowfall_quad = love.graphics.newQuad(0, 0, 640, 480, self.bg_snowfall:getWidth(), self.bg_snowfall:getHeight())
 
     Assets.playSound("snowgrave", 0.5)
 
@@ -46,7 +46,7 @@ function SnowGraveSpell:update()
         for i, enemy in ipairs(Game.battle.enemies) do
             if enemy then
                 enemy.hit_count = 0
-                enemy:hurt(self.damage + Utils.round(math.random(100)), self.caster, enemy.onDefeatFatal)
+                enemy:hurt(self.damage + MathUtils.round(MathUtils.random(100)), self.caster, enemy.onDefeatFatal)
                 if enemy.health > 0 then
                     enemy:flash()
                 end
@@ -61,7 +61,7 @@ function SnowGraveSpell:drawTiled(x, y, alpha)
     local width = (self.bg_snowfall:getWidth() * 2)
     local height = (self.bg_snowfall:getHeight() * 2)
 
-    local cur_x = -(width  * math.ceil(x / width))
+    local cur_x = -(width * math.ceil(x / width))
     local cur_y = -(height * math.ceil(y / height))
 
     while cur_y + y < 480 do

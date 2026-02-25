@@ -37,8 +37,10 @@ function item:init()
         attack = 16,
     }
     -- Bonus name and icon (displayed in equip menu)
-    self.bonus_name = "SlayDark"
-    self.bonus_icon = "ui/menu/icon/shard"
+    if Game.chapter >= 4 then
+        self.bonus_name = "SlayDark"
+        self.bonus_icon = "ui/menu/icon/shard"
+    end
 
     -- Equippable characters (default true for armors, false for weapons)
     self.can_equip = {

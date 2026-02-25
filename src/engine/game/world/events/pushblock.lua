@@ -94,7 +94,7 @@ function PushBlock:checkCollision(facing)
     local bound_check = Hitbox(self.world, x1 + 1, y1 + 1, x2 - x1 - 2, y2 - y1 - 2)
 
     Object.startCache()
-    for _,collider in ipairs(Game.world.map.block_collision) do
+    for _, collider in ipairs(Game.world.map.block_collision) do
         if collider:collidesWith(bound_check) then
             collided = true
             break

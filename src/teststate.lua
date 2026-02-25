@@ -19,12 +19,13 @@ end
 function Testing:draw()
     Draw.setColor(1, 1, 1, 1)
 
+    love.graphics.setFont(self.font)
+
     if self.state == "MAIN" then
         love.graphics.printf("~ テスティング ~", 0, 16, 640, "center")
 
         love.graphics.printf("The quick brown fox jumps over the lazy dog.", 0, 240, 640, "center")
     elseif self.state == "GAMEPAD" then
-        love.graphics.setFont(self.font)
         love.graphics.printf("~ コントローラーテスト ~", 0, 16, 640, "center")
         self:drawGamepad()
     end

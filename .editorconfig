@@ -45,7 +45,7 @@ space_before_function_open_parenthesis = false
 
 space_before_function_call_open_parenthesis = false
 
-space_before_closure_open_parenthesis = true
+space_before_closure_open_parenthesis = false
 
 # optional always/only_string/only_table/none
 # or true/false

@@ -69,7 +69,7 @@ function GameOver:update()
             local y_pos = y_position_table[((i - 1) % #y_position_table) + 1]
             local shard = Sprite("player/heart_shard", self.soul.x + x_pos, self.soul.y + y_pos)
             shard:setColor(self.soul:getColor())
-            shard.physics.direction = math.rad(Utils.random(360))
+            shard.physics.direction = math.rad(MathUtils.random(360))
             shard.physics.speed = 7
             shard.physics.gravity = 0.2
             shard:play(5/30)
@@ -124,7 +124,7 @@ function GameOver:update()
             if Game.died_once then 
                 self.current_stage = 6
             else
-                self.dialogue = DialogueText("[speed:0.5][spacing:8][voice:none]IT APPEARS YOU\nHAVE REACHED[wait:30]\n\n   AN END.", 160, 160, {style = "GONER", line_offset = 14})
+                self.dialogue = DialogueText("[speed:0.5][spacing:8][voice:none]IT APPEARS YOU\nHAVE REACHED[wait:30]\n\n   AN END.", 164, 160, {style = "GONER", line_offset = 12})
                 self.dialogue.skip_speed = true
                 self:addChild(self.dialogue)
                 self.current_stage = 6
@@ -140,13 +140,13 @@ function GameOver:update()
                 self.current_stage = 7
             end
         else
-            local member = Utils.pick(options)
-            local voice = member:getActor().voice or "default"
+            local member = TableUtils.pick(options)
+            local voice = member:getActor():getVoice() or "default"
             self.lines = {}
             for _,dialogue in ipairs(member:getGameOverMessage(main_chara)) do
                 local spacing = Game:isLight() and 6 or 8
                 local full_line = "[speed:0.5][spacing:"..spacing.."][voice:"..voice.."]"
-                local lines = Utils.split(dialogue, "\n")
+                local lines = StringUtils.split(dialogue, "\n")
                 for i,line in ipairs(lines) do
                     if i > 1 then
                         full_line = full_line.."\n  "..line
@@ -192,12 +192,12 @@ function GameOver:update()
             end
         else
             self.dialogue:setText("[speed:0.5][spacing:8][voice:none]WILL YOU TRY AGAIN?")
-            self.dialogue.x = 100
+            self.dialogue.x = 104
             self.current_stage = 7
         end
     end
     if Game:getConfig("oldGameOver") and self.current_stage == 6 and Game.died_once then
-        self.dialogue = DialogueText("[speed:0.5][spacing:8][voice:none]WILL YOU PERSIST?", 120, 160, {style = "GONER", line_offset = 14})
+        self.dialogue = DialogueText("[speed:0.5][spacing:8][voice:none]WILL YOU PERSIST?", 104, 160, {style = "GONER", line_offset = 12})
         self:addChild(self.dialogue)
         self.current_stage = 7
     end
@@ -229,13 +229,14 @@ function GameOver:update()
                 self.timer = 0
             else
                 self.current_stage = 20
+                local world_ended_text = "[noskip][speed:0.5][spacing:8][voice:none] THEN THE WORLD[wait:30] \n WAS COVERED[wait:30] \n IN DARKNESS."
                 if not Game:getConfig("oldGameOver") then
                     self.text:remove()
 
-                    self.dialogue = DialogueText("[noskip][speed:0.5][spacing:8][voice:none] THEN THE WORLD[wait:30] \n WAS COVERED[wait:30] \n IN DARKNESS.", 120, 160, {style = "GONER", line_offset = 14})
+                    self.dialogue = DialogueText(world_ended_text, 120, 160, {style = "GONER", line_offset = 12})
                     self:addChild(self.dialogue)
                 else
-                    self.dialogue:setText("[noskip][speed:0.5][spacing:8][voice:none] THEN THE WORLD[wait:30] \n WAS COVERED[wait:30] \n IN DARKNESS.")
+                    self.dialogue:setText(world_ended_text)
                     self.dialogue.x = 120
                 end
             end
@@ -244,6 +245,7 @@ function GameOver:update()
 
     if (self.current_stage == 9) then
         if Game:getConfig("oldGameOver") then
+            self.dialogue.x = 99
             if Game.died_once then
                 self.dialogue:setText("")
             else

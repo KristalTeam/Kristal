@@ -21,7 +21,7 @@ function Console:init()
 
     self.command_history = {}
 
-    self.input = {""}
+    self.input = { "" }
 
     self.is_open = false
 
@@ -44,17 +44,17 @@ function Console:createEnv()
     end
 
     function env.print(...)
-        local arg = {n = select("#", ...), ...}
+        local arg = { n = select("#", ...), ... }
         local print_string = ""
 
         for i = 1, arg.n do
             local str = arg[i]
             if type(str) == "table" then
-                str = Utils.dump(str)
+                str = TableUtils.dump(str)
             end
             print_string = print_string .. tostring(str)
             if i ~= arg.n then
-                print_string = print_string  .. "    "
+                print_string = print_string .. "    "
             end
         end
         self:log(print_string)
@@ -112,7 +112,7 @@ function Console:onUpLimit()
     if #self.command_history == 0 then return end
     if self.history_index > 1 then
         self.history_index = self.history_index - 1
-        self.input = Utils.copy(self.command_history[self.history_index] or {""})
+        self.input = TableUtils.copy(self.command_history[self.history_index] or { "" })
         TextInput.updateInput(self.input)
         TextInput.selecting = false
         TextInput.sendCursorToEnd()
@@ -125,7 +125,7 @@ function Console:onDownLimit()
         -- Empty
     else
         self.history_index = self.history_index + 1
-        self.input = Utils.copy(self.command_history[self.history_index] or {""})
+        self.input = TableUtils.copy(self.command_history[self.history_index] or { "" })
         TextInput.updateInput(self.input)
         TextInput.selecting = false
         TextInput.sendCursorToEnd()
@@ -149,9 +149,9 @@ function Console:print(text, x, y)
 
     local x_offset = 0
 
-    local color = {1, 1, 1, 1}
+    local color = { 1, 1, 1, 1 }
 
-    for _,line in ipairs(text) do
+    for _, line in ipairs(text) do
         Draw.setColor(color)
         if type(line) == "table" then
             color = line
@@ -199,7 +199,7 @@ function Console:draw()
     end
 
     for line = #self.history - self.height, #self.history do
-        self:print(self.history[line] or {""}, 8, y_offset * 16)
+        self:print(self.history[line] or { "" }, 8, y_offset * 16)
         y_offset = y_offset + 1
     end
 
@@ -210,16 +210,16 @@ function Console:draw()
     TextInput.draw({
         prefix_width = self.font:getWidth("> "),
         get_prefix = function(place)
-            if place == "start"  then return "┌ " end
+            if place == "start" then return "┌ " end
             if place == "middle" then return "│ " end
-            if place == "end"    then return "└ " end
+            if place == "end" then return "└ " end
             if place == "single" then return "> " end
             return "  "
         end,
         x = 8,
         y = input_pos,
         print = function(text, x, y)
-            self:print({text}, x, y)
+            self:print({ text }, x, y)
         end,
         font = self.font
     })
@@ -246,7 +246,7 @@ end
 function Console:push(str)
     if str == nil then return end
 
-    for _,line in ipairs(Utils.split(str, "\n", false)) do
+    for _, line in ipairs(StringUtils.split(str, "\n", false)) do
         local text = {}
         local current = ""
         local in_modifier = false
@@ -261,22 +261,22 @@ function Console:push(str)
             elseif char == "]" and in_modifier then
                 current = ""
                 in_modifier = false
-                local modifier = Utils.split(modifier_text, ":", false)
+                local modifier = StringUtils.split(modifier_text, ":", false)
                 if modifier[1] == "color" then
-                    local color = {1, 1, 1, 1}
+                    local color = { 1, 1, 1, 1 }
                     if modifier[2] then
-                        if Utils.startsWith(modifier[2], "#") then
-                            color = Utils.hexToRgb(modifier[2])
+                        if StringUtils.startsWith(modifier[2], "#") then
+                            color = ColorUtils.hexToRGB(modifier[2])
                         elseif modifier[2] == "cyan" then
-                            color = {0.5, 1, 1, 1}
+                            color = { 0.5, 1, 1, 1 }
                         elseif modifier[2] == "white" then
-                            color = {1, 1, 1, 1}
+                            color = { 1, 1, 1, 1 }
                         elseif modifier[2] == "yellow" then
-                            color = {1, 1, 0.5, 1}
+                            color = { 1, 1, 0.5, 1 }
                         elseif modifier[2] == "red" then
-                            color = {1, 0.5, 0.5, 1}
+                            color = { 1, 0.5, 0.5, 1 }
                         elseif modifier[2] == "gray" then
-                            color = {0.8, 0.8, 0.8, 1}
+                            color = { 0.8, 0.8, 0.8, 1 }
                         end
                     end
                     table.insert(text, color)
@@ -319,7 +319,7 @@ end
 
 function Console:run(str)
     if not Utils.equal(str, self.command_history[#self.command_history]) then
-        table.insert(self.command_history, Utils.copy(str))
+        table.insert(self.command_history, TableUtils.copy(str))
     end
     self.history_index = #self.command_history + 1
     local run_string = ""
@@ -339,15 +339,15 @@ function Console:run(str)
 
         if i == #str then
             history_string = history_string .. prefix .. line
-            run_string     = run_string     ..           line
+            run_string     = run_string .. line
         else
             history_string = history_string .. prefix .. line .. "\n"
-            run_string     = run_string     ..           line .. "\n"
+            run_string     = run_string .. line .. "\n"
         end
     end
     self:push(history_string)
-    if Utils.startsWith(run_string, "=") then
-        run_string = "print(" .. Utils.sub(run_string, 2) .. ")"
+    if StringUtils.startsWith(run_string, "=") then
+        run_string = "print(" .. StringUtils.sub(run_string, 2) .. ")"
     end
     local status, err = pcall(function() self:unsafeRun(run_string) end)
     if (not status) and err then
@@ -361,7 +361,7 @@ function Console:unsafeRun(str)
     if chunk then
         rawset(self.env, "selected", Kristal.DebugSystem.object)
         rawset(self.env, "_", Kristal.DebugSystem.object)
-        setfenv(chunk,self.env)
+        setfenv(chunk, self.env)
         self:push(chunk())
     else
         self:error(self:stripError(err))

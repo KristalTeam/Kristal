@@ -121,7 +121,7 @@ function LightSaveMenu:update()
         if Input.pressed("down") then
             self.selected_y = self.selected_y + 1
         end
-        self.selected_y = Utils.clamp(self.selected_y, 1, 4)
+        self.selected_y = MathUtils.clamp(self.selected_y, 1, 4)
         if Input.pressed("confirm") then
             self.ui_select:stop()
             self.ui_select:play()
@@ -217,8 +217,8 @@ end
 
 function LightSaveMenu:draw()
 
-    local heart_positions_x = {142, 322}
-    local heart_positions_y = {228, 270}
+    local heart_positions_x = { 142, 322 }
+    local heart_positions_y = { 228, 270 }
 
     love.graphics.setFont(self.font)
     if self.state == "MAIN" then
@@ -227,7 +227,7 @@ function LightSaveMenu:draw()
         -- Header
         Draw.setColor(PALETTE["world_text"])
         love.graphics.print(data.name, 120, 120)
-        love.graphics.print("LV "..data.level, 352, 120)
+        love.graphics.print("LV " .. data.level, 352, 120)
 
         local hours = math.floor(data.playtime / 3600)
         local minutes = math.floor(data.playtime / 60 % 60)
@@ -236,7 +236,7 @@ function LightSaveMenu:draw()
         love.graphics.print(time_text, 522 - self.font:getWidth(time_text), 120)
 
         -- Room name
-        love.graphics.print(data.room_name, 319.5 - self.font:getWidth(data.room_name)/2, 170)
+        love.graphics.print(data.room_name, 319.5 - self.font:getWidth(data.room_name) / 2, 170)
 
         -- Buttons
         love.graphics.print("Save", 170, 220)
@@ -297,15 +297,15 @@ function LightSaveMenu:draw()
 
     if self.state == "OVERWRITE" then
         Draw.setColor(PALETTE["world_text"])
-        local overwrite_text = "Overwrite Slot "..self.selected_y.."?"
-        love.graphics.print(overwrite_text, SCREEN_WIDTH/2 - self.font:getWidth(overwrite_text)/2, 123)
+        local overwrite_text = "Overwrite Slot " .. self.selected_y .. "?"
+        love.graphics.print(overwrite_text, SCREEN_WIDTH / 2 - self.font:getWidth(overwrite_text) / 2, 123)
 
         local function drawOverwriteSave(data, x, y)
             local w = 478
 
             -- Header
-            love.graphics.print(data.name, x + (w/2) - self.font:getWidth(data.name)/2, y)
-            love.graphics.print("LV "..data.level, x, y)
+            love.graphics.print(data.name, x + (w / 2) - self.font:getWidth(data.name) / 2, y)
+            love.graphics.print("LV " .. data.level, x, y)
 
             local hours = math.floor(data.playtime / 3600)
             local minutes = math.floor(data.playtime / 60 % 60)
@@ -314,7 +314,7 @@ function LightSaveMenu:draw()
             love.graphics.print(time_text, x + w - self.font:getWidth(time_text), y)
 
             -- Room name
-            love.graphics.print(data.room_name, x + (w/2) - self.font:getWidth(data.room_name)/2, y+30)
+            love.graphics.print(data.room_name, x + (w / 2) - self.font:getWidth(data.room_name) / 2, y + 30)
         end
 
         Draw.setColor(PALETTE["world_text"])
@@ -368,9 +368,9 @@ function LightSaveMenu:drawSaveFile(index, data, x, y, selected, header)
         end
     else
         if self.saved_file or header then
-            love.graphics.print("LV "..data.level, x + 26, y + 6)
+            love.graphics.print("LV " .. data.level, x + 26, y + 6)
         else
-            love.graphics.print("LV "..data.level, x + 50, y + 6)
+            love.graphics.print("LV " .. data.level, x + 50, y + 6)
         end
 
         love.graphics.print(data.name, x + (493 / 2) - self.font:getWidth(data.name) / 2, y + 6)

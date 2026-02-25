@@ -3,21 +3,21 @@
 local Tileset = Class()
 
 Tileset.ORIGINS = {
-    ["unspecified"] = {0,   1  },
-    ["topleft"]     = {0,   0  },
-    ["top"]         = {0.5, 0  },
-    ["topright"]    = {1,   0  },
-    ["left"]        = {0,   0.5},
-    ["center"]      = {0.5, 0.5},
-    ["right"]       = {1,   0.5},
-    ["bottomleft"]  = {0,   1  },
-    ["bottom"]      = {0.5, 1  },
-    ["bottomright"] = {1,   1  },
+    ["unspecified"] = { 0, 1 },
+    ["topleft"]     = { 0, 0 },
+    ["top"]         = { 0.5, 0 },
+    ["topright"]    = { 1, 0 },
+    ["left"]        = { 0, 0.5 },
+    ["center"]      = { 0.5, 0.5 },
+    ["right"]       = { 1, 0.5 },
+    ["bottomleft"]  = { 0, 1 },
+    ["bottom"]      = { 0.5, 1 },
+    ["bottomright"] = { 1, 1 },
 }
 
 function Tileset:init(data, path, base_dir)
     self.path = path
-    self.base_dir = base_dir or Utils.getDirname(self.path)
+    self.base_dir = base_dir or FileSystemUtils.getDirname(self.path)
 
     self.id = data.id
     self.name = data.name
@@ -34,22 +34,22 @@ function Tileset:init(data, path, base_dir)
     self.id_count = self.tile_count
 
     self.tile_info = {}
-    for _,tile in ipairs(data.tiles or {}) do
+    for _, tile in ipairs(data.tiles or {}) do
         local info = {}
         if tile.animation then
-            info.animation = {duration = 0, frames={}}
-            for _,anim in ipairs(tile.animation) do
-                table.insert(info.animation.frames, {id = anim.tileid, duration = anim.duration / 1000})
+            info.animation = { duration = 0, frames = {} }
+            for _, anim in ipairs(tile.animation) do
+                table.insert(info.animation.frames, { id = anim.tileid, duration = anim.duration / 1000 })
                 info.animation.duration = info.animation.duration + (anim.duration / 1000)
             end
         end
         if tile.image then
-            local image_path = Utils.absoluteToLocalPath("assets/sprites/", tile.image, self.base_dir)
-            info.path = image_path
-            info.texture = Assets.getTexture(image_path)
-            if not info.texture then
-                error("Could not load tileset tile texture: " .. tostring(image_path) .. " [" .. tostring(path) .. "]")
+            local success, image_path_result = self:loadTextureFromImagePath(tile.image)
+            if not success then
+                error("Tileset \"" .. self.id .. "\" failed to load texture for tile " .. tostring(tile.id) .. "\"\n" .. image_path_result)
             end
+            info.path = image_path_result
+            info.texture = Assets.getTexture(image_path_result)
             info.x = tile.x or 0
             info.y = tile.y or 0
             info.width = tile.width or info.texture:getWidth()
@@ -64,22 +64,45 @@ function Tileset:init(data, path, base_dir)
     end
 
     if data.image then
-        local image_path = Utils.absoluteToLocalPath("assets/sprites/", data.image, self.base_dir)
-        self.texture = Assets.getTexture(image_path)
-        if not self.texture then
-            error("Could not load tileset texture: " .. tostring(image_path) .. " [" .. tostring(path) .. "]")
+        local success, image_path_result = self:loadTextureFromImagePath(data.image)
+        if not success then
+            error("Tileset \"" .. self.id .. "\" failed to load texture\n" .. image_path_result)
         end
+        self.texture = Assets.getTexture(image_path_result)
     end
 
     self.quads = {}
     if self.texture then
         local tw, th = self.texture:getWidth(), self.texture:getHeight()
-        for i = 0, self.tile_count-1 do
+        for i = 0, self.tile_count - 1 do
             local tx = self.margin + (i % self.columns) * (self.tile_width + self.spacing)
             local ty = self.margin + math.floor(i / self.columns) * (self.tile_height + self.spacing)
             self.quads[i] = love.graphics.newQuad(tx, ty, self.tile_width, self.tile_height, tw, th)
         end
     end
+end
+
+function Tileset:loadTextureFromImagePath(filename)
+    local image_dir = "assets/sprites"
+    local success, result, final_path = TiledUtils.relativePathToAssetId(image_dir, filename, self.base_dir)
+
+    if not success then
+        if result == "not under prefix" then
+            return false, "Image not found in \"" .. image_dir .. "\" (Got path \"" .. final_path .. "\")"
+        elseif result == "path outside root" then
+            return false, "Image path located outside Kristal (Got path \"<kristal>/" .. final_path .. "\")"
+        else
+            return false, "Unknown reason"
+        end
+    end
+
+    local texture = Assets.getTexture(result)
+
+    if not texture then
+        return false, "No texture found with id \"" .. result .. "\""
+    end
+
+    return true, result
 end
 
 function Tileset:getAnimation(id)
@@ -102,7 +125,7 @@ function Tileset:getDrawTile(id)
         local time = Kristal.getTime()
         local pos = time % info.animation.duration
         local total_duration = 0
-        for _,frame in ipairs(info.animation.frames) do
+        for _, frame in ipairs(info.animation.frames) do
             id = frame.id
             if pos < total_duration + frame.duration then
                 break
@@ -146,7 +169,7 @@ function Tileset:drawGridTile(id, x, y, gw, gh, flip_x, flip_y, flip_diag)
         sx = gw / w
         sy = gh / h
         if self.preserve_aspect_fit then
-            sx = Utils.absMin(sx, sy)
+            sx = MathUtils.absMin(sx, sy)
             sy = sx
         end
     end
@@ -156,12 +179,12 @@ function Tileset:drawGridTile(id, x, y, gw, gh, flip_x, flip_y, flip_diag)
     local info = self.tile_info[draw_id]
     if info and info.texture then
         if not info.quad then
-            Draw.draw(info.texture, (x or 0) + ox, (y or 0) + oy, rot, flip_x and -sx or sx, flip_y and -sy or sy, w/2, h/2)
+            Draw.draw(info.texture, (x or 0) + ox, (y or 0) + oy, rot, flip_x and -sx or sx, flip_y and -sy or sy, w / 2, h / 2)
         else
-            Draw.draw(info.texture, info.quad, (x or 0) + ox, (y or 0) + oy, rot, flip_x and -sx or sx, flip_y and -sy or sy, w/2, h/2)
+            Draw.draw(info.texture, info.quad, (x or 0) + ox, (y or 0) + oy, rot, flip_x and -sx or sx, flip_y and -sy or sy, w / 2, h / 2)
         end
     else
-        Draw.draw(self.texture, self.quads[draw_id], (x or 0) + ox, (y or 0) + oy, rot, flip_x and -sx or sx, flip_y and -sy or sy, w/2, h/2)
+        Draw.draw(self.texture, self.quads[draw_id], (x or 0) + ox, (y or 0) + oy, rot, flip_x and -sx or sx, flip_y and -sy or sy, w / 2, h / 2)
     end
 end
 

@@ -142,7 +142,7 @@ function character:drawPowerStat(index, x, y, menu)
         local icon = Assets.getTexture("ui/menu/icon/snow")
         Draw.draw(icon, x-26, y+6, 0, 2, 2)
         love.graphics.print("Coldness", x, y)
-        local coldness = Utils.clamp(47 + (self:getFlag("iceshocks_used", 0) * 7), 47, 100)
+        local coldness = MathUtils.clamp(47 + (self:getFlag("iceshocks_used", 0) * 7), 47, 100)
         love.graphics.print(coldness, x+130, y)
         return true
     elseif index == 2 then

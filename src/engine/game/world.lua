@@ -1,7 +1,7 @@
 --- The `World` Object manages everything relating to the overworld in Kristal. \
 --- A globally available instance of `World` is stored in [`Game.world`](lua://Game.world).
 ---
----@class World : Object
+---@class World : Object, StateManagedClass
 ---
 ---@field state             string                          The current state that this `World` is in - should never be set manually, see [`World:setState()`](lua://World.setState) instead
 ---@field state_manager     StateManager                    An object that manages the state of this `World`
@@ -17,6 +17,7 @@
 ---
 ---@field battle_borders    table                           *(unused? See [`Map.battle_borders`](lua://Map.battle_borders))*
 ---
+---@field encountering_enemy    boolean
 ---@field transition_fade   number                          *(unused?)*
 ---
 ---@field in_battle         boolean                         Whether the player is currently in a world battle set through [`World:setBattle()](lua://World.setBattle) (affects the visibility of world battle content)
@@ -36,7 +37,8 @@
 ---
 ---@field can_open_menu     boolean                         Whether the player can open their menu
 ---
----@field menu              LightMenu|DarkMenu?             The Menu object of the menu, if it is open
+---@field menu              LightMenu|DarkMenu|Component?   The Menu object of the menu, if it is open
+---@field current_selecting number
 ---
 ---@field calls             table<[string, string]>   A list of calls available on the cell phone in the Light World CELL menu
 ---
@@ -168,7 +170,7 @@ function World:hurtParty(battler, amount)
 
     local any_killed = false
     local any_alive = false
-    for _,party in ipairs(Game.party) do
+    for _, party in ipairs(Game.party) do
         if not battler or battler == party.id or battler == party then
             local current_health = party:getHealth()
             party:setHealth(party:getHealth() - amount)
@@ -181,7 +183,7 @@ function World:hurtParty(battler, amount)
 
             local dealt_amount = current_health - party:getHealth()
 
-            for _,char in ipairs(self.stage:getObjects(Character)) do
+            for _, char in ipairs(self.stage:getObjects(Character)) do
                 if char.actor and (char.actor.id == party:getActor().id) and dealt_amount > 0 then
                     char:statusMessage("damage", dealt_amount)
                 end
@@ -214,9 +216,9 @@ function World:setState(state)
 end
 
 --- Opens the main overworld menu
----@param menu?     LightMenu|DarkMenu  An optional menu instance to open
+---@param menu?     Object  An optional menu instance to open
 ---@param layer?    number  The layer to create the menu on (defaults to `WORLD_LAYERS["ui"]` or `600`)
----@return (DarkMenu|LightMenu)?
+---@return Object?
 function World:openMenu(menu, layer)
     if self:hasCutscene() then return end
     if self:inBattle() then return end
@@ -241,8 +243,8 @@ function World:openMenu(menu, layer)
             end
         elseif self.menu:includes(Component) then
             -- Sigh... traverse the children to find the menu component
-            for _,child in ipairs(self.menu:getComponents()) do
-                if child:includes(AbstractMenuComponent) then
+            for _, child in ipairs(self.menu:getComponents()) do
+                if child:includes(AbstractMenuComponent) then ---@cast child AbstractMenuComponent
                     child.close_callback = function()
                         self:afterMenuClosed()
                     end
@@ -309,7 +311,7 @@ end
 ---@param name  string          The name of the call as it will show in the CELL menu
 ---@param scene string          The cutscene to play when the call is selected
 function World:registerCall(name, scene)
-    table.insert(self.calls, {name, scene})
+    table.insert(self.calls, { name, scene })
 end
 
 --- Replaces a phone call in the Light World CELL menu with another
@@ -317,7 +319,7 @@ end
 ---@param index integer         The index of the call to replace
 ---@param scene string          The cutscene to play when the call is selected
 function World:replaceCall(name, index, scene)
-    self.calls[index] = {name, scene}
+    self.calls[index] = { name, scene }
 end
 
 --- Shows party member health bars
@@ -363,7 +365,7 @@ function World:onKeyPressed(key)
         if key == "s" then
             local save_pos = nil
             if Input.shift() then
-                save_pos = {self.player.x, self.player.y}
+                save_pos = { self.player.x, self.player.y }
             end
             if Game:getConfig("smallSaveMenu") then
                 self:openMenu(SimpleSaveMenu(Game.save_id, save_pos))
@@ -374,7 +376,7 @@ function World:onKeyPressed(key)
             end
         end
         if key == "h" then
-            for _,party in ipairs(Game.party) do
+            for _, party in ipairs(Game.party) do
                 party:heal(math.huge)
             end
         end
@@ -382,7 +384,7 @@ function World:onKeyPressed(key)
             Game.world:hurtParty(math.huge)
         end
         if key == "k" then
-            Game:setTension(Game:getMaxTension() * 2, true)
+            Game:setTension(Game:getMaxTension())
         end
         if key == "n" then
             NOCLIP = not NOCLIP
@@ -418,15 +420,15 @@ end
 ---@return Collider[]
 function World:getCollision(enemy_check)
     local col = {}
-    for _,collider in ipairs(self.map.collision) do
+    for _, collider in ipairs(self.map.collision) do
         table.insert(col, collider)
     end
     if enemy_check then
-        for _,collider in ipairs(self.map.enemy_collision) do
+        for _, collider in ipairs(self.map.enemy_collision) do
             table.insert(col, collider)
         end
     end
-    for _,child in ipairs(self.children) do
+    for _, child in ipairs(self.children) do
         if child.collider and child.solid then
             table.insert(col, child.collider)
         end
@@ -459,6 +461,7 @@ end
 
 --- Starts a cutscene in the world
 ---@overload fun(self: World, id: string, ...)
+---@overload fun(self: World, func: WorldCutsceneFunc, ...)
 ---@param group string  The name of the group the cutscene is a part of
 ---@param id    string  The id of the cutscene 
 ---@param ...   any     Additional arguments that will be passed to the cutscene function
@@ -469,12 +472,12 @@ function World:startCutscene(group, id, ...)
         if type(group) == "string" then
             cutscene_name = group
             if type(id) == "string" then
-                cutscene_name = group.."."..id
+                cutscene_name = group .. "." .. id
             end
         elseif type(group) == "function" then
             cutscene_name = "<function>"
         end
-        error("Attempt to start a cutscene "..cutscene_name.." while already in cutscene "..self.cutscene.id)
+        error("Attempt to start a cutscene " .. cutscene_name .. " while already in cutscene " .. self.cutscene.id)
     end
     if Kristal.Console.is_open then
         Kristal.Console:close()
@@ -495,14 +498,14 @@ function World:stopCutscene()
 end
 
 --- Shows a textbox with the input `text`
----@param text      string|string[]
----@param after?    fun(cutscene: WorldCutscene)    A callback to run when the textbox is closed, receiving the cutscene instance used to display the text
+---@param text      string|string[]|string[][]
+---@param after?    WorldCutsceneFunc        A callback to run when the textbox is closed, receiving the cutscene instance used to display the text
 function World:showText(text, after)
     if type(text) ~= "table" then
-        text = {text}
+        text = { text }
     end
     self:startCutscene(function(cutscene)
-        for _,line in ipairs(text) do
+        for _, line in ipairs(text) do
             cutscene:text(line)
         end
         if after then
@@ -515,11 +518,11 @@ end
 ---@overload fun(self: World, x: number, y: number, chara: string|Actor, party?: string)
 ---@overload fun(self: World, marker: string, chara: string|Actor, party?: string)
 ---@param ... unknown   Arguments detailing how the player spawns
----|"x, y, chara"   # The co-ordinates of the player spawn and the Actor (instance or id) to use for the player
+---|"x, y, chara"   # The coordinates of the player spawn and the Actor (instance or id) to use for the player
 ---|"marker, chara" # The marker name to spawn the player at and the Actor (instance or id) to use for the player
 ---@param party? string The party member ID associated with the player
 function World:spawnPlayer(...)
-    local args = {...}
+    local args = { ... }
 
     local x, y = 0, 0
     local chara = self.player and self.player.actor
@@ -543,7 +546,7 @@ function World:spawnPlayer(...)
     local facing = "down"
 
     if self.player then
-        facing = self.player.facing
+        facing = self.player:getFacing()
         self:removeChild(self.player)
     end
     if self.soul then
@@ -568,7 +571,7 @@ function World:spawnPlayer(...)
         self.camera:setPosition(self.player.x, self.camera.y)
     end
     if self.camera.attached_y then
-        self.camera:setPosition(self.camera.x, self.player.y - (self.player.height * 2)/2)
+        self.camera:setPosition(self.camera.x, self.player.y - (self.player.height * 2) / 2)
     end
 end
 
@@ -580,7 +583,7 @@ function World:getPartyCharacter(party)
         party = Game:getPartyMember(party)
     end
     local char_to_return
-    for _,char in ipairs(Game.stage:getObjects(Character)) do
+    for _, char in ipairs(Game.stage:getObjects(Character)) do
         -- Immediately break the loop and return if we find an explicit party match
         if char.party and char.party.id == party.id then
             return char
@@ -603,7 +606,7 @@ function World:getPartyCharacterInParty(party)
     if self.player and Game:hasPartyMember(self.player:getPartyMember()) and party == self.player:getPartyMember() then
         return self.player
     else
-        for _,follower in ipairs(self.followers) do
+        for _, follower in ipairs(self.followers) do
             if Game:hasPartyMember(follower:getPartyMember()) and party == follower:getPartyMember() then
                 return follower
             end
@@ -613,13 +616,13 @@ end
 
 --- Removes a follower
 ---@param chara string|Follower The `Follower` or the follower's actor id to remove
----@return Follower follower The follower that was removed
+---@return Follower? follower The follower that was removed
 function World:removeFollower(chara)
     local follower_arg = isClass(chara) and chara:includes(Follower)
-    for i,follower in ipairs(self.followers) do
+    for i, follower in ipairs(self.followers) do
         if (follower_arg and follower == chara) or (not follower_arg and follower.actor.id == chara) then
             table.remove(self.followers, i)
-            for j,temp in ipairs(Game.temp_followers) do
+            for j, temp in ipairs(Game.temp_followers) do
                 if temp == follower.actor.id or (type(temp) == "table" and temp[1] == follower.actor.id) then
                     table.remove(Game.temp_followers, j)
                     break
@@ -657,7 +660,7 @@ function World:spawnFollower(chara, options)
         follower = Follower(chara, x, y)
         follower.layer = self.map.object_layer
         if self.player then
-            follower:setFacing(self.player.facing)
+            follower:setFacing(self.player:getFacing())
         end
     end
     if options["x"] or options["y"] then
@@ -670,7 +673,7 @@ function World:spawnFollower(chara, options)
     end
     if options["temp"] == false then
         if options["index"] then
-            table.insert(Game.temp_followers, {follower.actor.id, options["index"]})
+            table.insert(Game.temp_followers, { follower.actor.id, options["index"] })
         else
             table.insert(Game.temp_followers, follower.actor.id)
         end
@@ -684,14 +687,14 @@ function World:spawnFollower(chara, options)
 end
 
 --- Spawns characters in the world for the current party
----@param marker?   string|{x: number, y: number}                               The marker or co-ordinates to spawn the player at
+---@param marker?   string|{x: number, y: number}                               The marker or coordinates to spawn the player at
 ---@param party?    (PartyMember|string)[]                                      A table of party members to spawn (Defaults to [`Game.party`](lua://Game.party))    
 ---@param extra?    (Follower|Actor|string|[Follower|Actor|string,integer])[]   Additional followers to add that are not in the party (defaults to [`Game.temp_followers`](lua://Game.temp_followers))
----@param facing?   "up"|"down"|"left"|"right"                                  The direction the party should be facing when they spawn
+---@param facing?   FacingDirection                                             The direction the party should be facing when they spawn
 function World:spawnParty(marker, party, extra, facing)
-    party = party or Game.party or {"kris"}
+    party = party or Game.party or { "kris" }
     if #party > 0 then
-        for i,chara in ipairs(party) do
+        for i, chara in ipairs(party) do
             if type(chara) == "string" then
                 party[i] = Game:getPartyMember(chara)
             end
@@ -705,16 +708,16 @@ function World:spawnParty(marker, party, extra, facing)
             self.player:setFacing(facing)
         end
         for i = 2, #party do
-            local follower = self:spawnFollower(party[i]:getActor(), {party = party[i].id})
-            follower:setFacing(facing or self.player.facing)
+            local follower = self:spawnFollower(party[i]:getActor(), { party = party[i].id })
+            follower:setFacing(facing or self.player:getFacing())
         end
-        for _,actor in ipairs(extra or Game.temp_followers or {}) do
+        for _, actor in ipairs(extra or Game.temp_followers or {}) do
             if type(actor) == "table" then
-                local follower = self:spawnFollower(actor[1], {index = actor[2]})
-                follower:setFacing(facing or self.player.facing)
+                local follower = self:spawnFollower(actor[1], { index = actor[2] })
+                follower:setFacing(facing or self.player:getFacing())
             else
                 local follower = self:spawnFollower(actor)
-                follower:setFacing(facing or self.player.facing)
+                follower:setFacing(facing or self.player:getFacing())
             end
         end
     end
@@ -759,9 +762,10 @@ function World:spawnNPC(actor, x, y, properties)
 end
 
 --- Spawns an object to the world
----@param obj Object            The object to add to the world
+---@generic T : Object
+---@param obj T                 The object to add to the world
 ---@param layer? string|number  The layer to place the object on
----@return Object
+---@return T
 function World:spawnObject(obj, layer)
     obj.layer = self:parseLayer(layer)
     self:addChild(obj)
@@ -775,7 +779,7 @@ end
 function World:getCharacter(id, index)
     local party_member = Game:getPartyMember(id)
     local i = 0
-    for _,chara in ipairs(Game.stage:getObjects(Character)) do
+    for _, chara in ipairs(Game.stage:getObjects(Character)) do
         if chara.actor.id == id or (party_member and chara.party and chara.party == party_member.id) then
             i = i + 1
             if not index or index == i then
@@ -793,7 +797,7 @@ function World:getActionBox(party_member)
     if type(party_member) == "string" then
         party_member = Game:getPartyMember(party_member)
     end
-    for _,box in ipairs(self.healthbar.action_boxes) do
+    for _, box in ipairs(self.healthbar.action_boxes) do
         if box.chara == party_member then
             return box
         end
@@ -828,7 +832,7 @@ end
 
 --- Disables following for all of the player's current followers
 function World:detachFollowers()
-    for _,follower in ipairs(self.followers) do
+    for _, follower in ipairs(self.followers) do
         follower.following = false
     end
 end
@@ -836,14 +840,14 @@ end
 --- Enables following for all of the player's current followers and causes them to walk to their positions
 ---@param return_speed? number The walking speed of the followers while they return to the player
 function World:attachFollowers(return_speed)
-    for _,follower in ipairs(self.followers) do
+    for _, follower in ipairs(self.followers) do
         follower:updateIndex()
         follower:returnToFollowing(return_speed)
     end
 end
 --- Enables following for all of the player's current followers, and immediately teleports them to their positions
 function World:attachFollowersImmediate()
-    for _,follower in ipairs(self.followers) do
+    for _, follower in ipairs(self.followers) do
         follower.following = true
 
         follower:updateIndex()
@@ -856,21 +860,21 @@ end
 ---@return number
 function World:parseLayer(layer)
     return (type(layer) == "number" and layer)
-            or WORLD_LAYERS[layer]
-            or self.map.layers[layer]
-            or self.map.object_layer
+        or WORLD_LAYERS[layer]
+        or self.map.layers[layer]
+        or self.map.object_layer
 end
 
 --- Sets up several variables for a new map
 ---@param map? Map|string|table The Map object, name, or data to load
 ---@param ... unknown           Additional arguments that will be passed forward into Map:onEnter()
 function World:setupMap(map, ...)
-    for _,child in ipairs(self.children) do
+    for _, child in ipairs(self.children) do
         if not child.persistent then
             self:removeChild(child)
         end
     end
-    for _,child in ipairs(self.controller_parent.children) do
+    for _, child in ipairs(self.controller_parent.children) do
         if not child.persistent then
             self.controller_parent:removeChild(child)
         end
@@ -938,7 +942,7 @@ end
 ---@param callback? fun()       A callback to run once the map has finished loading (Post Map:onEnter())
 ---@param ... unknown           Additional arguments that will be passed forward into Map:onEnter()
 function World:loadMap(...)
-    local args = {...}
+    local args = { ... }
     -- x, y, facing, callback
     local map = table.remove(args, 1)
     local marker, x, y, facing, callback
@@ -971,12 +975,12 @@ function World:loadMap(...)
     if marker then
         self:spawnParty(marker, nil, nil, facing)
     else
-        self:spawnParty({x, y}, nil, nil, facing)
+        self:spawnParty({ x, y }, nil, nil, facing)
     end
 
     self:setState("GAMEPLAY")
 
-    for _,event in ipairs(self.map.events) do
+    for _, event in ipairs(self.map.events) do
         if event.postLoad then
             event:postLoad()
         end
@@ -1010,7 +1014,7 @@ function World:transitionMusic(next, fade_out)
     if music and music ~= "" then
         if self.music.current ~= music then
             if self.music:isPlaying() and fade_out then
-                self.music:fade(0, 10/30, function() self.music:stop() end)
+                self.music:fade(0, 10 / 30, function() self.music:stop() end)
             elseif not fade_out then
                 self.music:play(music, volume, pitch)
             end
@@ -1026,7 +1030,7 @@ function World:transitionMusic(next, fade_out)
     else
         if self.music:isPlaying() then
             if fade_out then
-                self.music:fade(0, 10/30, function() self.music:stop() end)
+                self.music:fade(0, 10 / 30, function() self.music:stop() end)
             else
                 self.music:stop()
             end
@@ -1083,7 +1087,7 @@ end
 ---@param ... any   Additional arguments that will be passed into World:loadMap()
 ---@see World - World:loadMap() 
 function World:mapTransition(...)
-    local args = {...}
+    local args = { ... }
     local map = args[1]
     if type(map) == "string" then
         local map = Registry.createMap(map)
@@ -1097,7 +1101,7 @@ function World:mapTransition(...)
         end
     end
     self:fadeInto(function()
-        self:loadMap(Utils.unpack(args))
+        self:loadMap(TableUtils.unpack(args))
     end)
 end
 
@@ -1149,9 +1153,9 @@ function World:sortChildren()
     Utils.pushPerformance("World#sortChildren")
     Object.startCache()
     local positions = {}
-    for _,child in ipairs(self.children) do
+    for _, child in ipairs(self.children) do
         local x, y = child:getSortPosition()
-        positions[child] = {x = x, y = y}
+        positions[child] = { x = x, y = y }
     end
     table.stable_sort(self.children, function(a, b)
         local a_pos, b_pos = positions[a], positions[b]
@@ -1159,9 +1163,9 @@ function World:sortChildren()
         local bx, by = b_pos.x, b_pos.y
         -- Sort children by Y position, or by follower index if it's a follower/player (so the player is always on top)
         return a.layer < b.layer or
-              (a.layer == b.layer and (math.floor(ay) < math.floor(by) or
-              (math.floor(ay) == math.floor(by) and (b == self.player or
-              (a:includes(Follower) and b:includes(Follower) and b.index < a.index)))))
+            (a.layer == b.layer and (math.floor(ay) < math.floor(by) or
+                (math.floor(ay) == math.floor(by) and (b == self.player or
+                    (a:includes(Follower) and b:includes(Follower) and b.index < a.index)))))
     end)
     Object.endCache()
     Utils.popPerformance()
@@ -1192,21 +1196,21 @@ function World:update()
         local collided = {}
         local exited = {}
         Object.startCache()
-        for _,obj in ipairs(self.children) do
+        for _, obj in ipairs(self.children) do
             if not obj.solid and (obj.onCollide or obj.onEnter or obj.onExit) then
-                for _,char in ipairs(self.stage:getObjects(Character)) do
+                for _, char in ipairs(self.stage:getObjects(Character)) do
                     if obj:collidesWith(char) then
                         if not obj:includes(OverworldSoul) then
-                            table.insert(collided, {obj, char})
+                            table.insert(collided, { obj, char })
                         end
                     elseif obj.current_colliding and obj.current_colliding[char] then
-                        table.insert(exited, {obj, char})
+                        table.insert(exited, { obj, char })
                     end
                 end
             end
         end
         Object.endCache()
-        for _,v in ipairs(collided) do
+        for _, v in ipairs(collided) do
             if v[1].onCollide then
                 v[1]:onCollide(v[2], DT)
             end
@@ -1220,7 +1224,7 @@ function World:update()
                 v[1].current_colliding[v[2]] = true
             end
         end
-        for _,v in ipairs(exited) do
+        for _, v in ipairs(exited) do
             if v[1].onExit then
                 v[1]:onExit(v[2])
             end
@@ -1236,11 +1240,11 @@ function World:update()
 
     local half_alpha = self.battle_alpha * 0.52
 
-    for _,v in ipairs(self.followers) do
+    for _, v in ipairs(self.followers) do
         v.sprite:setColor(1 - half_alpha, 1 - half_alpha, 1 - half_alpha, 1)
     end
 
-    for _,battle_border in ipairs(self.map.battle_borders) do
+    for _, battle_border in ipairs(self.map.battle_borders) do
         battle_border.alpha = self.battle_alpha
     end
     if self.battle_fader then
@@ -1272,7 +1276,7 @@ end
 
 function World:draw()
     -- Draw background
-    Draw.setColor(self.map.bg_color or {0, 0, 0, 0})
+    Draw.setColor(self.map.bg_color or { 0, 0, 0, 0 })
     love.graphics.rectangle("fill", 0, 0, self.map.width * self.map.tile_width, self.map.height * self.map.tile_height)
     Draw.setColor(1, 1, 1)
 
@@ -1281,10 +1285,10 @@ function World:draw()
     self.map:draw()
 
     if DEBUG_RENDER then
-        for _,collision in ipairs(self.map.collision) do
+        for _, collision in ipairs(self.map.collision) do
             collision:draw(0, 0, 1, 0.5)
         end
-        for _,collision in ipairs(self.map.enemy_collision) do
+        for _, collision in ipairs(self.map.enemy_collision) do
             collision:draw(0, 1, 1, 0.5)
         end
     end

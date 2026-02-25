@@ -11,9 +11,9 @@ GonerKeyboard.MODES = {
         step_y = 40,
         name_y = 80,
         keyboard = {
-            {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"},
-            {"K", "L", "M", "N", "O", "P", "Q", "R", "S", "T"},
-            {"U", "V", "W", "X", "Y", "Z", "BACK", "<<", "END", "<<"}
+            { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J" },
+            { "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T" },
+            { "U", "V", "W", "X", "Y", "Z", "BACK", "<<", "END", "<<" }
         }
     },
     ["lowercase"] = {
@@ -23,12 +23,12 @@ GonerKeyboard.MODES = {
         step_y = 40,
         name_y = 80,
         keyboard = {
-            {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"},
-            {"K", "L", "M", "N", "O", "P", "Q", "R", "S", "T"},
-            {"U", "V", "W", "X", "Y", "Z", "<<", "<<", "<<", "<<"},
-            {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"},
-            {"k", "l", "m", "n", "o", "p", "q", "r", "s", "t"},
-            {"u", "v", "w", "x", "y", "z", "BACK", "<<", "END", "<<"}
+            { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J" },
+            { "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T" },
+            { "U", "V", "W", "X", "Y", "Z", "vv", "vv", "vv", "vv" },
+            { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j" },
+            { "k", "l", "m", "n", "o", "p", "q", "r", "s", "t" },
+            { "u", "v", "w", "x", "y", "z", "BACK", "<<", "END", "<<" }
         }
     }
 }
@@ -80,8 +80,8 @@ function GonerKeyboard:setMode(mode)
     end
 
     -- Fill out defaults
-    self.mode = Utils.copy(GonerKeyboard.MODES["default"])
-    Utils.merge(self.mode, mode)
+    self.mode = TableUtils.copy(GonerKeyboard.MODES["default"])
+    TableUtils.merge(self.mode, mode)
 
     local choices = self:createKeyboardChoices(self.mode)
     self.choicer:setChoices(choices)
@@ -95,7 +95,7 @@ function GonerKeyboard:createKeyboardChoices(mode)
         local choice_row = {}
         table.insert(key_choices, choice_row)
         for x, key in ipairs(row) do
-            table.insert(choice_row, {key, mode.x + (x - 1) * mode.step_x, mode.y + (y - 1) * mode.step_y})
+            table.insert(choice_row, { key, mode.x + (x - 1) * mode.step_x, mode.y + (y - 1) * mode.step_y })
         end
     end
     return key_choices
@@ -120,7 +120,7 @@ function GonerKeyboard:onSelect(key, x, y)
         self:undoCharacter()
     elseif key == "END" then
         self:finish()
-    elseif #key > 1 then
+    elseif StringUtils.len(key) > 1 then
         Kristal.Console:warn("Unknown command: " .. key)
     else
         self:addCharacter(key)
@@ -136,13 +136,13 @@ function GonerKeyboard:onComplete(text)
 end
 
 function GonerKeyboard:undoCharacter()
-    if #self.text > 0 then
-        self.text = self.text:sub(1, #self.text - 1)
+    if StringUtils.len(self.text) > 0 then
+        self.text = StringUtils.sub(self.text, 1, StringUtils.len(self.text) - 1)
     end
 end
 
 function GonerKeyboard:addCharacter(key)
-    if self.limit < 0 or #self.text < self.limit then
+    if self.limit < 0 or StringUtils.len(self.text) < self.limit then
         self.text = self.text .. key
     end
 end
@@ -161,7 +161,7 @@ function GonerKeyboard:draw()
 
     love.graphics.setFont(self.font)
 
-    if self.limit >= 0 and #self.text >= self.limit then
+    if self.limit >= 0 and StringUtils.len(self.text) >= self.limit then
         Draw.setColor(1, 1, 0, self.alpha)
     else
         Draw.setColor(1, 1, 1, self.alpha)

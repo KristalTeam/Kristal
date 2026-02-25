@@ -9,7 +9,7 @@ function DarkTransitionSparkle:init(texture, x, y)
     self.friction = 0.05
     self.gravity = -0.1
     self.vspeed = 0
-    self:play(1/15)
+    self:play(1 / 15)
 end
 
 function DarkTransitionSparkle:update()

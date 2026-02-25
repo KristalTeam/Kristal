@@ -1,3 +1,16 @@
+---@class TransitionProperties
+---@field map string? The name of the map to send the player to
+---@field shop string? The name of the shop to send the player to
+---@field x number? The x coordinate the player should appear at in the new map
+---@field y number? The y coordinate the player should appear at in the new map
+---@field marker string? The name of the marker to spawn the player at in the new map
+---@field facing string? The direction the player and party should face when they spawn in the new map
+---@field sound string? An optional sound to play when the player activates this transition
+---@field pitch number? The pitch the entry sound should play at
+---@field exit_delay number? Additional delay after entering the new map before playing the exit sound, in seconds
+---@field exit_sound string? An optional sound to play when entering the new map
+---@field exit_pitch number? The pitch the exit sound should play at
+
 --- This object is used to create transitions in the Overworld to shops or other maps. \
 --- `Transition` is an [`Event`](lua://Event.init) - Naming an object `transition` on an `objects` layer in a map creates this object. \
 --- See this object's Fields for the configurable properties on this object.
@@ -25,6 +38,7 @@
 ---@overload fun(...) : Transition
 local Transition, super = Class(Event)
 
+---@param properties TransitionProperties
 function Transition:init(x, y, shape, properties)
     super.init(self, x, y, shape)
 
@@ -68,7 +82,16 @@ function Transition:onEnter(chara)
         end
 
         if self.target.shop then
-            self.world:shopTransition(self.target.shop, {x=x, y=y, marker=marker, facing=facing, map=self.target.map})
+            self.world:shopTransition(
+                self.target.shop,
+                {
+                    x = x,
+                    y = y,
+                    marker = marker,
+                    facing = facing,
+                    map = self.target.map
+                }
+            )
         elseif self.target.map then
             local callback = function(map)
                 if self.exit_sound then

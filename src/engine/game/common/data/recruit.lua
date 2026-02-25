@@ -60,9 +60,9 @@ function Recruit:init()
 
     self.box_gradient_type = "bright"
 
-    self.box_gradient_color = {1,1,1,1}
+    self.box_gradient_color = { 1, 1, 1, 1 }
 
-    self.box_sprite = {nil, 0, 0, 4/30}
+    self.box_sprite = { nil, 0, 0, 4 / 30 }
 
     self.recruited = 0
 
@@ -82,8 +82,8 @@ end
 
 ---@param data {id: string?, recruited: integer|boolean?, hidden: boolean?}
 function Recruit:load(data)
-    self.recruited = data.recruited or self.recruited
-    self.hidden = data.hidden or self.hidden
+    self.recruited = data.recruited
+    self.hidden = data.hidden
 
     self:onLoad(data)
 end

@@ -16,8 +16,12 @@ function item:init()
     -- Amount healed (HealItem variable)
     if Game.chapter == 1 then
         self.heal_amount = 80
-    else
+    elseif Game.chapter == 2 then
         self.heal_amount = 140
+    elseif Game.chapter == 3 then
+        self.heal_amount = 150
+    elseif Game.chapter >= 4 then
+        self.heal_amount = 160
     end
 
     -- Battle description

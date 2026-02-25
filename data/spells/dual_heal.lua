@@ -24,7 +24,7 @@ function spell:init()
 end
 
 function spell:onCast(user, target)
-    local base_heal = user.chara:getStat("magic") * 5.5
+    local base_heal = user.chara:getStat("magic") * (Game:getConfig("oldDualHealFormula") and 4 or 5.5)
     local heal_amount = Game.battle:applyHealBonuses(base_heal, user.chara)
 
     for _,battler in ipairs(target) do

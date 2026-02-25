@@ -13,7 +13,7 @@ function DarkInventory:init()
         ["armor"]  = "armors",
     }
 
-    self.storage_enabled = Game:getConfig("enableStorage")
+    self.storage_enabled = Game.default_storage_slots > 0
 
     -- Order the storages are converted to the light world
     self.convert_order = {"key_items", "weapons", "armors", "items", "storage"}
@@ -23,11 +23,11 @@ function DarkInventory:clear()
     super.clear(self)
 
     self.storages = {
-        ["items"]     = {id = "items",     max = 12,                       sorted = true,  name = "ITEMs",       fallback = "storage"},
-        ["key_items"] = {id = "key_items", max = 12,                       sorted = true,  name = "KEY ITEMs",   fallback = nil      },
-        ["weapons"]   = {id = "weapons",   max = Game.default_equip_slots, sorted = false, name = "WEAPONs",     fallback = nil      },
-        ["armors"]    = {id = "armors",    max = Game.default_equip_slots, sorted = false, name = "ARMORs",      fallback = nil      },
-        ["storage"]   = {id = "storage",   max = 24,                       sorted = false, name = "STORAGE",     fallback = nil      },
+        ["items"]     = {id = "items",     max = 12,                         sorted = true,  name = "ITEMs",       fallback = "storage"},
+        ["key_items"] = {id = "key_items", max = 12,                         sorted = true,  name = "KEY ITEMs",   fallback = nil      },
+        ["weapons"]   = {id = "weapons",   max = Game.default_equip_slots,   sorted = false, name = "WEAPONs",     fallback = nil      },
+        ["armors"]    = {id = "armors",    max = Game.default_equip_slots,   sorted = false, name = "ARMORs",      fallback = nil      },
+        ["storage"]   = {id = "storage",   max = Game.default_storage_slots, sorted = false, name = "STORAGE",     fallback = nil      },
     }
 
     Kristal.callEvent(KRISTAL_EVENT.createDarkInventory, self)
@@ -58,7 +58,7 @@ function DarkInventory:convertToLight()
     Kristal.callEvent(KRISTAL_EVENT.onConvertToLight, new_inventory)
 
     for _,storage_id in ipairs(self.convert_order) do
-        local storage = Utils.copy(self:getStorage(storage_id))
+        local storage = TableUtils.copy(self:getStorage(storage_id))
         for i = 1, storage.max do
             local item = storage[i]
             if item then

@@ -6,33 +6,6 @@ json = require("src.lib.json")
 
 verbose = false
 
---[[if love.filesystem.getInfo("mods/example/_GENERATED_FROM_MOD_TEMPLATE") then
-    love.filesystem.mount("mod_template/assets", "mods/example/assets")
-    love.filesystem.mount("mod_template/scripts", "mods/example/scripts")
-end]]
-
-function string.split(str, sep, remove_empty)
-    local t = {}
-    local i = 1
-    local s = ""
-    while i <= #str do
-        if str:sub(i, i + (#sep - 1)) == sep then
-            if not remove_empty or s ~= "" then
-                table.insert(t, s)
-            end
-            s = ""
-            i = i + (#sep - 1)
-        else
-            s = s .. str:sub(i, i)
-        end
-        i = i + 1
-    end
-    if not remove_empty or s ~= "" then
-        table.insert(t, s)
-    end
-    return t
-end
-
 function checkExtension(path, ...)
     for _, v in ipairs({ ... }) do
         if path:sub(- #v - 1):lower() == "." .. v then
@@ -98,7 +71,7 @@ local loaders = {
 
     -- Mod Loader
 
-    ["mods"] = { "mods", function (base_dir, path, full_path)
+    ["mods"] = { "mods", function(base_dir, path, full_path)
         local zip_id = checkExtension(path, "zip")
         if zip_id then
             local mounted_path = full_path
@@ -119,7 +92,7 @@ local loaders = {
                     error = mod,
                     file = "mod.json"
                 })
-                print("[WARNING] Mod \"" .. path .. "\" has an invalid mod.json!")
+                print("[WARNING] Project \"" .. path .. "\" has an invalid mod.json!")
                 return
             end
 
@@ -132,21 +105,21 @@ local loaders = {
             end
 
             if love.filesystem.getInfo(full_path .. "/bg.png") then
-                pcall(function () mod.preview_data = { love.image.newImageData(full_path .. "/bg.png") } end)
+                pcall(function() mod.preview_data = { love.image.newImageData(full_path .. "/bg.png") } end)
                 -- To check if the image loaded successfully, check if pcall returned true and mod.preview_data != nil
                 -- Same goes for all the other assignments I changed
             end
 
             if love.filesystem.getInfo(full_path .. "/icon.png") then
-                pcall(function () mod.icon_data = { love.image.newImageData(full_path .. "/icon.png") } end)
+                pcall(function() mod.icon_data = { love.image.newImageData(full_path .. "/icon.png") } end)
             end
 
             if love.filesystem.getInfo(full_path .. "/window_icon.png") then
-                pcall(function () mod.window_icon_data = love.image.newImageData(full_path .. "/window_icon.png") end)
+                pcall(function() mod.window_icon_data = love.image.newImageData(full_path .. "/window_icon.png") end)
             end
 
             if love.filesystem.getInfo(full_path .. "/logo.png") then
-                pcall(function () mod.logo_data = love.image.newImageData(full_path .. "/logo.png") end)
+                pcall(function() mod.logo_data = love.image.newImageData(full_path .. "/logo.png") end)
             end
 
             local music_extensions = { "mp3", "ogg", "wav" }
@@ -176,7 +149,7 @@ local loaders = {
                         if file:sub(1, 2) == "bg" then
                             mod.preview_data = mod.preview_data or {}
                             if img_num then
-                                pcall(function ()
+                                pcall(function()
                                     mod.preview_data[img_num] = love.image.newImageData(full_path ..
                                         "/preview/" .. file)
                                 end)
@@ -184,7 +157,7 @@ local loaders = {
                                 -- A very hacky fix, don't know enough to make a better one
                                 local imageData = nil
                                 -- Only insert if the creation of ImageData actually succeeded
-                                if pcall(function () imageData = love.image.newImageData(full_path .. "/preview/" .. file) end) and imageData then
+                                if pcall(function() imageData = love.image.newImageData(full_path .. "/preview/" .. file) end) and imageData then
                                     table.insert(mod.preview_data, 1,
                                                  love.image.newImageData(full_path .. "/preview/" .. file))
                                 end
@@ -192,13 +165,13 @@ local loaders = {
                         elseif file:sub(1, 4) == "icon" then
                             mod.icon_data = mod.icon_data or {}
                             if img_num then
-                                pcall(function ()
+                                pcall(function()
                                     mod.icon_data[img_num] = love.image.newImageData(full_path ..
                                         "/preview/" .. file)
                                 end)
                             else
                                 local imageData = nil
-                                if (pcall(function ()
+                                if (pcall(function()
                                     imageData = love.image.newImageData(full_path .. "/preview/" ..
                                         file)
                                 end)) and imageData then
@@ -207,7 +180,7 @@ local loaders = {
                                 end
                             end
                         elseif file:sub(1, 4) == "logo" then
-                            pcall(function () mod.logo_data = love.image.newImageData(full_path .. "/preview/" .. file) end)
+                            pcall(function() mod.logo_data = love.image.newImageData(full_path .. "/preview/" .. file) end)
                         end
                     end
                 end
@@ -274,18 +247,17 @@ local loaders = {
 
     -- Asset Loaders
 
-    ["sprites"] = { "assets/sprites", function (base_dir, path, full_path)
+    ["sprites"] = { "assets/sprites", function(base_dir, path, full_path)
         local id = checkExtension(path, "png", "jpg")
         if id then
-            local ok = pcall(function () data.assets.texture_data[id] = love.image.newImageData(full_path) end)
+            local ok = pcall(function() data.assets.texture_data[id] = love.image.newImageData(full_path) end)
             if not ok then
                 error("Image \"" .. path .. "\" is invalid or corrupted!")
             end
             for i = 3, 1, -1 do
                 local num = tonumber(id:sub(-i))
                 local bad_index = (num ~= num) or --NaN check
-                                  (num == 1/0) or
-                                  (num == -1/0)
+                    (num == 1 / 0) or (num == -1 / 0)
                 if num and (not bad_index) then
                     local frame_name = id:sub(1, -i - 1)
                     if frame_name:sub(-1, -1) == "_" then
@@ -298,18 +270,18 @@ local loaders = {
             end
         end
     end },
-    ["fonts"] = { "assets/fonts", function (base_dir, path, full_path)
+    ["fonts"] = { "assets/fonts", function(base_dir, path, full_path)
         local id = checkExtension(path, "ttf")
         if id then
-            pcall(function () data.assets.font_data[id] = love.filesystem.newFileData(full_path) end)
+            pcall(function() data.assets.font_data[id] = love.filesystem.newFileData(full_path) end)
         end
         id = checkExtension(path, "fnt")
         if id then
-            pcall(function () data.assets.font_bmfont_data[id] = full_path end)
+            pcall(function() data.assets.font_bmfont_data[id] = full_path end)
         end
         id = checkExtension(path, "png")
         if id then
-            pcall(function () data.assets.font_image_data[id] = love.image.newImageData(full_path) end)
+            pcall(function() data.assets.font_image_data[id] = love.image.newImageData(full_path) end)
         end
         id = checkExtension(path, "json")
         if id then
@@ -320,14 +292,15 @@ local loaders = {
             data.assets.font_settings[id] = loaded_data
         end
     end },
-    ["sounds"] = { "assets/sounds", function (base_dir, path, full_path)
+    ["sounds"] = { "assets/sounds", function(base_dir, path, full_path)
         local id = checkExtension(path, "wav", "ogg")
         if id then
-            pcall(function () data.assets.sound_data[id] = love.sound.newSoundData(full_path) end)
+            pcall(function() data.assets.sound_data[id] = love.sound.newSoundData(full_path) end)
         end
     end },
-    ["music"] = { "assets/music", function (base_dir, path, full_path)
-        local id = checkExtension(path, "mp3", "wav", "ogg",
+    ["music"] = { "assets/music", function(base_dir, path, full_path)
+        local id = checkExtension(
+            path, "mp3", "wav", "ogg",
             -- TRACKER FORMATS
             "mod", "s3m", "xm", "it", "669", "amf", "ams", "dbm", "dmf", "dsm", "far",
             "mdl", "med", "mtm", "okt", "ptm", "stm", "ult", "umx", "mt2", "psm",
@@ -340,14 +313,14 @@ local loaders = {
             data.assets.music[id] = full_path
         end
     end },
-    ["shaders"] = { "assets/shaders", function (base_dir, path, full_path)
+    ["shaders"] = { "assets/shaders", function(base_dir, path, full_path)
         local id = checkExtension(path, "glsl")
         if id then
             -- TODO: load the shader source code, maybe?
             data.assets.shader_paths[id] = full_path
         end
     end },
-    ["videos"] = { "assets/videos", function (base_dir, path, full_path)
+    ["videos"] = { "assets/videos", function(base_dir, path, full_path)
         local id = checkExtension(path, "ogg", "ogv")
         if id then
             data.assets.videos[id] = full_path
@@ -356,7 +329,7 @@ local loaders = {
             error("\"" .. path .. "\" unsupported - must use Ogg Theora videos.")
         end
     end },
-    ["bubbles"] = { "assets/bubbles", function (base_dir, path, full_path)
+    ["bubbles"] = { "assets/bubbles", function(base_dir, path, full_path)
         local id = checkExtension(path, "json")
         if id then
             local ok, loaded_data = pcall(json.decode, love.filesystem.read(full_path))

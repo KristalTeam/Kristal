@@ -27,7 +27,7 @@ end
 function MirrorArea:drawMirror()
     local to_draw = {}
     for _, obj in ipairs(Game.world.children) do
-        if obj:includes(Character) then
+        if obj:includes(Character) and obj.visible then
             table.insert(to_draw, 1, obj) -- always add to the start of the table, so they render in reverse layer order
         end
     end
@@ -45,19 +45,19 @@ function MirrorArea:drawCharacter(chara)
     local oyd = chara.y - self.bottom
     love.graphics.translate(0, -oyd + self.offset)
     local oldsprite = string.sub(chara.sprite.texture_path, #chara.sprite.path + 2)
-    local t = Utils.split(oldsprite, "_")
+    local t = StringUtils.split(oldsprite, "_")
     local pathless = ""
-	for i=1, #t-1 do
-		pathless = pathless .. "_" .. t[i]
-	end
-	pathless = string.sub(pathless, 2)
-	local frame = t[#t]
+    for i = 1, #t - 1 do
+        pathless = pathless .. "_" .. t[i]
+    end
+    pathless = string.sub(pathless, 2)
+    local frame = t[#t]
     local newsprite = oldsprite
     local mirror = chara.actor:getMirrorSprites()
     if mirror and mirror[pathless] then
         if frame then
-			newsprite = mirror[pathless] .. "_" .. frame
-		end
+            newsprite = mirror[pathless] .. "_" .. frame
+        end
     end
     chara.sprite:setTextureExact(chara.actor.path .. "/" .. newsprite)
     chara:draw()
