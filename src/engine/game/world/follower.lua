@@ -140,7 +140,7 @@ function Follower:interpolateHistory()
 
     local new_facing = Utils.facingFromAngle(Utils.angle(self.x, self.y, target.x, target.y))
     self.history = {
-        { x = target.x, y = target.y, facing = target:getFacing(), time = self.history_time, state = target.state, state_args = target.state_manager.args },
+        { x = target.x, y = target.y, facing = new_facing, time = self.history_time, state = target.state, state_args = target.state_manager.args },
         { x = self.x, y = self.y, facing = new_facing, time = self.history_time - self:getFollowDelay(), state = self.state, state_args = target.state_manager.args }
     }
 end
