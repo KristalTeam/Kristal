@@ -95,7 +95,7 @@ function RecruitMessage:draw()
 
     love.graphics.push()
     love.graphics.origin()
-    love.graphics.translate(self.x, self.y)
+    love.graphics.translate(math.floor(self.x), math.floor(self.y))
     love.graphics.scale(self.stretch_x, self.stretch_y)
     local origin_x, origin_y = self:getOriginExact()
     love.graphics.translate(-origin_x, -origin_y)
