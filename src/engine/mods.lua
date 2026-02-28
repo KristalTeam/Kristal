@@ -69,7 +69,7 @@ function Mods.loadData(data, failed_mods)
         table.insert(self.list, self.data[mod_id])
     end
 
-    Input:loadBinds()
+    Input.loadBinds()
 end
 
 function Mods.sortLibraries(mod)
