@@ -952,7 +952,7 @@ function EnemyBattler:heal(amount, sparkle_color)
 end
 
 --- Freezes this enemy and defeats them with the reason `"FROZEN"` \
---- If this enemy can not be frozen, it acts as if it was defeated though violence
+--- If this enemy can not be frozen, it acts as if it was defeated though violence normally instead
 function EnemyBattler:freeze()
     if not self.can_freeze then
         self:onDefeat()
