@@ -175,8 +175,13 @@ function MainMenuModList:update()
         ---@cast button ModButton
         self.menu.heart_outline.visible = button:isFavorited()
         self.menu.heart_outline:setColor(button:getFavoritedColor())
+        self.menu.heart:setColor(Kristal.getSoulColor())
+        if MainMenu.mod_list:getSelectedMod().soulColor then
+            self.menu.heart:setColor(MainMenu.mod_list:getSelectedMod().soulColor)
+        end
     else
         self.menu.heart_outline.visible = false
+        self.menu.heart:setColor(Kristal.getSoulColor())
     end
 end
 
