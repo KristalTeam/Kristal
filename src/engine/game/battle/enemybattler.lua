@@ -955,7 +955,8 @@ end
 --- If this enemy can not be frozen, it makes them run away instead
 function EnemyBattler:freeze()
     if not self.can_freeze then
-        self:onDefeatRun()
+        self:onDefeat()
+        return
     end
 
     Assets.playSound("petrify")
