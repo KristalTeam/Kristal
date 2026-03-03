@@ -853,6 +853,7 @@ function DebugSystem:registerSubMenus()
                     end
                 end
                 Game.battle:setState("DEFENDINGBEGIN", self.selected_waves)
+                self:closeMenu()
             end
         end,
         nil,
