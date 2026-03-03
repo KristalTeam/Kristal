@@ -264,6 +264,7 @@ function actor:initChapter2()
         ["battle/actend"] = {-2, -6},
         ["battle/actready"] = {-2, -6},
         ["battle/spell"] = {-11, -6},
+        ["battle/spellend"] = {-11, -6},
         ["battle/spellready"] = {-11, -6},
         ["battle/item"] = {-7, -14},
         ["battle/itemready"] = {-7, -14},
