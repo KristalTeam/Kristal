@@ -13,7 +13,7 @@ function TextChoicebox:init(x, y, width, height, default_font, default_font_size
     self.done = false
 
     self.heart = Assets.getTexture("player/heart_menu")
-    
+
     self.choices_text = {}
     self.added_text_boxes = false
     self.typing_choice_text = 0
@@ -26,28 +26,28 @@ function TextChoicebox:update()
     super.update(self)
     if #self.choices > 0 and not self.added_text_boxes then
         self.added_text_boxes = true
-        for _,choice in ipairs(self.choices) do
+        for _, choice in ipairs(self.choices) do
             if string.find(choice, "\n") ~= nil then
                 self.multi_line_mode = true
                 break
             end
         end
-        
+
         for i = (self.multi_line_mode and 2 or 0), 0, -1 do
             table.insert(self.choices_text, DialogueText("", 148, 68 - 36 * i))
             table.insert(self.choices_text, DialogueText("", 340, 68 - 36 * i))
         end
-        for _,text in ipairs(self.choices_text) do
+        for _, text in ipairs(self.choices_text) do
             self:addChild(text)
         end
     end
     if self.added_text_boxes then
         if not self.text:isTyping() then
-            for i,text in ipairs(self.choices_text) do
+            for i, text in ipairs(self.choices_text) do
                 local last_line = i - 1
                 if self.typing_choice_text == last_line and ((i == 1) or not self.choices_text[last_line]:isTyping()) then
                     self.typing_choice_text = i
-                    
+
                     local wait = "[wait:10]"
                     if self.face.texture then
                         text.x = text.x + 2
@@ -63,10 +63,10 @@ function TextChoicebox:update()
                             wait = "[wait:5]"
                         end
                     end
-                    
+
                     local voice = ""
                     if self.actor and self.actor:getVoice() then
-                        voice = "[voice:"..self.actor:getVoice().."]"
+                        voice = "[voice:" .. self.actor:getVoice() .. "]"
                     end
                     if self.multi_line_mode then
                         -- Function to pad a table with empty strings to a specified length
@@ -79,8 +79,8 @@ function TextChoicebox:update()
                         -- Function to interleave lines from two strings and return the combined list
                         local function interleave_lines(str1, str2)
                             -- Split the strings by newline character
-                            local lines1 = Utils.split(str1, "\n")
-                            local lines2 = Utils.split(str2, "\n")
+                            local lines1 = StringUtils.split(str1, "\n")
+                            local lines2 = StringUtils.split(str2, "\n")
 
                             -- Ensure both strings have at least 2 lines by padding with empty strings
                             pad_with_empty(lines1, 2)
@@ -109,20 +109,18 @@ function TextChoicebox:update()
                             return interleaved[line_number] or ""
                         end
                         if get_interleaved_line(self.choices[1], self.choices[2], i) ~= "" then
-                            text:setText(voice..wait..get_interleaved_line(self.choices[1], self.choices[2], i))
+                            text:setText(voice .. wait .. get_interleaved_line(self.choices[1], self.choices[2], i))
                         end
                     else
                         if self.choices[i] and self.choices[i] ~= "" then
-                            text:setText(voice..wait..self.choices[i])
+                            text:setText(voice .. wait .. self.choices[i])
                         end
                     end
                 end
             end
         end
         if not self:isTyping() then
-            local old_choice = self.current_choice
-            
-            if Input.pressed("left")  then self.current_choice = self.current_choice - 1 end
+            if Input.pressed("left") then self.current_choice = self.current_choice - 1 end
             if Input.pressed("right") then self.current_choice = self.current_choice + 1 end
 
             if self.current_choice < 1 then
@@ -181,7 +179,7 @@ end
 
 function TextChoicebox:isTyping()
     local typing = self.text:isTyping()
-    for _,text in ipairs(self.choices_text) do
+    for _, text in ipairs(self.choices_text) do
         if text:isTyping() then
             typing = true
             break
