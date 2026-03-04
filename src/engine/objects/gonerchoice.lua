@@ -35,7 +35,7 @@ function GonerChoice:init(x, y, choices, on_complete, on_select)
     self.soul:setColor(Kristal.getSoulColor())
 
     if Kristal.getState() ~= Game and MainMenu.mod_list:getSelectedMod().soulColor then
-        self.soul:setColor(unpack(MainMenu.mod_list:getSelectedMod().soulColor))
+        self.soul:setColor(MainMenu.mod_list:getSelectedMod().soulColor)
     end
 
     self.soul.alpha = 0.6
