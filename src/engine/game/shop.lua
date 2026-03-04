@@ -236,7 +236,7 @@ function Shop:init()
     self.hide_price = false
 
     self.leave_options = {}
-    
+
     self.hide_world = true
 end
 
