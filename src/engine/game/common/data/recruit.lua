@@ -62,7 +62,7 @@ function Recruit:init()
 
     self.box_gradient_color = { 1, 1, 1, 1 }
 
-    self.box_sprite = { nil, 0, 0, 4 / 30 }
+    self.box_sprite = { nil, 0, 0, 0.25 }
 
     self.recruited = 0
 
