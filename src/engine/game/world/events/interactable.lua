@@ -49,8 +49,8 @@ end
 
 function Interactable:getDebugInfo()
     local info = super.getDebugInfo(self)
-    if self.cutscene then table.insert(info, "Cutscene: " .. self.cutscene) end
-    if self.script then table.insert(info, "Script: " .. self.script) end
+    if self.cutscene then table.insert(info, "Cutscene: True") end
+    if self.script then table.insert(info, "Script: True") end
     if self.set_flag then table.insert(info, "Set Flag: " .. self.set_flag) end
     if self.set_value then table.insert(info, "Set Value: " .. self.set_value) end
     table.insert(info, "Once: " .. (self.once and "True" or "False"))
