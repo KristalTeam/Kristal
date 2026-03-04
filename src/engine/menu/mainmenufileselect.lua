@@ -456,7 +456,7 @@ function MainMenuFileSelect:getHeartPos()
         local button = self:getSelectedFile()
         local hx, hy = button:getHeartPos()
         local x, y = button:getRelativePos(hx, hy)
-        return x + 9, y + ((Kristal.Config["brokenMenuBoxes"] or self.focused_button) and 11 or 13)
+        return x + 9, y + (Kristal.Config["brokenMenuBoxes"] and 11 or 13)
     elseif self.selected_y == 4 then
         return self.bottom_row_heart[self.selected_x] + 9, 390 + 9
     end
