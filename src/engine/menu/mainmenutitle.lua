@@ -53,6 +53,11 @@ function MainMenuTitle:onEnter(old_state)
     if not TARGET_MOD then
         self.menu.selected_mod = nil
         self.menu.selected_mod_button = nil
+    else
+        local mod = Kristal.Mods.getMod(TARGET_MOD)
+        if mod and mod.soulColor then
+            self.menu.heart:setColor(mod.soulColor)
+        end
     end
 
     self.menu.heart_target_x = 229
@@ -68,9 +73,6 @@ function MainMenuTitle:onKeyPressed(key, is_repeat)
         if option == "play" then
             if not TARGET_MOD then
                 self.menu:setState("MODSELECT")
-                if MainMenu.mod_list:getSelectedMod() and MainMenu.mod_list:getSelectedMod().soulColor then
-                    MainMenu.heart.color = MainMenu.mod_list:getSelectedMod().soulColor
-                end
             else
                 local mod = Kristal.Mods.getMod(TARGET_MOD)
 

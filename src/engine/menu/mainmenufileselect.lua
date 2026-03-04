@@ -45,6 +45,11 @@ function MainMenuFileSelect:onEnter(old_state)
 
     self.selected_x = 1
     self.selected_y = 1
+    
+    self.menu.heart:setColor(Kristal.getSoulColor())
+    if MainMenu.mod_list:getSelectedMod().soulColor then
+        self.menu.heart:setColor(MainMenu.mod_list:getSelectedMod().soulColor)
+    end
 
     self.files = {}
     for i = 1, 3 do
@@ -215,9 +220,6 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
                 elseif self.selected_x == 3 then
                     if not TARGET_MOD then
                         self.menu:setState("MODSELECT")
-						if MainMenu.mod_list:getSelectedMod().soulColor then
-							MainMenu.heart.color = MainMenu.mod_list:getSelectedMod().soulColor
-						end
                     else
                         self.menu:setState("TITLE")
                         self.menu.title_screen:selectOption("play")
@@ -454,7 +456,7 @@ function MainMenuFileSelect:getHeartPos()
         local button = self:getSelectedFile()
         local hx, hy = button:getHeartPos()
         local x, y = button:getRelativePos(hx, hy)
-        return x + 9, y + (Kristal.Config["brokenMenuBoxes"] and 11 or 13)
+        return x + 9, y + ((Kristal.Config["brokenMenuBoxes"] or self.focused_button) and 11 or 13)
     elseif self.selected_y == 4 then
         return self.bottom_row_heart[self.selected_x] + 9, 390 + 9
     end
