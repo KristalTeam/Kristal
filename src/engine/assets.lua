@@ -185,9 +185,9 @@ function Assets.parseData(data)
     ---@type {id:string,error:string}[]
     local errors = {}
     for key, shader_path in pairs(data.shader_paths) do
-        local ok, res = pcall(love.graphics.newShader, shader_path)
+        local ok, res = love.graphics.validateShader(true, shader_path)
         if ok then
-            self.data.shaders[key] = res
+            self.data.shaders[key] = love.graphics.newShader(shader_path)
         else
             errors[#errors + 1] = { id = key, error = res }
         end
