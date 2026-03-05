@@ -64,7 +64,7 @@ function Soul:init(x, y, color)
     if color then
         self:setColor(color)
     else
-        self:setColor(1, 0, 0)
+        self:setColor(Game.battle.encounter:getSoulColor())
     end
 
     self.layer = BATTLE_LAYERS["soul"]
