@@ -628,7 +628,7 @@ end
 function Kristal.errorHandler(msg, trace_level)
     if Mod then
         local status, err = pcall(function()
-            Kristal.callEvent(KRISTAL_EVENT.cleanup, true)
+            Kristal.callEvent(KRISTAL_EVENT.cleanup)
         end)
         if not status then
             -- msg = err
@@ -1167,7 +1167,7 @@ function Kristal.clearModState()
     Kristal.LoadedModScripts = {}
     -- End the current mod
     Kristal.callEvent(KRISTAL_EVENT.unload)
-    Kristal.callEvent(KRISTAL_EVENT.cleanup, false)
+    Kristal.callEvent(KRISTAL_EVENT.cleanup)
     Mod = nil
 
     Kristal.Mods.clear()
