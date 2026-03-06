@@ -219,8 +219,14 @@ function Shop:init()
 
     self.font = Assets.getFont("main")
     self.plain_font = Assets.getFont("plain")
+    self.space_font = Assets.getFont(Game:getConfig("shopSpaceUIFont") or "8bit")
     self.heart_sprite = Assets.getTexture("player/heart")
     self.arrow_sprite = Assets.getTexture("ui/page_arrow_down")
+    self.ui_hold_sprite = Assets.getTexture("ui/shop/ui_hold")
+    self.ui_storage_sprite = Assets.getTexture("ui/shop/ui_storage")
+    self.ui_armor_sprite = Assets.getTexture("ui/shop/ui_armor")
+    self.ui_weapon_sprite = Assets.getTexture("ui/shop/ui_weapon")
+    self.ui_pocket_sprite = Assets.getTexture("ui/shop/ui_pocket")
 
     self.stat_icons = {
         ["attack"] = Assets.getTexture("ui/shop/icon_attack"),
@@ -238,6 +244,7 @@ function Shop:init()
     self.leave_options = {}
 
     self.hide_world = true
+    self.hide_main_menu_currency = false
 end
 
 --- A function that runs later than `Shop:init()`, primarily setting up UI elements of the shop. \
@@ -942,15 +949,44 @@ function Shop:draw()
             Draw.setColor(COLORS.white)
 
             if not self.hide_storage_text then
-                love.graphics.setFont(self.plain_font)
-
                 local current_storage = Game.inventory:getDefaultStorage(current_item.item)
-                local space = Game.inventory:getFreeSpace(current_storage)
+                if not Game:getConfig("newShopSpaceUI") then
+                    local space = Game.inventory:getFreeSpace(current_storage)
+                    love.graphics.setFont(self.plain_font)
 
-                if space <= 0 then
-                    love.graphics.print("NO SPACE", 521, 430)
+                    if space <= 0 then
+                        love.graphics.print("NO SPACE", 521, 430)
+                    else
+                        love.graphics.print("Space:" .. space, 521, 430)
+                    end
                 else
-                    love.graphics.print("Space:" .. space, 521, 430)
+                    local item_type = current_item.item.type
+                    
+                    local space = Game.inventory:getFreeSpace(current_storage, false)
+                    local space_count = Game.inventory:getItemCount(current_storage, false)
+                    local total_space = space + space_count
+                    
+                    local storage_space = Game.inventory:getFreeSpace("storage")
+                    local storage_space_count = Game.inventory:getItemCount("storage")
+                    local storage_total_space = storage_space + storage_space_count
+                    
+                    love.graphics.setFont(self.space_font)
+                    if item_type ~= "armor" and item_type ~= "weapon" and item_type ~= "key" then
+                        Draw.draw(self.ui_hold_sprite, 555, 398)
+                        love.graphics.print(string.format("%02d", space_count) .. "/" .. string.format("%02d", total_space), 556, 412, 0, 0.5, 0.5)
+                        Draw.draw(self.ui_storage_sprite, 555, 430)
+                        love.graphics.print(string.format("%02d", storage_space_count) .. "/" .. string.format("%02d", storage_total_space), 556, 444, 0, 0.5, 0.5)
+                    else
+                        love.graphics.print(string.format("%02d", space_count) .. "/" .. string.format("%02d", total_space), 556, 436, 0, 0.5, 0.5)
+                        Draw.draw(self.ui_hold_sprite, 555, 422)
+                        if item_type == "armor" then
+                            Draw.draw(self.ui_armor_sprite, 555, 410)
+                        elseif item_type == "weapon" then
+                            Draw.draw(self.ui_weapon_sprite, 555, 410)
+                        elseif item_type == "key" then
+                            Draw.draw(self.ui_pocket_sprite, 555, 410)
+                        end
+                    end
                 end
             end
         end
@@ -1090,7 +1126,7 @@ function Shop:draw()
         love.graphics.print("Exit", 80, 220 + ((math.max(4, #self.talks) + 1) * 40))
     end
 
-    if self.state == "MAINMENU" or
+    if (self.state == "MAINMENU" and not self:shouldHideMainMenuCurrency()) or
     self.state == "BUYMENU" or
     self.state == "SELLMENU" or
     self.state == "SELLING" or
@@ -1145,6 +1181,12 @@ end
 ---@return boolean Whether the world is hidden.
 function Shop:isWorldHidden()
     return self.hide_world
+end
+
+--- *(Override)* Returns whether the shop should hide the currency while in the MAINMENU state.
+---@return boolean Whether to hide the currency in the MAINMENU state.
+function Shop:shouldHideMainMenuCurrency()
+    return self.hide_main_menu_currency
 end
 
 ---@param key       string
