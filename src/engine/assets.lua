@@ -374,6 +374,8 @@ function Assets.startSound(sound)
         self.sounds[sound]:stop()
         self.sounds[sound]:play()
         return self.sounds[sound]
+    else
+        Kristal.Console:warn("Sound not found: \"" .. sound .. "\"")
     end
     ---@diagnostic disable-next-line: return-type-mismatch
     return nil
@@ -427,6 +429,8 @@ function Assets.playSound(sound, volume, pitch)
             play(volume)
         end
         return src
+    else
+        Kristal.Console:warn("Sound not found: \"" .. sound .. "\"")
     end
     ---@diagnostic disable-next-line: return-type-mismatch
     return nil
