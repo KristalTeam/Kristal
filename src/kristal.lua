@@ -626,6 +626,15 @@ end
 ---@param trace_level integer?
 ---@return function|nil handler The error handler, called every frame instead of the main loop.
 function Kristal.errorHandler(msg, trace_level)
+    if Mod then
+        local status, err = pcall(function()
+            Kristal.callEvent(KRISTAL_EVENT.cleanup)
+        end)
+        if not status then
+            -- msg = err
+        end
+    end
+    
     Draw.reset()
 
     local copy_color = { 1, 1, 1, 1 }
@@ -1158,6 +1167,7 @@ function Kristal.clearModState()
     Kristal.LoadedModScripts = {}
     -- End the current mod
     Kristal.callEvent(KRISTAL_EVENT.unload)
+    Kristal.callEvent(KRISTAL_EVENT.cleanup)
     Mod = nil
 
     Kristal.Mods.clear()
