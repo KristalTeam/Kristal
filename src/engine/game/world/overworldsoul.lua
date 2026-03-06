@@ -75,8 +75,6 @@ function OverworldSoul:update()
 
     local progress = 0
 
-    local tx, ty = sx, sy
-
     if Game.world.player then
         self.x, self.y = Game.world.player:getRelativePos(Game.world.player.actor:getSoulOffset())
         if Game.world.player.battle_alpha > 0 then
