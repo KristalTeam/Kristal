@@ -10,7 +10,7 @@ local OverworldSoul, super = Class(Object)
 function OverworldSoul:init(x, y)
     super.init(self, x, y)
 
-    self:setColor(1, 0, 0)
+    self:setColor(Game:getSoulColor())
 
     self.alpha = 0
 
