@@ -73,26 +73,17 @@ function OverworldSoul:update()
         self.sprite:setColor(1, 1, 1)
     end
 
-    local sx, sy = self.x, self.y
     local progress = 0
-
-    local soul_party = Game:getSoulPartyMember()
-    if soul_party then
-        local soul_character = Game.world:getPartyCharacterInParty(soul_party)
-        if soul_character then
-            sx, sy = soul_character:getRelativePos(soul_character.actor:getSoulOffset())
-        end
-    end
 
     local tx, ty = sx, sy
 
-    if Game.world.player and Game.world.player.battle_alpha > 0 then
-        tx, ty = Game.world.player:getRelativePos(Game.world.player.actor:getSoulOffset())
-        progress = Game.world.player.battle_alpha * 2
+    if Game.world.player then
+        self.x, self.y = Game.world.player:getRelativePos(Game.world.player.actor:getSoulOffset())
+        if Game.world.player.battle_alpha > 0 then
+            progress = Game.world.player.battle_alpha * 2
+        end
     end
 
-    self.x = MathUtils.lerp(sx, tx, progress * 1.5)
-    self.y = MathUtils.lerp(sy, ty, progress * 1.5)
     self.alpha = progress
 
     super.update(self)
