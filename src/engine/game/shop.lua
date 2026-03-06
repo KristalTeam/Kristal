@@ -1363,17 +1363,18 @@ function Shop:buyItem(current_item)
     if (current_item.options["price"] or 0) > self:getMoney() then
         self:setRightText(self.buy_too_expensive_text)
     else
-        -- Decrement the stock
-        if current_item.options["stock"] then
-            current_item.options["stock"] = current_item.options["stock"] - 1
-            self:setFlag(current_item.options["flag"], current_item.options["stock"])
-        end
 
         -- Add the item to the inventory
         local new_item = Registry.createItem(current_item.item.id)
         new_item:load(current_item.item:save())
         local main_storage_full = Game.inventory:isFull(Game.inventory:getDefaultStorage(new_item)["id"], false)
         if Game.inventory:addItem(new_item) then
+            -- Decrement the stock
+            if current_item.options["stock"] then
+                current_item.options["stock"] = current_item.options["stock"] - 1
+                self:setFlag(current_item.options["flag"], current_item.options["stock"])
+            end
+        
             -- Visual/auditorial feedback (did I spell that right?)
             Assets.playSound("locker")
             if main_storage_full then
