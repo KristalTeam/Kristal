@@ -50,6 +50,6 @@
     "damageUnderflowFix": true,      // When disabled, negative enemy damage heals the enemy and displays a negative damage number
     "darkCandyForm": "dark",         // Whether to use Dark Candy or Darker Candy
     "canTossLightWeapons": true,     // Whether light world weapons can be thrown away
-    "newShopSpaceUI": true,          // Whether the shop should use the older text-based display
+    "newShopSpaceUI": true,          // Whether shops use the newer space display with both inventory and storage space
     "shopSpaceUIFont": "8bit"        // The font used for the shop space UI's numbers
 }
