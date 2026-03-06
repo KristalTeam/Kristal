@@ -1372,10 +1372,15 @@ function Shop:buyItem(current_item)
         -- Add the item to the inventory
         local new_item = Registry.createItem(current_item.item.id)
         new_item:load(current_item.item:save())
+        local main_storage_full = Game.inventory:isFull(Game.inventory:getDefaultStorage(new_item)["id"], false)
         if Game.inventory:addItem(new_item) then
             -- Visual/auditorial feedback (did I spell that right?)
             Assets.playSound("locker")
-            self:setRightText(self.buy_text)
+            if main_storage_full then
+                self:setRightText(self.buy_storage_text)
+            else
+                self:setRightText(self.buy_text)
+            end
 
             -- PURCHASE THE ITEM
             -- Remove the money
