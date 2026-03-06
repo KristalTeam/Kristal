@@ -374,7 +374,7 @@ function Assets.startSound(sound)
         self.sounds[sound]:stop()
         self.sounds[sound]:play()
         return self.sounds[sound]
-    elseif not OVERLAY_OPEN then
+    else
         Kristal.Console:warn("Sound not found: \"" .. sound .. "\"")
     end
     return nil
@@ -428,7 +428,7 @@ function Assets.playSound(sound, volume, pitch)
             play(volume)
         end
         return src
-    elseif not OVERLAY_OPEN then
+    else
         Kristal.Console:warn("Sound not found: \"" .. sound .. "\"")
     end
     return nil
