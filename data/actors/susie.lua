@@ -74,6 +74,7 @@ function actor:init(style)
         ["battle/transition"]   = {self.default.."/right_1", 1/15, false},
         ["battle/intro"]        = {"battle/attack", 1/15, true},
         ["battle/victory"]      = {"battle/victory", 1/10, false},
+        ["battle/transition_out"] = {"battle/transition_out", 1/15, false},
 
         ["battle/rude_buster"]  = {"battle/rudebuster", 1/15, false, next="battle/idle"},
 
@@ -87,6 +88,7 @@ function actor:init(style)
 
     if susie_style == 1 then
         self.animations["battle/transition"] = {"bangs_wall_right", 0, true}
+        self.animations["battle/transition_out"] = {"battle/transition_out_bangs", 1/15, false}
     end
 
     -- Tables of sprites to change into in mirrors

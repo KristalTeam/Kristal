@@ -67,6 +67,7 @@ function actor:initChapter1()
         ["battle/transition"]   = {"walk/right_1", 1/15, false},
         ["battle/intro"]        = {"battle/intro", 1/15, false},
         ["battle/victory"]      = {"battle/victory", 1/10, false},
+        ["battle/transition_out"] = {"battle/transition_out", 1/15, false},
 
         -- Cutscene animations
         ["hood"]                = {"hood", 0.25, true},
@@ -203,6 +204,7 @@ function actor:initChapter2()
         ["battle/transition"]   = {"walk/right_1", 1/15, false},
         ["battle/intro"]        = {"battle/intro", 1/15, false},
         ["battle/victory"]      = {"battle/victory", 1/10, false},
+        ["battle/transition_out"] = {"battle/transition_out", 1/15, false},
 
         -- Cutscene animations
         ["jump_fall"]           = {"fall", 1/5, true},

@@ -2835,6 +2835,8 @@ function Battle:updateTransitionOut()
     end
 
     for index, battler in ipairs(self.party) do
+        battler:setAnimation("battle/transition_out")
+
         local target_x, target_y = unpack(self.battler_targets[index])
 
         battler.x = MathUtils.lerp(self.party_beginning_positions[index][1], target_x, self.transition_timer / 10)

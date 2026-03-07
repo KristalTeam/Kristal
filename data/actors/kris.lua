@@ -64,6 +64,7 @@ function actor:init()
         ["battle/transition"]   = {"sword_jump_down", 0.2, true},
         ["battle/intro"]        = {"battle/attack", 1/15, false},
         ["battle/victory"]      = {"battle/victory", 1/10, false},
+        ["battle/transition_out"] = {"battle/transition_out", 1/15, false},
 
         -- Cutscene animations
         ["jump_fall"]           = {"fall", 1/5, true},

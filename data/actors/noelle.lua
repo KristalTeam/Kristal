@@ -60,6 +60,7 @@ function actor:init()
 
         ["battle/transition"]   = {"battle/intro", 1/15, false},
         ["battle/victory"]      = {"battle/victory", 1/10, false},
+        ["battle/transition_out"] = {"battle/transition_out", 1/15, false},
 
         -- Cutscene animations
         ["laugh"]               = {"laugh", 4/30, true},
