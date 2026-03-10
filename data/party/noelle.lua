@@ -105,7 +105,7 @@ function character:init()
     -- Character flags (saved to the save file)
     self.flags = {
         ["iceshocks_used"] = 0,
-        ["boldness"] = -12,
+        ["boldness"] = (Game.chapter >= 2 and 100 or -12),
         ["weird"] = false
     }
 end
