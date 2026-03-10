@@ -105,27 +105,18 @@ function character:init()
     -- Character flags (saved to the save file)
     self.flags = {
         ["iceshocks_used"] = 0,
-        ["boldness"] = -12,
+        ["boldness"] = (Game.chapter >= 2 and 100 or -12),
         ["weird"] = false
     }
 end
 
 function character:getTitle()
-    local prefix = "LV"..self:getLevel().." "
     if self:checkWeapon("thornring") then
-        return prefix.."Ice Trancer\nReceives pain to\nbecome stronger."
+        return "LV" .. self:getLevel() .. " Ice Trancer\nReceives pain to\nbecome stronger."
     elseif self:getFlag("iceshocks_used", 0) > 0 then
-        return prefix.."Frostmancer\nFreezes the enemy."
+        return "LV" .. self:getLevel() .. " Frostmancer\nFreezes the enemy."
     else
         return super.getTitle(self)
-    end
-end
-
-function character:getLevel()
-    if self:checkWeapon("thornring") or self:getFlag("iceshocks_used", 0) > 0 then
-        return super.getLevel(self)
-    else
-        return 1
     end
 end
 
