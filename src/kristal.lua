@@ -1966,8 +1966,8 @@ function Kristal.executeLibScript(lib, path, ...)
         end
         return false
     else
-        local library = Mod.libs[lib]
-        local chunk = library and (library.info.script_chunks[path] or library.info.script_chunks[path .. "/init"])
+        local library = Mod.info.libs[lib]
+        local chunk = library and (library.script_chunks[path] or library.script_chunks[path .. "/init"])
         if not chunk then
             return false
         else
