@@ -62,6 +62,8 @@ function Bullet:init(x, y, texture)
 
     -- Whether to remove this bullet when it goes offscreen (Defaults to `true`)
     self.remove_offscreen = true
+    -- Whether to remove this bullet when it goes outside of the arena (Defaults to `false`)
+    self.remove_outside_of_arena = false
 end
 
 --- Get the graze tension for this bullet.
@@ -176,6 +178,13 @@ function Bullet:update()
         local size = self.width + self.height
         local x, y = self:getScreenPos()
         if x < -size or y < -size or x > SCREEN_WIDTH + size or y > SCREEN_HEIGHT + size then
+            self:remove()
+        end
+    end
+    
+    if self.remove_outside_of_arena then
+        local x, y = self:getScreenPos()
+        if x < Game.battle.arena:getLeft() or x > Game.battle.arena:getRight() or y > Game.battle.arena:getBottom() or y < Game.battle.arena:getTop() then
             self:remove()
         end
     end
