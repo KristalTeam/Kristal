@@ -15,7 +15,7 @@ function actor:init()
 
     -- Color for this actor used in outline areas (optional, defaults to red)
     self.color = {1, 0, 0}
-	
+    
     -- Path to this actor's sprites (defaults to "")
     self.path = "kristal/lancer"
     -- This actor's default sprite or animation, relative to the path (defaults to "")
@@ -44,7 +44,7 @@ function actor:init()
         ["walk/left"] = {0, 0},
         ["walk/right"] = {0, 0},
         ["walk/up"] = {0, 0},
-		
+        
         ["wave"] = {-2, -3},
         ["sleep"] = {-2, 6},
     }
