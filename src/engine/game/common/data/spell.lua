@@ -15,6 +15,8 @@
 ---
 ---@field target string         The target mode of the spell - valid options are `"ally"`, `"party"`, `"enemy"`, `"enemies"`, and `"none"`
 ---
+---@field chara PartyMember?    The party member who owns the spell
+---
 --- Tags that apply to this spell \
 --- Tags are used to identify properties of the spell that can be checked by other pieces of code for certain effects, For example: \
 --- The built in tag `spare_tired` will cause the spell to be highlighted if an enemy is TIRED
