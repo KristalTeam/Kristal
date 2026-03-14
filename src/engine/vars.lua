@@ -24,6 +24,8 @@ FOLLOW_DELAY = 0.4
 
 BATTLE_LAYERS = {
     ["bottom"]         = -1000,
+    ["background"]     = -750,
+    ["darkener"]       = -500,
     ["below_battlers"] = -200,
     ["battlers"]       = -100,
     ["above_battlers"] = 0, --┰-- 0

@@ -55,6 +55,7 @@ function PartyBattler:init(chara, x, y)
 
     self.target_sprite = Sprite("ui/battle/chartarget")
     self.target_sprite:play(10 / 30)
+    self.target_sprite.visible = false
     self:addChild(self.target_sprite)
 
     self.targeted = false
@@ -432,6 +433,18 @@ function PartyBattler:setSprite(sprite, speed, loop, after)
     super.setSprite(self, sprite, speed, loop, after)
 end
 
+--- Show the battler's target sprite to indicate they're being targeted (as long as the target system is enabled.) This is not needed to be called manually in most cases!
+function PartyBattler:showTarget()
+    if (Game:getConfig("targetSystem")) then
+        self.target_sprite.visible = true
+    end
+end
+
+--- Hide the battler's target sprite.
+function PartyBattler:hideTarget()
+    self.target_sprite.visible = false
+end
+
 function PartyBattler:update()
     if self.actor then
         self.actor:onBattleUpdate(self)
@@ -454,19 +467,16 @@ function PartyBattler:update()
         self.sprite.x = 0
     end
 
-    self.target_sprite.visible = false
-    if self:isTargeted() then
-        if (Game:getConfig("targetSystem")) and (Game.battle.state == "ENEMYDIALOGUE") then
-            self.target_sprite.visible = true
-        end
-    elseif self.should_darken then
-        if self.darken_timer < 15 then
-            self.darken_timer = self.darken_timer + DTMULT
-        end
-    else
-        if not self.should_darken then
-            if self.darken_timer > 0 then
-                self.darken_timer = self.darken_timer - (3 * DTMULT)
+    if not self:isTargeted() then
+        if self.should_darken then
+            if self.darken_timer < 15 then
+                self.darken_timer = self.darken_timer + DTMULT
+            end
+        else
+            if not self.should_darken then
+                if self.darken_timer > 0 then
+                    self.darken_timer = self.darken_timer - (3 * DTMULT)
+                end
             end
         end
     end

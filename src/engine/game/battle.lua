@@ -35,6 +35,8 @@
 ---
 ---@field battle_ui                 BattleUI
 ---@field tension_bar               TensionBar
+---@field background                BattleBackground?               The [`BattleBackground`](lua://BattleBackground), if any
+---@field darkener                  BattleDarkener?                 The [`BattleDarkener`](lua://BattleDarkener), if any
 ---
 ---@field arena                     Arena?                          The current [`Arena`](lua://Arena) instance, if any
 ---@field soul                      Soul?                           The current [`Soul`](lua://Soul) instance, if any
@@ -101,7 +103,7 @@ function Battle:init()
     self.ui_select = Assets.newSound("ui_select")
     self.spare_sound = Assets.newSound("spare")
 
-    self.party_beginning_positions = {} -- Only used in TRANSITION, but whatever
+    self.party_beginning_positions = {}
     self.enemy_beginning_positions = {}
 
     self.party_world_characters = {}
@@ -113,7 +115,6 @@ function Battle:init()
     self:createPartyBattlers()
 
     self.intro_timer = 0
-    self.offset = 0
 
     self.transitioned = false
     self.started = false
@@ -206,8 +207,6 @@ function Battle:init()
 
     self.xactions = {}
 
-    self.background_fade_alpha = 0
-
     self.wave_length = 0
     self.wave_timer = 0
 
@@ -216,8 +215,6 @@ function Battle:init()
     self.on_finish_action = nil
 
     self.defending_begin_timer = 0
-
-    self.darkify = false
 end
 
 function Battle:createPartyBattlers()
@@ -274,6 +271,8 @@ function Battle:postInit(state, encounter)
     else
         self.encounter = encounter
     end
+
+    self.background = self.encounter:createBackground()
 
     if Game.world.music:isPlaying() and self.encounter.music then
         self.resume_world_music = true
@@ -485,6 +484,9 @@ end
 --- Called when the [`BattleState`](lua://BattleState) is set to ACTIONSELECT.
 ---@private
 function Battle:onActionSelectState()
+    self:undarken()
+    self:hideTargets()
+
     if self.current_selecting < 1 or self.current_selecting > #self.party then
         self:nextTurn()
         if self.state ~= "ACTIONSELECT" then
@@ -523,6 +525,9 @@ end
 --- Called when the [`BattleState`](lua://BattleState) is changed to ACTIONS.
 ---@private
 function Battle:onActionsState()
+    self:undarken()
+    self:hideTargets()
+
     self.battle_ui:clearEncounterText()
     if self.state_reason ~= "DONTPROCESS" then
         self:tryProcessNextAction()
@@ -600,6 +605,8 @@ end
 --- Called when the [`BattleState`](lua://BattleState) is changed to ENEMYDIALOGUE.
 ---@private
 function Battle:onEnemyDialogueState()
+    self:darken()
+
     self.battle_ui:clearEncounterText()
     self.textbox_timer = 3 * 30
     self.use_textbox_timer = true
@@ -610,6 +617,9 @@ function Battle:onEnemyDialogueState()
         for _, enemy in ipairs(active_enemies) do
             enemy.current_target = enemy:getTarget()
         end
+
+        self:showTargets()
+
         local cutscene_args = { self.encounter:getDialogueCutscene() }
         if #cutscene_args > 0 then
             self:startCutscene(unpack(cutscene_args)):after(function()
@@ -637,6 +647,8 @@ end
 function Battle:onDialogueEndState()
     self.battle_ui:clearEncounterText()
 
+    self:hideTargets()
+
     for i, battler in ipairs(self.party) do
         local action = self.character_actions[i]
         if action and action.action == "DEFEND" then
@@ -651,6 +663,9 @@ end
 --- Called when the [`BattleState`](lua://BattleState) is changed to DEFENDING.
 ---@private
 function Battle:onDefendingState()
+    self:darken()
+    self:hideTargets()
+
     self.wave_length = 0
     self.wave_timer = 0
 
@@ -668,6 +683,9 @@ end
 --- Called when the [`BattleState`](lua://BattleState) is changed to VICTORY.
 ---@private
 function Battle:onVictory()
+    self:undarken()
+    self:hideTargets()
+
     self.current_selecting = 0
 
     if self.tension_bar then
@@ -764,6 +782,9 @@ end
 --- Called when the [`BattleState`](lua://BattleState) is changed to TRANSITIONOUT.
 ---@private
 function Battle:onTransitionOutState()
+    self:undarken()
+    self:hideTargets()
+
     self.current_selecting = 0
 
     if self.tension_bar and self.tension_bar.shown then
@@ -793,6 +814,8 @@ function Battle:onDefendingBeginState()
         return
     end
 
+    self:darken()
+    self:hideTargets()
     self.current_selecting = 0
     self.battle_ui:clearEncounterText()
 
@@ -880,6 +903,19 @@ function Battle:onDefendingBeginState()
     self.defending_begin_timer = 0
 end
 
+--- Called when the [`BattleState`](lua://BattleState) is changed to DEFENDINGEND.
+---@private
+function Battle:onDefendingEndState()
+    self:undarken()
+    self:hideTargets()
+end
+
+--- Called when the [`BattleState`](lua://BattleState) is changed to BATTLETEXT.
+---@private
+function Battle:onBattleTextState()
+    self:undarken()
+end
+
 --- Called when the [`BattleState`](lua://BattleState) is changed via [`Battle:setState()`](lua://Battle.setState).
 ---@param old BattleState
 ---@param new BattleState
@@ -911,6 +947,10 @@ function Battle:onStateChange(old, new, reason)
         self:onTransitionOutState()
     elseif new == "DEFENDINGBEGIN" then
         self:onDefendingBeginState()
+    elseif new == "DEFENDINGEND" then
+        self:onDefendingEndState()
+    elseif new == "BATTLETEXT" then
+        self:onBattleTextState()
     end
 
     if self.state ~= new then
@@ -2710,33 +2750,7 @@ function Battle:update()
         end
     end
 
-    self.offset = self.offset + 1 * DTMULT
-
-    if self.offset > 100 then
-        self.offset = self.offset - 100
-    end
-
     self.pacify_glow_timer = self.pacify_glow_timer + DTMULT
-
-    if (self.state == "ENEMYDIALOGUE") or (self.state == "DEFENDINGBEGIN") or (self.state == "DEFENDING") then
-        self.background_fade_alpha = math.min(self.background_fade_alpha + (0.05 * DTMULT), 0.75)
-        if not self.darkify then
-            self.darkify = true
-            for _, battler in ipairs(self.party) do
-                battler.should_darken = true
-            end
-        end
-    end
-
-    if TableUtils.contains({ "DEFENDINGEND", "ACTIONSELECT", "ACTIONS", "VICTORY", "TRANSITIONOUT", "BATTLETEXT" }, self.state) then
-        self.background_fade_alpha = math.max(self.background_fade_alpha - (0.05 * DTMULT), 0)
-        if self.darkify then
-            self.darkify = false
-            for _, battler in ipairs(self.party) do
-                battler.should_darken = false
-            end
-        end
-    end
 
     -- Always sort
     --self.update_child_list = true
@@ -2816,6 +2830,10 @@ end
 function Battle:updateTransitionOut()
     if not self.battle_ui.animation_done then
         return
+    end
+
+    if self.background ~= nil and not self.background:isFading() then
+        self.background:fadeOut()
     end
 
     local all_enemies = {}
@@ -3008,41 +3026,12 @@ function Battle:drawDebug()
 end
 
 function Battle:draw()
-    if self.encounter.background then
-        self:drawBackground()
-    end
-
-    self.encounter:drawBackground(self.transition_timer / 10)
-
-    Draw.setColor(0, 0, 0, self.background_fade_alpha)
-    love.graphics.rectangle("fill", -20, -20, SCREEN_WIDTH + 40, SCREEN_HEIGHT + 40)
-
     super.draw(self)
 
     self.encounter:draw(self.transition_timer / 10)
 
     if DEBUG_RENDER then
         self:drawDebug()
-    end
-end
-
-function Battle:drawBackground()
-    Draw.setColor(0, 0, 0, self.transition_timer / 10)
-    love.graphics.rectangle("fill", -8, -8, SCREEN_WIDTH + 16, SCREEN_HEIGHT + 16)
-
-    love.graphics.setLineStyle("rough")
-    love.graphics.setLineWidth(1)
-
-    for i = 2, 16 do
-        Draw.setColor(66 / 255, 0, 66 / 255, (self.transition_timer / 10) / 2)
-        love.graphics.line(0, -210 + (i * 50) + math.floor(self.offset / 2), 640, -210 + (i * 50) + math.floor(self.offset / 2))
-        love.graphics.line(-200 + (i * 50) + math.floor(self.offset / 2), 0, -200 + (i * 50) + math.floor(self.offset / 2), 480)
-    end
-
-    for i = 3, 16 do
-        Draw.setColor(66 / 255, 0, 66 / 255, self.transition_timer / 10)
-        love.graphics.line(0, -100 + (i * 50) - math.floor(self.offset), 640, -100 + (i * 50) - math.floor(self.offset))
-        love.graphics.line(-100 + (i * 50) - math.floor(self.offset), 0, -100 + (i * 50) - math.floor(self.offset), 480)
     end
 end
 
@@ -3488,6 +3477,36 @@ function Battle:onKeyPressed(key)
         self:handleActionSelectInput(key)
     elseif self.state == "ATTACKING" then
         self:handleAttackingInput(key)
+    end
+end
+
+--- Darken the battle background & party members.
+function Battle:darken()
+    if self.darkener == nil then
+        self.darkener = self.encounter:createBattleDarkener()
+    end
+end
+
+--- Undarken the battle background & any party members which were darkened.
+function Battle:undarken()
+    if self.darkener then
+        self.darkener:undarken()
+    end
+end
+
+--- Show the target indicators on all currently targeted party members.
+function Battle:showTargets()
+    for _, battler in ipairs(self.party) do
+        if battler:isTargeted() then
+            battler:showTarget()
+        end
+    end
+end
+
+--- Hide the target indicators on all party members.
+function Battle:hideTargets()
+    for _, battler in ipairs(self.party) do
+        battler:hideTarget()
     end
 end
 
