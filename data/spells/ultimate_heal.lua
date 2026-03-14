@@ -59,9 +59,9 @@ end
 
 function spell:getTPCost(chara)
     if Game.chapter == 3 then
-        return 90 - math.min(self.chara:getFlag("ultimateheals_used", 0), 5)
+        return 90 - math.min(chara:getFlag("ultimateheals_used", 0), 5)
     elseif Game.chapter >= 4 then
-        return 80 - math.ceil(math.min(self.chara:getFlag("ultimateheals_used", 0), 15) / 3)
+        return 80 - math.ceil(math.min(chara:getFlag("ultimateheals_used", 0), 15) / 3)
     end
     return super.getTPCost(self, chara)
 end
