@@ -37,6 +37,8 @@ function Spell:init()
     self.usable = true
 
     self.target = "none"
+    
+    self.chara = nil
 
     self.tags = {}
 end

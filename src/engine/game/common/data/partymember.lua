@@ -519,6 +519,7 @@ end
 function PartyMember:addSpell(spell)
     if type(spell) == "string" then
         spell = Registry.createSpell(spell)
+        spell.chara = self
     end
     table.insert(self.spells, spell)
 end
