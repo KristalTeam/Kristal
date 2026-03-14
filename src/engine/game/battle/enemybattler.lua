@@ -439,10 +439,11 @@ function EnemyBattler:onSpareable()
 end
 
 --- Adds (or removes) mercy from this enemy
----@param amount number
-function EnemyBattler:addMercy(amount)
-    if (amount >= 0 and self.mercy >= 100) or (amount < 0 and self.mercy <= 0) then
-        -- We're already at full mercy and trying to add more; do nothing.
+---@param amount number The amount of mercy being added (or removed, if set to negative)
+---@param dontshowatfull boolean If set to `true`, doesn't show mercy messages if the bar is already full (defaults to `false`)
+function EnemyBattler:addMercy(amount, dontshowatfull)
+    if (dontshowatfull and amount >= 0 and self.mercy >= 100) or (amount < 0 and self.mercy <= 0) then
+        -- If we're already at full mercy and trying to add more with the dontshowatfull being set to true, do nothing.
         -- Also do nothing if trying to remove from an empty mercy bar.
         return
     end
