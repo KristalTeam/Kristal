@@ -50,6 +50,13 @@ function spell:getDescription()
     return string.format(super.getDescription(self), self.chara:getName())
 end
 
+function spell:getBattleDescription()
+    if Game.chapter >= 4 then
+        return "Heal\nally"
+    end
+    return super.getBattleDescription(self)
+end
+
 function spell:getTPCost(chara)
     if Game.chapter == 3 then
         return 90 - math.min(self.chara:getFlag("ultimateheals_used", 0), 5)
