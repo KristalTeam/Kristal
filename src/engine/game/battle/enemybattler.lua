@@ -213,8 +213,14 @@ function EnemyBattler:registerAct(name, description, party, tp, highlight, icons
     if type(party) == "string" then
         if party == "all" then
             party = {}
-            for _, battler in ipairs(Game.battle.party) do
-                table.insert(party, battler.chara.id)
+            if Game.battle ~= nil then
+                for _, battler in ipairs(Game.battle.party) do
+                    table.insert(party, battler.chara.id)
+                end
+            else
+                for _, chara in ipairs(Game.party) do
+                    table.insert(party, chara.id)
+                end
             end
         else
             party = { party }
@@ -247,8 +253,14 @@ function EnemyBattler:registerShortAct(name, description, party, tp, highlight, 
     if type(party) == "string" then
         if party == "all" then
             party = {}
-            for _, battler in ipairs(Game.battle.party) do
-                table.insert(party, battler.chara.id)
+            if Game.battle ~= nil then
+                for _, battler in ipairs(Game.battle.party) do
+                    table.insert(party, battler.chara.id)
+                end
+            else
+                for _, chara in ipairs(Game.party) do
+                    table.insert(party, chara.id)
+                end
             end
         else
             party = { party }
@@ -281,8 +293,14 @@ function EnemyBattler:registerActFor(char, name, description, party, tp, highlig
     if type(party) == "string" then
         if party == "all" then
             party = {}
-            for _, battler in ipairs(Game.battle.party) do
-                table.insert(party, battler.chara.id)
+            if Game.battle ~= nil then
+                for _, battler in ipairs(Game.battle.party) do
+                    table.insert(party, battler.chara.id)
+                end
+            else
+                for _, chara in ipairs(Game.party) do
+                    table.insert(party, chara.id)
+                end
             end
         else
             party = { party }
@@ -314,8 +332,14 @@ function EnemyBattler:registerShortActFor(char, name, description, party, tp, hi
     if type(party) == "string" then
         if party == "all" then
             party = {}
-            for _, battler in ipairs(Game.battle.party) do
-                table.insert(party, battler.id)
+            if Game.battle ~= nil then
+                for _, battler in ipairs(Game.battle.party) do
+                    table.insert(party, battler.chara.id)
+                end
+            else
+                for _, chara in ipairs(Game.party) do
+                    table.insert(party, chara.id)
+                end
             end
         else
             party = { party }
@@ -1021,7 +1045,7 @@ function EnemyBattler:defeat(reason, violent)
             self:setRecruitStatus(false)
         end
     end
-    
+
     if self:isRecruitable() and type(self:getRecruitStatus()) == "number" and (self.done_state == "PACIFIED" or self.done_state == "SPARED") then
         self:setRecruitStatus(self:getRecruitStatus() + 1)
         if Game:getConfig("enableRecruits") then
@@ -1034,7 +1058,7 @@ function EnemyBattler:defeat(reason, violent)
             self:setRecruitStatus(true)
         end
     end
-    
+
     Game.battle.money = Game.battle.money + self.money
     Game.battle.xp = Game.battle.xp + self.experience
 
