@@ -516,10 +516,9 @@ end
 
 --- Adds a spell to this party member's set of available spells
 ---@param spell string|Spell
-function PartyMember:addSpell(spell)
+function PartyMember:addSpell(spell, ...)
     if type(spell) == "string" then
-        spell = Registry.createSpell(spell)
-        spell.chara = self
+        spell = Registry.createSpell(spell, self, ...)
     end
     table.insert(self.spells, spell)
 end

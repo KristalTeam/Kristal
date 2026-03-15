@@ -2,8 +2,8 @@
 
 local spell, super = Class(Spell, "_act")
 
-function spell:init()
-    super.init(self)
+function spell:init(chara)
+    super.init(self, chara)
 
     -- Display name
     self.name = "ACT"

@@ -15,8 +15,6 @@
 ---
 ---@field target string         The target mode of the spell - valid options are `"ally"`, `"party"`, `"enemy"`, `"enemies"`, and `"none"`
 ---
----@field chara PartyMember?    The party member who owns the spell
----
 --- Tags that apply to this spell \
 --- Tags are used to identify properties of the spell that can be checked by other pieces of code for certain effects, For example: \
 --- The built in tag `spare_tired` will cause the spell to be highlighted if an enemy is TIRED
@@ -28,7 +26,8 @@
 ---@overload fun(...) : Spell
 local Spell = Class()
 
-function Spell:init()
+---@param chara PartyMember The `PartyMember` who owns the spell
+function Spell:init(chara)
     self.name = "Test Spell"
     self.cast_name = nil
 
@@ -39,8 +38,6 @@ function Spell:init()
     self.usable = true
 
     self.target = "none"
-    
-    self.chara = nil
 
     self.tags = {}
 end
