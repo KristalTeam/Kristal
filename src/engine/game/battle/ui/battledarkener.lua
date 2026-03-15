@@ -23,6 +23,8 @@ function BattleDarkener:init()
     self.dark_amount = 0
 
     self:setParallax(0, 0)
+
+    self.was_dark = false
 end
 
 function BattleDarkener:undarken()
@@ -30,15 +32,22 @@ function BattleDarkener:undarken()
 end
 
 function BattleDarkener:update()
+    super.update(self)
+
     if self.darken then
         -- Darken party members
-        for _, battler in ipairs(Game.battle.party) do
-            battler.should_darken = true
+        if not self.was_dark then
+            self.was_dark = true
+            for _, battler in ipairs(Game.battle.party) do
+                battler.should_darken = true
+            end
         end
 
         self.dark_amount = MathUtils.approach(self.dark_amount, 15, DTMULT)
     else
         -- Undarken party members
+        self.was_dark = false
+
         for _, battler in ipairs(Game.battle.party) do
             battler.should_darken = false
         end
