@@ -106,7 +106,7 @@ end
 
 --- Gets a specific event present in the current map.
 ---@param id string|number  The unique numerical id of an event OR the text id of an event type to get the first instance of.
----@return Event event The event instnace, or `nil` if it was not found. 
+---@return Event event The event instance, or `nil` if it was not found. 
 function WorldCutscene:getEvent(id)
     return self.world.map:getEvent(id)
 end
