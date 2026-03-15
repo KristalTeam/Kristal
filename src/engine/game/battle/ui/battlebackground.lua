@@ -79,9 +79,8 @@ function BattleBackground:drawBackground()
 end
 
 function BattleBackground:draw()
-    super.draw(self)
-
     self:drawBackground()
+    super.draw(self)
 end
 
 return BattleBackground
