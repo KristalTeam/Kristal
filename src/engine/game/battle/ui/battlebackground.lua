@@ -30,6 +30,8 @@ function BattleBackground:init()
 end
 
 function BattleBackground:update()
+    super.update(self)
+
     self.position = self.position + (self.move_speed / 2) * DTMULT
     self.position2 = self.position2 + self.move_speed * DTMULT
 
@@ -66,20 +68,21 @@ end
 
 function BattleBackground:drawBackground()
     -- Draw the black background
-    love.graphics.setColor(0, 0, 0, self.alpha)
+    Draw.setColor(0, 0, 0, self.alpha)
     love.graphics.rectangle("fill", -10, -10, SCREEN_WIDTH + 20, SCREEN_HEIGHT + 20)
 
     -- Draw the background grid
     local background = Assets.getTexture("ui/battle/background")
 
-    love.graphics.setColor(1, 1, 1, self.alpha / 2)
+    Draw.setColor(1, 1, 1, self.alpha / 2)
     Draw.drawWrapped(background, true, true, MathUtils.round(-100 + self.position), MathUtils.round(-100 + self.position))
-    love.graphics.setColor(1, 1, 1, self.alpha)
+    Draw.setColor(1, 1, 1, self.alpha)
     Draw.drawWrapped(background, true, true, MathUtils.round(-200 - self.position2), MathUtils.round(-210 - self.position2))
 end
 
 function BattleBackground:draw()
     self:drawBackground()
+    Draw.setColor(1, 1, 1)
     super.draw(self)
 end
 
