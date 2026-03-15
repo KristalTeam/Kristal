@@ -67,7 +67,7 @@ end
 function BattleBackground:drawBackground()
     -- Draw the black background
     love.graphics.setColor(0, 0, 0, self.alpha)
-    love.graphics.rectangle("fill", -10, -10, SCREEN_WIDTH + 10, SCREEN_HEIGHT + 10)
+    love.graphics.rectangle("fill", -10, -10, SCREEN_WIDTH + 20, SCREEN_HEIGHT + 20)
 
     -- Draw the background grid
     local background = Assets.getTexture("ui/battle/background")
