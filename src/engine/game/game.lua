@@ -667,6 +667,10 @@ end
 ---@param x? number
 ---@param y? number
 function Game:gameOver(x, y)
+    x, y = x or 0, y or 0
+    if Kristal.callEvent(KRISTAL_EVENT.onGameOver, x, y) then
+        return
+    end
     Kristal.hideBorder(0)
 
     self.state = "GAMEOVER"
@@ -675,7 +679,7 @@ function Game:gameOver(x, y)
         child:remove()
     end
 
-    self.gameover = GameOver(x or 0, y or 0)
+    self.gameover = GameOver(x, y)
     self.stage:addChild(self.gameover)
 end
 
