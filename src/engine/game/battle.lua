@@ -411,7 +411,7 @@ function Battle:getState()
 end
 
 --- Returns the current substate of the battle.
----@return BattleSubstate
+---@return BattleSubState
 function Battle:getSubState()
     return self.substate
 end
