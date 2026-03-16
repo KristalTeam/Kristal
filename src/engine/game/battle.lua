@@ -410,6 +410,12 @@ function Battle:getState()
     return self.state
 end
 
+--- Returns the current substate of the battle.
+---@return BattleSubstate
+function Battle:getSubState()
+    return self.substate
+end
+
 ---@private
 ---@return EnemyBattler?
 function Battle:_getEnemyByIndex(index)
