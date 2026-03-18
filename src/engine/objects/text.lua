@@ -91,7 +91,7 @@ Text.COLORS = {
 ---@param w number? The width of the text box. Defaults to the screen size if not specified.
 ---@param h number? The height of the text box. Defaults to the screen size if not specified.
 ---@param options TextSettings? The text's settings.
----@overload fun(text: string|string[], x: number, y: number, options: TextSettings?): Text
+---@overload fun(text: string, x: number, y: number, options: TextSettings?): Text
 function Text:init(text, x, y, w, h, options)
     if type(w) == "table" then
         options = w --[[@as TextSettings]]
