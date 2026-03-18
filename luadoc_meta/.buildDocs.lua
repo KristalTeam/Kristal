@@ -48,6 +48,7 @@ export.makeDocObject['variable'] = function(source, obj, has_seen)
     if #obj.defines > 1 then
 
         local desc = ""
+        local rawdesc = ""
         local sets = 0
         local canonical_definition = 0
 
@@ -56,6 +57,7 @@ export.makeDocObject['variable'] = function(source, obj, has_seen)
             if ( string.len(v.desc or "") > string.len(desc) ) then
                 canonical_definition = k
                 desc = v.desc
+                rawdesc = v.rawdesc
             end
             if v.desc then
                 sets = sets + 1
@@ -63,7 +65,7 @@ export.makeDocObject['variable'] = function(source, obj, has_seen)
         end
         if(canonical_definition ~= 0) then
             print("var assignment has more likely alternate definition, prioritizing it:")
-            print(obj.name, desc, canonical_definition, obj.defines[canonical_definition])
+            print(obj.name, desc, rawdesc, canonical_definition, obj.defines[canonical_definition])
             table.insert(obj.defines, 1,
                 table.remove(obj.defines, canonical_definition)
             )
@@ -125,8 +127,8 @@ function export.documentObject(source, has_seen)
         end
     end
     local obj = old_export_documentObject(source, has_seen)
-    if type(obj) == 'table' and obj.rawdesc then
-        obj.rawdesc = nil
-    end
+    --if type(obj) == 'table' and obj.rawdesc then
+    --    obj.rawdesc = nil
+    --end
     return obj
 end
