@@ -2,11 +2,15 @@
 ---
 ---@class DialogueText : Text
 ---@field actor? Actor 
+---@field state DialogueTextState
 ---@overload fun(...) : DialogueText
 local DialogueText, super = Class(Text)
 
 --- The list of built-in modifiers that DialogueText supports, in addition to the standard Text commands, and any custom ones.
 DialogueText.COMMANDS = { "voice", "noskip", "speed", "instant", "stopinstant", "wait", "func", "talk", "sound", "next" }
+
+---@class DialogueTextState : TextState
+---@field typing_sound string? The sound to play when typing characters.
 
 ---@param text string|string[] The text to display. Can be a string, or an array of strings for sequential lines.
 ---@param x number The X position of the text.

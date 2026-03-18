@@ -2,6 +2,12 @@
 ---
 --- If you're looking for text which writes itself out over time, see [`DialogueText`](lua://DialogueText).
 ---@class Text : Object
+---
+---@field text string The raw text string, with modifiers.
+---@field display_text string The displayed text, without modifiers.
+---@field nodes TextNode[] The text nodes.
+---@field state TextState The current state of the text, used for processing modifiers and drawing the text.
+---
 ---@overload fun(...) : Text
 local Text, super = Class(Object)
 
@@ -536,7 +542,7 @@ end
 
 --- Draws to the text canvas.
 ---@param func function The function which draws to the canvas.
----@param clear boolean Whether to clear the canvas before drawing.
+---@param clear boolean? Whether to clear the canvas before drawing.
 ---@protected
 function Text:drawToCanvas(func, clear)
     Draw.pushCanvas(self.canvas, { stencil = false })

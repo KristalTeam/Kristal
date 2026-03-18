@@ -740,7 +740,7 @@ end
 ---@field font love.Font?
 ---@field get_prefix (fun(prefix:"single"|"start"|"end"|"middle"):string)?
 ---@field print fun(text:string, x:number, y:number)?
----@field cursor_color [number, number, number, number?]? # The color of the cursor.
+---@field cursor_color Color? # The color of the cursor.
 
 --- Draw the current text input, with the cursor.
 ---@param options TextInput.drawOptions? # The options table. While optional, it won't be very pretty by default.
