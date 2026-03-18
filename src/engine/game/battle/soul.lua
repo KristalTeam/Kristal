@@ -55,9 +55,9 @@
 ---@overload fun(x?:number, y?:number, color?: table) : Soul
 local Soul, super = Class(Object)
 
----@param x?        number
----@param y?        number
----@param color?    table
+---@param x? number
+---@param y? number
+---@param color? Color
 function Soul:init(x, y, color)
     super.init(self, x, y)
 

@@ -1085,11 +1085,11 @@ end
 ---
 --- Returns the values of an RGB table individually.
 ---
----@param color number[] # An RGB(A) table.
----@return number r      # The red value of the color.
----@return number g      # The green value of the color.
----@return number b      # The blue value of the color.
----@return number a      # The alpha value of the color, or 1 if it was not specified.
+---@param color Color # An RGB(A) table.
+---@return number r # The red value of the color.
+---@return number g # The green value of the color.
+---@return number b # The blue value of the color.
+---@return number a # The alpha value of the color, or 1 if it was not specified.
 ---
 function Utils.unpackColor(color)
     return color[1], color[2], color[3], color[4] or 1

@@ -174,8 +174,8 @@ end
 ---
 --- Converts a hex color string to an RGBA color table.
 ---
----@param color string   # The hex string to convert to RGBA.
----@return number[] rgba # The converted RGBA table.
+---@param color string # The hex string to convert to RGBA.
+---@return Color rgba # The converted RGBA table.
 ---
 function ColorUtils.hexToRGB(color)
     local hex_string = color
@@ -239,8 +239,8 @@ end
 --- Ensures a color has an alpha value. If the color already has an alpha value, it is returned unchanged.
 --- If it does not have an alpha value, an alpha value of 1 is added.
 ---
----@param color number[]   # The color to ensure has an alpha value.
----@return number[] rgba   # The color, with an alpha value.
+---@param color Color # The color to ensure has an alpha value.
+---@return Color rgba # The color, with an alpha value.
 function ColorUtils.ensureAlpha(color)
     return { color[1], color[2], color[3], color[4] or 1 }
 end

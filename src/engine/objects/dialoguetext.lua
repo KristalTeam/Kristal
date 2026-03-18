@@ -1,13 +1,23 @@
+--- The DialogueText object displays text letter-by-letter.
+---
 ---@class DialogueText : Text
 ---@field actor? Actor 
 ---@overload fun(...) : DialogueText
 local DialogueText, super = Class(Text)
 
+--- The list of built-in modifiers that DialogueText supports, in addition to the standard Text commands, and any custom ones.
 DialogueText.COMMANDS = { "voice", "noskip", "speed", "instant", "stopinstant", "wait", "func", "talk", "sound", "next" }
 
+---@param text string|string[] The text to display. Can be a string, or an array of strings for sequential lines.
+---@param x number The X position of the text.
+---@param y number The Y position of the text.
+---@param w number? The width of the text box. Defaults to the screen size if not specified.
+---@param h number? The height of the text box. Defaults to the screen size if not specified.
+---@param options TextSettings? The text's settings.
+---@overload fun(text: string|string[], x: number, y: number, options: TextSettings?): Text
 function DialogueText:init(text, x, y, w, h, options)
     if type(w) == "table" then
-        options = w
+        options = w --[[@as TextSettings?]]
         w, h = SCREEN_WIDTH, SCREEN_HEIGHT
     end
     options = options or {}
@@ -22,7 +32,7 @@ function DialogueText:init(text, x, y, w, h, options)
     end
     self.fast_skipping_timer = 0
     self.played_first_sound = false
-    super.init(self, text, x or 0, y or 0, w or SCREEN_WIDTH, h or SCREEN_HEIGHT, options)
+    super.init(self, text[1], x or 0, y or 0, w or SCREEN_WIDTH, h or SCREEN_HEIGHT, options)
     self.skippable = true
     self.skip_speed = false
     self.talk_sprite = nil
@@ -82,13 +92,16 @@ function DialogueText:processInitialNodes()
     )
 end
 
-function DialogueText:setText(text, callback, line_callback)
+---@param text string|string[] The text to display. Can be a string, or an array of strings for sequential lines.
+---@param advance_callback? fun() A function to call when the text is advanced (Either by player inpute, or by auto-advance) at the end of the text.
+---@param line_callback? fun(line: integer) A function to call when a new line is set.
+function DialogueText:setText(text, advance_callback, line_callback)
     for _, sprite in ipairs(self.sprites) do
         sprite:remove()
     end
     self.sprites = {}
 
-    self.advance_callback = callback or nil
+    self.advance_callback = advance_callback or nil
     self.line_callback = line_callback or nil
     if self.line_callback then
         self.line_callback(self.line_index)
@@ -145,6 +158,8 @@ function DialogueText:setText(text, callback, line_callback)
     end
 end
 
+--- Advances the text to the next line, if there is one. Otherwise, marks the text as done and calls the advance callback if there is one.
+--- If the text is already done, does nothing.
 function DialogueText:advance()
     self.line_index = self.line_index + 1
     if #self.text_table <= 1 then
@@ -398,10 +413,16 @@ function DialogueText:addFunction(id, func)
     end
 end
 
+--- Whether or not the text is currently typing out characters letter-by-letter for the current line.
+---@return boolean is_typing Whether the text is currently typing out characters letter-by-letter for the current line.
 function DialogueText:isTyping()
     return self.state.typing
 end
 
+--- Whether or not the text is done. The text must be advanced past the last line for it to be considered done.
+---
+--- For whether the text is currently displaying all of its characters, see [`DialogueText:isTyping()`](lua://DialogueText.isTyping).
+---@return boolean Whether the text has finished displaying all lines.
 function DialogueText:isDone()
     return self.done
 end

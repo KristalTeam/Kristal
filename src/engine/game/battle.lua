@@ -2991,10 +2991,10 @@ function Battle:updateShortActText()
     end
 end
 
----@param string    string
----@param x         number
----@param y         number
----@param color?    table
+---@param string string
+---@param x number
+---@param y number
+---@param color? Color
 function Battle:debugPrintOutline(string, x, y, color)
     color = color or { love.graphics.getColor() }
     Draw.setColor(0, 0, 0, 1)

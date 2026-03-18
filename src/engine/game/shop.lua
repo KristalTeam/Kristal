@@ -674,27 +674,27 @@ function Shop:replaceItem(index, item, options)
 end
 
 --- Registers a talk topic that will appear in the TALK submenu.
----@param talk      string                              The name of the topic.
----@param color?    [number, number, number, number?]   The color that the topic name will appear as. Defaults to white.
+---@param talk string The name of the topic.
+---@param color? Color The color that the topic name will appear as. Defaults to white.
 function Shop:registerTalk(talk, color)
     table.insert(self.talks, { talk, { color = color or COLORS.white } })
 end
 
 --- Replaces one talk topic with another.
----@param talk      string                              The name of the topic.
----@param index     integer                             The index that will be replaced with this topic.
----@param color?    [number, number, number, number?]   The color that the topic name will appear as. Defaults to yellow.
+---@param talk string The name of the topic.
+---@param index integer The index that will be replaced with this topic.
+---@param color? Color The color that the topic name will appear as. Defaults to yellow.
 function Shop:replaceTalk(talk, index, color)
     self.talks[index] = { talk, { color = color or COLORS.yellow } }
 end
 
 --- Registers a talk topic that will appear in the TALK submenu when specific conditions are met. \
 --- By default, the new topic will appear after the current topic at `index` has been chosen once.
----@param talk      string                              The name of the topic.
----@param index     integer                             The index that will be replaced with this topic.
----@param flag?     string                              The name of the flag that will be checked against to determine when the topic should be replaced.
----@param value?    any                                 The value the flag should be at for the topic to be replaced.
----@param color?    [number, number, number, number?]   The color that the topic name will appear as. Defaults to yellow.
+---@param talk string The name of the topic.
+---@param index integer The index that will be replaced with this topic.
+---@param flag? string The name of the flag that will be checked against to determine when the topic should be replaced.
+---@param value? any The value the flag should be at for the topic to be replaced.
+---@param color? Color The color that the topic name will appear as. Defaults to yellow.
 function Shop:registerTalkAfter(talk, index, flag, value, color)
     table.insert(self.talk_replacements, { index, { talk, { flag = flag or ("talk_" .. tostring(index)), value = value, color = color or COLORS.yellow } } })
 end

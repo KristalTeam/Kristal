@@ -41,11 +41,11 @@
 ---@field lw_weapon_default string
 ---@field lw_armor_default  string
 ---
----@field color             table?
----@field dmg_color         table?
----@field attack_bar_color  table?
----@field attack_box_color  table?
----@field xact_color        table?
+---@field color Color?
+---@field dmg_color Color?
+---@field attack_bar_color Color?
+---@field attack_box_color Color?
+---@field xact_color Color?
 ---
 ---@field menu_icon     string
 ---@field head_icons    string

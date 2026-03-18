@@ -5,8 +5,11 @@
 ---@overload fun(...) : Text
 local Text, super = Class(Object)
 
+--- The default modifiers which exist. Can be extended with the `registerTextCommands` event.
 Text.COMMANDS = { "color", "font", "style", "shake", "wave", "image", "bind", "button", "offset", "indent", "spacing" }
 
+--- The default colors available for text modifiers. Can be extended with the `onTextColor` event.
+---@type table<string, Color>
 Text.COLORS = {
     ["red"] = COLORS.red,
     ["blue"] = COLORS.blue,
@@ -20,15 +23,78 @@ Text.COLORS = {
     ["lime"] = { 0.5, 1, 0.5 }
 }
 
+--- A class representing a "text node".
+---@class TextNode
+---@field type string The type of the node, either "character" or "modifier".
+---@field character string The character to display, if the node is a character node.
+---@field command string The command of the modifier, if the node is a modifier node.
+---@field arguments table The arguments of the modifier, if the node is a modifier node.
+
+--- A class representing the current state of the text, used for processing modifiers and drawing the text.
+---@class TextState
+---@field color Color The current color of the text.
+---@field font string The current font of the text.
+---@field font_size number? The current font size of the text, or nil if using the default size for the font.
+---@field style string The current style of the text.
+---@field current_x number The current X position of the text cursor.
+---@field current_y number The current Y position of the text cursor.
+---@field typed_characters integer The number of characters that have been typed out so far.
+---@field typed_string string The string of characters that have been typed out so far.
+---@field progress number The progress of the text being typed out.
+---@field current_node integer The index of the current node being processed in the text.
+---@field typing boolean Whether the text is currently being typed out.
+---@field talk_anim boolean Whether the text should use the talking animation when being typed out.
+---@field speed number The speed multiplier for typing out the text.
+---@field waiting number The amount of time the text should wait before continuing to type out more characters.
+---@field skipping boolean Whether the text is currently being skipped.
+---@field indent_string string The string to use for indented lines.
+---@field indent_mode boolean Whether the text is currently in indent mode (i.e. the current line starts with the indent_string).
+---@field indent_length integer The length of the current indent, used for auto-indenting wrapped lines.
+---@field escaping boolean Whether the text is currently escaping a character (i.e. the last character was a backslash, so the next character should be treated as a normal character even if it's normally a modifier character).
+---@field noskip boolean Whether the text can be skipped or not.
+---@field spacing number Additional spacing to add between characters when typing out the text.
+---@field shake number The intensity of the shake effect to apply to the text.
+---@field last_shake number The last time the shake effect was applied, used to prevent applying the shake effect too frequently.
+---@field wave_distance number The distance of the wave effect to apply to the text.
+---@field wave_offset number The offset of the wave effect to apply to the text.
+---@field wave_speed number The speed of the wave effect to apply to the text.
+---@field wave_direction number The direction of the wave effect to apply to the text, in radians.
+---@field offset_x number The X offset to apply to the text.
+---@field offset_y number The Y offset to apply to the text.
+---@field newline boolean Whether the current node is a newline or not, used to prevent applying certain modifiers to newlines.
+---@field max_width number The maximum width of the text, used for alignment and auto-sizing.
+---@field max_height number The maximum height of the text, used for auto-sizing.
+---@field current_line integer The current line number of the text being processed.
+---@field line_lengths table<integer, number> A table mapping line numbers to their lengths in pixels, used for alignment.
+
+---@class TextSettings
+---@field font string? The font to use. Defaults to "main".
+---@field font_size number? The size of the font to use. Uses the default size for the font if not specified.
+---@field color Color? The color of the text. Defaults to white.
+---@field style string? The style of the text. Can be "none", "menu", "dark", "dark_menu", "GONER", or any custom style registered with the `onDrawText` event. Defaults to "none".
+---@field wrap boolean? Whether to wrap text that exceeds the width of the text box. Defaults to true.
+---@field align string? The alignment of the text. Can be "left", "center", or "right". Defaults to "left".
+---@field line_offset number? The amount of pixels to add between lines. Defaults to 0.
+---@field auto_size boolean? Whether to automatically resize the text box to fit the text. Defaults to false.
+---@field indent_string string? The string to use for indented lines. Defaults to "* ".
+---@field preprocess boolean? Whether to preprocess the text to calculate line breaks and alignment before drawing. This can be set to false if you don't care about alignment or wrapping,
+
+---@param text string The text to display.
+---@param x number The X position of the text.
+---@param y number The Y position of the text.
+---@param w number? The width of the text box. Defaults to the screen size if not specified.
+---@param h number? The height of the text box. Defaults to the screen size if not specified.
+---@param options TextSettings? The text's settings.
+---@overload fun(text: string|string[], x: number, y: number, options: TextSettings?): Text
 function Text:init(text, x, y, w, h, options)
     if type(w) == "table" then
-        options = w
+        options = w --[[@as TextSettings]]
         w, h = SCREEN_WIDTH, SCREEN_HEIGHT
     end
 
     super.init(self, x, y, w or SCREEN_WIDTH, h or SCREEN_HEIGHT)
 
-    options = options or {}
+    options = options or {} --[[@as TextSettings]]
 
     self.sprites = {}
 
@@ -42,9 +108,11 @@ function Text:init(text, x, y, w, h, options)
     self.font_size = options["font_size"] or nil
     self.text_color = options["color"] or { 1, 1, 1, 1 }
     self.style = options["style"] or "none"
+
     if self:isStyleAnimated(self.style) then
         self.draw_every_frame = true
     end
+
     self.wrap = options["wrap"] ~= false
     self.align = options["align"] or "left"
     self.canvas = love.graphics.newCanvas(w, h)
@@ -94,6 +162,8 @@ function Text:onAddToStage(stage)
     end
 end
 
+--- Processes the initial text nodes.
+---@protected
 function Text:processInitialNodes()
     self:drawToCanvas(
         function()
@@ -107,6 +177,7 @@ function Text:processInitialNodes()
     )
 end
 
+--- Resets the TextState to the default values. Used when setting new text.
 function Text:resetState()
     self.state = {
         color = self.text_color,
@@ -166,6 +237,8 @@ function Text:update()
     super.update(self)
 end
 
+--- Sets the text to display. This may be slow if called frequently, so please set text with caution.
+---@param text string The text to display.
 function Text:setText(text)
     for _, sprite in ipairs(self.sprites) do
         sprite:remove()
@@ -208,18 +281,26 @@ function Text:setText(text)
     end
 end
 
+--- Returns the current font.
+---@return love.Font
 function Text:getFont()
     return Assets.getFont(self.state.font, self.state.font_size)
 end
 
+--- Gets the width of the text.
+---@return number width The width of the text.
 function Text:getTextWidth()
     return self.preprocess and self.text_width or self.state.max_width
 end
 
+--- Gets the height of the text.
+---@return number height The height of the text.
 function Text:getTextHeight()
     return self.preprocess and self.text_height or self.state.max_height
 end
 
+--- Converts a string of text into text nodes.
+---@protected
 function Text:textToNodes(input_string)
     -- Very messy function to split text into text nodes.
 
@@ -453,6 +534,10 @@ function Text:textToNodes(input_string)
     return nodes, display_text
 end
 
+--- Draws to the text canvas.
+---@param func function The function which draws to the canvas.
+---@param clear boolean Whether to clear the canvas before drawing.
+---@protected
 function Text:drawToCanvas(func, clear)
     Draw.pushCanvas(self.canvas, { stencil = false })
     Draw.pushScissor()
@@ -467,6 +552,10 @@ function Text:drawToCanvas(func, clear)
     Draw.popCanvas()
 end
 
+--- Processes a text node. If `dry` is true, the node will be processed without actually drawing anything, used for calculating text size and alignment.
+---@param node TextNode The node to process.
+---@param dry boolean Whether to process the node without drawing anything, used for calculating text size and alignment.
+---@protected
 function Text:processNode(node, dry)
     local font = self:getFont()
     if node.type == "character" then
@@ -507,7 +596,7 @@ function Text:processNode(node, dry)
             --print("INSERTING " .. node.character .. " AT " .. self.state.current_x .. ", " .. self.state.current_y)
             if not dry then
                 local cloned = self:cloneState(self.state)
-                self:drawChar(node, cloned)
+                self:drawChar(node, cloned, false)
                 table.insert(self.nodes_to_draw, { node, cloned })
             end
             local w, h = self:getNodeSize(node, self.state)
@@ -519,7 +608,7 @@ function Text:processNode(node, dry)
             if node.character == "\\" or node.character == StringUtils.sub(self.state.indent_string, 1, 1) or node.character == "[" or node.character == "]" then
                 if not dry then
                     local cloned = self:cloneState(self.state)
-                    self:drawChar(node, cloned)
+                    self:drawChar(node, cloned, false)
                     table.insert(self.nodes_to_draw, { node, cloned })
                 end
                 local w, h = self:getNodeSize(node, self.state)
@@ -718,6 +807,11 @@ function Text:getCharPosition(node, state)
     return state.current_x + state.offset_x, state.current_y + state.offset_y
 end
 
+--- Draws a character from a TextNode and a TextState.
+--- This is where all the styling happens, as well as the `onDrawText` event.
+---@param node TextNode The TextNode to draw.
+---@param state TextState The TextState to draw with.
+---@param use_color boolean Whether to use the draw color as the base color instead of white.
 function Text:drawChar(node, state, use_color)
     local font = Assets.getFont(state.font, state.font_size)
     local scale = Assets.getFontScale(state.font, state.font_size)
@@ -766,13 +860,11 @@ function Text:drawChar(node, state, use_color)
 
         if white then
             love.graphics.setShader(shader)
-            shader:sendColor("from", white and COLORS.dkgray or state.color)
-            shader:sendColor("to", white and COLORS.navy or state.color)
-            --Draw.setColor(cr, cg, cb, ca * (white and 1 or 0.3))
-            local mult = white and 1 or 0.3
-            Draw.setColor(cr * mult, cg * mult, cb * mult, ca)
+            shader:sendColor("from", COLORS.dkgray)
+            shader:sendColor("to", COLORS.navy)
+
+            Draw.setColor(cr, cg, cb, ca)
         else
-            --Draw.setColor(mr, mg, mb, ma * 0.3)
             Draw.setColor(mr * 0.3, mg * 0.3, mb * 0.3, ma)
         end
         Draw.draw(canvas, x + 1, y + 1)
@@ -780,7 +872,7 @@ function Text:drawChar(node, state, use_color)
         if not white then
             love.graphics.setShader(shader)
             shader:sendColor("from", COLORS.white)
-            shader:sendColor("to", white and COLORS.white or state.color)
+            shader:sendColor("to", state.color)
         else
             love.graphics.setShader(last_shader)
         end
@@ -814,14 +906,23 @@ function Text:drawChar(node, state, use_color)
     end
 end
 
+--- Checks whether a text style is animated or not.
+---@param style string The style to check.
+---@return boolean is_animated Whether the style is animated or not.
 function Text:isStyleAnimated(style)
     return style == "GONER" or Kristal.callEvent(KRISTAL_EVENT.isTextStyleAnimated, style, self)
 end
 
+--- An override function for processing a text style.
+---@param style string The style to process.
+---@return boolean handled Whether the style was handled or not.
 function Text:processStyle(style)
     return false
 end
 
+--- A helper function to check if a string in a modifier is a "true" value.
+---@param text string The text to check.
+---@return boolean is_true Whether the text is a "true" value or not.
 function Text:isTrue(text)
     text = string.lower(text)
     return (text == "true") or (text == "1") or (text == "yes") or (text == "on")

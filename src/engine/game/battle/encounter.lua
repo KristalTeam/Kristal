@@ -309,9 +309,9 @@ end
 
 --- *(Override)* Creates the soul being used this battle (Called at the start of the first wave)
 --- *By default, returns the regular (red) soul.*
----@param x         number  The x-coordinate the soul should spawn at.
----@param y         number  The y-coordinate the soul should spawn at.
----@param color?    table   A custom color for the soul, that should override its default.
+---@param x number The x-coordinate the soul should spawn at.
+---@param y number The y-coordinate the soul should spawn at.
+---@param color? Color A custom color for the soul, that should override its default.
 ---@return Soul
 function Encounter:createSoul(x, y, color)
     return Soul(x, y, color)

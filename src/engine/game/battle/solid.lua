@@ -5,10 +5,10 @@
 ---
 ---@field squish_damage integer
 ---
----@field color         table?      The color this solid will be drawn as (Defaults to `{0, 0.75, 0}`, the color of the arena border)
+---@field color Color? The color this solid will be drawn as (Defaults to `{0, 0.75, 0}`, the color of the arena border)
 ---
----@field collider      Collider    The collider used for this solid's collision
----@field draw_collider boolean     Whether the collider will be drawn filled in
+---@field collider Collider The collider used for this solid's collision
+---@field draw_collider boolean Whether the collider will be drawn filled in
 ---
 ---@overload fun(filled?:boolean, x?:number, y?:number, width?:number, height?:number) : Solid
 local Solid, super = Class(Object)

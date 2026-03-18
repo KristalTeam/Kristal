@@ -14,7 +14,7 @@
 ---
 --- The color of the object in the form {R, G, B}. \
 --- The values of R, G, and B are between 0 and 1.
----@field color table
+---@field color {[1]: number, [2]: number, [3]: number}
 ---
 ---@field alpha    number  The alpha transparency of the object, between 0 (invisible) and 1 (fully visible).
 ---@field scale_x  number  The horizontal scale of the object.
@@ -719,16 +719,16 @@ end
 function Object:getScale() return self.scale_x, self.scale_y end
 
 --- Sets the object's `color` and `alpha` values to the specified color.
----@overload fun(self:Object, color:{r:number, g:number, b:number, a?:number})
----@param r  number The red value to set for the object's `color`.
----@param g  number The green value to set for the object's `color`.
----@param b  number The blue value to set for the object's `color`.
+---@overload fun(self: Object, color: Color)
+---@param r number The red value to set for the object's `color`.
+---@param g number The green value to set for the object's `color`.
+---@param b number The blue value to set for the object's `color`.
 ---@param a? number The value to set `alpha` to. (Doesn't change alpha if unspecified)
 ---@diagnostic disable-next-line: undefined-doc-param
 ---@param color table The value to set `color` to. Can optionally define a 4th value to set alpha.
 function Object:setColor(r, g, b, a)
     if type(r) == "table" then
-        r, g, b, a = unpack(r)
+        r, g, b, a = unpack(r --[[@as Color]])
     end
     self.color = { r, g, b }
     self.alpha = a or self.alpha
