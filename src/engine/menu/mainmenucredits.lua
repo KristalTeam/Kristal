@@ -2,7 +2,7 @@
 ---
 ---@field menu MainMenu
 ---
----@field pages {[1]: string, [2]: creditsline[], [3]: creditsline[]|nil}[]
+---@field pages {[1]: string, [2]: creditsline[], [3]: creditsline[]?}[]
 ---
 ---@field selected_page number
 ---@field scroll_direction string

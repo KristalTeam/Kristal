@@ -16,7 +16,7 @@
 ---@field submit_callback fun()? # A callback that is called when the input is submitted.
 ---@field up_limit_callback fun()? # A callback that is called when the cursor reaches the top of the input.
 ---@field down_limit_callback fun()? # A callback that is called when the cursor reaches the bottom of the input.
----@field pressed_callback (fun(key:string):boolean|nil)? # A callback that is called when a key is pressed.
+---@field pressed_callback (fun(key:string):boolean?)? # A callback that is called when a key is pressed.
 ---@field text_callback fun(text:string)? # A callback that is called when text is inputted.
 ---
 ---@field multiline boolean # Whether this input is multiline.

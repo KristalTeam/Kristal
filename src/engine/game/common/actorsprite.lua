@@ -155,7 +155,7 @@ end
 --- Sets the sprite to either a texture or an animation \
 --- If the current actor has an animation with a name matching `name`, it will be passed into [`ActorSprite:setAnimation()`](lua://ActorSprite.setAnimation). \
 --- Otherwise, it will be passed into [`ActorSprite:setSprite()`](lua://ActorSprite.setSprite).
----@param name                      string|nil
+---@param name                      string?
 ---@param callback?                 fun(sprite: ActorSprite)
 ---@param ignore_actor_callback?    boolean
 function ActorSprite:set(name, callback, ignore_actor_callback)

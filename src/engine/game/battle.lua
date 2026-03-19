@@ -3175,7 +3175,7 @@ end
 ---@param item              table
 ---@param default_ally?     PartyBattler
 ---@param default_enemy?    EnemyBattler
----@return PartyBattler[]|EnemyBattler[]|nil
+---@return PartyBattler[]|EnemyBattler[]?
 function Battle:getTargetForItem(item, default_ally, default_enemy)
     if not item:getTarget() or item:getTarget() == "none" then
         return nil

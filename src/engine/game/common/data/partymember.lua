@@ -626,7 +626,7 @@ end
 
 --- *(Override)* Checks whether this party member is able to equip a specific item \
 --- *By default, calls [`item:canEquip()`](lua://Item.canEquip) to check equippability, and rejects trying to unequip the item if the slot type is `"weapon"`*
----@param item          Item|nil
+---@param item          Item?
 ---@param slot_type     string?
 ---@param slot_index    integer?
 ---@return boolean

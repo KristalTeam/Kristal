@@ -45,17 +45,17 @@
 ---@field origin_exact boolean Whether the object's origin is measured as a ratio of its `width` and `height`, or in exact pixels. (Defaults to false)
 --- The horizontal scale origin of the object. \
 --- Scale origin overrides the object's origin, and defines where the object will scale from.
----@field scale_origin_x number|nil
+---@field scale_origin_x number?
 --- The vertical scale origin of the object. \
 --- Scale origin overrides the object's origin, and defines where the object will scale from.
----@field scale_origin_y number|nil
+---@field scale_origin_y number?
 ---@field scale_origin_exact boolean Whether the object's scale origin is measured as a ratio of its `width` and `height`, or in exact pixels. (Defaults to false)
 --- The horizontal rotation origin of the object. \
 --- Rotation origin overrides the object's origin, and defines where the object will rotate from.
----@field rotation_origin_x number|nil
+---@field rotation_origin_x number?
 --- The vertical rotation origin of the object. \
 --- Rotation origin overrides the object's origin, and defines where the object will rotate from.
----@field rotation_origin_y number|nil
+---@field rotation_origin_y number?
 ---@field rotation_origin_exact boolean Whether the object's rotation origin is measured as a ratio of its `width` and `height`, or in exact pixels. (Defaults to false)
 ---
 --- The horizontal camera origin of the object. (Defaults to 0.5) \
@@ -69,24 +69,24 @@
 --- How much an object's position will be affected by the camera horizontally. \
 --- A value of 1 means it fully moves with the camera (aka default behavior), and a value of 0 means it will not move at all when the camera moves. \
 --- Parallax will only affect an object if its parent has a camera.
----@field parallax_x number|nil
+---@field parallax_x number?
 --- How much an object's position will be affected by the camera vertically. \
 --- A value of 1 means it fully moves with the camera (aka default behavior), and a value of 0 means it will not move at all when the camera moves. \
 --- Parallax will only affect an object if its parent has a camera.
----@field parallax_y number|nil
+---@field parallax_y number?
 ---@field parallax_origin_x number The horizontal position on the object's parent that the object's parallax will orient around.
 ---@field parallax_origin_y number The vertical position on the object's parent that the object's parallax will orient around.
----@field camera Camera|nil A camera instance that will automatically move and scale the object and its children. Should be `nil` for most objects.
+---@field camera Camera? A camera instance that will automatically move and scale the object and its children. Should be `nil` for most objects.
 ---
----@field cutout_left number|nil The amount of pixels to cut from the left of the object when drawing.
----@field cutout_top number|nil The amount of pixels to cut from the top of the object when drawing.
----@field cutout_right number|nil The amount of pixels to cut from the right of the object when drawing.
----@field cutout_bottom number|nil The amount of pixels to cut from the bottom of the object when drawing.
+---@field cutout_left number? The amount of pixels to cut from the left of the object when drawing.
+---@field cutout_top number? The amount of pixels to cut from the top of the object when drawing.
+---@field cutout_right number? The amount of pixels to cut from the right of the object when drawing.
+---@field cutout_bottom number? The amount of pixels to cut from the bottom of the object when drawing.
 ---
 ---@field draw_fx table A list of all DrawFX that are being applied to the object.
 ---
 ---@field debug_select boolean Whether the object can be selected by the Object Selection debug feature. (Defaults to true)
----@field debug_rect table|nil Defines the rectangle used for selecting the object with the Object Selection debug feature.
+---@field debug_rect table? Defines the rectangle used for selecting the object with the Object Selection debug feature.
 ---
 ---@field timescale number A multiplier that determines the speed at which the object updates.
 ---
@@ -96,27 +96,27 @@
 --- All children of an object will draw at the same visual layer as the parent. In other words, a child cannot render above an object that is higher than its parent, even if its own layer is higher.
 ---@field layer number
 ---
----@field collider Collider|nil A Collider class used to check collision with other objects.
+---@field collider Collider? A Collider class used to check collision with other objects.
 ---@field collidable boolean Whether the object should be able to collide with other objects.
 ---
 ---@field active boolean Whether the object should update itself and its children.
 ---@field visible boolean Whether the object should draw itself and its children.
 ---
----@field draw_children_below number|nil If defined, children with a layer less than this value will be drawn underneath the object.
----@field draw_children_above number|nil If defined, children with a layer greater than this value will be drawn above the object.
+---@field draw_children_below number? If defined, children with a layer less than this value will be drawn underneath the object.
+---@field draw_children_above number? If defined, children with a layer greater than this value will be drawn above the object.
 ---
 ---@field _dont_draw_children boolean *(Used internally)* Whether the object should draw its children or not.
 ---
 ---@field update_child_list boolean *(Used internally)* If true, the object will re-sort its children list.
 ---@field children_to_remove table *(Used internally)* A list of children for the object to remove next time it updates.
 ---
----@field parent Object|nil The object's parent.
+---@field parent Object? The object's parent.
 ---@field children table A list of all of this object's children.
 ---
 ---@field world           World?
 ---@field persistent      boolean
 ---
----@overload fun(x?:number, y?:number, width?:number, height?:number) : Object
+---@overload fun(x:number?, y:number?, width:number?, height:number?) : Object
 local Object = Class()
 
 Object.LAYER_SORT = function(a, b) return a.layer < b.layer end
@@ -175,6 +175,10 @@ function Object.uncacheFull(obj)
     end
 end
 
+---@param x number?
+---@param y number?
+---@param width number?
+---@param height number?
 function Object:init(x, y, width, height)
     -- Intitialize this object's position (optional args)
     self.x = x or 0
@@ -380,7 +384,7 @@ end
 ---@class graphics_table
 ---@field fade           number       The amount the object's alpha should approach its target value, per frame at 30FPS.
 ---@field fade_to        number       The target alpha to approach.
----@field fade_callback  function|nil A function that will be called when the object's alpha reaches its target value.
+---@field fade_callback  function? A function that will be called when the object's alpha reaches its target value.
 ---@field grow_x         number       The amount the object's `scale_x` will increase, per frame at 30FPS.
 ---@field grow_y         number       The amount the object's `scale_y` will increase, per frame at 30FPS.
 ---@field grow           number       The amount the object's `scale_x` and `scale_y` will increase, per frame at 30FPS.
@@ -950,10 +954,10 @@ function Object:setLayer(layer)
 end
 
 --- Sets the object's `cutout` values to the specified cutout.
----@param left   number|nil The value to set `cutout_left` to.
----@param top    number|nil The value to set `cutout_top` to.
----@param right  number|nil The value to set `cutout_right` to.
----@param bottom number|nil The value to set `cutout_bottom` to.
+---@param left   number? The value to set `cutout_left` to.
+---@param top    number? The value to set `cutout_top` to.
+---@param right  number? The value to set `cutout_right` to.
+---@param bottom number? The value to set `cutout_bottom` to.
 function Object:setCutout(left, top, right, bottom)
     self.cutout_left = left
     self.cutout_top = top
@@ -962,10 +966,10 @@ function Object:setCutout(left, top, right, bottom)
 end
 
 --- Returns the object's `cutout` values.
----@return number|nil The `cutout_left` value of the object.
----@return number|nil The `cutout_top` value of the object.
----@return number|nil The `cutout_right` value of the object.
----@return number|nil The `cutout_bottom` value of the object.
+---@return number? The `cutout_left` value of the object.
+---@return number? The `cutout_top` value of the object.
+---@return number? The `cutout_right` value of the object.
+---@return number? The `cutout_bottom` value of the object.
 function Object:getCutout()
     return self.cutout_left, self.cutout_top, self.cutout_right, self.cutout_bottom
 end
@@ -1037,10 +1041,10 @@ function Object:getDirection()
 end
 
 --- Returns the dimensions of the object's `collider` if that collider is a Hitbox.
----@return number|nil x The `x` position of the collider, relative to the object.
----@return number|nil y The `y` position of the collider, relative to the object.
----@return number|nil width The `width` of the collider, in pixels.
----@return number|nil height The `height` of the collider, in pixels.
+---@return number? x The `x` position of the collider, relative to the object.
+---@return number? y The `y` position of the collider, relative to the object.
+---@return number? width The `width` of the collider, in pixels.
+---@return number? height The `height` of the collider, in pixels.
 function Object:getHitbox()
     local collider = self.collider
     if collider and collider:includes(Hitbox) then
@@ -1219,7 +1223,7 @@ function Object:getRelativePosFor(other)
     end
 end
 
----@return Object|nil stage The object's highest parent.
+---@return Object? stage The object's highest parent.
 function Object:getStage()
     if self.parent and self.parent.parent then
         return self.parent:getStage()
@@ -1270,7 +1274,7 @@ end
 
 --- Returns a DrawFX added to the object.
 ---@param id string|Class|DrawFX A string referring to the ID of a DrawFX, the class type that a DrawFX includes, or a DrawFX instance.
----@return DrawFX|nil fx A DrawFX instance if the object has one that matches the ID, or `nil` otherwise.
+---@return DrawFX? fx A DrawFX instance if the object has one that matches the ID, or `nil` otherwise.
 function Object:getFX(id)
     if isClass(id) then
         for _, fx in ipairs(self.draw_fx) do
@@ -1289,7 +1293,7 @@ end
 
 --- Removes the specified DrawFX from the object.
 ---@param id string|Class|DrawFX A string referring to the ID of a DrawFX, the class type that a DrawFX includes, or a DrawFX instance.
----@return DrawFX|nil fx The removed DrawFX instance if the object has one that matches the ID, or `nil` otherwise.
+---@return DrawFX? fx The removed DrawFX instance if the object has one that matches the ID, or `nil` otherwise.
 function Object:removeFX(id)
     local fx = self:getFX(id)
     if fx then
@@ -1483,7 +1487,7 @@ end
 ---@param dont_remove? boolean Whether the object should not be removed.
 ---@param options? table Additional properties.
 ---| "play_sound" # Whether it should play the sound. (Defaults to true)
----@return Explosion|nil
+---@return Explosion?
 function Object:explode(x, y, dont_remove, options)
     if self.parent then
         options = options or {}

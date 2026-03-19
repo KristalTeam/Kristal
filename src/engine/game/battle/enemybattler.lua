@@ -60,7 +60,7 @@
 ---@field defeated          boolean             Whether this enemy has been defeated
 ---
 ---@field temporary_mercy           number              The current amount of temporary mercy
----@field temporary_mercy_percent   DamageNumber|nil    The DamageNumber object, used to update the mercy display
+---@field temporary_mercy_percent   DamageNumber?    The DamageNumber object, used to update the mercy display
 ---
 ---@field target_x                  number?
 ---@field target_y                  number?

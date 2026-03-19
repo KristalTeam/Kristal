@@ -293,7 +293,7 @@ end
 ---@param amount number
 ---@param move_y number
 ---@return boolean
----@return Arena|nil
+---@return Arena?
 function Soul:moveXExact(amount, move_y)
     local sign = MathUtils.sign(amount)
     for i = sign, amount, sign do
@@ -348,7 +348,7 @@ end
 ---@param amount number
 ---@param move_x number
 ---@return boolean
----@return Arena|nil
+---@return Arena?
 function Soul:moveYExact(amount, move_x)
     local sign = MathUtils.sign(amount)
     for i = sign, amount, sign do

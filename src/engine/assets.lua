@@ -10,7 +10,7 @@
 ---@field sound_instances table<string, love.Source[]>
 ---@field quads table<string, love.Quad>
 ---
----@field saved_data table|nil
+---@field saved_data table?
 ---
 local Assets = {}
 local self = Assets

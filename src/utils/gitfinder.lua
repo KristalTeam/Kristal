@@ -17,7 +17,7 @@ GitFinder.is_probing_info_possible = GitFinder.is_git_repo and git_file.type == 
 
 -- Retrieves the engine's current commit (revision), if it was cloned as a Git repo. \
 -- May fail if the engine is not a Git repo, the repo is broken, etc.
----@return string|nil commit The SHA-1 hash for the current commit, or nil in case of failure
+---@return string? commit The SHA-1 hash for the current commit, or nil in case of failure
 function GitFinder:fetchCurrentCommit()
     if not GitFinder.is_probing_info_possible then return end
 
@@ -38,7 +38,7 @@ function GitFinder:fetchCurrentCommit()
 end
 
 -- Returns the first 7 characters of engine's current commit (revision).
----@return string|nil commit nil in case of failure
+---@return string? commit nil in case of failure
 function GitFinder:fetchTrimmedCommit()
     if not GitFinder.is_probing_info_possible then return end
 

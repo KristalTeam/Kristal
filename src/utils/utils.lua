@@ -1693,9 +1693,9 @@ end
 ---
 --- Returns a series of values used to determine the behavior of a flag property for a Tiled event.
 ---
----@param flag string|nil     # The name of the flag property.
----@param inverted string|nil # The name of the property used to determine if the flag should be inverted.
----@param value string|nil    # The name of the property used to determine what the flag's value should be compared to.
+---@param flag string?     # The name of the flag property.
+---@param inverted string? # The name of the property used to determine if the flag should be inverted.
+---@param value string?    # The name of the property used to determine what the flag's value should be compared to.
 ---@param default_value any   # If a property for the `value` name is not found, the value will be this instead.
 ---@param properties table    # The properties table of a Tiled event's data.
 ---@return string flag        # The name of the flag to check.
@@ -1917,8 +1917,8 @@ end
 ---@generic V
 ---@param table table<K,V>
 ---@param index? K
----@return K|nil
----@return V|nil
+---@return K?
+---@return V?
 ---@see http://lua-users.org/wiki/SortedIteration
 function Utils.orderedNext(table, index)
     local key = nil

@@ -24,9 +24,9 @@ Draw._scissor_stack = {}
 Draw._shader_stack = {}
 
 ---@class Draw.canvasOptions
----@field clear boolean|nil
----@field stencil boolean|nil
----@field keep_transform boolean|nil
+---@field clear boolean?
+---@field stencil boolean?
+---@field keep_transform boolean?
 
 ---@overload fun(options?: Draw.canvasOptions) : love.Canvas
 ---@overload fun(canvas: love.Canvas, options?: Draw.canvasOptions) : love.Canvas

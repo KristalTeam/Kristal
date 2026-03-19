@@ -27,7 +27,7 @@ end
 --- Adds an item to this inventory, sending it to it's [default storage](lua://Inventory.getDefaultStorage)
 ---@param item              Item|string
 ---@param ignore_convert?   boolean
----@return Item|nil
+---@return Item?
 function Inventory:addItem(item, ignore_convert)
     if type(item) == "string" then
         item = Registry.createItem(item)
@@ -41,7 +41,7 @@ end
 ---@param index?            integer
 ---@param item              Item|string
 ---@param allow_fallback?   boolean
----@return Item|nil
+---@return Item?
 function Inventory:addItemTo(storage, index, item, allow_fallback)
     ---@diagnostic disable param-type-mismatch
     if type(index) ~= "number" then
@@ -102,8 +102,8 @@ end
 ---@param storage           string|table
 ---@param index?            integer         The minimum index to check
 ---@param allow_fallback?   boolean         Whether the fallback storage will be checked if the current target storage is full
----@return string|nil   id      The id of the storage with an open slot
----@return integer|nil  index   The index of the open slot
+---@return string?   id      The id of the storage with an open slot
+---@return integer?  index   The index of the open slot
 function Inventory:getNextIndex(storage, index, allow_fallback)
     allow_fallback = (allow_fallback == nil and self.storage_enabled) or allow_fallback
     if type(storage) == "string" then
@@ -123,7 +123,7 @@ end
 
 --- Removes an item from this inventory
 ---@param item string|Item
----@return Item|nil
+---@return Item?
 function Inventory:removeItem(item)
     local stored = self.stored_items[item]
     if type(item) == "string" then
@@ -140,7 +140,7 @@ end
 --- Removes the item at `index` of a specific storage in this inventory
 ---@param storage string|table
 ---@param index? integer
----@return Item|nil
+---@return Item?
 function Inventory:removeItemFrom(storage, index)
     if type(storage) == "string" then
         storage = self:getStorage(storage)
@@ -165,7 +165,7 @@ end
 ---@param storage?  string|table
 ---@param index?    integer
 ---@param item?     string|Item
----@return Item|nil
+---@return Item?
 function Inventory:setItem(storage, index, item)
     if type(storage) == "string" then
         storage = self:getStorage(storage)
@@ -217,8 +217,8 @@ end
 
 --- Gets the storage and index an item is stored at in this inventory, if it exists
 ---@param item string|Item
----@return table|nil storage
----@return integer|nil index
+---@return table? storage
+---@return integer? index
 function Inventory:getItemIndex(item)
     if type(item) == "string" then
         for k,v in pairs(self.stored_items) do
@@ -237,7 +237,7 @@ end
 --- Replaces one item in the inventory with another
 ---@param item string|Item
 ---@param new string|Item
----@return Item|nil
+---@return Item?
 function Inventory:replaceItem(item, new)
     local storage, index = self:getItemIndex(item)
     if storage and new then
@@ -298,7 +298,7 @@ end
 --- Gets an item from the inventory, if it exists
 ---@param storage string|table
 ---@param index integer
----@return Item|nil
+---@return Item?
 function Inventory:getItem(storage, index)
     if type(storage) == "string" then
         storage = self:getStorage(storage)
@@ -311,7 +311,7 @@ end
 --- Gets whether an item is in this inventory, in any storage
 ---@param item string|Item
 ---@return boolean has_item
----@return Item|nil item
+---@return Item? item
 function Inventory:hasItem(item)
     if type(item) == "string" then
         for k,v in pairs(self.stored_items) do
@@ -327,7 +327,7 @@ end
 
 --- Gets an item in the inventory by its id, if it exists
 ---@param item string
----@return Item|nil
+---@return Item?
 function Inventory:getItemByID(item)
     for k,v in pairs(self.stored_items) do
         if k.id == item then
