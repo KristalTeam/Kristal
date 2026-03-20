@@ -516,6 +516,7 @@ end
 
 --- Adds a spell to this party member's set of available spells
 ---@param spell string|Spell
+---@param ... any
 function PartyMember:addSpell(spell, ...)
     if type(spell) == "string" then
         spell = Registry.createSpell(spell, self, ...)
@@ -861,23 +862,23 @@ function PartyMember:loadEquipment(data)
     end
 end
 
----@return string[] spells An array of the spell IDs this party member knows 
+---@return Spell[] spells An array of the spells this party member knows 
 function PartyMember:saveSpells()
     local result = {}
     for _, v in pairs(self.spells) do
-        table.insert(result, v.id)
+        table.insert(result, v)
     end
     return result
 end
 
----@param data string[] An array of the spell IDs this party member knows
+---@param data Spell[] An array of the spells this party member knows
 function PartyMember:loadSpells(data)
     self.spells = {}
     for _, v in ipairs(data) do
-        if Registry.getSpell(v) then
+        if Registry.getSpell(v.id) then
             self:addSpell(v)
         else
-            Kristal.Console:error("Could not load spell \"" .. (v or "nil") .. "\"")
+            Kristal.Console:error("Could not load spell \"" .. (v.id or "nil") .. "\"")
         end
     end
 end
