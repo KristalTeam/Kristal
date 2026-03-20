@@ -26,8 +26,7 @@
 ---@overload fun(...) : Spell
 local Spell = Class()
 
----@param chara PartyMember The `PartyMember` who owns the spell
-function Spell:init(chara)
+function Spell:init()
     self.name = "Test Spell"
     self.cast_name = nil
 
