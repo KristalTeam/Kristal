@@ -1,7 +1,7 @@
 local spell, super = Class(Spell, "ultimate_heal")
 
-function spell:init(chara)
-    super.init(self, chara)
+function spell:init()
+    super.init(self)
 
     -- Display name
     self.name = "UltimatHeal"
@@ -11,7 +11,7 @@ function spell:init(chara)
     -- Battle description
     self.effect = "Best\nhealing"
     -- Menu description
-    self.description = string.format("Heals 1 party member to the\nbest of %s's ability.", chara:getName())
+    self.description = "Heals 1 party member to the\nbest of %s's ability."
 
     -- TP cost
     self.cost = 100
@@ -32,7 +32,7 @@ function spell:init(chara)
     self.usage_bonus_multiplier = 1
     
     -- Spell style
-    local style = chara:getFlag("ultimate_heal_style", "ultimate_heal")
+    --local style = chara:getFlag("ultimate_heal_style", "ultimate_heal")
     if style == "ultra_heal" then
         self.name = "UltraHeal"
         self.cast_name = nil
@@ -72,6 +72,10 @@ function spell:init(chara)
 
     -- Tags that apply to this spell
     self.tags = {"heal"}
+end
+
+function spell:getDescription(chara)
+    return string.format(super.getDescription(self, chara), chara:getName())
 end
 
 function spell:getTPCost(chara)

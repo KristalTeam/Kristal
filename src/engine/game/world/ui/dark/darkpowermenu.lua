@@ -75,7 +75,7 @@ function DarkPowerMenu:updateDescription()
         Game.world.menu:setDescription("", false)
     elseif self.state == "SPELLS" then
         local spell = self:getSpells()[self.selected_spell]
-        Game.world.menu:setDescription(spell and spell:getDescription() or "", true)
+        Game.world.menu:setDescription(spell and spell:getDescription(self.party:getSelected()) or "", true)
     end
 end
 

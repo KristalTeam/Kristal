@@ -46,8 +46,9 @@ function Spell:getName() return self.name end
 ---@return string
 function Spell:getCastName() return self.cast_name or self:getName():upper() end
 
+---@param chara PartyMember The `PartyMember` who owns the spell
 ---@return string
-function Spell:getDescription() return self.description end
+function Spell:getDescription(chara) return self.description end
 ---@return string
 function Spell:getBattleDescription() return self.effect end
 
