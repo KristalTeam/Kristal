@@ -1,6 +1,6 @@
 local spell, super = Class(Spell, "ultimate_heal")
 
-function spell:init(chara, style)
+function spell:init(chara)
     super.init(self, chara)
 
     -- Display name
@@ -32,8 +32,8 @@ function spell:init(chara, style)
     self.usage_bonus_multiplier = 1
     
     -- Spell style
-    self.style = style
-    if self.style == "ultra_heal" then
+    local style = chara:getFlag("ultimate_heal_style", "ultimate_heal")
+    if style == "ultra_heal" then
         self.name = "UltraHeal"
         self.cast_name = nil
         self.description = "An awesome healing spell.\n... right?"
@@ -43,7 +43,7 @@ function spell:init(chara, style)
         self.usage_cost_reduction = 1
         self.usage_bonus_limit = 5
         self.usage_bonus_multiplier = 1
-    elseif self.style == "ok_heal" then
+    elseif style == "ok_heal" then
         self.name = "OKHeal"
         self.cast_name = nil
         self.effect = "OK\nhealing"
@@ -54,7 +54,7 @@ function spell:init(chara, style)
         self.usage_cost_reduction = 1 / 3
         self.usage_bonus_limit = 15
         self.usage_bonus_multiplier = 2
-    elseif self.style == "better_heal" then
+    elseif style == "better_heal" then
         self.name = "BetterHeal"
         self.cast_name = "BetterHeal"
         self.effect = "Heal\nally"
