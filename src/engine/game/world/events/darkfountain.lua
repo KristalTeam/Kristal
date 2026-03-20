@@ -5,22 +5,22 @@
 ---
 ---@class DarkFountain : Event
 ---
----@field width             integer
----@field height            integer
+---@field width integer
+---@field height integer
 ---
----@field bg_texture        love.Image
----@field edge_texture      love.Image
----@field bottom_texture    love.Image
+---@field bg_texture love.Image
+---@field edge_texture love.Image
+---@field bottom_texture love.Image
 ---
----@field mask_fx           MaskFX
+---@field mask_fx MaskFX
 ---@
----@field siner             number      Timer for fountain's color change effects
----@field bg_siner          number
----@field hscroll           number
----@field eyebody           number
----@field adjust            integer     (Probably set in fountain cutscenes to change the effect of the fountain)
----@field slowdown          number
----@field bg_color          [number, number, number]    Second color in the fountain, also used by [`FountainFloor`](lua://FountainFloor.init) if present
+---@field siner number      Timer for fountain's color change effects
+---@field bg_siner number
+---@field hscroll number
+---@field eyebody number
+---@field adjust integer     (Probably set in fountain cutscenes to change the effect of the fountain)
+---@field slowdown number
+---@field bg_color Color Second color in the fountain, also used by [`FountainFloor`](lua://FountainFloor.init) if present
 ---
 ---@overload fun(...) : DarkFountain
 local DarkFountain, super = Class(Event, "darkfountain")

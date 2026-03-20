@@ -73,7 +73,7 @@ end
 
 --- Gets the first instance of a specific party or enemy character in the current battle.
 ---@param id string The character id to search for.
----@return PartyBattler|EnemyBattler|nil battler The PartyBattler/EnemyBattler instance of the character if they exist, otherwise `nil`.
+---@return PartyBattler|EnemyBattler? battler The PartyBattler/EnemyBattler instance of the character if they exist, otherwise `nil`.
 function BattleCutscene:getCharacter(id)
     for _, battler in ipairs(Game.battle.party) do
         if battler.chara.id == id then
@@ -301,7 +301,7 @@ function BattleCutscene:fadeIn(speed, options)
 end
 
 --- Sets the active speaker for the encountertext box.
----@param actor? PartyBattler|EnemyBattler|Actor|nil The character or actor to set as the speaker. `nil` resets the speaker to nothing.
+---@param actor? PartyBattler|EnemyBattler|Actor? The character or actor to set as the speaker. `nil` resets the speaker to nothing.
 function BattleCutscene:setSpeaker(actor)
     if isClass(actor) and (actor:includes(PartyBattler) or actor:includes(EnemyBattler)) then
         actor = actor.actor

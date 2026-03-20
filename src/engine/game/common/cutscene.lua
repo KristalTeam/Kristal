@@ -26,7 +26,7 @@ function Cutscene:init(func, ...)
     self:resume(self, ...)
 end
 
----@param getter fun(...) : fun(...)|nil
+---@param getter fun(...) : fun(...)?
 ---@param cutscene fun(...)|string
 ---@param id? string
 ---@param ... unknown

@@ -41,11 +41,11 @@
 ---@field lw_weapon_default string
 ---@field lw_armor_default  string
 ---
----@field color             table?
----@field dmg_color         table?
----@field attack_bar_color  table?
----@field attack_box_color  table?
----@field xact_color        table?
+---@field color Color?
+---@field dmg_color Color?
+---@field attack_bar_color Color?
+---@field attack_box_color Color?
+---@field xact_color Color?
 ---
 ---@field menu_icon     string
 ---@field head_icons    string
@@ -626,7 +626,7 @@ end
 
 --- *(Override)* Checks whether this party member is able to equip a specific item \
 --- *By default, calls [`item:canEquip()`](lua://Item.canEquip) to check equippability, and rejects trying to unequip the item if the slot type is `"weapon"`*
----@param item          Item|nil
+---@param item          Item?
 ---@param slot_type     string?
 ---@param slot_index    integer?
 ---@return boolean

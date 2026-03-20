@@ -16,7 +16,7 @@ function Class(include, id) end
 ---@class Class
 ---
 ---@field private __index self
----@field private __super Class|superclass<self>|nil
+---@field private __super Class|superclass<self>?
 ---@field private __includes Class[]
 ---@field private __includes_all { [Class]: boolean }
 ---@field private __dont_include { [string]: boolean }
@@ -24,12 +24,12 @@ function Class(include, id) end
 ---
 ---@field private init fun(self: Class, ...)
 ---
----@field id string|nil                      # The ID of the class.
+---@field id string?                      # The ID of the class.
 ---
 ---@overload fun(self: Class, ...) : Class
 local _Class = {}
 
----@class superclass<T> : { super: T|superclass<T>|nil }
+---@class superclass<T> : { super: T|superclass<T>? }
 
 ---
 --- Returns a deep copy of this class.

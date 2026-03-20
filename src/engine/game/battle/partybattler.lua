@@ -129,7 +129,7 @@ end
 
 ---@param amount    number  The damage of the incoming hit
 ---@param exact?    boolean Whether the damage should be treated as exact damage instead of applying defense and element modifiers
----@param color?    table   The color of the damage number
+---@param color?    Color   The color of the damage number
 ---@param options?  table   A table defining additional properties to control the way damage is taken
 ---|"all"   # Whether the damage being taken comes from a strike targeting the whole party
 ---|"swoon" # Whether the damage should swoon the battler instead of downing them

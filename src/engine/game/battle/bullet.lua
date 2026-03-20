@@ -9,7 +9,7 @@
 ---@field attacker          EnemyBattler    The attacker that owns the wave which created this bullet. Not defined until after `Bullet:init()`.
 ---@field wave              Wave            The wave that this bullet was created by. Not defined until after `Bullet:init()`.
 ---
----@field collider          Collider|nil
+---@field collider          Collider?
 ---
 ---@field tp                number
 ---@field time_bonus        number

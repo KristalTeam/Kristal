@@ -33,7 +33,7 @@ end
 
 --- Create a new event instance of the given ID, using the provided data.
 ---@param id string           The ID of the event.
----@param data table|nil      The data to pass to the event constructor.
+---@param data table?      The data to pass to the event constructor.
 ---@return Event              The created event instance.
 function EventRegistry:create(id, data)
     local event_class = self.events[id]

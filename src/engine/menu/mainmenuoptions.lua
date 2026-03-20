@@ -5,7 +5,7 @@
 ---@field state string
 ---@field state_manager StateManager
 ---
----@field options table<string, {id: string, name: string, options: {name: string, value: (fun(x:number, y:number):any)|nil, callback: fun()}[]}>
+---@field options table<string, {id: string, name: string, options: {name: string, value: (fun(x:number, y:number):any)?, callback: fun()}[]}>
 ---@field pages string[]
 ---
 ---@field selected_option number

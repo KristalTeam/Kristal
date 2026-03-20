@@ -8,12 +8,12 @@
 ---
 ---@field target_volume number
 ---@field fade_speed number
----@field fade_callback fun(music:Music)|nil
+---@field fade_callback fun(music:Music)?
 ---
 ---@field removed boolean
 ---
----@field current string|nil
----@field source love.Source|nil
+---@field current string?
+---@field source love.Source?
 ---
 ---@overload fun() : Music
 local Music = {}

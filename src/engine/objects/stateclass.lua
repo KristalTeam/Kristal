@@ -1,7 +1,7 @@
 ---@class StateClass : Class
 ---
 ---@field parent StateManager
----@field registered_events table<string, function>|nil
+---@field registered_events table<string, function>?
 ---
 ---@overload fun() : StateClass
 local StateClass, super = Class()

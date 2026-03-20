@@ -163,7 +163,7 @@ function love.load(args)
     SCREEN_CANVAS:setFilter("nearest", "nearest")
 
     PERFORMANCE_TEST = nil
-    ---@type string|nil
+    ---@type string?
     PERFORMANCE_TEST_STAGE = nil
 
     SCREENSHOT_DISPLAY = 1
@@ -624,7 +624,7 @@ end
 --- Called when an error occurs.
 ---@param  msg string|table     The error message.
 ---@param trace_level integer?
----@return function|nil handler The error handler, called every frame instead of the main loop.
+---@return function? handler The error handler, called every frame instead of the main loop.
 function Kristal.errorHandler(msg, trace_level)
     if Mod then
         local status, err = pcall(function()
@@ -1586,7 +1586,7 @@ function Kristal.getRelativeBorderSize()
     return 0, 0
 end
 
----@return Border|nil border The currently displayed border, or `nil` if borders are disabled.
+---@return Border? border The currently displayed border, or `nil` if borders are disabled.
 function Kristal.getBorder()
     if not REGISTRY_LOADED then
         return nil
@@ -1605,7 +1605,7 @@ function Kristal.getBorder()
     return nil
 end
 
----@return Border|nil border The currently displayed border if dynamic borders are enabled.
+---@return Border? border The currently displayed border if dynamic borders are enabled.
 function Kristal.processDynamicBorder()
     if Kristal.getState() == Game then
         return Game:getBorder()
@@ -1761,7 +1761,7 @@ end
 --- Returns the data from the specified save file.
 ---@param id?   number    The save file index to load. (Defaults to the currently loaded save index)
 ---@param path? string    The save folder to load from. (Defaults to the current mod's save folder)
----@return table|nil data The data loaded from the save file, or `nil` if the file doesn't exist.
+---@return table? data The data loaded from the save file, or `nil` if the file doesn't exist.
 function Kristal.getSaveFile(id, path)
     id = id or Game.save_id
     local full_path = "saves/" .. (path or Mod.info.id) .. "/file_" .. id .. ".json"
@@ -1801,7 +1801,7 @@ end
 --- Loads and returns the data from a file in the save folder.
 ---@param file  string    The file name to load.
 ---@param path? string    The save folder to load from. (Defaults to the current mod's save folder)
----@return table|nil data The data loaded from the file, or `nil` if the file doesn't exist.
+---@return table? data The data loaded from the file, or `nil` if the file doesn't exist.
 function Kristal.loadData(file, path)
     local full_path = "saves/" .. (path or Mod.info.id) .. "/" .. file .. ".json"
     if love.filesystem.getInfo(full_path) then
@@ -1829,7 +1829,7 @@ end
 --- Calls a function from the specified library, if it exists. \
 --- If `id` is not specified, the function will be called in all libraries, and the return value \
 --- will be `or`'d between libraries.
----@param id  string|nil The library ID to call the function from, or `nil` to call in all libraries.
+---@param id  string? The library ID to call the function from, or `nil` to call in all libraries.
 ---@param f   string     The function name to call.
 ---@param ... any        The arguments to pass to the function.
 ---@return ...           The returned values from the function call, if it exists.
@@ -1947,7 +1947,7 @@ end
 
 --- Executes a `.lua` script inside the specified library folder. \
 --- If `id` is not specified, the first script found from any library will be executed.
----@param lib  string|nil  The library ID to execute the script from, or `nil` to execute from any library.
+---@param lib  string?  The library ID to execute the script from, or `nil` to execute from any library.
 ---@param path string      The script name to execute.
 ---@param ...  any         The arguments to pass to the script.
 ---@return boolean success Whether the script was executed successfully.

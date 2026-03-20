@@ -1398,7 +1398,7 @@ end
 ---@param description string|fun():string
 ---@param func function
 ---@param visible_func? fun():boolean
----@param color? fun():table
+---@param color? fun(): Color
 ---@return nil
 function DebugSystem:registerOption(menu, name, description, func, visible_func, color)
     table.insert(self.menus[menu].options, {

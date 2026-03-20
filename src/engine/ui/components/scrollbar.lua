@@ -7,7 +7,7 @@
 ---@field arrows boolean
 ---@field gutter_color table
 ---@field scrollbar_width number
----@field color table
+---@field color Color
 ---@overload fun(...) : ScrollbarComponent
 local ScrollbarComponent, super = Class(Component)
 

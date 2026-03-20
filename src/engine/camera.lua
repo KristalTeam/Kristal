@@ -1,6 +1,6 @@
 ---@class Camera : Class, StateManagedClass
 ---
----@field parent Object|nil
+---@field parent Object?
 ---
 ---@field x number                            # X position of the camera's center.
 ---@field y number                            # Y position of the camera's center.
@@ -18,8 +18,8 @@
 ---@field default_approach_time number        # Default modifier approach time.
 ---@field lerper table                        # Current modifier approach settings.
 ---
----@field target Object|nil                   # Camera target.
----@field target_getter (fun():Object?)|nil   # Optional function to get the camera target, if not set explicitly.
+---@field target Object?                   # Camera target.
+---@field target_getter (fun():Object?)?   # Optional function to get the camera target, if not set explicitly.
 ---
 ---@field attached_x boolean                  # Whether the camera is attached to the target (x-axis).
 ---@field attached_y boolean                  # Whether the camera is attached to the target (y-axis).
@@ -37,10 +37,10 @@
 ---@field shake_friction number               # Camera shake friction (how much the shake decreases).
 ---@field shake_timer number                  # Camera shake timer (used to invert the shake).
 --
----@field bounds table|nil                    # Camera bounds (for clamping).
+---@field bounds table?                    # Camera bounds (for clamping).
 ---@field keep_in_bounds boolean              # Whether the camera should stay in bounds.
 ---
----@field pan_target table|nil                # Camera pan target (for automatic panning).
+---@field pan_target table?                # Camera pan target (for automatic panning).
 ---
 ---@overload fun(parent?:Object, x?:number, y?:number, width?:number, height?:number, keep_in_bounds?:boolean) : Camera
 local Camera = Class()
@@ -335,7 +335,7 @@ function Camera:panToSpeed(x, y, speed, after)
     end
 end
 
----@return Object|nil
+---@return Object?
 function Camera:getTarget()
     if self.target and self.target.stage then
         return self.target

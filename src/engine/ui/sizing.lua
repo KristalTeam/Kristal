@@ -1,6 +1,6 @@
 ---@class Sizing : Class
 ---
----@field parent Component|nil
+---@field parent Component?
 local Sizing = Class()
 
 function Sizing:init()

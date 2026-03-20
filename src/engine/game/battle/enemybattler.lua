@@ -60,7 +60,7 @@
 ---@field defeated          boolean             Whether this enemy has been defeated
 ---
 ---@field temporary_mercy           number              The current amount of temporary mercy
----@field temporary_mercy_percent   DamageNumber|nil    The DamageNumber object, used to update the mercy display
+---@field temporary_mercy_percent   DamageNumber?    The DamageNumber object, used to update the mercy display
 ---
 ---@field target_x                  number?
 ---@field target_y                  number?
@@ -569,7 +569,7 @@ function EnemyBattler:onMercy(battler)
 end
 
 --- Creates the particular flash effect used when a party member uses mercy on the enemy, but the spare fails
----@param color? table The color the enemy should flash (defaults to yellow)
+---@param color? Color The color the enemy should flash (defaults to yellow)
 function EnemyBattler:mercyFlash(color)
     color = color or { 1, 1, 0 }
 
@@ -777,7 +777,7 @@ end
 ---@param amount        number                                  The amount of damage the enemy should take
 ---@param battler?      PartyBattler                            The party member dealing this damage
 ---@param on_defeat?    fun(EnemyBattler, number, PartyBattler) A callback to run if the enmy is defeated by this hit
----@param color?        table                                   The color of the damage, overriding the default damage color of the attacker
+---@param color?        Color                                   The color of the damage, overriding the default damage color of the attacker
 ---@param show_status?  boolean                                 Whether to show the damage numbers from this hit
 ---@param attacked?     boolean
 function EnemyBattler:hurt(amount, battler, on_defeat, color, show_status, attacked)
