@@ -24,7 +24,12 @@ function Savepoint:init(x, y, properties)
     self.marker = properties["marker"]
     self.simple_menu = properties["simple"]
     self.text_once = properties["text_once"]
-    self.heals = properties["heals"] ~= false
+    self.heals = properties["heals"]
+
+    if self.heals == nil then
+        -- Default to true for the dark world and false for the light world.
+        self.heals = not Game:isLight()
+    end
 
     self.solid = true
 

@@ -144,17 +144,16 @@ function Console:close()
 end
 
 function Console:print(text, x, y)
-
-    if text == nil then return end
+    if text == nil then
+        return
+    end
 
     local x_offset = 0
 
-    local color = { 1, 1, 1, 1 }
-
     for _, line in ipairs(text) do
-        Draw.setColor(color)
+        Draw.setColor(self.color)
         if type(line) == "table" then
-            color = line
+            self.color = line
         else
             self:printOutlined(line, x + x_offset, y)
             x_offset = x_offset + self.font:getWidth(line)
@@ -163,7 +162,10 @@ function Console:print(text, x, y)
 end
 
 function Console:printOutlined(text, x, y)
-    if y < 0 then return end
+    if y < 0 then
+        return
+    end
+
     local r, g, b, a = love.graphics.getColor()
     Draw.setColor(r / 2, g / 2, b / 2, a / 2)
 
@@ -193,6 +195,8 @@ function Console:draw()
 
     local y_offset = self.height
 
+    self.color = { 1, 1, 1, 1 }
+
     for line = #self.history - self.height, #self.history do
         --local lines = Utils.split(self.history[line] or "", "\n", false)
         y_offset = y_offset - 1
@@ -203,6 +207,7 @@ function Console:draw()
         y_offset = y_offset + 1
     end
 
+    self.color = { 1, 1, 1, 1 }
 
     Draw.setColor(0, 0, 0, 0.6)
     love.graphics.rectangle("fill", 0, input_pos, 640, #self.input * 16)
@@ -246,15 +251,19 @@ end
 function Console:push(str)
     if str == nil then return end
 
-    for _, line in ipairs(StringUtils.split(str, "\n", false)) do
-        local text = {}
+    local lines = StringUtils.split(str, "\n", false)
+
+    local color = {}
+    for i, line in ipairs(lines) do
+        local text = { color }
         local current = ""
         local in_modifier = false
         local modifier_text = ""
+        local disable_modifiers = false
 
         ---@diagnostic disable-next-line: undefined-field
         for char in line:gmatch(utf8.charpattern) do
-            if char == "[" then
+            if char == "[" and (not disable_modifiers) then
                 table.insert(text, current)
                 current = ""
                 in_modifier = true
@@ -263,7 +272,7 @@ function Console:push(str)
                 in_modifier = false
                 local modifier = StringUtils.split(modifier_text, ":", false)
                 if modifier[1] == "color" then
-                    local color = { 1, 1, 1, 1 }
+                    color = { 1, 1, 1, 1 }
                     if modifier[2] then
                         if StringUtils.startsWith(modifier[2], "#") then
                             color = ColorUtils.hexToRGB(modifier[2])
@@ -279,7 +288,10 @@ function Console:push(str)
                             color = { 0.8, 0.8, 0.8, 1 }
                         end
                     end
+
                     table.insert(text, color)
+                elseif modifier[1] == "nomods" then
+                    disable_modifiers = true
                 else
                     modifier_text = "[" .. modifier_text .. "]"
                     table.insert(text, modifier_text)
@@ -293,6 +305,10 @@ function Console:push(str)
         end
 
         table.insert(text, current)
+
+        if i == #lines then
+            table.insert(text, { 1, 1, 1, 1 })
+        end
 
         table.insert(self.history, text)
     end
@@ -325,15 +341,15 @@ function Console:run(str)
     local run_string = ""
     local history_string = ""
     for i, line in ipairs(str) do
-        local prefix = "[color:gray]> "
+        local prefix = "[color:gray][nomods]> "
 
         if #str > 1 then
             if i == 1 then
-                prefix = "[color:gray]┌ "
+                prefix = "[color:gray][nomods]┌ "
             elseif i == #str then
-                prefix = "[color:gray]└ "
+                prefix = "[color:gray][nomods]└ "
             else
-                prefix = "[color:gray]│ "
+                prefix = "[color:gray][nomods]│ "
             end
         end
 
