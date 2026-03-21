@@ -340,7 +340,7 @@ end
 
 --- Shows party member health bars
 function World:showHealthBars()
-    if Game.light then return end
+    if Game:isLight() then return end
 
     if self.healthbar then
         self.healthbar:transitionIn()
