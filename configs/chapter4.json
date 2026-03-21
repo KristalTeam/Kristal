@@ -51,5 +51,7 @@
     "darkCandyForm": "darker",       // Whether to use Dark Candy or Darker Candy
     "canTossLightWeapons": false,    // Whether light world weapons can be thrown away
     "newShopSpaceUI": true,          // Whether shops use the newer space display with both inventory and storage space
-    "shopSpaceUIFont": "8bit_old"    // The font used for the shop space UI's numbers
+    "shopSpaceUIFont": "8bit_old",   // The font used for the shop space UI's numbers
+
+    "healthConversion": true         // Whether to (properly) convert health when switching between light and dark worlds.
 }

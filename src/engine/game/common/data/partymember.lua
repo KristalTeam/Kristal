@@ -760,8 +760,16 @@ function PartyMember:convertToLight()
         ["2"] = last_armors[2] and last_armors[2]:save()
     })
 
-    -- For deltarune accuracy, you heal here, bc health conversion code is broken
-    self.lw_health = self:getStat("health")
+    if Game:getConfig("healthConversion") then
+        self.lw_health = math.ceil((self.health / self:getStat("health", 1, false)) * self:getStat("health", 1, true))
+    else
+        -- The formula is broken in chapters 1 & 3.
+        self.lw_health = math.ceil(self.health / self:getStat("health", 1, false)) * self:getStat("health", 1, true)
+    end
+
+    if self.lw_health <= 0 then
+        self.lw_health = 1
+    end
 end
 
 function PartyMember:convertToDark()
@@ -791,6 +799,17 @@ function PartyMember:convertToDark()
                 self.equipped.armor[1] = result
             end
         end
+    end
+
+    if Game:getConfig("healthConversion") then
+        self.health = math.ceil((self.lw_health / self:getStat("health", 1, true)) * self:getStat("health", 1, false))
+    else
+        -- The formula is broken in chapters 1 & 3.
+        self.health = math.ceil(self.lw_health / self:getStat("health", 1, true)) * self:getStat("health", 1, false)
+    end
+
+    if self.health <= 0 then
+        self.health = 1
     end
 end
 
