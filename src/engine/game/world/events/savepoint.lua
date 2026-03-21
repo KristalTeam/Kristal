@@ -24,12 +24,7 @@ function Savepoint:init(x, y, properties)
     self.marker = properties["marker"]
     self.simple_menu = properties["simple"]
     self.text_once = properties["text_once"]
-    
-    if properties["heals"] == nil then
-        self.heals = not Game:isLight()
-    else
-        self.heals = properties["heals"]
-    end
+    self.heals = properties["heals"]
 
     self.solid = true
 
@@ -64,7 +59,7 @@ end
 function Savepoint:onTextEnd()
     if not self.world then return end
 
-    if self.heals then
+    if (self.heals == nil and not Game:isLight()) or self.heals then
         for _, party in pairs(Game.party_data) do
             party:heal(math.huge, false)
         end
