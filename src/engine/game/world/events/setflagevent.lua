@@ -27,7 +27,7 @@ end
 function SetFlagEvent:getDebugInfo()
     local info = super.getDebugInfo(self)
     if self.flag then table.insert(info, "Flag: " .. self.flag) end
-    if self.value then table.insert(info, "Value: " .. self.value) end
+    if self.value then table.insert(info, "Value: " .. tostring(self.value)) end
     if self.once then table.insert(info, "Once: " .. (self.once and "True" or "False")) end
     if self.map_flag then table.insert(info, "Map Flag: " .. self.map_flag) end
     return info
