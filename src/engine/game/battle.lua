@@ -3572,7 +3572,7 @@ end
 function Battle:handleAttackingInput(key)
     if Input.isConfirm(key) then
         if not self.attack_done and not self.cancel_attack and #self.battle_ui.attack_boxes > 0 then
-            Game.battle.timer:after(DTMULT / 30, function()
+            Game.battle.timer:after(DT, function()
                 local closest
                 local closest_attacks = {}
 
