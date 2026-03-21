@@ -469,7 +469,7 @@ end
 ---@param light? boolean
 function PartyMember:getActor(light)
     if light == nil then
-        light = Game.light
+        light = Game:isLight()
     end
     if light then
         return self.lw_actor or self.actor
