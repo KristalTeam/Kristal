@@ -192,7 +192,7 @@ function character:onLevelUp(level)
 end
 
 function character:onPowerSelect(menu)
-    if MathUtils.random() <= 0.03 then
+    if MathUtils.random() < 0.02 then
         menu.ralsei_dog = true
     else
         menu.ralsei_dog = false
@@ -231,7 +231,7 @@ function character:drawPowerStat(index, x, y, menu)
 
         Draw.draw(icon, x+130, y+6, 0, 2, 2)
         -- Ralsei loses bonus fluffiness in Chapter 3
-        if Game.chapter == 2 then
+        if (Game.chapter == 1 and self:checkWeapon("daintyscarf")) or Game.chapter == 2 then
             Draw.draw(icon, x+150, y+6, 0, 2, 2)
         end
         return true

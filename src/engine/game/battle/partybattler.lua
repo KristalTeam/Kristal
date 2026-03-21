@@ -297,18 +297,16 @@ end
 ---@param amount            number  The amount of health to restore
 ---@param sparkle_color?    table   The color of the heal sparkles (defaults to the standard green) or false to not show sparkles
 ---@param show_up?          boolean Whether the "UP" status message should show if the battler is revived by the heal
-function PartyBattler:heal(amount, sparkle_color, show_up)
-    Assets.stopAndPlaySound("power")
-
+---@param playsound?        boolean Whether to play a sound when healed
+function PartyBattler:heal(amount, sparkle_color, show_up, playsound)
     amount = math.floor(amount)
 
-    self.chara:setHealth(self.chara:getHealth() + amount)
+    local max_hp = self.chara:heal(amount, playsound)
 
     local was_down = self.is_down
     self:checkHealth(false)
 
-    if self.chara:getHealth() >= self.chara:getStat("health") then
-        self.chara:setHealth(self.chara:getStat("health"))
+    if max_hp then
         self:statusMessage("msg", "max", nil, nil, 8)
     else
         if show_up and was_down ~= self.is_down then
