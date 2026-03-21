@@ -231,7 +231,7 @@ function character:drawPowerStat(index, x, y, menu)
 
         Draw.draw(icon, x+130, y+6, 0, 2, 2)
         -- Ralsei loses bonus fluffiness in Chapter 3
-        if Game.chapter == 2 then
+        if (Game.chapter == 1 and self:checkWeapon("daintyscarf")) or Game.chapter == 2 then
             Draw.draw(icon, x+150, y+6, 0, 2, 2)
         end
         return true
