@@ -3572,36 +3572,38 @@ end
 function Battle:handleAttackingInput(key)
     if Input.isConfirm(key) then
         if not self.attack_done and not self.cancel_attack and #self.battle_ui.attack_boxes > 0 then
-            local closest
-            local closest_attacks = {}
+            Game.battle.timer:after(DTMULT / 30, function()
+                local closest
+                local closest_attacks = {}
 
-            for _, attack in ipairs(self.battle_ui.attack_boxes) do
-                if not attack.attacked then
-                    local close = attack:getClose()
-                    if not closest then
-                        closest = close
-                        table.insert(closest_attacks, attack)
-                    elseif close == closest then
-                        table.insert(closest_attacks, attack)
-                    elseif close < closest then
-                        closest = close
-                        closest_attacks = { attack }
+                for _, attack in ipairs(self.battle_ui.attack_boxes) do
+                    if not attack.attacked then
+                        local close = attack:getClose()
+                        if not closest then
+                            closest = close
+                            table.insert(closest_attacks, attack)
+                        elseif close == closest then
+                            table.insert(closest_attacks, attack)
+                        elseif close < closest then
+                            closest = close
+                            closest_attacks = { attack }
+                        end
                     end
                 end
-            end
 
-            if closest and closest < 14.2 and closest > -2 then
-                for _, attack in ipairs(closest_attacks) do
-                    local points = attack:hit()
+                if closest and closest < 14.2 and closest > -2 then
+                    for _, attack in ipairs(closest_attacks) do
+                        local points = attack:hit()
 
-                    local action = self:getActionBy(attack.battler, true)
-                    action.points = points
+                        local action = self:getActionBy(attack.battler, true)
+                        action.points = points
 
-                    if self:processAction(action) then
-                        self:finishAction(action)
+                        if self:processAction(action) then
+                            self:finishAction(action)
+                        end
                     end
                 end
-            end
+            end)
         end
     end
 end
