@@ -10,9 +10,9 @@
 ---
 ---@field used_violence             boolean                         Whether any enemy was defeated through violence or not
 ---
----@field ui_move                   love.Source                     A sound source for the `ui_move` sfx, should be used for every time this sound plays in battle
----@field ui_select                 love.Source                     A sound source for the `ui_select` sfx, should be used for every time this sound plays in battle
----@field spare_sound               love.Source                     A sound source for the `spare` sfx, should be used for every time this sound plays in battle
+---@field ui_move                   Sound                           A sound source for the `ui_move` sfx, should be used for every time this sound plays in battle
+---@field ui_select                 Sound                           A sound source for the `ui_select` sfx, should be used for every time this sound plays in battle
+---@field spare_sound               Sound                           A sound source for the `spare` sfx, should be used for every time this sound plays in battle
 ---
 ---@field party_beginning_positions table<[number, number]>         The position of each [`PartyBattler`](lua://PartyBattler) at the start of the battle transition
 ---@field enemy_beginning_positions table<[number, number]>         The position of each [`EnemyBattler`](lua://EnemyBattler) at the start of the battle transition

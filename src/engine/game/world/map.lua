@@ -81,7 +81,7 @@ function Map:init(world, data)
 end
 
 function Map:load()
-    Game.light = self.light
+    Game:setLight(self.light)
 
     self.world:addChild(self.timer)
     if self.data then

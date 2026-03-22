@@ -6,8 +6,8 @@
 ---
 ---@field frames_for table<string, {[1]: string, [2]: number}>
 ---@field texture_ids table<love.Image, string>
----@field sounds table<string, love.Source>
----@field sound_instances table<string, love.Source[]>
+---@field sounds table<string, Sound>
+---@field sound_instances table<string, Sound[]>
 ---@field quads table<string, love.Quad>
 ---
 ---@field saved_data table?
@@ -26,6 +26,7 @@ local self = Assets
 ---@field font_image_data table<string, love.ImageData>
 ---@field font_settings table<string, Assets.font_settings>
 ---@field sound_data table<string, love.SoundData>
+---@field sound_settings table<string, Assets.sound_settings>
 ---@field music table<string, string>
 ---@field shaders table<string, love.Shader>
 ---@field shader_paths table<string, string>
@@ -44,6 +45,10 @@ local self = Assets
 ---@field font string # ID of the fallback font. It must be of the same font type as the base font.
 ---@field size number? # (TrueType fonts only) The default size of the fallback font.
 
+--- Settings for a sound asset, paired with the actual sound data as a .json file.
+---@class Assets.sound_settings
+---@field volume number? # Default volume to play the sound at.
+
 Assets.saved_data = nil
 
 function Assets.clear()
@@ -59,6 +64,7 @@ function Assets.clear()
         font_image_data = {},
         font_settings = {},
         sound_data = {},
+        sound_settings = {},
         music = {},
         videos = {},
         bubbles = {},
@@ -177,8 +183,7 @@ function Assets.parseData(data)
 
     -- create single-instance audio sources
     for key, sound_data in pairs(data.sound_data) do
-        local src = love.audio.newSource(sound_data)
-        self.sounds[key] = src
+        self.sounds[key] = Sound(sound_data, data.sound_settings[key])
     end
 
     -- create single-instance shaders
@@ -356,19 +361,19 @@ function Assets.getQuad(x, y, w, h, sw, sh)
 end
 
 ---@param sound string
----@return love.Source
+---@return Sound
 function Assets.getSound(sound)
     return self.sounds[sound]
 end
 
 ---@param sound string
----@return love.Source
+---@return Sound
 function Assets.newSound(sound)
     return self.sounds[sound]:clone()
 end
 
 ---@param sound string
----@return love.Source
+---@return Sound
 function Assets.startSound(sound)
     if self.sounds[sound] then
         self.sounds[sound]:stop()
@@ -402,32 +407,24 @@ end
 ---@param sound string
 ---@param volume? number
 ---@param pitch? number
----@return love.Source
+---@return Sound
 function Assets.playSound(sound, volume, pitch)
     if self.sounds[sound] then
         self.sound_instances[sound] = self.sound_instances[sound] or {}
-        local src
-        local function play(v)
-            src = self.sounds[sound]:clone()
-            if v then
-                src:setVolume(v)
-            end
-            if pitch then
-                src:setPitch(pitch)
-            end
-            src:play()
-            table.insert(self.sound_instances[sound], src)
+        local src = self.sounds[sound]:clone()
+
+        if volume then
+            src:setVolume(volume)
         end
-        if volume and volume > 1 then
-            for _ = 1, math.floor(volume) do
-                play(1)
-            end
-            if volume % 1 > 0 then
-                play(volume % 1)
-            end
-        else
-            play(volume)
+
+        if pitch then
+            src:setPitch(pitch)
         end
+
+        src:play()
+
+        table.insert(self.sound_instances[sound], src)
+
         return src
     else
         Kristal.Console:warn("Sound not found: \"" .. sound .. "\"")
@@ -440,7 +437,7 @@ end
 ---@param volume? number
 ---@param pitch? number
 ---@param actually_stop? boolean
----@return love.Source
+---@return Sound
 function Assets.stopAndPlaySound(sound, volume, pitch, actually_stop)
     self.stopSound(sound, actually_stop)
     return self.playSound(sound, volume, pitch)
