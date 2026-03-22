@@ -412,28 +412,20 @@ end
 function Assets.playSound(sound, volume, pitch)
     if self.sounds[sound] then
         self.sound_instances[sound] = self.sound_instances[sound] or {}
-        local src
-        local function play(v)
-            src = self.sounds[sound]:clone()
-            if v then
-                src:setVolume(v)
-            end
-            if pitch then
-                src:setPitch(pitch)
-            end
-            src:play()
-            table.insert(self.sound_instances[sound], src)
+        local src = self.sounds[sound]:clone()
+
+        if volume then
+            src:setVolume(volume)
         end
-        if volume and volume > 1 then
-            for _ = 1, math.floor(volume) do
-                play(1)
-            end
-            if volume % 1 > 0 then
-                play(volume % 1)
-            end
-        else
-            play(volume)
+
+        if pitch then
+            src:setPitch(pitch)
         end
+
+        src:play()
+
+        table.insert(self.sound_instances[sound], src)
+
         return src
     else
         Kristal.Console:warn("Sound not found: \"" .. sound .. "\"")
