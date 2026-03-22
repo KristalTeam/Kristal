@@ -183,8 +183,7 @@ function Assets.parseData(data)
 
     -- create single-instance audio sources
     for key, sound_data in pairs(data.sound_data) do
-        local src = love.audio.newSource(sound_data)
-        self.sounds[key] = Sound(src, data.sound_settings[key])
+        self.sounds[key] = Sound(sound_data, data.sound_settings[key])
     end
 
     -- create single-instance shaders

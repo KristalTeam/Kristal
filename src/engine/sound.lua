@@ -1,25 +1,80 @@
 --- The sound class. This is a transparent wrapper over Love2D's `Source`.
 ---@class Sound
 ---
----@field private source love.Source
+---@field private data love.SoundData
 ---@field private settings Assets.sound_settings
 ---@field private volume number
 ---@field private set_volume number
 ---
----@overload fun(source: love.Source, settings: Assets.sound_settings): Sound
+---@overload fun(source: love.SoundData, settings: Assets.sound_settings): Sound
 local Sound = Class()
 
----@param source love.Source
+---@param data love.SoundData
 ---@param settings Assets.sound_settings?
-function Sound:init(source, settings)
+function Sound:init(data, settings)
     self.settings = settings or {}
 
-    self.source = source
+    self.data = data
+
     self.volume = self.settings.volume or 1
-
-    self.source:setVolume(self.volume)
-
     self.set_volume = 1
+
+    self.last_volume = 0 / 0 -- NaN
+    self:internal_updateSource()
+end
+
+function Sound:internal_updateSource()
+    local calculated_volume = self.set_volume * self.volume
+
+    if calculated_volume ~= self.last_volume then
+        if self.last_volume <= 1 and calculated_volume <= 1 then
+            self.last_volume = calculated_volume
+            self.source:setVolume(calculated_volume)
+            return
+        end
+    end
+
+    local old_source = self.source
+
+    self.last_volume = calculated_volume
+    if calculated_volume > 1 then
+        -- Amplify it...
+        local use_data = self.data:clone() --[[@as love.SoundData]]
+
+        for i = 0, (use_data:getSampleCount() * use_data:getChannelCount()) - 1 do
+            use_data:setSample(i, use_data:getSample(i) * calculated_volume)
+        end
+
+        self.source = love.audio.newSource(use_data)
+        self.source:setVolume(1)
+    else
+        self.source = love.audio.newSource(self.data)
+        self.source:setVolume(self.set_volume * self.volume)
+    end
+
+    if old_source == nil then
+        return
+    end
+
+    self.source:setPitch(old_source:getPitch())
+    self.source:setLooping(old_source:isLooping())
+    self.source:setVolumeLimits(old_source:getVolumeLimits())
+    for _, effect in ipairs(old_source:getActiveEffects()) do
+        local settings = old_source:getEffect(effect)
+        self.source:setEffect(effect, true)
+        if settings then
+            self.source:setEffect(effect, settings)
+        end
+    end
+
+    self.source:seek(old_source:tell())
+
+    if old_source:isPlaying() then
+        self.source:play()
+    end
+
+    old_source:stop()
+    old_source:release()
 end
 
 --- Creates an identical copy of the Sound in the stopped state.
@@ -27,9 +82,10 @@ end
 --- Static Sounds will use significantly less memory and take much less time to be created if Sound:clone is used to create them instead of love.audio.newSource, so this method should be preferred when making multiple Sounds which play the same sound.
 ---@return Sound
 function Sound:clone()
-    local sound = Sound(self.source:clone(), self.settings)
+    local sound = Sound(self.data, self.settings)
     sound.set_volume = self.set_volume
-    sound.source:setVolume(sound.volume * sound.set_volume)
+
+    sound:internal_updateSource()
     return sound
 end
 
@@ -290,7 +346,7 @@ end
 ---@param volume number # The volume for a Sound, where 1.0 is normal volume. Volume cannot be raised above 1.0.
 function Sound:setVolume(volume)
     self.set_volume = volume
-    self.source:setVolume(volume * self.volume)
+    self:internal_updateSource()
 end
 
 --- Sets the volume limits of the source. The limits have to be numbers from 0 to 1.
