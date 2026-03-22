@@ -301,7 +301,9 @@ function Sound:setVolumeLimits(min, max)
 end
 
 --- Stops a Sound.
-function Sound:stop() end
+function Sound:stop()
+    self.source:stop()
+end
 
 --- Gets the currently playing position of the Sound.
 ---@param unit love.TimeUnit? # The type of unit for the return value. (Defaults to 'seconds'.)
