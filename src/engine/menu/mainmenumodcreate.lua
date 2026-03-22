@@ -30,7 +30,7 @@ function MainMenuModCreate:init(menu)
     self.options = {
         name = { "" },
         id = { "" },
-        chapter = 2
+        chapter = 4
     }
     self.selected_option = 1
 
@@ -65,7 +65,7 @@ function MainMenuModCreate:onEnter(old_state)
     self.options = {
         name = { "" },
         id = { "" },
-        chapter = 2
+        chapter = 4
     }
     self.selected_option = 1
 
