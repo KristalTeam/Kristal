@@ -16,7 +16,7 @@ function item:init()
     -- Shop description
     self.shop = "Even non-TVs\ncan eat it\nHP+100"
     -- Menu description
-    self.description = ""
+    self.description = "A TV-shaped premade meal."
     -- Description varies per save file slot
     self.description_variants = {
         [1] = "A TV-shaped premade meal. The TV's pointy\nnose is used as a cone for the ice cream.",
@@ -67,11 +67,11 @@ function item:init()
 end
 
 function item:getDescription()
-    return self.description_variants[Game.save_id] or self.reactions
+    return self.description_variants[Game.save_id] or super.getDescription(self)
 end
 
 function item:getReactions()
-    return self.reaction_variants[Game.save_id] or self.reactions
+    return self.reaction_variants[Game.save_id] or super.getReactions(self)
 end
 
 return item
