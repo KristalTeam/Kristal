@@ -122,7 +122,7 @@ function Game:enter(previous_state, save_id, save_name, fade)
 
     if next(DISCORD_RPC_PRESENCE) == nil then
         Kristal.setPresence({
-            state = Kristal.callEvent(KRISTAL_EVENT.getPresenceState) or ("Playing " .. (Kristal.getModOption("name") or "a mod")),
+            state = Kristal.callEvent(KRISTAL_EVENT.getPresenceState) or ("Playing " .. (Kristal.getModOption("name") or "a project")),
             details = Kristal.callEvent(KRISTAL_EVENT.getPresenceDetails),
             largeImageKey = Kristal.callEvent(KRISTAL_EVENT.getPresenceImage) or "logo",
             largeImageText = "Kristal v" .. tostring(Kristal.Version),
