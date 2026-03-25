@@ -194,7 +194,7 @@ __call = function(tween, self, len, subject, target, method, after, ...)
             else
                 local ok, delta = pcall(function() return (v-ref)*1 end)
                 assert(ok, 'Field "'..tostring(k)..'" does not support arithmetic operations')
-                out[#out+1] = {subject, k, delta}
+                out[#out+1] = {subject, k, ref, delta}
             end
         end
         return out
@@ -203,15 +203,12 @@ __call = function(tween, self, len, subject, target, method, after, ...)
     method = tween[method or 'linear'] -- see __index
     local payload, t, args = tween_collect_payload(subject, target, {}), 0, {...}
 
-    local last_s = 0
     return self:during(len, function()
         t = t + DT
         local s = method(math.min(1, t/len), unpack(args))
-        local ds = s - last_s
-        last_s = s
         for _, info in ipairs(payload) do
-            local ref, key, delta = unpack(info)
-            ref[key] = ref[key] + delta * ds
+            local ref, key, start, delta = unpack(info)
+            ref[key] = start + delta * s
         end
     end, after)
 end,
