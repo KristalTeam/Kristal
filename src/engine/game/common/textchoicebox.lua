@@ -156,6 +156,9 @@ function TextChoicebox:update()
                     end
                 end
             end
+        elseif self:canSkip() then
+            -- Chain skipping
+            self:update()
         end
     end
 end
@@ -186,6 +189,28 @@ function TextChoicebox:isTyping()
         end
     end
     return typing
+end
+
+function TextChoicebox:getCurrentTypingText()
+    if self.text and self.text:isTyping() then
+        return self.text
+    end
+
+    for _, text in ipairs(self.choices_text) do
+        if text:isTyping() then
+            return text
+        end
+    end
+
+    return nil
+end
+
+function TextChoicebox:canSkip()
+    local text = self:getCurrentTypingText()
+    if text and text.skippable and ((Input.down("cancel") and not text.state.noskip) or (Input.down("menu") and not text.state.noskip)) and not text.skip_speed then
+        return true
+    end
+    return false
 end
 
 function TextChoicebox:isDone()
