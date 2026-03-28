@@ -248,7 +248,7 @@ function TensionBar:drawText()
 end
 
 function TensionBar:drawMaxText()
-    Draw.setColor(PALETTE["tension_maxtext"])
+    Draw.setColor(self:hasReducedTension() and PALETTE["tension_maxtext_reduced"] or PALETTE["tension_maxtext"])
 
     love.graphics.print("M", -28, 70)
     love.graphics.print("A", -24, 90)
