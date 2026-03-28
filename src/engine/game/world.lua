@@ -958,6 +958,12 @@ end
 ---@param callback? fun()       A callback to run once the map has finished loading (Post Map:onEnter())
 ---@param ... unknown           Additional arguments that will be passed forward into Map:onEnter()
 function World:loadMap(...)
+    -- reset world party data when loading a new map
+    self.party_data = {}
+    for id, _ in pairs(Game.party_data) do
+        self.party_data[id] = {}
+    end
+    
     local args = { ... }
     -- x, y, facing, callback
     local map = table.remove(args, 1)

@@ -689,6 +689,36 @@ function PartyMember:getBaseStat(name, default, light)
     return (self:getBaseStats(light)[name] or (default or 0))
 end
 
+--- Gets the value of the temporary world data for this party member named `World.party_data`, returning `default` if the flag does not exist
+--- The value resets upon loading a new map
+function PartyMember:getLocalWorldData(name, default)
+    local result = Game.world.party_data[self.id][name]
+    if result == nil then
+        return default
+    else
+        return result
+    end
+end
+
+--- Sets the value of the temporary world data for this party member named `World.party_data` to `value`
+--- The value resets upon loading a new map
+---@param name  string
+---@param value any
+function PartyMember:setLocalWorldData(name, value)
+    Game.world.party_data[self.id][name] = value
+end
+
+--- Adds `amount` to a numeric temporary world data for this party member named `World.party_data` (or defines it if it does not exist)
+--- The value resets upon loading a new map
+---@param name      string  The name of the flag to add to
+---@param amount?   number  (Defaults to `1`)
+---@return number new_value
+function PartyMember:addLocalWorldData(name, amount)
+    local data = Game.world.party_data[self.id]
+    data[name] = (data[name] or 0) + (amount or 1)
+    return data[name]
+end
+
 --- Gets the value of the flag for this party member named `flag`, returning `default` if the flag does not exist
 function PartyMember:getFlag(name, default)
     local result = self.flags[name]
