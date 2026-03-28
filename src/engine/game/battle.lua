@@ -983,6 +983,8 @@ function Battle:endWaves()
 
     local ending_wave = self.state_reason == "WAVEENDED"
 
+    self.encounter:onWavesDone()
+
     if self:hasCutscene() then
         self.cutscene:after(function()
             exitWaves()
@@ -998,8 +1000,6 @@ function Battle:endWaves()
             end
         end)
     end
-
-    self.encounter:onWavesDone()
 end
 
 --- Gets the location the soul should spawn at when waves start by default
