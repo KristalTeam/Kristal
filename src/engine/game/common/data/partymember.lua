@@ -278,7 +278,7 @@ function PartyMember:getLightEXP() return self.lw_exp end
 function PartyMember:getLightEXPNeeded(lv) return self.lw_exp_needed[lv] or 0 end
 
 function PartyMember:getSoulPriority() return self.soul_priority end
-function PartyMember:getSoulColor() return Utils.unpackColor(self.soul_color or { 1, 0, 0 }) end
+function PartyMember:getSoulColor() return ColorUtils.unpackColor(self.soul_color or { 1, 0, 0 }) end
 
 function PartyMember:hasAct() return self.has_act end
 function PartyMember:hasSpells() return self.has_spells end
@@ -313,24 +313,24 @@ function PartyMember:getStatBuff(stat)
     return self:getStatBuffs()[stat] or 0
 end
 
-function PartyMember:getColor() return Utils.unpackColor(self.color) end
+function PartyMember:getColor() return ColorUtils.unpackColor(self.color) end
 function PartyMember:getDamageColor()
     if self.dmg_color then
-        return Utils.unpackColor(self.dmg_color)
+        return ColorUtils.unpackColor(self.dmg_color)
     else
         return self:getColor()
     end
 end
 function PartyMember:getAttackBarColor()
     if self.attack_bar_color then
-        return Utils.unpackColor(self.attack_bar_color)
+        return ColorUtils.unpackColor(self.attack_bar_color)
     else
         return self:getColor()
     end
 end
 function PartyMember:getAttackBoxColor()
     if self.attack_box_color then
-        return Utils.unpackColor(self.attack_box_color)
+        return ColorUtils.unpackColor(self.attack_box_color)
     else
         local r, g, b, a = self:getColor()
         return r * 0.5, g * 0.5, b * 0.5, a
@@ -338,7 +338,7 @@ function PartyMember:getAttackBoxColor()
 end
 function PartyMember:getXActColor()
     if self.xact_color then
-        return Utils.unpackColor(self.xact_color)
+        return ColorUtils.unpackColor(self.xact_color)
     else
         return self:getColor()
     end
