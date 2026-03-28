@@ -1091,7 +1091,7 @@ end
 ---@return number b # The blue value of the color.
 ---@return number a # The alpha value of the color, or 1 if it was not specified.
 ---
----@deprecated Use the random functions in `ColorUtils.unpackColor` instead
+---@deprecated Use `ColorUtils.unpackColor` instead
 function Utils.unpackColor(color)
     return ColorUtils.unpackColor(color)
 end
