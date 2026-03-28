@@ -177,14 +177,14 @@ end
 
 function character:onPowerSelect(menu)
     if MathUtils.random() < ((Game.chapter == 1) and 0.02 or 0.04) then
-        menu.kris_dog = true
+        self:setLocalWorldData("dog", true)
     else
-        menu.kris_dog = false
+        self:setLocalWorldData("dog", false)
     end
 end
 
 function character:drawPowerStat(index, x, y, menu)
-    if index == 1 and menu.kris_dog then
+    if index == (Game.chapter <= 3 and 1 or 2) and self:getLocalWorldData("dog", false) then
         local frames = Assets.getFrames("misc/dog_sleep")
         local frame = math.floor(Kristal.getTime()) % #frames + 1
         love.graphics.print("Dog:", x, y)
