@@ -361,7 +361,7 @@ function BattleUI:drawState()
             end
 
             if current_item.tp and current_item.tp ~= 0 then
-                Draw.setColor(PALETTE["tension_desc"])
+                Draw.setColor(Game.battle and Game.battle:hasReducedTension() and PALETTE["tension_desc_reduced"] or PALETTE["tension_desc"])
                 love.graphics.print(
                     math.floor((current_item.tp / Game:getMaxTension()) * 100) .. "% " .. Game:getConfig("tpName"), 260 + 240, 50 + (tp_offset * 32)
                 )
