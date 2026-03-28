@@ -283,7 +283,7 @@ function TableUtils.removeDuplicates(tbl, deep)
     for _, f in pairs(result) do
         if type(f) == "table" then
             for _, s in pairs(result) do
-                if Utils.equal(f, s, true) and f ~= s then
+                if Utils.equal(f, s, not isClass(s)) and f ~= s then
                     TableUtils.removeValue(result, s)
                 end
             end
