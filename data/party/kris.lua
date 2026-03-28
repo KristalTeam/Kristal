@@ -177,14 +177,14 @@ end
 
 function character:onPowerSelect(menu)
     if MathUtils.random() < ((Game.chapter == 1) and 0.02 or 0.04) then
-        Game.world:getPartyCharacter(self).kris_dog = true
+        self.kris_dog = true
     else
-        Game.world:getPartyCharacter(self).kris_dog = false
+        self.kris_dog = false
     end
 end
 
 function character:drawPowerStat(index, x, y, menu)
-    if index == (Game.chapter <= 3 and 1 or 2) and Game.world:getPartyCharacter(self).kris_dog then
+    if index == (Game.chapter <= 3 and 1 or 2) and self.kris_dog then
         local frames = Assets.getFrames("misc/dog_sleep")
         local frame = math.floor(Kristal.getTime()) % #frames + 1
         love.graphics.print("Dog:", x, y)

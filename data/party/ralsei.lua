@@ -193,9 +193,9 @@ end
 
 function character:onPowerSelect(menu)
     if MathUtils.random() < 0.02 then
-        Game.world:getPartyCharacter(self).ralsei_dog = true
+        self.ralsei_dog = true
     else
-        Game.world:getPartyCharacter(self).ralsei_dog = false
+        self.ralsei_dog = false
     end
 end
 
@@ -203,7 +203,7 @@ function character:drawPowerStat(index, x, y, menu)
     if index == 1 then
         if Game.chapter == 1 then
             -- Chapter 1 Ralsei "Kindness" stat (doggable)
-            if not Game.world:getPartyCharacter(self).ralsei_dog then
+            if not self.ralsei_dog then
                 local icon = Assets.getTexture("ui/menu/icon/smile")
                 Draw.draw(icon, x-26, y+6, 0, 2, 2)
                 love.graphics.print("Kindness", x, y)
