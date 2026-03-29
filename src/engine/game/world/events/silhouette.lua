@@ -4,6 +4,8 @@
 ---
 ---@field solid boolean
 ---
+---@field color Color? Whether a custom color will be used (Defaults to `{0, 0, 0}`)
+---
 ---@overload fun(...) : Silhouette
 local Silhouette, super = Class(Event)
 
@@ -14,8 +16,7 @@ function Silhouette:init(x, y, shape, properties)
 
     self.solid = false
 
-    self.color = TiledUtils.parseColorProperty(properties["color"]) or { 0, 0, 0, 1 }
-    self.actorcolor = properties["actorcolor"] or false
+    self.color = TiledUtils.parseColorProperty(properties["color"]) or { 0, 0, 0 }
 end
 
 function Silhouette:drawCharacter(object)
@@ -38,7 +39,7 @@ function Silhouette:draw()
         if object:includes(Character) then
             love.graphics.setShader(Kristal.Shaders["AddColor"])
 
-            Kristal.Shaders["AddColor"]:send("inputcolor", self.actorcolor and { object.actor:getColor() } or self.color)
+            Kristal.Shaders["AddColor"]:send("inputcolor", self.color)
             Kristal.Shaders["AddColor"]:send("amount", 1)
 
             self:drawCharacter(object)
@@ -49,7 +50,7 @@ function Silhouette:draw()
 
     Draw.popCanvas()
 
-    Draw.setColor(0, 0, 0, 0.5)
+    Draw.setColor(self.color, 0.5)
     Draw.draw(canvas)
     Draw.setColor(1, 1, 1, 1)
 end
