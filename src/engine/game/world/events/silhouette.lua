@@ -7,10 +7,15 @@
 ---@overload fun(...) : Silhouette
 local Silhouette, super = Class(Event)
 
-function Silhouette:init(x, y, shape)
+function Silhouette:init(x, y, shape, properties)
     super.init(self, x, y, shape)
 
+    properties = properties or {}
+
     self.solid = false
+
+    self.color = TiledUtils.parseColorProperty(properties["color"]) or { 0, 0, 0, 1 }
+    self.actorcolor = properties["actorcolor"] or false
 end
 
 function Silhouette:drawCharacter(object)
@@ -33,7 +38,7 @@ function Silhouette:draw()
         if object:includes(Character) then
             love.graphics.setShader(Kristal.Shaders["AddColor"])
 
-            Kristal.Shaders["AddColor"]:send("inputcolor", { 0, 0, 0, 1 })
+            Kristal.Shaders["AddColor"]:send("inputcolor", self.actorcolor and { object.actor:getColor() } or self.color)
             Kristal.Shaders["AddColor"]:send("amount", 1)
 
             self:drawCharacter(object)
