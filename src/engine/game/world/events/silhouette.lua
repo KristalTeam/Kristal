@@ -4,7 +4,7 @@
 ---
 ---@field solid boolean
 ---
----@field color Color? Whether a custom color will be used (Defaults to `{0, 0, 0}`)
+---@field color Color *[Property `color`]* The color that will be used for the silhouette. (Defaults to `{0, 0, 0}`)
 ---
 ---@overload fun(...) : Silhouette
 local Silhouette, super = Class(Event)
