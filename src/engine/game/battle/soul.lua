@@ -6,7 +6,7 @@
 ---
 ---@field graze_tp_factor   number          A multiplier for the TP earned from grazing by the soul (Defaults to `1`, plus the sum of all party members effective `graze_tp` stats, capped at `3`)
 ---@field graze_time_factor number          A multiplier for the wave time depleted from grazing by the soul (Defaults to `1`, plus the sum of all party members effective `graze_time` stats, capped at `3`)
----@field grze_size_factor  number          A multiplier for the size of the soul's graze hitbox (Defaults to `1`, plus the sum of all party members effective `graze_size` stats, capped at `3`)
+---@field graze_size_factor  number          A multiplier for the size of the soul's graze hitbox (Defaults to `1`, plus the sum of all party members effective `graze_size` stats, capped at `3`)
 ---
 ---@field sprite            Sprite          The Soul's `Sprite` objcet instance
 ---@field graze_sprite      GrazeSprite     The Soul's `GrazeSprite` object instance
