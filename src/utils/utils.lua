@@ -898,6 +898,7 @@ end
 ---@param amount number          # A percentage (from 0 to 1) that determines how much of the second color to merge into the first.
 ---@return number[] result_color # A new table of RGBA values.
 ---
+---@deprecated Use `ColorUtils.mergeColor` instead
 function Utils.mergeColor(start_color, end_color, amount)
     return ColorUtils.mergeColor(start_color, end_color, amount)
 end
