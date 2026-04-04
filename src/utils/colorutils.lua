@@ -255,7 +255,7 @@ end
 ---@param color Color # The color to ensure has an alpha value.
 ---@return Color rgba # The color, with an alpha value.
 function ColorUtils.ensureAlpha(color)
-    return { ColorUtils.unpackColor(color) }
+    return { color[1], color[2], color[3], color[4] or 1 }
 end
 
 return ColorUtils
