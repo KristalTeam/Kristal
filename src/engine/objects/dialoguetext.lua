@@ -87,7 +87,7 @@ function DialogueText:processInitialNodes()
                 self.state.progress = self.state.typed_characters
                 i = i + 1
                 -- If the current mode is a typewriter...
-                if not self.state.skipping and not self:isNodeInstant(current_node) then
+                if not self:isSkipping() and not self:isNodeInstant(current_node) then
                     break
                 end
             end
@@ -112,10 +112,6 @@ function DialogueText:setText(text, advance_callback, line_callback)
     end
     self:resetState()
     self:updateTalkSprite(false)
-
-    if self.fast_skipping_timer >= 1 then
-        self.fast_skipping_timer = self.fast_skipping_timer - 1
-    end
 
     if type(text) == "string" then
         text = { text }
@@ -165,6 +161,9 @@ end
 --- Advances the text to the next line, if there is one. Otherwise, marks the text as done and calls the advance callback if there is one.
 --- If the text is already done, does nothing.
 function DialogueText:advance()
+    self.should_advance = false
+    self.fast_skipping_timer = self.fast_skipping_timer - 1
+
     self.line_index = self.line_index + 1
     if #self.text_table <= 1 then
         if not self.done then
@@ -180,51 +179,110 @@ function DialogueText:advance()
     end
 end
 
-function DialogueText:update()
+--- Returns whether or not the text can be skipped.
+---@return boolean can_skip Whether or not the text can be skipped.
+function DialogueText:canSkip()
+    if not self.skippable then
+        return false
+    end
+
+    if self.state.noskip then
+        return false
+    end
+
+    return true
+end
+
+--- Attempt to skip the text, requested by the player.
+function DialogueText:skip()
+    if self:canSkip() then
+        self.state.skipping = true
+    end
+end
+
+--- Whether or not the text is currently being skipped by the player.
+---@return boolean is_skipping
+function DialogueText:isSkipping()
+    return self.state.skipping
+end
+
+--- Returns whether or not the player is currently holding the skip input.
+---@return boolean
+function DialogueText:skipHeld()
+    return Input.down("cancel") or Input.down("menu")
+end
+
+--- Whether or not the text should advance.
+---@return boolean should_advance
+---@private
+function DialogueText:shouldAdvance()
+    if self:isTyping() then
+        -- Still typing, we shouldn't advance
+        return false
+    end
+
+    if self.auto_advance or self.should_advance then
+        return true
+    end
+
+    if self.can_advance then
+        if Input.pressed("confirm") then
+            return true
+        end
+
+        if self.fast_skipping_timer >= 1 then
+            return true
+        end
+    end
+
+    return false
+end
+
+function DialogueText:updateTypewriter()
     local speed = self.state.speed
 
-    if not OVERLAY_OPEN then
-        if Input.pressed("menu") then
-            self.fast_skipping_timer = 1
-        end
-
-        local input = self.can_advance and
-            (Input.pressed("confirm") or (Input.down("menu") and self.fast_skipping_timer >= 1))
-
-        if input or self.auto_advance or self.should_advance then
-            self.should_advance = false
-            if not self.state.typing then
-                self:advance()
-            end
-        end
-
-        if Input.down("menu") then
-            if self.fast_skipping_timer < 1 then
-                self.fast_skipping_timer = self.fast_skipping_timer + DTMULT
-            end
-        else
-            self.fast_skipping_timer = 0
-        end
-
-        if self.skippable and ((Input.down("cancel") and not self.state.noskip) or (Input.down("menu") and not self.state.noskip)) then
-            if not self.skip_speed then
-                self.state.skipping = true
-            else
-                speed = speed * 2
-            end
-        end
+    if self.skip_speed and self:canSkip() and self:skipHeld() then
+        speed = speed * 2
     end
 
     if self.state.waiting == 0 then
-        self.state.progress = self.state.progress + (DT * 30 * speed)
+        self.state.progress = self.state.progress + (DTMULT * speed)
     else
         self.state.waiting = math.max(0, self.state.waiting - DT)
     end
+end
 
+---@private
+function DialogueText:handleInput()
+    -- If we pressed the menu button, we want to fast skip, make it start at 1
+    if Input.pressed("menu") then
+        self.fast_skipping_timer = 1
+    end
+
+    if self:shouldAdvance() then
+        self:advance()
+    end
+
+    if Input.down("menu") then
+        -- Holding down the button, so increase the timer
+        self.fast_skipping_timer = self.fast_skipping_timer + DTMULT
+    else
+        -- Not holding it anymore
+        self.fast_skipping_timer = 0
+    end
+
+    if self:canSkip() and self:skipHeld() then
+        if not self.skip_speed then
+            self:skip()
+        end
+    end
+end
+
+function DialogueText:updateDrawnNodes()
     if self.state.typing then
         self:drawToCanvas(
             function()
-                while (math.floor(self.state.progress) > self.state.typed_characters) or self.state.skipping do
+                while (math.floor(self.state.progress) > self.state.typed_characters) or self:isSkipping() do
                     local current_node = self.nodes[self.state.current_node]
 
                     if current_node == nil then
@@ -235,7 +293,7 @@ function DialogueText:update()
                     self:playTextSound(current_node)
                     self:processNode(current_node, false)
 
-                    if self.state.skipping then
+                    if self:isSkipping() then
                         self.state.progress = self.state.typed_characters
                     end
 
@@ -244,6 +302,16 @@ function DialogueText:update()
             end
         )
     end
+end
+
+function DialogueText:update()
+    if not OVERLAY_OPEN then
+        self:handleInput()
+    end
+
+    self:updateTypewriter()
+
+    self:updateDrawnNodes()
 
     self:updateTalkSprite(self.state.talk_anim and self.state.typing)
 
@@ -281,7 +349,7 @@ function DialogueText:updateTalkSprite(typing)
 end
 
 function DialogueText:playTextSound(current_node)
-    if self.state.skipping and (Input.down("cancel") or self.played_first_sound) then
+    if self:isSkipping() and (Input.down("cancel") or self.played_first_sound) then
         return
     end
 

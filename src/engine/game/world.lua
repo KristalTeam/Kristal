@@ -153,7 +153,7 @@ function World:heal(target, amount, text)
 end
 
 --- Gets the `Player` and `Follower` characters
----@return T
+---@return (Player|Follower)[]
 function World:getPlayerAndFollowers()
     local characters = TableUtils.copy(self.followers)
     if self.player then
