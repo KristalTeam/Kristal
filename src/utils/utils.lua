@@ -1092,8 +1092,9 @@ end
 ---@return number b # The blue value of the color.
 ---@return number a # The alpha value of the color, or 1 if it was not specified.
 ---
+---@deprecated Use `ColorUtils.unpackColor` instead
 function Utils.unpackColor(color)
-    return color[1], color[2], color[3], color[4] or 1
+    return ColorUtils.unpackColor(color)
 end
 
 ---
