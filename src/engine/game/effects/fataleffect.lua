@@ -55,7 +55,7 @@ end
 
 function FatalEffect:update()
     self.red_timer = self.red_timer + DTMULT
-    self.color = Utils.mergeColor(self.start_color, { 1, 0, 0 }, self.red_timer / 10)
+    self.color = ColorUtils.mergeColor(self.start_color, { 1, 0, 0 }, self.red_timer / 10)
 
     for i = 0, self.blocks_x do
         for j = 0, self.blocks_y do

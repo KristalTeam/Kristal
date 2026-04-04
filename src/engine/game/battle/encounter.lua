@@ -217,13 +217,13 @@ end
 ---@return PartyBattler|PartyMember|Actor|string? actor # The actor to use for the text settings (ex. voice, portrait settings)
 function Encounter:getEncounterText()
     local enemies = Game.battle:getActiveEnemies()
-    local enemy = Utils.pick(enemies, function(v)
+    local enemy = TableUtils.pick(TableUtils.filter(enemies, function(v)
         if not v.text then
             return true
         else
             return #v.text > 0
         end
-    end)
+    end))
     if enemy then
         return enemy:getEncounterText()
     else
