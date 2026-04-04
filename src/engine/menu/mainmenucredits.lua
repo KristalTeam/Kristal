@@ -78,12 +78,12 @@ function MainMenuCredits:init(menu)
                 { "GitHub Contributors", COLORS.silver },
                 "skarph",
                 "SuperOfSrb2",
+                "SweetSylveon",
                 "TFLTV",
                 "TheSkerch",
                 "Verozity",
                 "WIL-TZY",
                 "YeetusSnoopy",
-                "",
                 "",
                 ""
             }
