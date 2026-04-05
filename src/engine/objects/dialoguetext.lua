@@ -43,6 +43,7 @@ function DialogueText:init(text, x, y, w, h, options)
     self.last_talking = false
     self.functions = {}
     self.text_table = text
+    self.paused = false
 
     self.can_advance = true
     self.auto_advance = false
@@ -238,7 +239,21 @@ function DialogueText:shouldAdvance()
     return false
 end
 
+--- Pause the progress of the text. Nothing will be updated other than input.
+function DialogueText:setPaused(paused)
+    self.paused = paused
+end
+
+--- Whether or not the text is currently paused.
+function DialogueText:isPaused()
+    return self.paused
+end
+
 function DialogueText:updateTypewriter()
+    if self.paused then
+        return
+    end
+
     local speed = self.state.speed
 
     if self.skip_speed and self:canSkip() and self:skipHeld() then
