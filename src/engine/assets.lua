@@ -404,6 +404,12 @@ function Assets.stopSound(sound, actually_stop)
     end
 end
 
+function Assets.stopAllSounds()
+    for key,_ in pairs(Assets.sound_instances) do
+        Assets.stopSound(key, true)
+    end
+end
+
 ---@param sound string
 ---@param volume? number
 ---@param pitch? number
