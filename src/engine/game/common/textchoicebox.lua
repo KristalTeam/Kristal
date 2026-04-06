@@ -24,13 +24,11 @@ end
 
 function TextChoicebox:createChoiceTexts()
     for i = (self.multi_line_mode and 2 or 0), 0, -1 do
-        table.insert(self.choices_text, self:addChild(DialogueText("", 148, 68 - 36 * i)))
-        table.insert(self.choices_text, self:addChild(DialogueText("", 340, 68 - 36 * i)))
+        table.insert(self.choices_text, self:addChild(DialogueText("", 148, 68 - 36 * i, nil, nil, { paused = true })))
+        table.insert(self.choices_text, self:addChild(DialogueText("", 340, 68 - 36 * i, nil, nil, { paused = true })))
     end
 
     for i, text in ipairs(self.choices_text) do
-        text:setPaused(true)
-
         local wait = "[wait:10]"
         if self.face.texture then
             text.x = text.x + 2

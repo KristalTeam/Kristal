@@ -36,6 +36,13 @@ function DialogueText:init(text, x, y, w, h, options)
     end
     self.fast_skipping_timer = 0
     self.played_first_sound = false
+
+    self.paused = false
+
+    if options["paused"] then
+        self.paused = true
+    end
+
     super.init(self, text[1], x or 0, y or 0, w or SCREEN_WIDTH, h or SCREEN_HEIGHT, options)
     self.skippable = true
     self.skip_speed = false
@@ -43,7 +50,6 @@ function DialogueText:init(text, x, y, w, h, options)
     self.last_talking = false
     self.functions = {}
     self.text_table = text
-    self.paused = false
 
     self.can_advance = true
     self.auto_advance = false
@@ -75,9 +81,18 @@ end
 function DialogueText:resetState()
     super.resetState(self)
     self.state["typing_sound"] = "default"
+
+    if self:isPaused() then
+        self.state.progress = 0
+    end
 end
 
 function DialogueText:processInitialNodes()
+    if self:isPaused() then
+        -- Don't process initial nodes
+        return
+    end
+
     self:drawToCanvas(
         function()
             local i = 1
@@ -294,7 +309,7 @@ function DialogueText:handleInput()
 end
 
 function DialogueText:updateDrawnNodes()
-    if self.state.typing then
+    if self.state.typing and not self:isPaused() then
         self:drawToCanvas(
             function()
                 while (math.floor(self.state.progress) > self.state.typed_characters) or self:isSkipping() do
