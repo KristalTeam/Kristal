@@ -240,6 +240,8 @@ function MainMenuModConfig:registerOptions()
     self:registerOption("newShopSpaceUI", "New Shop Space UI", "Whether shops use the new display for remaining space", "selection", { nil, true, false })
     self:registerOption("shopSpaceUIFont", "Shop Space UI Font", "The font used for the remaining space UI in shops", "selection", { nil, "8bit", "8bit_old" })
     self:registerOption("healthConversion", "Health Conversion", "Whether health gets converted (properly) or not between the light and dark worlds", "selection", { nil, true, false })
+
+    self:registerOption("defaultInvulnTime", "Default Invulnerability Time", "The default length of invulnerability given to the player when hit by a bullet, in frames. (30 frames = 1 second)", "selection", { nil, 30, 40, 60 }) -- unhardcode
 end
 
 function MainMenuModConfig:registerOption(id, name, description, type, options)

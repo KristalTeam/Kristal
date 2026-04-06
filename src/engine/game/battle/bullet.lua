@@ -55,8 +55,8 @@ function Bullet:init(x, y, texture)
 
     -- Damage given to the player when hit by this bullet (Defaults to 5x the attacker's attack stat)
     self.damage = nil
-    -- Invulnerability timer to apply to the player when hit by this bullet (Defaults to 4/3 seconds)
-    self.inv_timer = (4 / 3)
+    -- Invulnerability timer to apply to the player when hit by this bullet
+    self.inv_timer = Game:getConfig("defaultInvulnTime") / 30
     -- Whether this bullet gets removed on collision with the player (Defaults to `true`)
     self.destroy_on_hit = true
 
