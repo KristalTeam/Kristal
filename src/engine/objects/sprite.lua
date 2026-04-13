@@ -404,9 +404,10 @@ end
 ---@param offset_x? number  The x-offset of the flash sprite
 ---@param offset_y? number  The y-offset of the flash sprite
 ---@param layer?    number  (Defaults to `100`)
+---@param color?    Color   The color used to draw the flash, defaulting to white
 ---@return FlashFade
-function Sprite:flash(offset_x, offset_y, layer)
-    local flash = FlashFade(self.texture, offset_x or 0, offset_y or 0)
+function Sprite:flash(offset_x, offset_y, layer, color)
+    local flash = FlashFade(self.texture, offset_x or 0, offset_y or 0, color)
     flash.layer = layer or 100 -- TODO: Unhardcode?
     self:addChild(flash)
     return flash
