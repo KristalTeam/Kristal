@@ -288,9 +288,10 @@ end
 ---@param offset_x? number
 ---@param offset_y? number
 ---@param layer?    number
+---@param color?    Color   The color used to draw the flash, defaulting to white
 ---@return FlashFade
-function PartyBattler:flash(sprite, offset_x, offset_y, layer)
-    return super.flash(self, sprite or self.overlay_sprite.visible and self.overlay_sprite or self.sprite, offset_x, offset_y, layer)
+function PartyBattler:flash(sprite, offset_x, offset_y, layer, color)
+    return super.flash(self, sprite or self.overlay_sprite.visible and self.overlay_sprite or self.sprite, offset_x, offset_y, layer, color)
 end
 
 --- Heals the Battler by `amount` health and does healing effects
