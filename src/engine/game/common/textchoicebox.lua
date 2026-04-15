@@ -20,12 +20,35 @@ function TextChoicebox:init(x, y, width, height, default_font, default_font_size
     self.multi_line_mode = false
 
     self:setAdvance(false)
+
+    self.text:setSkipCallback(function(text) self:skipAll(text) end)
+end
+
+function TextChoicebox:skipAll(skip_text)
+    local to_skip = { self.text }
+    for _, text in ipairs(self.choices_text) do
+        table.insert(to_skip, text)
+    end
+
+    for _, text in ipairs(to_skip) do
+        if text ~= skip_text and text:canSkip() then
+            text:setSkipCallback(nil)
+            text:setPaused(false)
+            text:skip()
+        end
+    end
 end
 
 function TextChoicebox:createChoiceTexts()
     for i = (self.multi_line_mode and 2 or 0), 0, -1 do
-        table.insert(self.choices_text, self:addChild(DialogueText("", 148, 68 - 36 * i, nil, nil, { paused = true })))
-        table.insert(self.choices_text, self:addChild(DialogueText("", 340, 68 - 36 * i, nil, nil, { paused = true })))
+        local text_a = self:addChild(DialogueText("", 148, 68 - 36 * i, nil, nil, { paused = true }))
+        local text_b = self:addChild(DialogueText("", 340, 68 - 36 * i, nil, nil, { paused = true }))
+
+        text_a:setSkipCallback(function() self:skipAll() end)
+        text_b:setSkipCallback(function() self:skipAll() end)
+
+        table.insert(self.choices_text, text_a)
+        table.insert(self.choices_text, text_b)
     end
 
     for i, text in ipairs(self.choices_text) do
@@ -117,13 +140,16 @@ function TextChoicebox:update()
 
     if self.added_text_boxes then
         if not self.text:isTyping() then
-            if self.typing_choice_text <= #self.choices_text then
+            while self.typing_choice_text <= #self.choices_text do
                 local text = self.choices_text[self.typing_choice_text]
 
                 text:setPaused(false)
+                text:updateTypewriter()
 
                 if not text:isTyping() then
                     self.typing_choice_text = self.typing_choice_text + 1
+                else
+                    break
                 end
             end
         end

@@ -55,6 +55,7 @@ function DialogueText:init(text, x, y, w, h, options)
     self.auto_advance = false
     self.advance_callback = nil
     self.line_callback = nil
+    self.skip_callback = nil
     self.line_index = 1
     self.actor = options["actor"]
 
@@ -209,10 +210,19 @@ function DialogueText:canSkip()
     return true
 end
 
+---@param func fun(text: DialogueText)? The function to call when the text is skipped by the player.
+function DialogueText:setSkipCallback(func)
+    self.skip_callback = func
+end
+
 --- Attempt to skip the text, requested by the player.
 function DialogueText:skip()
     if self:canSkip() then
         self.state.skipping = true
+
+        if self.skip_callback then
+            self.skip_callback(self)
+        end
     end
 end
 
