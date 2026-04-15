@@ -144,7 +144,6 @@ function TextChoicebox:update()
                 local text = self.choices_text[self.typing_choice_text]
 
                 text:setPaused(false)
-                text:updateTypewriter()
 
                 if not text:isTyping() then
                     self.typing_choice_text = self.typing_choice_text + 1
