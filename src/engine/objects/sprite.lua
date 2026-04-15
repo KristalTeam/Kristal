@@ -453,7 +453,7 @@ function Sprite:crossFadeToSpeed(texture, speed, fade_out, after)
     self.crossfade_speed = speed or 0.04
     self.crossfade_out = fade_out
     self.crossfade_after = function(self)
-        self:setTexture(texture)
+        self:setTexture(self:getPath(texture))
         self:resetCrossFade()
         if after then after(self) end
     end
