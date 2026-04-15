@@ -44,8 +44,8 @@ function TextChoicebox:createChoiceTexts()
         local text_a = self:addChild(DialogueText("", 148, 68 - 36 * i, nil, nil, { paused = true }))
         local text_b = self:addChild(DialogueText("", 340, 68 - 36 * i, nil, nil, { paused = true }))
 
-        text_a:setSkipCallback(function() self:skipAll() end)
-        text_b:setSkipCallback(function() self:skipAll() end)
+        text_a:setSkipCallback(function(text) self:skipAll(text) end)
+        text_b:setSkipCallback(function(text) self:skipAll(text) end)
 
         table.insert(self.choices_text, text_a)
         table.insert(self.choices_text, text_b)
