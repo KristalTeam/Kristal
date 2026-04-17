@@ -1691,7 +1691,7 @@ function Kristal.getSoulColor()
     if Kristal.getState() == Game then
         return Game:getSoulColor()
     end
-    return ColorUtils.unpackColor(COLORS.red)
+    return 1, 0, 0, 1
 end
 
 --- Called internally. Loads the saved user config, with default values.
