@@ -951,6 +951,11 @@ function DebugSystem:registerSubMenus()
         "music_test",
         function()
             self:fadeMusicOut(0)
+            if self.music then
+                self.music:remove()
+                self.music = nil
+            end
+            self.music = Music()
         end
     )
     self:registerMenuLeave(
@@ -960,7 +965,8 @@ function DebugSystem:registerSubMenus()
             self.music:fade(
                 0, 0.5,
                 function()
-                    self.music:stop()
+                    self.music:remove()
+                    self.music = nil
                 end
             )
         end
