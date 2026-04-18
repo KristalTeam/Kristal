@@ -951,6 +951,8 @@ function DebugSystem:registerSubMenus()
         "music_test",
         function()
             self:fadeMusicOut(0)
+            if self.music then self.music:stop() end
+            self.music = Music()
         end
     )
     self:registerMenuLeave(
