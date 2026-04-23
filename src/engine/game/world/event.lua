@@ -143,7 +143,7 @@ function Event:onRemove(parent)
     end
 end
 
---- Gets this `Event` instance's unique id within the whole mod
+--- Gets this `Event` instance's unique id within the whole project
 --- *The returned id follows the format `#[map.id](lua://Map.id)#[object_id](lua://Event.object_id)` if a custom [`unique_id`](lua://Event.unique_id) is not defined*
 ---@return string? id
 function Event:getUniqueID()

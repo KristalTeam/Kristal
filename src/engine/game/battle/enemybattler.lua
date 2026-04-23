@@ -1,5 +1,5 @@
 --- `EnemyBattler`s are a type of `Battler` that represent enemies, defining all their properties and behaviours. \
---- Every enemy defined in a mod should be located in its own file in `scripts/battle/enemies/`, and should extend this class. \
+--- Every enemy defined in a project should be located in its own file in `scripts/battle/enemies/`, and should extend this class. \
 --- Each enemy is assigned an id that defaults to their filepath starting from `scripts/battle/enemies`, unless an id is specified as an argument to `Class()`. \
 --- Enemies are added to battles in the encounter, with [`Encounter:addEnemy(enemy, x, y, ...)`](lua://Encounter.addEnemy), where `enemy` is their unique id, and all enemies for the current battle reside in [`Game.battle.enemies`](lua://Battle.enemies)
 ---

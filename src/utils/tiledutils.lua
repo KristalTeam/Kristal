@@ -208,7 +208,7 @@ end
 
 ---
 --- Attempts to resolve a relative path from a Tiled export to a valid asset id, given it points to a path inside the
---- `target_dir` of the current mod.
+--- `target_dir` of the current project.
 ---
 --- Relative directories (`..`) of the asset path are resolved by starting from the `source_dir`, which should match the
 --- directory the Tiled data was exported to. Exporting to a different directory and copying/moving the exported data will
