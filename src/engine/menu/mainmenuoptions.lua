@@ -654,8 +654,6 @@ function MainMenuOptions:initializeOptions()
     )
 
     self:registerConfigOption("engine", "Skip Name Entry", "skipNameEntry")
-
-    self:registerConfigOption("engine", "Debug Hotkeys", "debug")
     self:registerConfigOption("engine", "Verbose Loader", "verboseLoader")
     self:registerConfigOption("engine", "Use System Mouse", "systemCursor", function() Kristal.updateCursor() end)
     self:registerConfigOption("engine", "Always Show Mouse", "alwaysShowCursor", function() Kristal.updateCursor() end)

@@ -45,7 +45,7 @@ function MainMenuFileSelect:onEnter(old_state)
 
     self.selected_x = 1
     self.selected_y = 1
-    
+
     self.menu.heart:setColor(Kristal.getSoulColor())
     if MainMenu.mod_list:getSelectedMod().soulColor then
         self.menu.heart:setColor(MainMenu.mod_list:getSelectedMod().soulColor)

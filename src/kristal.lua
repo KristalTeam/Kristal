@@ -488,14 +488,37 @@ function love.keyreleased(key)
     Input.onKeyReleased(key)
 end
 
-function Kristal.onKeyPressed(key, is_repeat)
-    if Input.ctrl() and Input.shift() and Input.alt() and key == "t" and not is_repeat then -- Panic button for binds
-        Input.resetBinds()
-        Input.saveBinds()
-        Assets.playSound("impact")
-        return
+--- Whether or not developer mode is enabled.
+---@return boolean
+function Kristal.isDevMode()
+    if Mod ~= nil then
+        -- We're in a project, so use the project's value... unless overridden
+        return DEBUG_OVERRIDE or Mod.info.dev
     end
 
+    -- We're not in a mod; use our global value
+    return not RELEASE_MODE
+end
+
+--- Whether or not to show the "dev mode enabled" warning.
+---@return boolean
+function Kristal.shouldDisplayDevWarning()
+    if Mod ~= nil then
+        -- We're in a project
+
+        if Mod.info.dev then
+            -- Don't show it, the project allows developer mode
+            return false
+        end
+
+        return DEBUG_OVERRIDE
+    end
+
+    -- We're not even in a project
+    return false
+end
+
+function Kristal.onKeyPressed(key, is_repeat)
     if not TextInput.active and not (Input.gamepad_locked and Input.isGamepad(key)) then
         if not StringUtils.startsWith(key, "gamepad:") then
             Input.active_gamepad = nil
@@ -508,24 +531,44 @@ function Kristal.onKeyPressed(key, is_repeat)
     end
 
     if Input.shouldProcess(key) and not TextInput.active then
-        if Input.is("debug_menu", key) then
-            if Kristal.DebugSystem then
-                Input.clear("debug_menu")
-                if Kristal.DebugSystem:isMenuOpen() then
+        if Input.ctrl() and Input.shift() and Input.alt() and key == "t" and not is_repeat then -- Panic button for binds
+            Input.resetBinds()
+            Input.saveBinds()
+            Assets.playSound("impact")
+            return
+        end
+
+        if Mod ~= nil then
+            if Input.ctrl() and Input.shift() and Input.alt() and key == "m" and not is_repeat then -- Enable developer mode for the current project
+                if not DEBUG_OVERRIDE then
+                    DEBUG_OVERRIDE = true
+                    Assets.playSound("bump")
+                    Assets.playSound("him_quick")
+                end
+                return
+            end
+        end
+
+        if Kristal.isDevMode() then
+            if Input.is("debug_menu", key) then
+                if Kristal.DebugSystem then
+                    Input.clear("debug_menu")
+                    if Kristal.DebugSystem:isMenuOpen() then
+                        Assets.playSound("ui_move")
+                        Kristal.DebugSystem:closeMenu()
+                    else
+                        Kristal.DebugSystem:openMenu()
+                    end
+                end
+            elseif Input.is("console", key) then
+                if Kristal.DebugSystem and Kristal.DebugSystem:isMenuOpen() then
                     Assets.playSound("ui_move")
                     Kristal.DebugSystem:closeMenu()
-                else
-                    Kristal.DebugSystem:openMenu()
-                end
-            end
-        elseif Input.is("console", key) then
-            if Kristal.DebugSystem and Kristal.DebugSystem:isMenuOpen() then
-                Assets.playSound("ui_move")
-                Kristal.DebugSystem:closeMenu()
-            elseif Kristal.Console then
-                if not Kristal.Console.is_open then
-                    Input.clear("console")
-                    Kristal.Console:open()
+                elseif Kristal.Console then
+                    if not Kristal.Console.is_open then
+                        Input.clear("console")
+                        Kristal.Console:open()
+                    end
                 end
             end
         end
@@ -1163,12 +1206,27 @@ function Kristal.clearModState()
     -- Clear disruptive active globals
     Object._clearCache()
     Draw._clearStacks()
+
     MOD_LOADING = false
+
     Kristal.LoadedModScripts = {}
+
     -- End the current project
     Kristal.callEvent(KRISTAL_EVENT.unload)
     Kristal.callEvent(KRISTAL_EVENT.cleanup)
     Mod = nil
+
+    DEBUG_OVERRIDE = false
+
+    -- Close the console or debug menu if open
+    -- (We don't care much if someone "smuggles" them out of the Game state, but we'll try to close them if we can)
+    if Kristal.DebugSystem then
+        Kristal.DebugSystem:closeMenu()
+    end
+
+    if Kristal.Console then
+        Kristal.Console:close()
+    end
 
     Kristal.Mods.clear()
     Kristal.clearModHooks()
@@ -1387,6 +1445,11 @@ function Kristal.loadMod(id, save_id, save_name, after)
         Mod.libs[lib_id] = lib
         -- Cache the library to be accessible through modRequire/libRequire
         Kristal.LoadedModScripts["libraries." .. lib_id .. ".lib"] = lib
+    end
+
+    if Mod.info.dev == nil then
+        -- No explicit dev mode value, default to true
+        Mod.info.dev = true
     end
 
     Kristal.loadModAssets(mod.id, "all", "", after or function()
@@ -1704,7 +1767,6 @@ function Kristal.loadConfig()
         fps = 30,
         vSync = false,
         frameSkip = false,
-        debug = false,
         fullscreen = false,
         simplifyVFX = false,
         autoRun = false,

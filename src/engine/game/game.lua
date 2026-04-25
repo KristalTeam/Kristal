@@ -1213,6 +1213,25 @@ function Game:onWheelMoved(x, y)
     Kristal.callEvent(KRISTAL_EVENT.onWheelMoved, x, y)
 end
 
+--- Responsible for drawing the "Developer Mode Enabled" warning in the top right of the screen when developer mode is forcibly enabled.
+function Game:drawDevWarning()
+    if Kristal.shouldDisplayDevWarning() then
+        love.graphics.push()
+
+        local small_font = Assets.getFont("main", 16)
+        love.graphics.setFont(small_font)
+        local notice = "Developer Mode Enabled"
+        Draw.setColor(0, 0, 0, 1)
+        love.graphics.print(notice, SCREEN_WIDTH - small_font:getWidth(notice) - 5, 4)
+        love.graphics.print(notice, SCREEN_WIDTH - small_font:getWidth(notice) - 3, 4)
+        love.graphics.print(notice, SCREEN_WIDTH - small_font:getWidth(notice) - 4, 3)
+        love.graphics.print(notice, SCREEN_WIDTH - small_font:getWidth(notice) - 4, 5)
+        Draw.setColor(1, 1, 1, 0.75)
+        love.graphics.print(notice, SCREEN_WIDTH - small_font:getWidth(notice) - 4, 4)
+        love.graphics.pop()
+    end
+end
+
 function Game:draw()
     love.graphics.clear(0, 0, 0, 1)
     love.graphics.push()
@@ -1227,6 +1246,8 @@ function Game:draw()
     love.graphics.push()
     Kristal.callEvent(KRISTAL_EVENT.postDraw)
     love.graphics.pop()
+
+    self:drawDevWarning()
 end
 
 return Game
