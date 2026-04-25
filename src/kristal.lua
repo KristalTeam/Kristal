@@ -585,6 +585,8 @@ function Kristal.onKeyPressed(key, is_repeat)
             -- Developer hotkeys
             if key == "f2" or (Input.is("fast_forward", key) and not console_open) then
                 FAST_FORWARD = not FAST_FORWARD
+            elseif key == "f3" then
+                love.system.openURL("https://kristal.cc/wiki")
             elseif key == "f6" then
                 DEBUG_RENDER = not DEBUG_RENDER
             elseif key == "f8" then
@@ -612,9 +614,7 @@ function Kristal.onKeyPressed(key, is_repeat)
             end
         end
 
-        if key == "f3" then
-            love.system.openURL("https://kristal.cc/wiki")
-        elseif key == "f4" or (key == "return" and Input.alt()) then
+        if key == "f4" or (key == "return" and Input.alt()) then
             Kristal.Config["fullscreen"] = not Kristal.Config["fullscreen"]
             love.window.setFullscreen(Kristal.Config["fullscreen"])
         elseif key == "f9" and Input.shift() then
