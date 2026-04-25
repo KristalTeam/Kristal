@@ -132,7 +132,7 @@ local palette_data = {
     ["tension_maxtext_reduced"] = { 1, 1, 0, 1 },
     ["tension_desc_reduced"] = { 255 / 255, 160 / 255, 64 / 255, 1 }
 }
----@type table<PaletteIndex, number[]>
+---@type table<PaletteIndex, Color>
 PALETTE = {}
 setmetatable(PALETTE, {
     __index = function(t, i) return Kristal.callEvent(KRISTAL_EVENT.getPaletteColor, i) or palette_data[i] end,

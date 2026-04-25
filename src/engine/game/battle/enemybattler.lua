@@ -170,6 +170,12 @@ function EnemyBattler:getMercyDisplay()
     return math.ceil(self.mercy) .. "%"
 end
 
+--- *(Override)* Get what color this enemy's MERCY should use in the enemy select menu.
+---@return Color
+function EnemyBattler:getMercyColor()
+    return PALETTE["battle_mercy_text"]
+end
+
 --- *(Override)* Get the default graze tension for this enemy.
 --- Any bullets which don't specify graze tension will use this value.
 ---@return number tension The tension to gain when bullets spawned by this enemy are grazed.
