@@ -581,18 +581,42 @@ function Kristal.onKeyPressed(key, is_repeat)
     local console_open = Kristal.Console and Kristal.Console.is_open
 
     if not is_repeat and Input.shouldProcess(key) then
-        if key == "f2" or (Input.is("fast_forward", key) and not console_open) then
-            FAST_FORWARD = not FAST_FORWARD
-        elseif key == "f3" then
+        if Kristal.isDevMode() then
+            -- Developer hotkeys
+            if key == "f2" or (Input.is("fast_forward", key) and not console_open) then
+                FAST_FORWARD = not FAST_FORWARD
+            elseif key == "f6" then
+                DEBUG_RENDER = not DEBUG_RENDER
+            elseif key == "f8" then
+                print("Hotswapping files...\nNOTE: Might be unstable. If anything goes wrong, it's not our fault :P")
+                Hotswapper.scan()
+            elseif key == "r" and Input.ctrl() and (not console_open) then
+                -- CTRL+R to reload
+                if (not Kristal.isLoading()) and (Kristal.getState() ~= LoadingState) then
+                    if Kristal.getModOption("hardReset") or Input.alt() and Input.shift() then
+                        love.event.quit("restart")
+                    else
+                        if Mod then
+                            if Input.alt() then
+                                Kristal.quickReload("none")
+                            elseif Input.shift() then
+                                Kristal.quickReload("save")
+                            else
+                                Kristal.quickReload("temp")
+                            end
+                        else
+                            Kristal.returnToMenu()
+                        end
+                    end
+                end
+            end
+        end
+
+        if key == "f3" then
             love.system.openURL("https://kristal.cc/wiki")
         elseif key == "f4" or (key == "return" and Input.alt()) then
             Kristal.Config["fullscreen"] = not Kristal.Config["fullscreen"]
             love.window.setFullscreen(Kristal.Config["fullscreen"])
-        elseif key == "f6" then
-            DEBUG_RENDER = not DEBUG_RENDER
-        elseif key == "f8" then
-            print("Hotswapping files...\nNOTE: Might be unstable. If anything goes wrong, it's not our fault :P")
-            Hotswapper.scan()
         elseif key == "f9" and Input.shift() then
             love.filesystem.createDirectory("screenshots")
             -- FIXME: the game might freeze when using love.system.openURL to open a file directory
@@ -608,25 +632,6 @@ function Kristal.onKeyPressed(key, is_repeat)
             Assets.playSound("camera_flash")
             SCREENSHOT_DISPLAY = 0
             TAKING_SCREENSHOT = true
-        elseif key == "r" and Input.ctrl() and (not console_open) then
-            -- CTRL+R to reload
-            if (not Kristal.isLoading()) and (Kristal.getState() ~= LoadingState) then
-                if Kristal.getModOption("hardReset") or Input.alt() and Input.shift() then
-                    love.event.quit("restart")
-                else
-                    if Mod then
-                        if Input.alt() then
-                            Kristal.quickReload("none")
-                        elseif Input.shift() then
-                            Kristal.quickReload("save")
-                        else
-                            Kristal.quickReload("temp")
-                        end
-                    else
-                        Kristal.returnToMenu()
-                    end
-                end
-            end
         end
     end
 
@@ -1218,6 +1223,9 @@ function Kristal.clearModState()
 
     DEBUG_OVERRIDE = false
 
+    FAST_FORWARD = false
+    DEBUG_RENDER = false
+
     -- Close the console or debug menu if open
     -- (We don't care much if someone "smuggles" them out of the Game state, but we'll try to close them if we can)
     if Kristal.DebugSystem then
@@ -1456,6 +1464,8 @@ function Kristal.loadMod(id, save_id, save_name, after)
         if Kristal.preInitMod(mod.id) then
             Kristal.setDesiredWindowTitleAndIcon()
             Kristal.setState("Game", save_id, save_name)
+            FAST_FORWARD = false
+            DEBUG_RENDER = false
         end
     end)
 
