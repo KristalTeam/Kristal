@@ -1,6 +1,6 @@
 local Hotswapper = {}
 
-local enabled = true
+local enabled = not RELEASE_MODE
 
 local dir = love.filesystem.getDirectoryItems
 local time = love.timer.getTime
@@ -10,7 +10,7 @@ Hotswapper.files = {
     registry = {}
 }
 
-package.path = package.path..";"..love.filesystem.getSource().."/?.lua"
+package.path = package.path .. ";" .. love.filesystem.getSource() .. "/?.lua"
 
 function Hotswapper.updateFiles(file_type)
     if not enabled then return end
