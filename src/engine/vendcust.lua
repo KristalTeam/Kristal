@@ -19,4 +19,4 @@ AUTO_MOD_START = false
 --- Controls whether Kristal development-related features are enabled or not.
 ---
 --- For official builds, this is true. In interm builds, this is false.
-RELEASE_MODE = true
+RELEASE_MODE = false
