@@ -344,7 +344,7 @@ function BattleCutscene:text(text, portrait, actor, options)
     options = options or {}
 
     actor = actor or self.textbox_actor
-    if isClass(actor) and actor:includes(Battler) then
+    if isClass(actor) and (actor:includes(Battler) or actor:includes(Character)) then
         actor = actor.actor
     end
 
