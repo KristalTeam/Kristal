@@ -13,6 +13,8 @@
 ---@field cost number           The TP cost of the spell
 ---@field usable boolean        Whether the spell can be cast
 ---
+---@field custom_data table     Initial arguments of the spell (optional)
+---
 ---@field target string         The target mode of the spell - valid options are `"ally"`, `"party"`, `"enemy"`, `"enemies"`, and `"none"`
 ---
 --- Tags that apply to this spell \
@@ -37,6 +39,8 @@ function Spell:init()
     self.usable = true
 
     self.target = "none"
+    
+    self.custom_data = nil
 
     self.tags = {}
 end
