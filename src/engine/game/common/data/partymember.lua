@@ -557,8 +557,9 @@ function PartyMember:replaceSpell(spell, replacement, ...)
     local tempspells = {}
     for _, v in ipairs(self.spells) do
         if v == spell or (type(spell) == "string" and v.id == spell) then
-            table.insert(tempspells, Registry.createSpell(replacement, ...))
-            tempspells.custom_data = {...}
+            local new_spell = Registry.createSpell(replacement, ...)
+            table.insert(tempspells, new_spell)
+            new_spell.custom_data = {...}
         else
             table.insert(tempspells, v)
         end
@@ -878,10 +879,19 @@ end
 function PartyMember:loadSpells(data)
     self.spells = {}
     for i, v in ipairs(data) do
-        if Registry.getSpell(v[1]) then
-            self:addSpell(v[1], TableUtils.unpack(v[2]))
+        if type(data) == "table" then
+            if Registry.getSpell(v[1]) then
+                self:addSpell(v[1], TableUtils.unpack(v[2]))
+            else
+                Kristal.Console:error("Could not load spell \"" .. (v[1] or "nil") .. "\"")
+            end
         else
-            Kristal.Console:error("Could not load spell \"" .. (v[1] or "nil") .. "\"")
+            -- fallback to the deprecated system
+            if Registry.getSpell(v) then
+                self:addSpell(v, TableUtils.unpack(v))
+            else
+                Kristal.Console:error("Could not load spell \"" .. (v or "nil") .. "\"")
+            end
         end
     end
 end

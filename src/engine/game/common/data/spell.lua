@@ -40,7 +40,7 @@ function Spell:init()
 
     self.target = "none"
     
-    self.custom_data = nil
+    self.custom_data = {}
 
     self.tags = {}
 end
