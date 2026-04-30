@@ -558,8 +558,8 @@ function PartyMember:replaceSpell(spell, replacement, ...)
     for _, v in ipairs(self.spells) do
         if v == spell or (type(spell) == "string" and v.id == spell) then
             local new_spell = Registry.createSpell(replacement, ...)
-            table.insert(tempspells, new_spell)
             new_spell.custom_data = {...}
+            table.insert(tempspells, new_spell)
         else
             table.insert(tempspells, v)
         end
