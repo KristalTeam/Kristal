@@ -32,9 +32,7 @@ function spell:init(style)
     self.usage_bonus_multiplier = 1
     
     -- Spell style
-    self.style = style or "ultimate_heal"
-    
-    if self.style == "ultra_heal" then
+    if style == "ultra_heal" then
         self.name = "UltraHeal"
         self.cast_name = nil
         self.description = "An awesome healing spell.\n... right?"
@@ -44,7 +42,7 @@ function spell:init(style)
         self.usage_cost_reduction = 1
         self.usage_bonus_limit = 5
         self.usage_bonus_multiplier = 1
-    elseif self.style == "ok_heal" then
+    elseif style == "ok_heal" then
         self.name = "OKHeal"
         self.cast_name = nil
         self.effect = "OK\nhealing"
@@ -55,7 +53,7 @@ function spell:init(style)
         self.usage_cost_reduction = 1 / 3
         self.usage_bonus_limit = 15
         self.usage_bonus_multiplier = 2
-    elseif self.style == "better_heal" then
+    elseif style == "better_heal" then
         self.name = "BetterHeal"
         self.cast_name = "BetterHeal"
         self.effect = "Heal\nally"
