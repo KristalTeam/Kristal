@@ -897,8 +897,8 @@ end
 ---@param data table string|any An array of the spell IDs and its custom data this party member knows
 function PartyMember:loadSpells(data)
     self.spells = {}
-    for i, v in ipairs(data) do
-        if type(data) == "table" then
+    for _, v in ipairs(data) do
+        if type(v) == "table" then
             if Registry.getSpell(v[1]) then
                 self:addSpell(v[1], TableUtils.unpack(v[2]))
             else
@@ -907,7 +907,7 @@ function PartyMember:loadSpells(data)
         else
             -- fallback to the deprecated system
             if Registry.getSpell(v) then
-                self:addSpell(v, TableUtils.unpack(v))
+                self:addSpell(v)
             else
                 Kristal.Console:error("Could not load spell \"" .. (v or "nil") .. "\"")
             end
