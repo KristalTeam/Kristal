@@ -1,6 +1,3 @@
-print("BUILDING CUSTOM DOCS!")
-print('ok?', ws and vm and guide and getDesc and getLabel and jsonb and util and markdown and true)
-
 local old_makeDocObject_variable  = export.makeDocObject['variable']
 
 local SIMPLE_TYPES = {
@@ -13,18 +10,17 @@ local SIMPLE_TYPES = {
 export.makeDocObject['variable'] = function(source, obj, has_seen)
     if old_makeDocObject_variable(source, obj, has_seen) == false then return false end
     if (obj.type == 'variable') then
-        for i,pair in pairs(source:getSets(ws.rootUri)) do
-            if(pair.type ~= 'setglobal') then
+        for i, pair in pairs(source:getSets(ws.rootUri)) do
+            if (pair.type ~= 'setglobal') then
                 goto CONTINUE
             end
             --print(obj.name, i)
             obj.defines[i].value = '???'
-            if(SIMPLE_TYPES[pair.value.type]) then
+            if (SIMPLE_TYPES[pair.value.type]) then
                 obj.defines[i].value = pair.value[1]
-            elseif(pair.value.type == 'table') then
+            elseif (pair.value.type == 'table') then
                 local value = {}
-                print(obj.name, i)
-                
+
                 for k,v in ipairs(pair.value) do
                     local index = v.field or v.index
                     index = index and index[1] or k
@@ -37,23 +33,23 @@ export.makeDocObject['variable'] = function(source, obj, has_seen)
                 end
                 --for k,v in pairs(value) do print(k,v) end
                 obj.defines[i].value = value
-            elseif(pair.value.type == 'function') then
+            elseif (pair.value.type == 'function') then
                 obj.defines[i].value = 'idk lol is function'
             end
-           --print()
+
             ::CONTINUE::
         end
     end
-    
+
     if #obj.defines > 1 then
 
-        local desc = ""
+        local desc = ""        local rawdesc = ""
         local sets = 0
         local canonical_definition = 0
 
         for k, v in ipairs(obj.defines) do
             --pick larger description as canonical definition
-            if ( string.len(v.desc or "") > string.len(desc) ) then
+            if (string.len(v.desc or "") > string.len(desc)) then
                 canonical_definition = k
                 desc = v.desc
             end
@@ -61,11 +57,9 @@ export.makeDocObject['variable'] = function(source, obj, has_seen)
                 sets = sets + 1
             end
         end
-        if(canonical_definition ~= 0) then
-            print("var assignment has more likely alternate definition, prioritizing it:")
-            print(obj.name, desc, canonical_definition, obj.defines[canonical_definition])
-            table.insert(obj.defines, 1,
-                table.remove(obj.defines, canonical_definition)
+        if (canonical_definition ~= 0) then
+            -- Var assignment has more likely alternate definition, prioritizing it
+            table.insert(obj.defines, 1, table.remove(obj.defines, canonical_definition)
             )
         end
     end
@@ -75,7 +69,7 @@ export.makeDocObject['type'] = function(source, obj, has_seen)
     if export.makeDocObject['variable'](source, obj, has_seen) == false then
         return false
     end
-    
+
     obj.fields = {}
     vm.getSimpleClassFields(ws.rootUri, source, vm.ANY, function (next_source, mark, discardParentFields)
         if discardParentFields then return nil end
@@ -101,7 +95,7 @@ export.serializeAndExport = function (docs, outputDir)
     jsonb.supportSparseArray = old_jsonb_supportSparseArray
 
     --error checking save file
-    if( not (jsonOk) ) then
+    if ( not (jsonOk) ) then
         return false, {jsonPath}, {jsonErr}
     end
 
@@ -125,8 +119,8 @@ function export.documentObject(source, has_seen)
         end
     end
     local obj = old_export_documentObject(source, has_seen)
-    if type(obj) == 'table' and obj.rawdesc then
-        obj.rawdesc = nil
-    end
+    --if type(obj) == 'table' and obj.rawdesc then
+    --    obj.rawdesc = nil
+    --end
     return obj
 end

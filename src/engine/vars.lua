@@ -128,9 +128,11 @@ local palette_data = {
     ["tension_back_reduced"] = { 0, 0, 128 / 255, 1 },
     ["tension_decrease_reduced"] = { 0, 0, 1, 1 },
     ["tension_fill_reduced"] = { 0, 63 / 255, 191 / 255, 1 },
-    ["tension_max_reduced"] = { 0, 95 / 255, 159 / 255, 1 }
+    ["tension_max_reduced"] = { 0, 95 / 255, 159 / 255, 1 },
+    ["tension_maxtext_reduced"] = { 1, 1, 0, 1 },
+    ["tension_desc_reduced"] = { 255 / 255, 160 / 255, 64 / 255, 1 }
 }
----@type table<PaletteIndex, number[]>
+---@type table<PaletteIndex, Color>
 PALETTE = {}
 setmetatable(PALETTE, {
     __index = function(t, i) return Kristal.callEvent(KRISTAL_EVENT.getPaletteColor, i) or palette_data[i] end,
@@ -226,6 +228,7 @@ KRISTAL_EVENT = {
     --gameplay events--
     onBorderDraw = "onBorderDraw", -- game border draw time / at: [HOOK]love.draw(...)J\love.load(args) / passes: string:border, love.Image:border_texture / returns: NONE
     onFootstep = "onFootstep", -- character walk cycle advances / at: Character:onFootstep(num) / passes: Character:self, int:num / returns: NONE
+    onGameOver = "onGameOver", -- overrides game over / at: Game:gameOver(x, y) / passes: int:x, int:y / returns: nil|bool
 
     --game variable events--
     getConfig = "getConfig", -- intercept mod's config value / at: Game:getConfig(key, merge, deep_merge) / passes: string:key / returns: nil|any

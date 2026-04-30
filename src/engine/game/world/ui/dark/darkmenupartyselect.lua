@@ -31,12 +31,13 @@ function DarkMenuPartySelect:update()
         local old_selected = self.selected_party
         if Input.pressed("left") then
             self.selected_party = self.selected_party - 1
+            Assets.stopAndPlaySound("ui_move")
         elseif Input.pressed("right") then
             self.selected_party = self.selected_party + 1
+            Assets.stopAndPlaySound("ui_move")
         end
         self:updateSelectedParty()
         if old_selected ~= self.selected_party then
-            Assets.stopAndPlaySound("ui_move")
             if self.on_select then
                 self.on_select(self.selected_party, old_selected)
             end

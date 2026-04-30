@@ -153,7 +153,7 @@ function World:heal(target, amount, text)
 end
 
 --- Gets the `Player` and `Follower` characters
----@return T
+---@return (Player|Follower)[]
 function World:getPlayerAndFollowers()
     local characters = TableUtils.copy(self.followers)
     if self.player then
@@ -340,7 +340,7 @@ end
 
 --- Shows party member health bars
 function World:showHealthBars()
-    if Game.light then return end
+    if Game:isLight() then return end
 
     if self.healthbar then
         self.healthbar:transitionIn()
@@ -368,7 +368,7 @@ end
 
 ---@param key string
 function World:onKeyPressed(key)
-    if Kristal.Config["debug"] and Input.ctrl() then
+    if Kristal.isDevMode() and Input.ctrl() then
         if key == "m" then
             if self.music then
                 if self.music:isPlaying() then
@@ -791,7 +791,7 @@ end
 --- Gets a specific character currently present in the world
 ---@param id        string  The actor id of the character to search for
 ---@param index?    number  The character's index, if they have multiple instances in the world. (Defaults to `1`)
----@return Character|nil chara The character instance, or `nil` if it was not found
+---@return Character? chara The character instance, or `nil` if it was not found
 function World:getCharacter(id, index)
     local party_member = Game:getPartyMember(id)
     local i = 0
@@ -1129,7 +1129,7 @@ function World:fadeInto(callback)
 end
 
 --- Gets the object that the camera is currently targetting
----@return Object|nil
+---@return Object?
 function World:getCameraTarget()
     if self.camera.target and self.camera.target.stage then
         return self.camera.target

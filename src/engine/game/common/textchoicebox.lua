@@ -16,14 +16,116 @@ function TextChoicebox:init(x, y, width, height, default_font, default_font_size
 
     self.choices_text = {}
     self.added_text_boxes = false
-    self.typing_choice_text = 0
+    self.typing_choice_text = 1
     self.multi_line_mode = false
 
     self:setAdvance(false)
+
+    self.text:setSkipCallback(function(text) self:skipAll(text) end)
+end
+
+function TextChoicebox:skipAll(skip_text)
+    local to_skip = { self.text }
+    for _, text in ipairs(self.choices_text) do
+        table.insert(to_skip, text)
+    end
+
+    for _, text in ipairs(to_skip) do
+        if text ~= skip_text and text:canSkip() then
+            text:setSkipCallback(nil)
+            text:setPaused(false)
+            text:skip()
+        end
+    end
+end
+
+function TextChoicebox:createChoiceTexts()
+    for i = (self.multi_line_mode and 2 or 0), 0, -1 do
+        local text_a = self:addChild(DialogueText("", 148, 68 - 36 * i, nil, nil, { paused = true }))
+        local text_b = self:addChild(DialogueText("", 340, 68 - 36 * i, nil, nil, { paused = true }))
+
+        text_a:setSkipCallback(function(text) self:skipAll(text) end)
+        text_b:setSkipCallback(function(text) self:skipAll(text) end)
+
+        table.insert(self.choices_text, text_a)
+        table.insert(self.choices_text, text_b)
+    end
+
+    for i, text in ipairs(self.choices_text) do
+        local wait = "[wait:10]"
+        if self.face.texture then
+            text.x = text.x + 2
+            if (i == 1) then
+                wait = ""
+            else
+                wait = "[wait:5]"
+            end
+        elseif self.multi_line_mode then
+            if (i % 2) == 1 then
+                wait = "[wait:10]"
+            else
+                wait = "[wait:5]"
+            end
+        end
+
+        local voice = ""
+        if self.actor and self.actor:getVoice() then
+            voice = "[voice:" .. self.actor:getVoice() .. "]"
+        end
+        if self.multi_line_mode then
+            -- Function to pad a table with empty strings to a specified length
+            local function pad_with_empty(lines, length)
+                while #lines < length do
+                    table.insert(lines, 1, "")  -- Insert an empty string at the beginning
+                end
+            end
+
+            -- Function to interleave lines from two strings and return the combined list
+            local function interleave_lines(str1, str2)
+                -- Split the strings by newline character
+                local lines1 = StringUtils.split(str1, "\n")
+                local lines2 = StringUtils.split(str2, "\n")
+
+                -- Ensure both strings have at least 2 lines by padding with empty strings
+                pad_with_empty(lines1, 2)
+                pad_with_empty(lines2, 2)
+
+                -- The maximum number of lines
+                local max_lines = math.ceil(#self.choices_text / 2)
+
+                -- Pad the shorter table with empty strings at the beginning
+                pad_with_empty(lines1, max_lines)
+                pad_with_empty(lines2, max_lines)
+
+                -- Interleave lines
+                local interleaved = {}
+                for i = 1, max_lines do
+                    table.insert(interleaved, lines1[i])
+                    table.insert(interleaved, lines2[i])
+                end
+
+                return interleaved
+            end
+
+            -- Function to return a specific interleaved line from the combined list
+            local function get_interleaved_line(str1, str2, line_number)
+                local interleaved = interleave_lines(str1 or "", str2 or "")
+                return interleaved[line_number] or ""
+            end
+            if get_interleaved_line(self.choices[1], self.choices[2], i) ~= "" then
+                text:setText(voice .. wait .. get_interleaved_line(self.choices[1], self.choices[2], i))
+            end
+        else
+            if self.choices[i] and self.choices[i] ~= "" then
+                text:setText(voice .. wait .. self.choices[i])
+            end
+        end
+    end
 end
 
 function TextChoicebox:update()
     super.update(self)
+
     if #self.choices > 0 and not self.added_text_boxes then
         self.added_text_boxes = true
         for _, choice in ipairs(self.choices) do
@@ -33,92 +135,24 @@ function TextChoicebox:update()
             end
         end
 
-        for i = (self.multi_line_mode and 2 or 0), 0, -1 do
-            table.insert(self.choices_text, DialogueText("", 148, 68 - 36 * i))
-            table.insert(self.choices_text, DialogueText("", 340, 68 - 36 * i))
-        end
-        for _, text in ipairs(self.choices_text) do
-            self:addChild(text)
-        end
+        self:createChoiceTexts()
     end
+
     if self.added_text_boxes then
         if not self.text:isTyping() then
-            for i, text in ipairs(self.choices_text) do
-                local last_line = i - 1
-                if self.typing_choice_text == last_line and ((i == 1) or not self.choices_text[last_line]:isTyping()) then
-                    self.typing_choice_text = i
+            while self.typing_choice_text <= #self.choices_text do
+                local text = self.choices_text[self.typing_choice_text]
 
-                    local wait = "[wait:10]"
-                    if self.face.texture then
-                        text.x = text.x + 2
-                        if (i == 1) then
-                            wait = ""
-                        else
-                            wait = "[wait:5]"
-                        end
-                    elseif self.multi_line_mode then
-                        if (i % 2) == 1 then
-                            wait = "[wait:10]"
-                        else
-                            wait = "[wait:5]"
-                        end
-                    end
+                text:setPaused(false)
 
-                    local voice = ""
-                    if self.actor and self.actor:getVoice() then
-                        voice = "[voice:" .. self.actor:getVoice() .. "]"
-                    end
-                    if self.multi_line_mode then
-                        -- Function to pad a table with empty strings to a specified length
-                        local function pad_with_empty(lines, length)
-                            while #lines < length do
-                                table.insert(lines, 1, "")  -- Insert an empty string at the beginning
-                            end
-                        end
-
-                        -- Function to interleave lines from two strings and return the combined list
-                        local function interleave_lines(str1, str2)
-                            -- Split the strings by newline character
-                            local lines1 = StringUtils.split(str1, "\n")
-                            local lines2 = StringUtils.split(str2, "\n")
-
-                            -- Ensure both strings have at least 2 lines by padding with empty strings
-                            pad_with_empty(lines1, 2)
-                            pad_with_empty(lines2, 2)
-
-                            -- The maximum number of lines
-                            local max_lines = math.ceil(#self.choices_text / 2)
-
-                            -- Pad the shorter table with empty strings at the beginning
-                            pad_with_empty(lines1, max_lines)
-                            pad_with_empty(lines2, max_lines)
-
-                            -- Interleave lines
-                            local interleaved = {}
-                            for i = 1, max_lines do
-                                table.insert(interleaved, lines1[i])
-                                table.insert(interleaved, lines2[i])
-                            end
-
-                            return interleaved
-                        end
-
-                        -- Function to return a specific interleaved line from the combined list
-                        local function get_interleaved_line(str1, str2, line_number)
-                            local interleaved = interleave_lines(str1 or "", str2 or "")
-                            return interleaved[line_number] or ""
-                        end
-                        if get_interleaved_line(self.choices[1], self.choices[2], i) ~= "" then
-                            text:setText(voice .. wait .. get_interleaved_line(self.choices[1], self.choices[2], i))
-                        end
-                    else
-                        if self.choices[i] and self.choices[i] ~= "" then
-                            text:setText(voice .. wait .. self.choices[i])
-                        end
-                    end
+                if not text:isTyping() then
+                    self.typing_choice_text = self.typing_choice_text + 1
+                else
+                    break
                 end
             end
         end
+
         if not self:isTyping() then
             if Input.pressed("left") then self.current_choice = self.current_choice - 1 end
             if Input.pressed("right") then self.current_choice = self.current_choice + 1 end

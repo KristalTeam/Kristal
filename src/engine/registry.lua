@@ -140,7 +140,7 @@ end
 -- Getter Functions --
 
 ---@param id string
----@return Object|nil
+---@return Object?
 function Registry.getObject(id)
     return self.objects[id]
 end
@@ -157,7 +157,7 @@ function Registry.createObject(id, ...)
 end
 
 ---@param id string
----@return DrawFX|nil
+---@return DrawFX?
 function Registry.getDrawFX(id)
     return self.draw_fx[id]
 end
@@ -174,7 +174,7 @@ function Registry.createDrawFX(id, ...)
 end
 
 ---@param id string
----@return Actor|nil
+---@return Actor?
 function Registry.getActor(id)
     return self.actors[id]
 end
@@ -191,7 +191,7 @@ function Registry.createActor(id, ...)
 end
 
 ---@param id string
----@return Item|nil
+---@return Item?
 function Registry.getItem(id)
     return self.items[id]
 end
@@ -208,7 +208,7 @@ function Registry.createItem(id, ...)
 end
 
 ---@param id string
----@return Spell|nil
+---@return Spell?
 function Registry.getSpell(id)
     return self.spells[id]
 end
@@ -225,7 +225,7 @@ function Registry.createSpell(id, ...)
 end
 
 ---@param id string
----@return PartyMember|nil
+---@return PartyMember?
 function Registry.getPartyMember(id)
     return self.party_members[id]
 end
@@ -242,7 +242,7 @@ function Registry.createPartyMember(id, ...)
 end
 
 ---@param id string
----@return Recruit|nil
+---@return Recruit?
 function Registry.getRecruit(id)
     return self.recruits[id]
 end
@@ -259,7 +259,7 @@ function Registry.createRecruit(id, ...)
 end
 
 ---@param id string
----@return Encounter|nil
+---@return Encounter?
 function Registry.getEncounter(id)
     return self.encounters[id]
 end
@@ -276,7 +276,7 @@ function Registry.createEncounter(id, ...)
 end
 
 ---@param id string
----@return EnemyBattler|nil
+---@return EnemyBattler?
 function Registry.getEnemy(id)
     return self.enemies[id]
 end
@@ -293,7 +293,7 @@ function Registry.createEnemy(id, ...)
 end
 
 ---@param id string
----@return Wave|nil
+---@return Wave?
 function Registry.getWave(id)
     return self.waves[id]
 end
@@ -310,7 +310,7 @@ function Registry.createWave(id, ...)
 end
 
 ---@param id string
----@return Bullet|nil
+---@return Bullet?
 function Registry.getBullet(id)
     return self.bullets[id]
 end
@@ -327,7 +327,7 @@ function Registry.createBullet(id, ...)
 end
 
 ---@param id string
----@return WorldBullet|nil
+---@return WorldBullet?
 function Registry.getWorldBullet(id)
     return self.world_bullets[id]
 end
@@ -345,8 +345,8 @@ end
 
 ---@param group string
 ---@param id? string
----@return function|nil cutscene
----@return boolean|nil grouped
+---@return function? cutscene
+---@return boolean? grouped
 function Registry.getWorldCutscene(group, id)
     local cutscene = self.world_cutscenes[group]
     if type(cutscene) == "table" then
@@ -358,8 +358,8 @@ end
 
 ---@param group string
 ---@param id? string
----@return function|nil cutscene
----@return boolean|nil grouped
+---@return function? cutscene
+---@return boolean? grouped
 function Registry.getBattleCutscene(group, id)
     local cutscene = self.battle_cutscenes[group]
     if type(cutscene) == "table" then
@@ -371,8 +371,8 @@ end
 
 ---@param group string
 ---@param id? string
----@return function|nil cutscene
----@return boolean|nil grouped
+---@return function? cutscene
+---@return boolean? grouped
 function Registry.getLegendCutscene(group, id)
     local cutscene = self.legend_cutscenes[group]
     if type(cutscene) == "table" then
@@ -384,8 +384,8 @@ end
 
 ---@param group string
 ---@param id? string
----@return function|nil cutscene
----@return boolean|nil grouped
+---@return function? cutscene
+---@return boolean? grouped
 function Registry.getEventScript(group, id)
     if not id then
         local args = StringUtils.split(group, ".")
@@ -401,13 +401,13 @@ function Registry.getEventScript(group, id)
 end
 
 ---@param id string
----@return Tileset|nil
+---@return Tileset?
 function Registry.getTileset(id)
     return self.tilesets[id]
 end
 
 ---@param id string
----@return Map|nil
+---@return Map?
 function Registry.getMap(id)
     return self.maps[id]
 end
@@ -431,13 +431,13 @@ function Registry.createMap(id, world, ...)
 end
 
 ---@param id string
----@return table|nil
+---@return table?
 function Registry.getMapData(id)
     return self.map_data[id]
 end
 
 ---@param id string
----@return Event|Object|nil
+---@return Event|Object?
 function Registry.getLegacyEvent(id)
     return self.events[id]
 end
@@ -454,7 +454,7 @@ function Registry.createLegacyEvent(id, ...)
 end
 
 ---@param id string
----@return Event|Object|nil
+---@return Event|Object?
 function Registry.getController(id)
     return self.controllers[id]
 end
@@ -471,7 +471,7 @@ function Registry.createController(id, ...)
 end
 
 ---@param id string
----@return Shop|nil
+---@return Shop?
 function Registry.getShop(id)
     return self.shops[id]
 end

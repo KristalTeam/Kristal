@@ -112,7 +112,7 @@ end
 
 ---@param item              Item|string
 ---@param ignore_light?     boolean     Whether to add the item to this inventory even if it is a Light item
----@return Item|nil
+---@return Item?
 function DarkInventory:addItem(item, ignore_light)
     if type(item) == "string" then
         item = Registry.createItem(item)

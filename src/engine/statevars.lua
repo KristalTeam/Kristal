@@ -9,8 +9,8 @@ DISCORD_RPC_PRESENCE = {}
 
 FRAMERATE = 30
 
-BASE_DT = (1/30)
-DT = (1/30)
+BASE_DT = (1 / 30)
+DT = (1 / 30)
 DTMULT = DT * 30
 
 FPS = 0
@@ -30,6 +30,8 @@ CURRENT_SPEED_MULT = 1
 
 CURRENT_SCALE_X = 1
 CURRENT_SCALE_Y = 1
+
+DEBUG_OVERRIDE = false
 
 MOUSE_VISIBLE = false
 ---@type love.Image?

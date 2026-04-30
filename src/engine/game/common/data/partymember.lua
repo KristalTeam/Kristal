@@ -41,11 +41,11 @@
 ---@field lw_weapon_default string
 ---@field lw_armor_default  string
 ---
----@field color             table?
----@field dmg_color         table?
----@field attack_bar_color  table?
----@field attack_box_color  table?
----@field xact_color        table?
+---@field color Color?
+---@field dmg_color Color?
+---@field attack_bar_color Color?
+---@field attack_box_color Color?
+---@field xact_color Color?
 ---
 ---@field menu_icon     string
 ---@field head_icons    string
@@ -278,7 +278,7 @@ function PartyMember:getLightEXP() return self.lw_exp end
 function PartyMember:getLightEXPNeeded(lv) return self.lw_exp_needed[lv] or 0 end
 
 function PartyMember:getSoulPriority() return self.soul_priority end
-function PartyMember:getSoulColor() return Utils.unpackColor(self.soul_color or { 1, 0, 0 }) end
+function PartyMember:getSoulColor() return ColorUtils.unpackColor(self.soul_color or { 1, 0, 0 }) end
 
 function PartyMember:hasAct() return self.has_act end
 function PartyMember:hasSpells() return self.has_spells end
@@ -313,24 +313,24 @@ function PartyMember:getStatBuff(stat)
     return self:getStatBuffs()[stat] or 0
 end
 
-function PartyMember:getColor() return Utils.unpackColor(self.color) end
+function PartyMember:getColor() return ColorUtils.unpackColor(self.color) end
 function PartyMember:getDamageColor()
     if self.dmg_color then
-        return Utils.unpackColor(self.dmg_color)
+        return ColorUtils.unpackColor(self.dmg_color)
     else
         return self:getColor()
     end
 end
 function PartyMember:getAttackBarColor()
     if self.attack_bar_color then
-        return Utils.unpackColor(self.attack_bar_color)
+        return ColorUtils.unpackColor(self.attack_bar_color)
     else
         return self:getColor()
     end
 end
 function PartyMember:getAttackBoxColor()
     if self.attack_box_color then
-        return Utils.unpackColor(self.attack_box_color)
+        return ColorUtils.unpackColor(self.attack_box_color)
     else
         local r, g, b, a = self:getColor()
         return r * 0.5, g * 0.5, b * 0.5, a
@@ -338,7 +338,7 @@ function PartyMember:getAttackBoxColor()
 end
 function PartyMember:getXActColor()
     if self.xact_color then
-        return Utils.unpackColor(self.xact_color)
+        return ColorUtils.unpackColor(self.xact_color)
     else
         return self:getColor()
     end
@@ -392,8 +392,8 @@ function PartyMember:heal(amount, playsound)
     if playsound == nil or playsound then
         Assets.stopAndPlaySound("power")
     end
-    self:setHealth(math.min(self:getStat("health"), self:getHealth() + amount))
-    return self:getStat("health") == self:getHealth()
+    self:setHealth(math.min(math.max(self:getStat("health"), self:getHealth()), self:getHealth() + amount))
+    return self:getStat("health") <= self:getHealth()
 end
 
 --- Sets this party member's health value
@@ -418,7 +418,7 @@ function PartyMember:increaseStat(stat, amount, max)
         base_stats[stat] = max
     end
     if stat == "health" then
-        self:setHealth(math.min(self:getHealth() + amount, base_stats[stat]))
+        self:heal(amount, false)
     end
 end
 
@@ -469,7 +469,7 @@ end
 ---@param light? boolean
 function PartyMember:getActor(light)
     if light == nil then
-        light = Game.light
+        light = Game:isLight()
     end
     if light then
         return self.lw_actor or self.actor
@@ -631,7 +631,7 @@ end
 
 --- *(Override)* Checks whether this party member is able to equip a specific item \
 --- *By default, calls [`item:canEquip()`](lua://Item.canEquip) to check equippability, and rejects trying to unequip the item if the slot type is `"weapon"`*
----@param item          Item|nil
+---@param item          Item?
 ---@param slot_type     string?
 ---@param slot_index    integer?
 ---@return boolean
@@ -765,8 +765,16 @@ function PartyMember:convertToLight()
         ["2"] = last_armors[2] and last_armors[2]:save()
     })
 
-    -- For deltarune accuracy, you heal here, bc health conversion code is broken
-    self.lw_health = self:getStat("health")
+    if Game:getConfig("healthConversion") then
+        self.lw_health = math.ceil((self.health / self:getStat("health", 1, false)) * self:getStat("health", 1, true))
+    else
+        -- The formula is broken in chapters 1 & 3.
+        self.lw_health = math.ceil(self.health / self:getStat("health", 1, false)) * self:getStat("health", 1, true)
+    end
+
+    if self.lw_health <= 0 then
+        self.lw_health = 1
+    end
 end
 
 function PartyMember:convertToDark()
@@ -796,6 +804,17 @@ function PartyMember:convertToDark()
                 self.equipped.armor[1] = result
             end
         end
+    end
+
+    if Game:getConfig("healthConversion") then
+        self.health = math.ceil((self.lw_health / self:getStat("health", 1, true)) * self:getStat("health", 1, false))
+    else
+        -- The formula is broken in chapters 1 & 3.
+        self.health = math.ceil(self.lw_health / self:getStat("health", 1, true)) * self:getStat("health", 1, false)
+    end
+
+    if self.health <= 0 then
+        self.health = 1
     end
 end
 

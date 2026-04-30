@@ -7,7 +7,7 @@
 ---
 ---@field world             World           The current World instance. Not defined until after `WorldBullet:init()`, and only if it is parented to a World instance.
 ---
----@field collider          Collider|nil
+---@field collider          Collider?
 ---
 ---@field damage            number
 ---@field inv_timer         number

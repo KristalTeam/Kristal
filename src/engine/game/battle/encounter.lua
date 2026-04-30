@@ -217,13 +217,13 @@ end
 ---@return PartyBattler|PartyMember|Actor|string? actor # The actor to use for the text settings (ex. voice, portrait settings)
 function Encounter:getEncounterText()
     local enemies = Game.battle:getActiveEnemies()
-    local enemy = Utils.pick(enemies, function(v)
+    local enemy = TableUtils.pick(TableUtils.filter(enemies, function(v)
         if not v.text then
             return true
         else
             return #v.text > 0
         end
-    end)
+    end))
     if enemy then
         return enemy:getEncounterText()
     else
@@ -309,9 +309,9 @@ end
 
 --- *(Override)* Creates the soul being used this battle (Called at the start of the first wave)
 --- *By default, returns the regular (red) soul.*
----@param x         number  The x-coordinate the soul should spawn at.
----@param y         number  The y-coordinate the soul should spawn at.
----@param color?    table   A custom color for the soul, that should override its default.
+---@param x number The x-coordinate the soul should spawn at.
+---@param y number The y-coordinate the soul should spawn at.
+---@param color? Color A custom color for the soul, that should override its default.
 ---@return Soul
 function Encounter:createSoul(x, y, color)
     return Soul(x, y, color)

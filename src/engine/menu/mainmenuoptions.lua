@@ -5,7 +5,7 @@
 ---@field state string
 ---@field state_manager StateManager
 ---
----@field options table<string, {id: string, name: string, options: {name: string, value: (fun(x:number, y:number):any)|nil, callback: fun()}[]}>
+---@field options table<string, {id: string, name: string, options: {name: string, value: (fun(x:number, y:number):any)?, callback: fun()}[]}>
 ---@field pages string[]
 ---
 ---@field selected_option number
@@ -654,8 +654,6 @@ function MainMenuOptions:initializeOptions()
     )
 
     self:registerConfigOption("engine", "Skip Name Entry", "skipNameEntry")
-
-    self:registerConfigOption("engine", "Debug Hotkeys", "debug")
     self:registerConfigOption("engine", "Verbose Loader", "verboseLoader")
     self:registerConfigOption("engine", "Use System Mouse", "systemCursor", function() Kristal.updateCursor() end)
     self:registerConfigOption("engine", "Always Show Mouse", "alwaysShowCursor", function() Kristal.updateCursor() end)

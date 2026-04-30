@@ -207,7 +207,7 @@ function GonerChoice:update()
 
             self:remove()
         end
-    elseif self.state == "CHOICE" then
+    elseif self.state == "CHOICE" and not OVERLAY_OPEN then
         if Input.pressed("left", true) then
             self:moveSelection(self.selected_x - 1, self.selected_y, -1, 0)
         end

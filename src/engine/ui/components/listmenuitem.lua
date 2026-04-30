@@ -2,7 +2,7 @@
 ---@field list table
 ---@field value integer
 ---@field on_changed function
----@field color table
+---@field color Color
 ---@field selected_color table
 ---@field prefix string
 ---@field suffix string

@@ -2,7 +2,7 @@
 ---
 ---@field menu MainMenu
 ---
----@field pages {[1]: string, [2]: creditsline[], [3]: creditsline[]|nil}[]
+---@field pages {[1]: string, [2]: creditsline[], [3]: creditsline[]?}[]
 ---
 ---@field selected_page number
 ---@field scroll_direction string
@@ -51,41 +51,41 @@ function MainMenuCredits:init(menu)
                 { "GitHub Contributors", COLORS.silver },
                 "Dobby233Liu",
                 "Elioze",
+                "Eribetra",
                 "FireRainV",
                 "HUECYCLES",
                 "Hyperboid",
                 "isakube",
                 "J.A.R.U.",
-                "Lionmeow",
-                "Luna",
+                "Lionmeow"
             },
             {
                 { "GitHub Contributors", COLORS.silver },
+                "Luna",
+                "MaybeSamo",
                 "MCdeDaxia",
                 "MrOinky",
                 "NelleMonelle",
                 "Nextop",
                 "nightpool",
                 "prokube",
-                "Simbel",
-                "sjl057",
-                "skarph"
+                "rfrx"
             }
         },
         {
             "Kristal Engine",
             {
                 { "GitHub Contributors", COLORS.silver },
+                "Simbel",
+                "sjl057",
+                "skarph",
                 "SuperOfSrb2",
+                "SweetSylveon",
                 "TFLTV",
                 "TheSkerch",
                 "Verozity",
                 "WIL-TZY",
-                "YeetusSnoopy",
-                "",
-                "",
-                "",
-                ""
+                "YeetusSnoopy"
             }
         }
     }

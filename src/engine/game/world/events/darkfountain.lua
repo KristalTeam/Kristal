@@ -5,22 +5,22 @@
 ---
 ---@class DarkFountain : Event
 ---
----@field width             integer
----@field height            integer
+---@field width integer
+---@field height integer
 ---
----@field bg_texture        love.Image
----@field edge_texture      love.Image
----@field bottom_texture    love.Image
+---@field bg_texture love.Image
+---@field edge_texture love.Image
+---@field bottom_texture love.Image
 ---
----@field mask_fx           MaskFX
+---@field mask_fx MaskFX
 ---@
----@field siner             number      Timer for fountain's color change effects
----@field bg_siner          number
----@field hscroll           number
----@field eyebody           number
----@field adjust            integer     (Probably set in fountain cutscenes to change the effect of the fountain)
----@field slowdown          number
----@field bg_color          [number, number, number]    Second color in the fountain, also used by [`FountainFloor`](lua://FountainFloor.init) if present
+---@field siner number      Timer for fountain's color change effects
+---@field bg_siner number
+---@field hscroll number
+---@field eyebody number
+---@field adjust integer     (Probably set in fountain cutscenes to change the effect of the fountain)
+---@field slowdown number
+---@field bg_color Color Second color in the fountain, also used by [`FountainFloor`](lua://FountainFloor.init) if present
 ---
 ---@overload fun(...) : DarkFountain
 local DarkFountain, super = Class(Event, "darkfountain")
@@ -70,22 +70,22 @@ function DarkFountain:update()
         self.bg_color = { fcolor(self.siner / 4, 255, (math.sin(self.siner / 16) * 40) + 60) }
     elseif self.adjust == 1 then
         -- Fountain glows white + black background
-        self:setColor(Utils.mergeColor(self.color, COLORS.white, 0.06 * DTMULT))
-        self.bg_color = Utils.mergeColor(self.bg_color, COLORS.black, 0.06 * DTMULT)
+        self:setColor(ColorUtils.mergeColor(self.color, COLORS.white, 0.06 * DTMULT))
+        self.bg_color = ColorUtils.mergeColor(self.bg_color, COLORS.black, 0.06 * DTMULT)
     elseif self.adjust == 2 then
         -- Fountain and floor glow white, stops moving - funky if used without `adjust` going to 1 first
         self.slowdown = MathUtils.approach(self.slowdown, 1, 0.02 * DTMULT)
         self.siner = self.siner - self.slowdown * DTMULT
         self.bg_siner = self.bg_siner - (self.slowdown / 16) * DTMULT
-        self.bg_color = Utils.mergeColor(self.bg_color, COLORS.white, 0.03 * DTMULT)
+        self.bg_color = ColorUtils.mergeColor(self.bg_color, COLORS.white, 0.03 * DTMULT)
     elseif self.adjust == 3 then
         -- Slower version of standard effect? doesn't sync up
         self.slowdown = MathUtils.approach(self.slowdown, 1, 0.01 * DTMULT)
         self.siner = self.siner - (self.slowdown * 0.5) * DTMULT
         self.bg_siner = self.bg_siner - (self.slowdown / 24) * DTMULT
         self.hscroll = self.hscroll - (self.slowdown * 0.8) * DTMULT
-        self:setColor(Utils.mergeColor(self.bg_color, { fcolor(self.siner / 16, 160 + (math.sin(self.siner / 128) * 60), 255) }, self.slowdown))
-        self.bg_color = Utils.mergeColor(self.bg_color, { fcolor(self.siner / 16, 255, (math.sin(self.siner / 64) * 40) + 60) }, self.slowdown * DTMULT)
+        self:setColor(ColorUtils.mergeColor(self.bg_color, { fcolor(self.siner / 16, 160 + (math.sin(self.siner / 128) * 60), 255) }, self.slowdown))
+        self.bg_color = ColorUtils.mergeColor(self.bg_color, { fcolor(self.siner / 16, 255, (math.sin(self.siner / 64) * 40) + 60) }, self.slowdown * DTMULT)
     end
 
     self.bg_siner = self.bg_siner + 0.0625 * DTMULT

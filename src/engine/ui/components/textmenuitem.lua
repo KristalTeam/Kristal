@@ -1,7 +1,7 @@
 ---@class TextMenuItemComponent : AbstractMenuItemComponent
 ---@field text Text
 ---@field highlight boolean
----@field color table
+---@field color Color
 ---@field selected_color table
 ---@overload fun(...) : TextMenuItemComponent
 local TextMenuItemComponent, super = Class(AbstractMenuItemComponent)

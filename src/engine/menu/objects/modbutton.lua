@@ -159,26 +159,26 @@ function ModButton:draw()
     -- Make name position higher if we have a subtitle
     local name_y = math.floor((self.height / 2 - self.font:getHeight() / 2) / 2) * 2 - (subh / 2)
     love.graphics.setFont(self.font)
-    -- Draw the name shadow
-    Draw.setColor(0, 0, 0)
-    love.graphics.print(self.name, 50 + 2, name_y + 2)
+
     -- Draw the name
     Draw.setColor(self:getDrawColor())
-    love.graphics.print(self.name, 50, name_y)
+    Draw.printShadow(self.name, 50, name_y)
 
     -- Set the font to the small font
     love.graphics.setFont(self.subfont)
     if self:hasSubtitle() then
-        -- Draw the subtitle shadow
-        Draw.setColor(0, 0, 0)
-        love.graphics.print(self.subtitle, 50 + 1, name_y + self.font:getHeight() + 1)
         -- Draw the subtitle
-        Draw.setColor(self:getDrawColor())
-        love.graphics.print(self.subtitle, 50, name_y + self.font:getHeight())
+        Draw.printShadow(self.subtitle, 50, name_y + self.font:getHeight())
     end
+
     -- Calculate version position
     local ver_compat = self:checkCompatibility()
     local ver_name = ver_compat and self.version or (self.version .. " (!)")
+
+    if self.mod and (self.mod.dev ~= false) then
+        ver_name = ver_name .. " (Dev)" -- Mark dev mods with a tag
+    end
+
     local ver_x = self.width - 4 - self.subfont:getWidth(ver_name)
     local ver_y = 0
     -- Draw the version shadow

@@ -8,7 +8,7 @@ elseif ffi.os == "OSX" then
     name = "https-mac.so"
 end
 
-local search_paths = {"", "lib/"}
+local search_paths = { "", (love.filesystem.getRealDirectory("lib/") or "") .. "/lib/" }
 
 local ok, module
 for _, search_path in ipairs(search_paths) do

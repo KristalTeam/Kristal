@@ -5,10 +5,10 @@ local name = "discord-rpc"
 if ffi.os == "Windows" then
     name = name .. "-" .. ffi.arch
 elseif ffi.os == "Linux" then
-    name = "lib".. name .. ".so"
+    name = "lib" .. name .. ".so"
 end
 
-local search_paths = {"", (love.filesystem.getRealDirectory("lib/") or "") .. "/lib/"}
+local search_paths = { "", (love.filesystem.getRealDirectory("lib/") or "") .. "/lib/" }
 
 local ok, discordRPClib
 for _, search_path in ipairs(search_paths) do
@@ -29,7 +29,7 @@ if not ok then
     return
 end
 
-ffi.cdef[[
+ffi.cdef([[
 typedef struct DiscordRichPresence {
     const char* state;   /* max 128 bytes */
     const char* details; /* max 128 bytes */
@@ -87,7 +87,7 @@ void Discord_ClearPresence(void);
 void Discord_Respond(const char* userid, int reply);
 
 void Discord_UpdateHandlers(DiscordEventHandlers* handlers);
-]]
+]])
 
 local discordRPC = {} -- module table
 
@@ -140,16 +140,16 @@ end)
 
 -- helpers
 local function checkArg(arg, argType, argName, func, maybeNil)
-    assert(type(arg) == argType or (maybeNil and arg == nil),
-        string.format("Argument \"%s\" to function \"%s\" has to be of type \"%s\"",
-            argName, func, argType))
+    assert(
+        type(arg) == argType or (maybeNil and arg == nil),
+        string.format("Argument \"%s\" to function \"%s\" has to be of type \"%s\"", argName, func, argType))
 end
 
 local function checkStrArg(arg, maxLen, argName, func, maybeNil)
     if maxLen then
-        assert(type(arg) == "string" and StringUtils.len(arg) <= maxLen or (maybeNil and arg == nil),
-            string.format("Argument \"%s\" of function \"%s\" has to be of type string with maximum length %d",
-                argName, func, maxLen))
+        assert(
+            type(arg) == "string" and StringUtils.len(arg) <= maxLen or (maybeNil and arg == nil),
+            string.format("Argument \"%s\" of function \"%s\" has to be of type string with maximum length %d", argName, func, maxLen))
     else
         checkArg(arg, "string", argName, func, true)
     end
@@ -157,12 +157,12 @@ end
 
 local function checkIntArg(arg, maxBits, argName, func, maybeNil)
     maxBits = math.min(maxBits or 32, 52) -- lua number (double) can only store integers < 2^53
-    local maxVal = 2^(maxBits-1) -- assuming signed integers, which, for now, are the only ones in use
-    assert(type(arg) == "number" and math.floor(arg) == arg
+    local maxVal = 2 ^ (maxBits - 1) -- assuming signed integers, which, for now, are the only ones in use
+    assert(
+        type(arg) == "number" and math.floor(arg) == arg
         and arg < maxVal and arg >= -maxVal
         or (maybeNil and arg == nil),
-        string.format("Argument \"%s\" of function \"%s\" has to be a whole number <= %d",
-            argName, func, maxVal))
+        string.format("Argument \"%s\" of function \"%s\" has to be a whole number <= %d", argName, func, maxVal))
 end
 
 -- function wrappers

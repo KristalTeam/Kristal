@@ -7,7 +7,7 @@
 ---| '"space-between"'
 ---| '"space-around"'
 ---| '"space-evenly"'
----@field parent Component|nil
+---@field parent Component?
 local Layout = Class()
 
 function Layout:init(options)

@@ -1,5 +1,5 @@
 --- `EnemyBattler`s are a type of `Battler` that represent enemies, defining all their properties and behaviours. \
---- Every enemy defined in a mod should be located in its own file in `scripts/battle/enemies/`, and should extend this class. \
+--- Every enemy defined in a project should be located in its own file in `scripts/battle/enemies/`, and should extend this class. \
 --- Each enemy is assigned an id that defaults to their filepath starting from `scripts/battle/enemies`, unless an id is specified as an argument to `Class()`. \
 --- Enemies are added to battles in the encounter, with [`Encounter:addEnemy(enemy, x, y, ...)`](lua://Encounter.addEnemy), where `enemy` is their unique id, and all enemies for the current battle reside in [`Game.battle.enemies`](lua://Battle.enemies)
 ---
@@ -60,7 +60,7 @@
 ---@field defeated          boolean             Whether this enemy has been defeated
 ---
 ---@field temporary_mercy           number              The current amount of temporary mercy
----@field temporary_mercy_percent   DamageNumber|nil    The DamageNumber object, used to update the mercy display
+---@field temporary_mercy_percent   DamageNumber?    The DamageNumber object, used to update the mercy display
 ---
 ---@field target_x                  number?
 ---@field target_y                  number?
@@ -168,6 +168,12 @@ end
 ---@return string
 function EnemyBattler:getMercyDisplay()
     return math.ceil(self.mercy) .. "%"
+end
+
+--- *(Override)* Get what color this enemy's MERCY should use in the enemy select menu.
+---@return Color
+function EnemyBattler:getMercyColor()
+    return PALETTE["battle_mercy_text"]
 end
 
 --- *(Override)* Get the default graze tension for this enemy.
@@ -569,7 +575,7 @@ function EnemyBattler:onMercy(battler)
 end
 
 --- Creates the particular flash effect used when a party member uses mercy on the enemy, but the spare fails
----@param color? table The color the enemy should flash (defaults to yellow)
+---@param color? Color The color the enemy should flash (defaults to yellow)
 function EnemyBattler:mercyFlash(color)
     color = color or { 1, 1, 0 }
 
@@ -777,7 +783,7 @@ end
 ---@param amount        number                                  The amount of damage the enemy should take
 ---@param battler?      PartyBattler                            The party member dealing this damage
 ---@param on_defeat?    fun(EnemyBattler, number, PartyBattler) A callback to run if the enmy is defeated by this hit
----@param color?        table                                   The color of the damage, overriding the default damage color of the attacker
+---@param color?        Color                                   The color of the damage, overriding the default damage color of the attacker
 ---@param show_status?  boolean                                 Whether to show the damage numbers from this hit
 ---@param attacked?     boolean
 function EnemyBattler:hurt(amount, battler, on_defeat, color, show_status, attacked)

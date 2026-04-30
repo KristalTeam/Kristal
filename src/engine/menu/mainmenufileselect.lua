@@ -45,7 +45,7 @@ function MainMenuFileSelect:onEnter(old_state)
 
     self.selected_x = 1
     self.selected_y = 1
-    
+
     self.menu.heart:setColor(Kristal.getSoulColor())
     if MainMenu.mod_list:getSelectedMod().soulColor then
         self.menu.heart:setColor(MainMenu.mod_list:getSelectedMod().soulColor)
@@ -186,9 +186,9 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
         if Input.is("cancel", key) then
             if not TARGET_MOD then
                 self.menu:setState("MODSELECT")
-				if MainMenu.mod_list:getSelectedMod().soulColor then
-					MainMenu.heart.color = MainMenu.mod_list:getSelectedMod().soulColor
-				end
+                if MainMenu.mod_list:getSelectedMod().soulColor then
+                    MainMenu.heart.color = MainMenu.mod_list:getSelectedMod().soulColor
+                end
             else
                 self.menu:setState("TITLE")
                 self.menu.title_screen:selectOption("play")

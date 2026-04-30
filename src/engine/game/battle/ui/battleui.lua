@@ -361,7 +361,7 @@ function BattleUI:drawState()
             end
 
             if current_item.tp and current_item.tp ~= 0 then
-                Draw.setColor(PALETTE["tension_desc"])
+                Draw.setColor(Game.battle and Game.battle:hasReducedTension() and PALETTE["tension_desc_reduced"] or PALETTE["tension_desc"])
                 love.graphics.print(
                     math.floor((current_item.tp / Game:getMaxTension()) * 100) .. "% " .. Game:getConfig("tpName"), 260 + 240, 50 + (tp_offset * 32)
                 )
@@ -541,7 +541,7 @@ function BattleUI:drawState()
                         love.graphics.rectangle("fill", 520, 55 + y_off, ((enemy.mercy / 100) * 81), 16)
 
                         if draw_percents and enemy.selectable then
-                            Draw.setColor(PALETTE["battle_mercy_text"])
+                            Draw.setColor(enemy:getMercyColor())
                             love.graphics.print(enemy:getMercyDisplay(), 524, 55 + y_off, 0, 1, 0.5)
                         end
                     end

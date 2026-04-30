@@ -44,6 +44,7 @@ function resetData()
             font_settings = {},
             sounds = {},
             sound_data = {},
+            sound_settings = {},
             music = {},
             videos = {},
             shaders = {},
@@ -296,6 +297,14 @@ local loaders = {
         local id = checkExtension(path, "wav", "ogg")
         if id then
             pcall(function() data.assets.sound_data[id] = love.sound.newSoundData(full_path) end)
+        end
+        id = checkExtension(path, "json")
+        if id then
+            local ok, loaded_data = pcall(json.decode, love.filesystem.read(full_path))
+            if not ok then
+                error("Sound \"" .. path .. "\" has an invalid json file!")
+            end
+            data.assets.sound_settings[id] = loaded_data
         end
     end },
     ["music"] = { "assets/music", function(base_dir, path, full_path)

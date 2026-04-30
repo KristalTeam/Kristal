@@ -32,7 +32,7 @@
 ---
 ---@field once boolean *[Property `once`]* Whether this enemy can only be encountered once (Will not respawn when the room reloads) (Defaults to `false`)
 ---
----@field aura boolean *[Property `aura`]* Whether this enemy will have an aura around it as seen with enemies in Deltarune Chapter 2. Overrides the mod-wide config for enemy auras.
+---@field aura boolean *[Property `aura`]* Whether this enemy will have an aura around it as seen with enemies in Deltarune Chapter 2. Overrides the project-wide config for enemy auras.
 ---
 ---*[Property `actor`]* Actor to use for this enemy \
 ---*[Property `sprite` or `animation`]* Default sprite/animation to set on this enemy
@@ -93,7 +93,7 @@ function ChaserEnemy:init(actor, x, y, properties)
     self.pace_type = properties["pacetype"]
     self.pace_marker = TiledUtils.parsePropertyList("marker", properties)
     self.pace_interval = properties["paceinterval"] or 24
-    self.pace_return  = properties["pacereturn"] or true
+    self.pace_return  = properties["pacereturn"] ~= false
     self.pace_speed = properties["pacespeed"] or 4
     self.swing_divisor = properties["swingdiv"] or 24
     self.swing_length = properties["swinglength"] or 400

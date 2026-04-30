@@ -2,9 +2,9 @@
 --- This texture must be placed inside `assets/sprites/`.
 ---
 ---@class Sprite : Object
----@field texture      love.Image|nil   *(Read-only)* The current texture of the sprite, if it exists.
----@field texture_path string|nil       *(Read-only)* The string ID of the current texture, if it exists.
----@field frames       love.Image[]|nil *(Read-only)* The animation frames of the sprite, or `nil` if the texture has no frames.
+---@field texture      love.Image?   *(Read-only)* The current texture of the sprite, if it exists.
+---@field texture_path string?       *(Read-only)* The string ID of the current texture, if it exists.
+---@field frames       love.Image[]? *(Read-only)* The animation frames of the sprite, or `nil` if the texture has no frames.
 ---@field frame        number           *(Read-only)* The current frame of the sprite. Set with `Sprite:setFrame()`.
 ---
 --- The base path of the sprite. \
@@ -24,18 +24,24 @@
 ---@field anim_speed    number       A multiplier for how fast the sprite animates. (Defaults to `1`)
 ---@field anim_sprite   string       *(Read-only)* The name of the sprite used in the current animation.
 ---@field anim_delay    number       *(Read-only)* The delay between frames in the current animation.
----@field anim_frames   number[]|nil *(Read-only)* A list of frame indexes the current animation loops through. If `nil`, the animation loops through all frames.
+---@field anim_frames   number[]? *(Read-only)* A list of frame indexes the current animation loops through. If `nil`, the animation loops through all frames.
 ---@field anim_duration number       *(Read-only)* The duration of the current animation. If greater than 0, the animation will stop after this many seconds.
 ---@field anim_waiting  number       *(Read-only)* Set by the `wait` function of an animation routine. The amount of time left until the animation continues.
 ---
----@field anim_callback     Sprite.anim_callback|nil  A function that is called when the current animation finishes.
----@field anim_routine      thread|nil                *(Read-only)* The coroutine of the current sprite animation.
----@field anim_routine_func Sprite.anim_func|nil      *(Read-only)* The function of the current sprite animation.
+---@field anim_callback     Sprite.anim_callback?  A function that is called when the current animation finishes.
+---@field anim_routine      thread?                *(Read-only)* The coroutine of the current sprite animation.
+---@field anim_routine_func Sprite.anim_func?      *(Read-only)* The function of the current sprite animation.
 ---@field anim_wait_func    Sprite.wait_func          *(Read-only)* The function used to wait for the next frame of the animation.
 ---
----@overload fun(texture:string|love.Image|nil, x?:number, y?:number, width?:number, height?:number, path?:string) : Sprite
+---@overload fun(texture:string|love.Image?, x?:number, y?:number, width?:number, height?:number, path?:string) : Sprite
 local Sprite, super = Class(Object)
 
+---@param texture string|love.Image?
+---@param x number?
+---@param y number?
+---@param width number?
+---@param height number?
+---@param path string?
 function Sprite:init(texture, x, y, width, height, path)
     super.init(self, x, y, width, height)
 
@@ -94,7 +100,7 @@ function Sprite:updateTexture()
     end
 end
 
----@return love.Image|nil texture  The current texture of the sprite, if it exists.
+---@return love.Image? texture  The current texture of the sprite, if it exists.
 function Sprite:getTexture()
     return self.texture
 end
@@ -398,9 +404,10 @@ end
 ---@param offset_x? number  The x-offset of the flash sprite
 ---@param offset_y? number  The y-offset of the flash sprite
 ---@param layer?    number  (Defaults to `100`)
+---@param color?    Color   The color used to draw the flash, defaulting to white
 ---@return FlashFade
-function Sprite:flash(offset_x, offset_y, layer)
-    local flash = FlashFade(self.texture, offset_x or 0, offset_y or 0)
+function Sprite:flash(offset_x, offset_y, layer, color)
+    local flash = FlashFade(self.texture, offset_x or 0, offset_y or 0, color)
     flash.layer = layer or 100 -- TODO: Unhardcode?
     self:addChild(flash)
     return flash
@@ -447,7 +454,7 @@ function Sprite:crossFadeToSpeed(texture, speed, fade_out, after)
     self.crossfade_speed = speed or 0.04
     self.crossfade_out = fade_out
     self.crossfade_after = function(self)
-        self:setTexture(texture)
+        self:setTexture(self:getPath(texture))
         self:resetCrossFade()
         if after then after(self) end
     end

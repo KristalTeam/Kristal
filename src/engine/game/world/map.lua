@@ -81,6 +81,8 @@ function Map:init(world, data)
 end
 
 function Map:load()
+    Game:setLight(self.light)
+
     self.world:addChild(self.timer)
     if self.data then
         self:loadMapData(self.data)
@@ -698,7 +700,7 @@ end
 
 --- Loads an object using the old system, based on the Registry.
 ---
---- Solely for legacy support of mods and libraries that use the old event system.
+--- Solely for legacy support of projects and libraries that use the old event system.
 ---@internal
 ---@param name string # The name of the object to load.
 ---@param data table # The Tiled object data for the object.
