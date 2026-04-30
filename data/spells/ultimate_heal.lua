@@ -35,6 +35,7 @@ function spell:init(style)
     if style == "ultra_heal" then
         self.name = "UltraHeal"
         self.cast_name = nil
+        self.effect = "Best\nhealing"
         self.description = "An awesome healing spell.\n... right?"
         self.cost = 90
         self.base_amount = 5
