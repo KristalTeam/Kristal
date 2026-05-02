@@ -25,11 +25,11 @@ function spell:init(style)
     -- The amount of TP cost that gets reduced with each cast
     self.usage_cost_reduction = 0
     
-    -- The maximum amount of times the spell will get better stats with each cast
-    self.usage_bonus_limit = 0
-    
     -- The healing multiplier for the times the spell was cast
     self.usage_bonus_multiplier = 1
+    
+    -- The maximum amount of times the spell will get better stats with each cast
+    self.usage_bonus_limit = 0
     
     -- Spell style
     if style == "ultra_heal" then
@@ -41,8 +41,8 @@ function spell:init(style)
         self.base_amount = 5
         self.magic_stat_multiplier = 1.5
         self.usage_cost_reduction = 1
-        self.usage_bonus_limit = 5
         self.usage_bonus_multiplier = 1
+        self.usage_bonus_limit = 5
     elseif style == "ok_heal" then
         self.name = "OKHeal"
         self.cast_name = nil
@@ -52,8 +52,8 @@ function spell:init(style)
         self.base_amount = 15
         self.magic_stat_multiplier = 5
         self.usage_cost_reduction = 1 / 3
-        self.usage_bonus_limit = 15
         self.usage_bonus_multiplier = 2
+        self.usage_bonus_limit = 15
     elseif style == "better_heal" then
         self.name = "BetterHeal"
         self.cast_name = "BetterHeal"
@@ -63,8 +63,8 @@ function spell:init(style)
         self.base_amount = 15
         self.magic_stat_multiplier = 7
         self.usage_cost_reduction = 1 / 3
-        self.usage_bonus_limit = 15
         self.usage_bonus_multiplier = 2
+        self.usage_bonus_limit = 15
     end
 
     -- Target mode (ally, party, enemy, enemies, or none)
