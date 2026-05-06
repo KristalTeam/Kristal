@@ -1225,6 +1225,7 @@ function Kristal.clearModState()
 
     FAST_FORWARD = false
     DEBUG_RENDER = false
+    NOCLIP = false
 
     -- Close the console or debug menu if open
     -- (We don't care much if someone "smuggles" them out of the Game state, but we'll try to close them if we can)
