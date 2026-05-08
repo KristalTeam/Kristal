@@ -2,7 +2,7 @@
 ---
 ---@field loaded boolean
 ---@field list table[]
----@field data table<string, table>
+---@field data table<string, ProjectInfo>
 ---@field named table<string, string>
 ---@field failed_mods table[]
 ---
@@ -10,6 +10,8 @@ local Mods = {}
 local self = Mods
 
 -- TODO: Document mod data
+
+---@alias ProjectInfo table
 
 function Mods.clear()
     self.loaded = false
@@ -19,7 +21,7 @@ function Mods.clear()
     self.failed_mods = {}
 end
 
----@param data table
+---@param data table<string, ProjectInfo>
 ---@param failed_mods table[]
 function Mods.loadData(data, failed_mods)
     self.failed_mods = failed_mods or {}
@@ -133,19 +135,19 @@ function Mods.sortLibraries(mod)
     return sorted
 end
 
----@return table[]
+---@return ProjectInfo[]
 function Mods.getMods()
     return self.list or {}
 end
 
 ---@param id string
----@return table
+---@return ProjectInfo?
 function Mods.getMod(id)
     return self.data[id] or (self.named[id] and self.data[self.named[id]])
 end
 
 ---@param id string
----@return table?
+---@return ProjectInfo?
 function Mods.getAndLoadMod(id)
     local mod = self.getMod(id)
 
