@@ -189,7 +189,7 @@ function World:hurtParty(battler, amount)
     for _, party in ipairs(Game.party) do
         local current_amount = amount
 
-        for i,item in ipairs(party:getEquipment()) do
+        for _, item in ipairs(party:getEquipment()) do
             current_amount = item:onWorldDamage(current_amount) or current_amount
         end
 

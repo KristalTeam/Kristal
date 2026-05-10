@@ -149,7 +149,7 @@ function PartyBattler:hurt(amount, exact, color, options)
             local element = 0
             amount = math.ceil((amount * self:getElementReduction(element)))
         end
-        for i,item in ipairs(self.chara:getEquipment()) do
+        for _, item in ipairs(self.chara:getEquipment()) do
             amount = item:onBattleDamage(amount, swoon, false) or amount
         end
 
@@ -166,7 +166,7 @@ function PartyBattler:hurt(amount, exact, color, options)
                 amount = math.ceil((3 * amount) / 4) -- Slightly different than the above
             end
         end
-        for i,item in ipairs(self.chara:getEquipment()) do
+        for _, item in ipairs(self.chara:getEquipment()) do
             amount = item:onBattleDamage(amount, swoon, true) or amount
         end
 
