@@ -149,6 +149,9 @@ function PartyBattler:hurt(amount, exact, color, options)
             local element = 0
             amount = math.ceil((amount * self:getElementReduction(element)))
         end
+        for i,item in ipairs(self.chara:getEquipment()) do
+            amount = item:onBattleDamage(amount, swoon, false) or amount
+        end
 
         self:removeHealth(amount, swoon)
     else
@@ -162,6 +165,9 @@ function PartyBattler:hurt(amount, exact, color, options)
             if self.defending then
                 amount = math.ceil((3 * amount) / 4) -- Slightly different than the above
             end
+        end
+        for i,item in ipairs(self.chara:getEquipment()) do
+            amount = item:onBattleDamage(amount, swoon, true) or amount
         end
 
         self:removeHealthBroken(amount, swoon) -- Use a separate function for cleanliness
