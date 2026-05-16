@@ -64,6 +64,7 @@ function Music:play(music, volume, pitch)
     if music then
         local path = Assets.getMusicPath(music)
         if not path then
+            Kristal.Console:warn("Music not found: \"" .. music .. "\"")
             return
         end
         self:playFile(path, volume, pitch, music)
