@@ -90,7 +90,7 @@ function OverworldSoul:draw()
         self.collider:draw(0, 1, 0)
     end
     
-    local sx, sy = 0, 0
+    local sx, sy = Game.world:screenToLocalPos()
     local main_chara = Game:getSoulPartyMember()
     local soul_chara = Game.world:getSoulPartyCharacter()
     if main_chara and soul_chara and main_chara:getSoulPriority() >= 0 then
