@@ -588,9 +588,6 @@ function World:spawnPlayer(...)
         facing = self.player:getFacing()
         self:removeChild(self.player)
     end
-    if self.soul then
-        self:removeChild(self.soul)
-    end
 
     self.player = Player(chara, x, y)
     self.player.layer = self.map.object_layer
@@ -601,17 +598,23 @@ function World:spawnPlayer(...)
         self.player.party = party
     end
 
-    self.soul = OverworldSoul(self.player:getRelativePos(self.player.actor:getSoulOffset()))
-    self.soul:setColor(Game:getSoulColor())
-    self.soul.layer = WORLD_LAYERS["soul"]
-    self:addChild(self.soul)
-
     if self.camera.attached_x then
         self.camera:setPosition(self.player.x, self.camera.y)
     end
     if self.camera.attached_y then
         self.camera:setPosition(self.camera.x, self.player.y - (self.player.height * 2) / 2)
     end
+end
+
+--- Spawns the soul into the world
+---@param x? number
+---@param y? number
+function World:spawnSoul(x, y)
+    if self.soul then
+        self:removeChild(self.soul)
+    end
+    self.soul = OverworldSoul(x, y)
+    self:addChild(self.soul)
 end
 
 --- Gets the `Character` in the world of a party member
@@ -759,6 +762,7 @@ function World:spawnParty(marker, party, extra, facing)
                 follower:setFacing(facing or self.player:getFacing())
             end
         end
+        self:spawnSoul()
     end
 end
 
