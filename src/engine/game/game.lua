@@ -903,6 +903,7 @@ function Game:addPartyMember(chara, index)
     else
         table.insert(self.party, chara)
     end
+    self.world:spawnSoul()
     return chara
 end
 
@@ -913,6 +914,7 @@ function Game:removePartyMember(chara)
         chara = self:getPartyMember(chara)
     end
     TableUtils.removeValue(self.party, chara)
+    self.world:spawnSoul()
     return chara
 end
 

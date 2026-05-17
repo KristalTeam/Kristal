@@ -14,7 +14,7 @@ function OverworldSoul:init(x, y)
 
     self.alpha = 0
 
-    --self.layer = BATTLE_LAYERS["soul"]
+    self.layer = WORLD_LAYERS["soul"]
 
     self.sprite = Sprite("player/heart_dodge")
     self.sprite:setOrigin(0.5, 0.5)
@@ -28,8 +28,6 @@ function OverworldSoul:init(x, y)
 
     self.inv_timer = 0
     self.inv_flash_timer = 0
-
-    self.target_lerp = 0
 end
 
 function OverworldSoul:canDebugSelect()
@@ -82,17 +80,27 @@ function OverworldSoul:update()
         end
     end
 
-    self.alpha = progress
+    self.alpha = MathUtils.clamp(progress, 0, 1)
 
     super.update(self)
 end
 
 function OverworldSoul:draw()
-    super.draw(self)
-
     if DEBUG_RENDER then
         self.collider:draw(0, 1, 0)
     end
+    
+    local sx, sy = 0, 0
+    local main_chara = Game:getSoulPartyMember()
+    local soul_chara = Game.world:getSoulPartyCharacter()
+    if main_chara and soul_chara and main_chara:getSoulPriority() >= 0 then
+        sx, sy = soul_chara:getRelativePos(soul_chara.actor:getSoulOffset())
+    end
+    
+    if Game.world.player then
+        love.graphics.translate(MathUtils.lerp(sx - self.x, 0, self.alpha), MathUtils.lerp(sy - self.y, 0, self.alpha))
+    end
+    super.draw(self)
 end
 
 return OverworldSoul
