@@ -144,6 +144,9 @@ function love.load(args)
 
     Kristal.verifySoundSystem()
 
+    -- more unpredictable random sequences
+    math.randomseed(love.timer.getTime())
+
     -- make mouse sprite
     MOUSE_SPRITE = love.graphics.newImage((love.math.random(1000) <= 1) and "assets/sprites/kristal/starwalker.png" or
         "assets/sprites/kristal/mouse.png")
