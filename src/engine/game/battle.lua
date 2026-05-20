@@ -3242,6 +3242,13 @@ function Battle:onKeyPressed(key)
                     self.music:resume()
                 end
             end
+            if Game.world.music and self.encounter.music == nil then
+                if Game.world.music:isPlaying() then
+                    Game.world.music:pause()
+                else
+                    Game.world.music:resume()
+                end
+            end
         end
         if self.state == "DEFENDING" and key == "f" then
             self:endWaves()
