@@ -1,7 +1,9 @@
 ---@class TileLayer : Object
+---@field private drawn boolean
 ---@overload fun(...) : TileLayer
 local TileLayer, super = Class(Object)
 
+---@param map Map
 function TileLayer:init(map, data)
     data = data or {}
     assert(data.encoding == "lua", "Tile layer format \"" .. data.encoding .. "\" is not supported. Please set the format to CSV in the map properties.")
@@ -58,7 +60,7 @@ function TileLayer:setTile(x, y, tileset, ...)
             self.tile_data[index] = first_id + args[1]
         end
     end
-    self.drawn = false
+    self:markTilesDirty()
 end
 
 function TileLayer:getTile(x, y)
@@ -72,46 +74,55 @@ function TileLayer:getTile(x, y)
     return nil, 0
 end
 
-function TileLayer:draw()
+function TileLayer:markTilesDirty()
+    self.drawn = false
+end
+
+---@private
+function TileLayer:regenerateTiles()
+    self.drawn = true
     local r, g, b, a = self:getDrawColor()
-
     local grid_w, grid_h = self.map.tile_width, self.map.tile_height
+    Draw.setColor(r, g, b, self.tile_opacity)
 
-    if not self.drawn then
-        Draw.setColor(r, g, b, self.tile_opacity)
+    Draw.pushCanvas(self.canvas)
+    love.graphics.clear()
+    love.graphics.push()
+    love.graphics.origin()
+    self.animated_tiles = {}
+    for i, xid in ipairs(self.tile_data) do
+        local tx = ((i - 1) % self.map_width) * grid_w
+        local ty = math.floor((i - 1) / self.map_width) * grid_h
 
-        Draw.pushCanvas(self.canvas)
-        love.graphics.clear()
-        love.graphics.push()
-        love.graphics.origin()
-        self.animated_tiles = {}
-        for i, xid in ipairs(self.tile_data) do
-            local tx = ((i - 1) % self.map_width) * grid_w
-            local ty = math.floor((i - 1) / self.map_width) * grid_h
-
-            local gid, flip_x, flip_y, flip_diag = TiledUtils.parseTileGid(xid)
-            local tileset, id = self.map:getTileset(gid)
-            if tileset then
-                if not tileset:getAnimation(id) then
-                    tileset:drawGridTile(id, tx, ty, grid_w, grid_h, flip_x, flip_y, flip_diag)
-                else
-                    table.insert(
-                        self.animated_tiles,
-                        {
-                            tileset = tileset, id = id,
-                            x = tx, y = ty,
-                            flip_x = flip_x, flip_y = flip_y,
-                            flip_diag = flip_diag
-                        }
-                    )
-                end
+        local gid, flip_x, flip_y, flip_diag = TiledUtils.parseTileGid(xid)
+        local tileset, id = self.map:getTileset(gid)
+        if tileset then
+            if not tileset:getAnimation(id) then
+                tileset:drawGridTile(id, tx, ty, grid_w, grid_h, flip_x, flip_y, flip_diag)
+            else
+                table.insert(
+                    self.animated_tiles,
+                    {
+                        tileset = tileset, id = id,
+                        x = tx, y = ty,
+                        flip_x = flip_x, flip_y = flip_y,
+                        flip_diag = flip_diag
+                    }
+                )
             end
         end
-        love.graphics.pop()
-        Draw.popCanvas()
-
-        self.drawn = true
     end
+    love.graphics.pop()
+    Draw.popCanvas()
+end
+
+function TileLayer:draw()
+    local r, g, b, a = self:getDrawColor()
+    if not self.drawn then
+        self:regenerateTiles()
+    end
+
+    local grid_w, grid_h = self.map.tile_width, self.map.tile_height
 
     Draw.setColor(1, 1, 1, a)
 
