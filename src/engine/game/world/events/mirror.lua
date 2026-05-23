@@ -39,32 +39,42 @@ end
 --- Draws a character's reflection
 ---@param chara Character
 function MirrorArea:drawCharacter(chara)
-    love.graphics.push()
+    local tex_path = chara.sprite.texture_path
+    local tex_name, frame = Assets.getFramesFor(tex_path)
+    if not tex_name then tex_name, frame = tex_path, 1 end
+    local old_tex_obj ---@type love.Image?
 
-    chara:preDraw()
-    local oyd = chara.y - self.bottom
-    love.graphics.translate(0, -oyd + self.offset)
-    local oldsprite = string.sub(chara.sprite.texture_path, #chara.sprite.path + 2)
-    local t = StringUtils.split(oldsprite, "_")
-    local pathless = ""
-    for i = 1, #t - 1 do
-        pathless = pathless .. "_" .. t[i]
-    end
-    pathless = string.sub(pathless, 2)
-    local frame = t[#t]
-    local newsprite = oldsprite
-    local mirror = chara.actor:getMirrorSprites()
-    if mirror and mirror[pathless] then
-        if frame then
-            newsprite = mirror[pathless] .. "_" .. frame
+    local actor_spr_path = chara.actor:getSpritePath() or ""
+    if actor_spr_path ~= "" then actor_spr_path = actor_spr_path .. "/" end
+    local tex_in_actor_spr_path, tex_name_rel = StringUtils.startsWith(tex_name, actor_spr_path)
+    if tex_in_actor_spr_path then
+        local mirror_sprites = chara.actor:getMirrorSprites()
+        if mirror_sprites and mirror_sprites[tex_name_rel] then
+            local new_frames = Assets.getFramesOrTexture(actor_spr_path .. mirror_sprites[tex_name_rel]) or {}
+            if #new_frames > 0 then
+                local old_frame_count = #(Assets.getFramesOrTexture(tex_name) or {})
+                local progress = old_frame_count <= 1 and 0 or ((frame - 1) / (old_frame_count - 1))
+                old_tex_obj = chara.sprite.texture
+                chara.sprite:setTextureExact(new_frames[1 + math.floor((#new_frames - 1) * progress)])
+            end
         end
     end
-    chara.sprite:setTextureExact(chara.actor.path .. "/" .. newsprite)
-    chara:draw()
-    chara:postDraw()
-    chara.sprite:setTextureExact(chara.actor.path .. "/" .. oldsprite)
 
+    -- See Object.drawSelf
+    love.graphics.push()
+    chara:preDraw()
+    love.graphics.translate(0, -chara.y + self.bottom + self.offset)
+    if chara.draw_children_below then
+        chara:drawChildren(nil, chara.draw_children_below)
+    end
+    chara:draw()
+    if chara.draw_children_above then
+        chara:drawChildren(chara.draw_children_above)
+    end
+    chara:postDraw()
     love.graphics.pop()
+
+    if old_tex_obj then chara.sprite:setTextureExact(old_tex_obj) end
 end
 
 function MirrorArea:draw()
