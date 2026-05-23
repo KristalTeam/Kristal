@@ -919,6 +919,7 @@ function Game:removePartyMember(chara)
 end
 
 ---@param ... string|PartyMember
+---@return PartyMember[]
 function Game:setPartyMembers(...)
     local args = {...}
     self.party = {}
@@ -929,6 +930,8 @@ function Game:setPartyMembers(...)
             self.party[i] = chara
         end
     end
+    self.world:spawnSoul()
+    return self.party
 end
 
 ---@param chara string|PartyMember
