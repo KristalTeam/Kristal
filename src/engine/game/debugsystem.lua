@@ -384,6 +384,10 @@ function DebugSystem:addToExclusiveMenu(state, id)
 end
 
 function DebugSystem:fadeMusicOut(fade_to)
+    if not self:isInGame() then
+        return
+    end
+
     local music = Game:getActiveMusic()
     if music then
         self.old_music_volume = music.volume
@@ -393,6 +397,10 @@ function DebugSystem:fadeMusicOut(fade_to)
 end
 
 function DebugSystem:fadeMusicIn()
+    if not self:isInGame() then
+        return
+    end
+
     local music = Game:getActiveMusic()
     if music and self.music_needs_reset then
         music:fade(self.old_music_volume, 0.5)
@@ -1086,8 +1094,12 @@ function DebugSystem:registerSubMenus()
     end
 end
 
+function DebugSystem:isInGame()
+    return Kristal.getState() == Game
+end
+
 function DebugSystem:registerDefaults()
-    local in_game = function() return Kristal.getState() == Game end
+    local in_game = function() return self:isInGame() end
     local in_battle = function() return in_game() and Game.state == "BATTLE" end
     local in_overworld = function() return in_game() and Game.state == "OVERWORLD" end
     local in_legend = function() return in_game() and Game.state == "LEGEND" end
@@ -1864,7 +1876,7 @@ function DebugSystem:update()
             stage.active = true
         end
     end
-    
+
     if self:isMenuOpen() then
         -- Create a table to store states that should be excluded
         local excluded_states = {}
