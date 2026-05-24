@@ -15,6 +15,7 @@
 
     "oldTensionBar": true,           // Style of TP bar
     "oldUIPositions": true,          // Old positions of various UI elements
+    "oldTextbox": true,              // Old UI of the overworld textbox
     "oldGameOver": true,             // The game over screen used in chapter 1
     "oldRudeBuster": true,           // Old Rude Buster damage calculation and effect
     "oldPacify": true,               // Removes the animation from the Pacify spell
