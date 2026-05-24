@@ -1318,6 +1318,11 @@ function Kristal.quickReload(mode)
     if Kristal.isLoading() then
         error("Attempt to reload while loading")
     end
+    
+    -- Close the console or debug menu if open
+    if Kristal.DebugSystem then
+        Kristal.DebugSystem:closeMenu()
+    end
 
     -- Temporarily save game variables
     local save, save_id, encounter, shop
