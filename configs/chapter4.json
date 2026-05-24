@@ -15,13 +15,14 @@
 
     "oldTensionBar": false,          // Style of TP bar
     "oldUIPositions": false,         // Old positions of various UI elements
-    "oldTextbox": false,             // Old UI of the overworld textbox
     "oldGameOver": false,            // The game over screen used in chapter 1
     "oldRudeBuster": false,          // Old Rude Buster damage calculation and effect
     "oldPacify": false,              // Removes the animation from the Pacify spell
     "oldDualHealFormula": false,     // Old Dual Heal amount calculation
 
     "speechBubble": "cyber",         // Default enemy speech bubble style
+    "lightTextboxStyle": "light",    // Textbox style used in the light world (by default)
+    "darkTextboxStyle": "dark",      // Textbox style used in the dark world (by default)
 
     "enemyAuras": true,              // Red glow around overworld enemies
 

@@ -204,7 +204,7 @@ KRISTAL_EVENT = {
     --menu events--
     createMenu = "createMenu", -- returns optional custom overworld menu / at: World:createMenu() / passes: NONE / returns: nil|Object
     getDarkMenuButtons = "getDarkMenuButtons", -- optional creation of buttons for custom dark world menu / at: DarkMenu:init() / passes: table:buttons, DarkMenu:self / returns: nil|table
-    getUISkin = "getUISkin", --optional default UI skin key / at: UIBox:init(x, y, width, height, skin) / passes: NONE / returns: nil|string
+    getUISkin = "getUISkin", --optional default UI skin key / at: UIBox:init(x, y, width, height, skin) / passes: skin:string / returns: nil|string
     onDarkMenuOpen = "onDarkMenuOpen",  -- dark world menu is opened / at: DarkMenu:onAdd(parent) / passes: DarkMenu:self / returns: NONE
 
     --discordrpc events--
