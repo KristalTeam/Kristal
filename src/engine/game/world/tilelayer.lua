@@ -1,5 +1,6 @@
 ---@class TileLayer : Object
 ---@field private drawn boolean
+---@field private sprite_batches love.SpriteBatch[]
 ---@overload fun(...) : TileLayer
 local TileLayer, super = Class(Object)
 
@@ -40,7 +41,7 @@ function TileLayer:init(map, data)
 
     self.animated_tiles = {}
 
-    self.canvas = love.graphics.newCanvas(self.map_width * map.tile_width, self.map_height * map.tile_height)
+    self.sprite_batches = {}
     self.drawn = false
 
     self.debug_select = false
@@ -85,11 +86,10 @@ function TileLayer:regenerateTiles()
     local grid_w, grid_h = self.map.tile_width, self.map.tile_height
     Draw.setColor(r, g, b, self.tile_opacity)
 
-    Draw.pushCanvas(self.canvas)
-    love.graphics.clear()
-    love.graphics.push()
-    love.graphics.origin()
     self.animated_tiles = {}
+    self.sprite_batches = {}
+    ---@type table<string, love.SpriteBatch>
+    local tileset_sprite_batches = {}
     for i, xid in ipairs(self.tile_data) do
         local tx = ((i - 1) % self.map_width) * grid_w
         local ty = math.floor((i - 1) / self.map_width) * grid_h
@@ -97,9 +97,7 @@ function TileLayer:regenerateTiles()
         local gid, flip_x, flip_y, flip_diag = TiledUtils.parseTileGid(xid)
         local tileset, id = self.map:getTileset(gid)
         if tileset then
-            if not tileset:getAnimation(id) then
-                tileset:drawGridTile(id, tx, ty, grid_w, grid_h, flip_x, flip_y, flip_diag)
-            else
+            if tileset.texture == nil or tileset:getAnimation(id) ~= nil then
                 table.insert(
                     self.animated_tiles,
                     {
@@ -109,11 +107,17 @@ function TileLayer:regenerateTiles()
                         flip_diag = flip_diag
                     }
                 )
+            else
+                local batch = tileset_sprite_batches[tileset.id]
+                if batch == nil then
+                    batch = love.graphics.newSpriteBatch(tileset.texture)
+                    tileset_sprite_batches[tileset.id] = batch
+                    table.insert(self.sprite_batches, batch)
+                end
+                tileset:addTileToBatch(batch, id, tx, ty, grid_w, grid_h, flip_x, flip_y, flip_diag)
             end
         end
     end
-    love.graphics.pop()
-    Draw.popCanvas()
 end
 
 function TileLayer:draw()
@@ -124,14 +128,13 @@ function TileLayer:draw()
 
     local grid_w, grid_h = self.map.tile_width, self.map.tile_height
 
-    Draw.setColor(1, 1, 1, a)
 
-    if a == 1 then
-        love.graphics.setBlendMode("alpha", "premultiplied")
-    else
-        love.graphics.setBlendMode("alpha")
+    Draw.pushScissor()
+    love.graphics.setScissor(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+    love.graphics.setBlendMode("alpha")
+    for _,batch in ipairs(self.sprite_batches) do
+        love.graphics.draw(batch)
     end
-    Draw.draw(self.canvas)
     love.graphics.setBlendMode("alpha")
 
     Draw.setColor(r, g, b, a * self.tile_opacity)
@@ -140,6 +143,7 @@ function TileLayer:draw()
     end
 
     Draw.setColor(1, 1, 1)
+    Draw.popScissor()
 
     super.draw(self)
 end
