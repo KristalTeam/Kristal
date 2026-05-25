@@ -1,8 +1,11 @@
 ---@class TileLayer : Object
 ---@field private drawn boolean
 ---@field private sprite_batches love.SpriteBatch[]
+---@field private unbatched_tiles TileLayer.UnbatchedTileData[]
 ---@overload fun(...) : TileLayer
 local TileLayer, super = Class(Object)
+
+---@alias TileLayer.UnbatchedTileData table
 
 ---@param map Map
 function TileLayer:init(map, data)
@@ -39,7 +42,7 @@ function TileLayer:init(map, data)
         end
     end
 
-    self.animated_tiles = {}
+    self.unbatched_tiles = {}
 
     self.sprite_batches = {}
     self.drawn = false
@@ -86,7 +89,7 @@ function TileLayer:regenerateTiles()
     local grid_w, grid_h = self.map.tile_width, self.map.tile_height
     Draw.setColor(r, g, b, self.tile_opacity)
 
-    self.animated_tiles = {}
+    self.unbatched_tiles = {}
     self.sprite_batches = {}
     ---@type table<string, love.SpriteBatch>
     local tileset_sprite_batches = {}
@@ -99,7 +102,7 @@ function TileLayer:regenerateTiles()
         if tileset then
             if tileset.texture == nil or tileset:getAnimation(id) ~= nil then
                 table.insert(
-                    self.animated_tiles,
+                    self.unbatched_tiles,
                     {
                         tileset = tileset, id = id,
                         x = tx, y = ty,
@@ -138,7 +141,7 @@ function TileLayer:draw()
     love.graphics.setBlendMode("alpha")
 
     Draw.setColor(r, g, b, a * self.tile_opacity)
-    for _, tile in ipairs(self.animated_tiles) do
+    for _, tile in ipairs(self.unbatched_tiles) do
         tile.tileset:drawGridTile(tile.id, tile.x, tile.y, grid_w, grid_h, tile.flip_x, tile.flip_y, tile.flip_diag)
     end
 
