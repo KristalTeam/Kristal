@@ -1811,8 +1811,7 @@ function Kristal.loadConfig()
         rightStickDeadzone = 0.2,
         defaultName = "",
         skipNameEntry = false,
-        verboseLoader = false,
-        brokenMenuBoxes = false
+        verboseLoader = false
     }
     if love.filesystem.getInfo("settings.json") then
         TableUtils.merge(config, JSON.decode(love.filesystem.read("settings.json")))

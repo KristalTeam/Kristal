@@ -58,9 +58,9 @@ function FileButton:getHeartPos()
         return 20, self.height / 2 - 9
     else
         if self.selected_choice == 1 then
-            return 40, 52
+            return 40, 48
         else
-            return 220, 52
+            return 220, 48
         end
     end
 end
