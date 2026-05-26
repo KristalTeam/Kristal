@@ -160,7 +160,11 @@ function Tileset:drawGridTile(id, x, y, gw, gh, flip_x, flip_y, flip_diag)
 
     local rot = 0
     if flip_diag then
-        flip_y = not flip_y
+        if flip_x == flip_y then
+            flip_x = not flip_x
+        else
+            flip_y = not flip_y
+        end
         rot = -math.pi / 2
     end
 
