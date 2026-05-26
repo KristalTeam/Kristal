@@ -1850,8 +1850,7 @@ function Kristal.getDefaultConfig()
         rightStickDeadzone = 0.2,
         defaultName = "",
         skipNameEntry = false,
-        verboseLoader = false,
-        brokenMenuBoxes = false
+        verboseLoader = false
     }
 
     return config
