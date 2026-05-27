@@ -59,6 +59,10 @@ function item:convertToLightEquip(chara)
     return "light/blackshard"
 end
 
+function item:convertToLight(inventory)
+    return "light/blackshard"
+end
+
 function item:getAttackSprite(battler, enemy, points)
     return "effects/attack/shard"
 end
