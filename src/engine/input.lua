@@ -1054,7 +1054,7 @@ function Input.getControllerType()
     if con("nintendo") or con("switch") or con("joy-con") or con("wii") or con("gamecube") or con("nso") or con("nes") then
         return "switch"
     end
-    if con("sony") or con("playstation") or con("%f[%a]ps") or con("dualshock") or con("dualsense") or con("dualforce") then
+    if con("sony") or con("playstation") or con("ps") or con("dualshock") or con("dualsense") or con("dualforce") then
         return "ps4"
     end
     return "xbox"
