@@ -91,7 +91,7 @@ function TileLayer:regenerateTiles()
 
     self.unbatched_tiles = {}
     self.sprite_batches = {}
-    ---@type table<string, love.SpriteBatch>
+    ---@type table<Tileset, love.SpriteBatch>
     local tileset_sprite_batches = {}
     for i, xid in ipairs(self.tile_data) do
         local tx = ((i - 1) % self.map_width) * grid_w
@@ -111,10 +111,10 @@ function TileLayer:regenerateTiles()
                     }
                 )
             else
-                local batch = tileset_sprite_batches[tileset.id]
+                local batch = tileset_sprite_batches[tileset]
                 if batch == nil then
                     batch = love.graphics.newSpriteBatch(tileset.texture)
-                    tileset_sprite_batches[tileset.id] = batch
+                    tileset_sprite_batches[tileset] = batch
                     table.insert(self.sprite_batches, batch)
                 end
                 tileset:addTileToBatch(batch, id, tx, ty, grid_w, grid_h, flip_x, flip_y, flip_diag)
