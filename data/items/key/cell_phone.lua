@@ -61,7 +61,11 @@ function item:onWorldUse()
         if was_playing then
             Game.world.music:resume()
         end
-        cutscene:text("* It's nothing but garbage noise.")
+        if Game.chapter == 1 then
+            cutscene:text("* But it doesn't seem to be working."
+        else
+            cutscene:text("* It's nothing but garbage noise.")
+        end
     end)
 end
 
