@@ -1046,9 +1046,34 @@ end
 
 ---@return "switch"|"ps4"|"xbox"?
 function Input.getControllerType()
-    if not Input.connected_gamepad then return nil end
+    local gamepad = Input.connected_gamepad
 
-    local name = Input.connected_gamepad:getName():lower()
+    if gamepad == nil then
+        return nil
+    end
+
+    local major, _, _, _ = love.getVersion()
+
+    if major >= 12 then
+        -- Simple optimization for LÖVE 12+
+
+        ---@diagnostic disable-next-line: undefined-field
+        local type = gamepad:getGamepadType()
+
+        if type == "switchpro" or type == "joyconleft" or type == "joyconright" or type == "joyconpair" then
+            return "switch"
+        end
+
+        if type == "ps3" or type == "ps4" or type == "ps5" then
+            return "ps4"
+        end
+
+        return "xbox" -- unknown, xbox360, xboxone, amazonluna, stadia, virtual, shield
+    end
+
+    -- We're on 11.5 unfortunately... gotta do it the hard way
+
+    local name = gamepad:getName():lower()
 
     local con = function(str) return string.find(name, str, 1) ~= nil end
 
