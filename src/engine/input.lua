@@ -1050,7 +1050,8 @@ function Input.getControllerType()
 
     local name = Input.connected_gamepad:getName():lower()
 
-    local con = function(str) return StringUtils.contains(name, str) end
+    local con = function(str) return string.find(name, str, 1) ~= nil end
+
     if con("nintendo") or con("switch") or con("joy-con") or con("wii") or con("gamecube") or con("nso") or con("nes") then
         return "switch"
     end
