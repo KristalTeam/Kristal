@@ -1044,6 +1044,9 @@ function Input.getTexture(alias, gamepad)
     return Assets.getTexture("kristal/buttons/unknown")
 end
 
+--- Returns the type of the current gamepad, or nil if none connected.
+---
+--- Defaults to "xbox" if no gamepad is connected, or if the type cannot be determined.
 ---@return "switch"|"ps4"|"xbox"?
 function Input.getControllerType()
     local gamepad = Input.connected_gamepad
@@ -1080,9 +1083,11 @@ function Input.getControllerType()
     if con("nintendo") or con("switch") or con("joy-con") or con("wii") or con("gamecube") or con("nso") or con("nes") then
         return "switch"
     end
+
     if con("sony") or con("playstation") or con("%f[%a]ps") or con("dualshock") or con("dualsense") or con("dualforce") then
         return "ps4"
     end
+
     return "xbox"
 end
 
