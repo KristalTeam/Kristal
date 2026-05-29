@@ -2,31 +2,44 @@
 ---@overload fun(...) : HeartShine
 local HeartShine, super = Class(Object)
 
-function HeartShine:init(x, y, color, speed, outline)
-    super.init(self, x, y, 32, 32)
+function HeartShine:init(x, y, properties)
+    properties = properties or {}
 
-    self:setOrigin(0.5)
-    self:setScale(2)
+    self.background = Sprite(properties["background_sprite"] or "player/heart_shine_bg")
+    
+    super.init(self, x, y, self.background.width, self.background.height)
 
-    self.layer = BATTLE_LAYERS["battlers"] + 1
+    if type(properties["origin"]) == "table" then
+        self:setOrigin(properties["origin"][1], properties["origin"][2])
+    else
+        self:setOrigin(properties["origin"] or 0.5)
+    end
+    
+    if type(properties["scale"]) == "table" then
+        self:setScale(properties["scale"][1], properties["scale"][2])
+    else
+        self:setScale(properties["scale"] or 2)
+    end
 
-    self.background = Sprite("player/heart_shine_bg")
-    self.background:play(speed or 1 / 30, false, function() self:remove() end)
+    self.layer = properties["layer"] or (BATTLE_LAYERS["battlers"] + 1)
+
+    self.background:play(properties["speed"] or 1 / 30, false, function() self:remove() end)
+    self.background:setColor(ColorUtils.unpackColor(properties["background_color"] or COLORS.white))
     self:addChild(self.background)
 
-    self.heart = Sprite("player/heart_shine")
-    local r, g, b, a = ColorUtils.unpackColor(color or {Game:getSoulColor()})
+    self.heart = Sprite(properties["sprite"] or "player/heart_shine")
+    local r, g, b, a = ColorUtils.unpackColor(properties["color"] or {Game:getSoulColor()})
     self.heart:setColor(r, g, b, a)
 
     -- add an outline to the heart if the 'outline' parameter is undefined and the heart is purely white
-    if outline == nil and r == 1 and g == 1 and b == 1 and a > 0 then outline = true end
-    if outline then
-        self.heart:addFX(OutlineFX(type(outline) == "table" and outline or { 0, 0, 0 }))
+    if properties["outline"] == nil and r == 1 and g == 1 and b == 1 and a > 0 then outline = true end
+    if properties["outline"] then
+        self.heart:addFX(OutlineFX(properties["outline_color"] or { 0, 0, 0 }))
     end
     self:addChild(self.heart)
 
     -- set the frame of the heart to the index of the background frame
-    self.heart_frame = { false, 1, 2, 3, 3, 3, 3, 3, 3, 3, 3, 1 }
+    self.heart_frame = properties["sprite_frame_index"] or { false, 1, 2, 3, 3, 3, 3, 3, 3, 3, 3, 1 }
 end
 
 function HeartShine:draw()
