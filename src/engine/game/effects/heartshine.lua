@@ -32,7 +32,7 @@ function HeartShine:init(x, y, properties)
     self.heart:setColor(r, g, b, a)
 
     -- add an outline to the heart if the 'outline' parameter is undefined and the heart is purely white
-    if properties["outline"] == nil and r == 1 and g == 1 and b == 1 and a > 0 then outline = true end
+    if properties["outline"] == nil and r == 1 and g == 1 and b == 1 and a > 0 then properties["outline"] = true end
     if properties["outline"] then
         self.heart:addFX(OutlineFX(properties["outline_color"] or { 0, 0, 0 }))
     end
