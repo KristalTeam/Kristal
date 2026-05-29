@@ -3,11 +3,9 @@
 local HeartShine, super = Class(Object)
 
 function HeartShine:init(x, y, properties)
-    properties = properties or {}
-
-    self.background = Sprite(properties["background_sprite"] or "player/heart_shine_bg")
+    super.init(self, x, y)
     
-    super.init(self, x, y, self.background.width, self.background.height)
+    properties = properties or {}
 
     if type(properties["origin"]) == "table" then
         self:setOrigin(properties["origin"][1], properties["origin"][2])
@@ -23,6 +21,8 @@ function HeartShine:init(x, y, properties)
 
     self.layer = properties["layer"] or (BATTLE_LAYERS["battlers"] + 1)
 
+    self.background = Sprite(properties["background_sprite"] or "player/heart_shine_bg")
+    self:setSize(self.background:getSize())
     self.background:play(properties["speed"] or 1 / 30, false, function() self:remove() end)
     self.background:setColor(ColorUtils.unpackColor(properties["background_color"] or COLORS.white))
     self:addChild(self.background)
