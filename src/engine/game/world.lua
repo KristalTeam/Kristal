@@ -153,11 +153,19 @@ function World:heal(target, amount, text)
 end
 
 --- Gets the `Player` and `Follower` characters
+---@param party_only?  boolean     Whether to only include current party member characters
 ---@return (Player|Follower)[]
-function World:getPlayerAndFollowers()
+function World:getPlayerAndFollowers(party_only)
     local characters = TableUtils.copy(self.followers)
     if self.player then
         table.insert(characters, 1, self.player)
+    end
+    if party_only then
+        for i, char in ipairs(characters) do
+            if not Game:hasPartyMember(char.party) then
+                table.remove(characters, i)
+            end
+        end
     end
     return characters
 end
@@ -205,7 +213,7 @@ function World:hurtParty(battler, amount)
 
             local dealt_amount = current_health - party:getHealth()
 
-            for _, char in ipairs(self.stage:getObjects(Character)) do
+            for _, char in ipairs(self:getPlayerAndFollowers(true)) do
                 if char.actor and (char.actor.id == party:getActor().id) and dealt_amount > 0 then
                     char:statusMessage("damage", dealt_amount)
                 end
