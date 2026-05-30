@@ -48,6 +48,7 @@
 local Game = {}
 
 function Game:clear()
+    self:clearStateStack()
     if self.world and self.world.music then
         self.world.music:stop()
     end
@@ -74,6 +75,15 @@ function Game:clear()
     self.key_repeat = false
     self.started = false
     self.border = "simple"
+end
+
+function Game:clearStateStack()
+    if self.states ~= nil then
+        for i = #self.states, 1, -1 do
+            self.states[i]:exit()
+        end
+    end
+    self.states = {}
 end
 
 ---@overload fun(self: Game, previous_state: string, save_data: SaveData, save_id: number)
@@ -271,19 +281,8 @@ end
 
 ---@return Music
 function Game:getActiveMusic()
-    if self.state == "OVERWORLD" then
-        return self.world.music
-    elseif self.state == "BATTLE" then
-        return self.battle.music
-    elseif self.state == "SHOP" then
-        return self.shop.music
-    elseif self.state == "GAMEOVER" then
-        return self.gameover.music
-    elseif self.state == "LEGEND" then
-        return self.legend.music
-    else
-        return self.music
-    end
+    local mus_state = self:getMusicState()
+    return mus_state and mus_state:getMusic() or self.music
 end
 
 ---@return {name: string, level: integer, playtime: number, room_name: string}
@@ -390,7 +389,7 @@ function Game:load(data, index, fade)
     self.stage = Stage()
 
     self.world = World()
-    self.stage:addChild(self.world)
+    self:pushState(self.world)
 
     self.fader = Fader()
     self.fader.layer = 1000
@@ -673,14 +672,9 @@ function Game:gameOver(x, y)
     end
     Kristal.hideBorder(0)
 
-    self.state = "GAMEOVER"
-
-    for _, child in ipairs(self.stage.children) do
-        child:remove()
-    end
-
+    self:clearStateStack()
     self.gameover = GameOver(x, y)
-    self.stage:addChild(self.gameover)
+    self:pushState(self.gameover)
 end
 
 ---@param cutscene          string
@@ -705,9 +699,8 @@ function Game:startLegend(cutscene, options)
         self.legend:remove()
     end
 
-    self.state = "LEGEND"
     self.legend = Legend(cutscene, options)
-    self.stage:addChild(self.legend)
+    self:pushState(self.legend)
 end
 
 ---@param ... unknown
@@ -757,8 +750,7 @@ function Game:encounter(encounter, transition, enemy, context)
     else
         self.battle:postInit(transition and "TRANSITION" or "INTRO", encounter)
     end
-
-    self.stage:addChild(self.battle)
+    self:pushState(self.battle)
 end
 
 ---@param shop string|Shop
@@ -800,8 +792,7 @@ function Game:enterShop(shop, options)
 
     self.state = "SHOP"
 
-    self.stage:addChild(self.shop)
-    self.shop:onEnter()
+    self:pushState(self.shop)
 end
 
 --- Sets the value of the flag named `flag` to `value`
@@ -1158,14 +1149,12 @@ function Game:update()
         return
     end
 
-    if self.world then
-        if self:isWorldHidden() then
-            self.world.active = false
-            self.world.visible = false
-        else
-            self.world.active = true
-            self.world.visible = true
-        end
+    local visible = true
+    for i = #self.states, 1, -1 do
+        local state = self.states[i]
+        state.visible = visible
+        state.active = visible
+        visible = visible and not state:shouldHideOtherStates()
     end
 
     self.playtime = self.playtime + DT
@@ -1182,25 +1171,24 @@ function Game:onKeyPressed(key, is_repeat)
         -- Mod:onKeyPressed returned true, cancel default behaviour
         return
     end
+    if Kristal.isDevMode() and Input.ctrl() then
+        if key == "m" then
+            local music = self:getActiveMusic()
+            if music:isPlaying() then
+                music:pause()
+            else
+                music:resume()
+            end
+            return
+        end
+    end
 
     if is_repeat and not self.key_repeat then
         -- Ignore key repeat unless enabled by a game state
         return
     end
 
-    if self.state == "BATTLE" then
-        if self.battle then
-            self.battle:onKeyPressed(key)
-        end
-    elseif self.state == "OVERWORLD" then
-        if self.world then
-            self.world:onKeyPressed(key)
-        end
-    elseif self.state == "GAMEOVER" then
-        if self.gameover then
-            self.gameover:onKeyPressed(key)
-        end
-    end
+    self:getCurrentState():onKeyPressed(key, is_repeat)
 end
 
 ---@param key string
@@ -1249,6 +1237,64 @@ function Game:draw()
     love.graphics.pop()
 
     self:drawDevWarning()
+end
+
+---@generic T: GameState|World|Shop|GameOver
+---@param state T
+---@return T
+function Game:getState(state)
+    if not (isClass(state) and state:includes(GameState)) then
+        error("Expected a GameState class to Game:getState")
+    end
+    for i = #self.states, 1, -1 do
+        local this_state = self.states[i]
+        if this_state:includes(state) then
+            return this_state
+        end
+    end
+    error("Unable to find desired state")
+end
+
+---@return GameState
+function Game:getCurrentState()
+    return self.states[#self.states]
+end
+
+---@private
+function Game:getMusicState()
+    for i = #self.states, 1, -1 do
+        local state = self.states[i] ---@type GameState
+        if state:isMusicActive() then
+            return state
+        end
+    end
+end
+
+---@param state GameState
+function Game:pushState(state)
+    self.stage:addChild(state)
+    if #self.states > 0 and state:isMusicActive() then
+        local old_state = self:getMusicState()
+        if old_state then
+            old_state.was_music_playing = old_state:getMusic():isPlaying()
+            old_state:getMusic():pause()
+        end
+    end
+    table.insert(self.states, state)
+    self.state = self:getCurrentState():getLegacyGameStateID()
+    state:enter()
+end
+
+function Game:popState()
+    local popped_state = table.remove(self.states, #self.states)
+    popped_state:exit()
+    self.stage:removeChild(popped_state)
+    local new_state = self:getCurrentState()
+    self.state = new_state:getLegacyGameStateID()
+    local mus_state = self:getMusicState()
+    if mus_state and mus_state.was_music_playing then
+        mus_state:getMusic():resume()
+    end
 end
 
 return Game

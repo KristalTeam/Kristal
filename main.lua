@@ -146,6 +146,8 @@ Choicebox = require("src.engine.game.common.choicebox")
 TextChoicebox = require("src.engine.game.common.textchoicebox")
 SmallFaceText = require("src.engine.game.common.smallfacetext")
 
+GameState = require("src.engine.game.gamestate")
+
 World = require("src.engine.game.world")
 Map = require("src.engine.game.world.map")
 Tileset = require("src.engine.game.world.tileset")

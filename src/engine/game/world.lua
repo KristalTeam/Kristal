@@ -1,7 +1,7 @@
 --- The `World` Object manages everything relating to the overworld in Kristal. \
 --- A globally available instance of `World` is stored in [`Game.world`](lua://Game.world).
 ---
----@class World : Object, StateManagedClass
+---@class World : GameState, StateManagedClass
 ---
 ---@field state             string                          The current state that this `World` is in - should never be set manually, see [`World:setState()`](lua://World.setState) instead
 ---@field state_manager     StateManager                    An object that manages the state of this `World`
@@ -47,7 +47,7 @@
 ---@field healthbar         HealthBar
 ---
 ---@overload fun(map?: string) : World
-local World, super = Class(Object)
+local World, super = Class(GameState, "World")
 
 ---@param map? string    The optional name of a map to initially load with the world
 function World:init(map)
@@ -59,8 +59,6 @@ function World:init(map)
     self.state_manager:addState("GAMEPLAY")
     self.state_manager:addState("FADING")
     self.state_manager:addState("MENU")
-
-    self.music = Music()
 
     self.map = Map(self)
 
@@ -116,6 +114,10 @@ function World:init(map)
     if map then
         self:loadMap(map)
     end
+end
+
+function World:getLegacyGameStateID()
+    return "OVERWORLD"
 end
 
 --- Heals a member of the party
@@ -1226,8 +1228,10 @@ end
 ---@param parent Object
 function World:onRemove(parent)
     super.onRemove(self, parent)
+end
 
-    self.music:remove()
+function World:isMusicActive()
+    return true
 end
 
 --- Sets whether the player is currently in battle - cannot override being inside a battle area

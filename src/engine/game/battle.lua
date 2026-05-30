@@ -1,7 +1,7 @@
 --- The `Battle` Object manages everything related to battles in Kristal. \
 --- A globally available reference to the in-use `Battle` instance is stored in [`Game.battle`](lua://Game.battle).
 ---
----@class Battle : Object
+---@class Battle : GameState
 ---
 ---@field party                     PartyBattler[]                  A table of all the [PartyBattler](lua://PartyBattler)s in the current battle
 ---
@@ -62,7 +62,7 @@
 ---@field transitioned              boolean                         Whether the battle opened with a transition *(only set during `postInit()`)*
 ---
 ---@overload fun(...) : Battle
-local Battle, super = Class(Object)
+local Battle, super = Class(GameState)
 
 ---@alias BattleState # The state of the battle.
 ---| "NONE" # An empty state which does nothing.
@@ -138,8 +138,6 @@ function Battle:init()
 
     self.arena = nil
     self.soul = nil
-
-    self.music = Music()
 
     self.resume_world_music = false
 
@@ -217,6 +215,14 @@ function Battle:init()
     self.defending_begin_timer = 0
 end
 
+function Battle:getLegacyGameStateID()
+    return "BATTLE"
+end
+
+function Battle:isMusicActive()
+    return self.encounter.music ~= nil
+end
+
 function Battle:createPartyBattlers()
     for i = 1, math.min(3, #Game.party) do
         local party_member = Game.party[i]
@@ -273,11 +279,6 @@ function Battle:postInit(state, encounter)
     end
 
     self.background = self.encounter:createBackground()
-
-    if Game.world.music:isPlaying() and self.encounter.music then
-        self.resume_world_music = true
-        Game.world.music:pause()
-    end
 
     if self.encounter.queued_enemy_spawns then
         for _, enemy in ipairs(self.encounter.queued_enemy_spawns) do
@@ -374,8 +375,6 @@ end
 ---@param parent Object
 function Battle:onRemove(parent)
     super.onRemove(self, parent)
-
-    self.music:remove()
 end
 
 --- Changes the state of the battle and calls [onStateChange()](lua://Battle.onStateChange)
@@ -2491,6 +2490,10 @@ end
 
 --- Ends the battle and removes itself from `Game.battle`
 function Battle:returnToWorld()
+    Game:popState()
+end
+
+function Battle:onExit()
     if not Game:getConfig("keepTensionAfterBattle") then
         Game:setTension(0)
     end
@@ -2528,10 +2531,8 @@ function Battle:returnToWorld()
     if self.resume_world_music then
         Game.world.music:resume()
     end
-    self:remove()
-    self.encounter.defeated_enemies = self.defeated_enemies
     Game.battle = nil
-    Game.state = "OVERWORLD"
+    self.encounter.defeated_enemies = self.defeated_enemies
 end
 
 ---@param text          string|string[]
@@ -3045,6 +3046,10 @@ function Battle:isWorldHidden()
     return self.state ~= "TRANSITION" and
         self.state ~= "TRANSITIONOUT" and
         (self.encounter.background or self.encounter.hide_world)
+end
+
+function Battle:shouldHideOtherStates()
+    return self:isWorldHidden()
 end
 
 ---@param menu_item table
