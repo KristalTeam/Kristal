@@ -268,7 +268,7 @@ KRISTAL_EVENT = {
 
     --map events--
     loadLayer = "loadLayer", -- overrides the map loading the tile layer data on layer depth, when true / at: Map:loadMapData(data) / passes: Map:self, table:layer, number:depth / returns: bool
-    onMapBorder = "onMapBorder", -- intercept game border for this map / at: World:setupMap(map, ...), World:mapTransition(...) / passes: Map:map, string:map_music/ returns: string
+    onMapBorder = "onMapBorder", -- intercept game border for this map / at: World:setupMap(map, ...), World:mapTransition(...) / passes: Map:map, string:map_border / returns: string
     onMapMusic = "onMapMusic", -- intercept game border for this map / at: World:setupMap(map, ...), World:mapTransition(...) / passes: Map:map, string:map_music / returns: string
     loadObject = "loadObject", -- overrides loading an object / at: Map:loadObjects(data) / passes: World:self, name:string, table:data / returns: Event?
 
