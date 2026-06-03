@@ -5,10 +5,6 @@ local UIBox, super = Class(Object)
 function UIBox:init(x, y, width, height, skin)
     super.init(self, x, y, width, height)
 
-    self.left_frame   = 0
-    self.top_frame    = 0
-    self.corner_frame = 0
-
     -- If the callback returns something, use that instead
     self.skin = Kristal.callEvent(KRISTAL_EVENT.getUISkin, skin) or skin
 
@@ -26,6 +22,8 @@ function UIBox:init(x, y, width, height, skin)
     self.corners = {{0, 0}, {1, 0}, {1, 1}, {0, 1}}
 
     self.speed = 10
+
+    self.frame = 0
 end
 
 function UIBox:getWorldSkin()
@@ -53,9 +51,18 @@ function UIBox:getDebugRectangle()
 end
 
 function UIBox:draw()
-    self.left_frame   = ((self.left_frame   + (DTMULT / self.speed)) - 1) % #self.left   + 1
-    self.top_frame    = ((self.top_frame    + (DTMULT / self.speed)) - 1) % #self.top    + 1
-    self.corner_frame = ((self.corner_frame + (DTMULT / self.speed)) - 1) % #self.corner + 1
+    -- VERY BAD AND EVIL FIELD INJECTION... for the sake of accuracy...
+    if self.parent then
+---@diagnostic disable-next-line: inject-field
+        self.parent.uibox_frame = (self.parent.uibox_frame or 0) + DTMULT
+        self.frame = self.parent.uibox_frame
+    else
+        self.frame = self.frame + DTMULT
+    end
+
+    self.left_frame   = ((self.frame / self.speed) % #self.left) + 1
+    self.top_frame    = ((self.frame / self.speed) % #self.top) + 1
+    self.corner_frame = ((self.frame / self.speed) % #self.corner) + 1
 
     local left_width  = self.left[1]:getWidth()
     local left_height = self.left[1]:getHeight()
