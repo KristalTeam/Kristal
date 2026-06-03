@@ -106,6 +106,7 @@ function Console:open()
     TextInput.up_limit_callback = function() self:onUpLimit() end
     TextInput.down_limit_callback = function() self:onDownLimit() end
     TextInput.pressed_callback = function(key) self:onConsoleKeyPressed(key) end
+    TextInput.escape_callback = function() self:close() end
 end
 
 function Console:onUpLimit()

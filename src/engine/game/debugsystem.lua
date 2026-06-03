@@ -1628,6 +1628,7 @@ function DebugSystem:onKeyPressed(key, is_repeat)
                 if option then
                     local menu = self.current_menu
                     local failsound = option.func() == false
+                    Input.clear("confirm")
                     if failsound then
                         Assets.playSound("ui_cant_select")
                     elseif menu ~= "sound_test" then

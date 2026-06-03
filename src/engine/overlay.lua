@@ -48,7 +48,7 @@ function Overlay:update()
         self.load_timer = 0
     end
 
-    if love.keyboard.isDown("escape") and not self.quit_release then
+    if Input.keyDown("escape") and not self.quit_release then
         if Kristal.Config and Kristal.Config["instantQuit"] then
             if Mod ~= nil then
                 self.quit_release = true
@@ -85,7 +85,7 @@ function Overlay:update()
         end
     end
 
-    if self.quit_release and not love.keyboard.isDown("escape") then
+    if self.quit_release and not Input.keyDown("escape") then
         self.quit_release = false
     end
 end
