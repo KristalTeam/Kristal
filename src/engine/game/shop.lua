@@ -1299,7 +1299,7 @@ function Shop:drawPartyBonusInfo(box_y, item, item_options)
                 Draw.draw(self.stat_icons["defense_2"], offset_x + 470, offset_y + 147 + box_y)
 
                 for j = 1, 2 do
-                    self:drawBonuses(party_member, party_member:getArmor(j), item_options["bonuses"], "defense", offset_x + 470 + 20, offset_y + 127 + ((j - 1) * 20) + box_y)
+                    self:drawBonuses(party_member, { item = party_member:getArmor(j), type = "armor", index = j }, item_options["bonuses"], "defense", offset_x + 470 + 20, offset_y + 127 + ((j - 1) * 20) + box_y)
                 end
 
             elseif item.type == "weapon" then
@@ -1308,7 +1308,7 @@ function Shop:drawPartyBonusInfo(box_y, item, item_options)
 
                 self:drawBonuses(
                     party_member,
-                    party_member:getWeapon(),
+                    { item = party_member:getWeapon(), type = "weapon", index = 1 },
                     item_options["bonuses"],
                     "attack",
                     offset_x + 470 + 20,
@@ -1317,7 +1317,7 @@ function Shop:drawPartyBonusInfo(box_y, item, item_options)
 
                 self:drawBonuses(
                     party_member,
-                    party_member:getWeapon(),
+                    { item = party_member:getWeapon(), type = "weapon", index = 2 },
                     item_options["bonuses"],
                     "magic",
                     offset_x + 470 + 20,
@@ -1660,7 +1660,7 @@ end
 
 --- Used to draw the comparative bonus number for an item stat against a party member's current equipment.
 ---@param party_member  PartyMember
----@param old_item      Item
+---@param old_item      { item: Item, type: string, index: number }
 ---@param bonuses       table
 ---@param stat          string
 ---@param x             number
@@ -1671,7 +1671,7 @@ function Shop:drawBonuses(party_member, old_item, bonuses, stat, x, y)
     local old_stat = 0
 
     if old_item then
-        old_stat = old_item:getStatBonus(stat) or 0
+        old_stat = old_item["item"]:getStatBonus(stat) or 0
     end
 
     local amount = (bonuses[stat] or 0) - old_stat
