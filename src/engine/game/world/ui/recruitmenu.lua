@@ -236,7 +236,7 @@ function RecruitMenu:draw()
 
                 Draw.printAlign(
                     Game:hasRecruit(recruit.id) and recruit:getDescription() or "Not yet fully recruited",
-                    301,
+                    300,
                     120,
                     {
                         align = "left",

@@ -13,9 +13,9 @@
         "fill": "fill"
     },
     "text_padding": {
-        "left":   6,
+        "left":   5,
         "top":    5,
-        "right":  5,
+        "right":  6,
         "bottom": 5
     }
 }

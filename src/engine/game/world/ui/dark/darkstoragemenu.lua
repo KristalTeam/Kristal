@@ -41,7 +41,7 @@ function DarkStorageMenu:init(top_storage, bottom_storage)
     self.selected_y = { 1, 1 }
     self.selected_page = { 1, 1 }
 
-    self.text_x = { 155, 155 }
+    self.text_x = { 154, 154 }
     self.text_y = { 144, 294 }
 
     self.arrow_y = { 188, 340 }
