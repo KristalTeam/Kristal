@@ -1670,7 +1670,7 @@ function Shop:drawBonuses(party_member, old_item, bonuses, stat, x, y)
 
     local old_stat = 0
 
-    if old_item then
+    if old_item["item"] then
         old_stat = old_item["item"]:getStatBonus(stat) or 0
     end
 
