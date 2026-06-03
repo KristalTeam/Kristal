@@ -1196,10 +1196,6 @@ function Game:onKeyPressed(key, is_repeat)
         if self.world then
             self.world:onKeyPressed(key)
         end
-    elseif self.state == "SHOP" then
-        if self.shop then
-            self.shop:onKeyPressed(key, is_repeat)
-        end
     elseif self.state == "GAMEOVER" then
         if self.gameover then
             self.gameover:onKeyPressed(key)
