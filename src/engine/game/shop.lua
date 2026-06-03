@@ -919,10 +919,16 @@ function Shop:slideShopkeeper(away)
     end
 end
 
---- Internal functin to update the state machine.
+--- Internal function to update the state machine.
 ---@private
 function Shop:updateStates()
-    if self.state == "BUYMENU" or self.state == "BUYCONFIRM" then
+    -- Nothing here for now!
+end
+
+--- Internal function to update the expanding box animation, and move the shopkeeper if needed.
+---@private
+function Shop:updateInfoBox()
+    if self.info_box.visible then
         self:updateExpandingBox()
 
         if self.shopkeeper.slide then
@@ -1209,6 +1215,7 @@ function Shop:update()
     super.update(self)
 
     self:updateStates()
+    self:updateInfoBox()
 
     self:updateFade()
 end
