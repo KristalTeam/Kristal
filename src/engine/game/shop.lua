@@ -51,7 +51,7 @@
 --- Text shown on the right side when you enter the talk menu.
 ---@field talk_text                 string
 ---
---- Defines the Text shown when in each of the different SELL submenus. \
+--- Defines the text shown when in each of the different SELL submenus. \
 --- The keys `items`, `weapons`, `armors`, and `storage` can be defined for this table.
 ---@field sell_options_text         { items: string, weapons: string, armors: string, storage: string }
 ---
@@ -1591,11 +1591,9 @@ function Shop:drawMoney()
     love.graphics.print(string.format(self.currency_text, self:getMoney()), 440, 420)
 end
 
-function Shop:draw()
-    self:drawBackground()
-
-    super.draw(self)
-
+--- Draws the current shop state.
+---@private
+function Shop:drawStates()
     love.graphics.setFont(self.font)
     if self.state == "MAINMENU" then
         self:drawMainMenu()
@@ -1641,9 +1639,23 @@ function Shop:draw()
         self:drawTalkMenu()
         self:drawMoney()
     end
+end
 
+--- Draws the fade when leaving the shop.
+---@private
+function Shop:drawFade()
     Draw.setColor(0, 0, 0, self.fade_alpha)
     love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+end
+
+function Shop:draw()
+    self:drawBackground()
+
+    super.draw(self)
+
+    self:drawStates()
+
+    self:drawFade()
 end
 
 --- Used to draw the comparative bonus number for an item stat against a party member's current equipment.
