@@ -228,8 +228,6 @@ function DarkConfigMenu:update()
         end
 
         if old_index ~= border_index then
-            Assets.stopAndPlaySound("ui_move")
-
             Kristal.Config["borders"] = types[border_index][1]
 
             if types[border_index][1] == "off" then
