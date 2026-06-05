@@ -234,6 +234,13 @@ function love.quit()
     end
 end
 
+function love.focus()
+    local state = Kristal.getState()
+    if state ~= nil and state.focus then
+        state:focus()
+    end
+end
+
 function love.draw()
     if PERFORMANCE_TEST_STAGE == "DRAW" then
         PERFORMANCE_TEST = {}
