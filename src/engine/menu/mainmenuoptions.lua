@@ -388,7 +388,8 @@ function MainMenuOptions:onKeyPressedWindowScale(key, is_repeat)
         self:setState("MENU")
     end
 
-    local scale = Kristal.Config["windowScale"]
+    local old_scale = Kristal.getWindowScale()
+    local scale = old_scale
 
     if Input.is("right", key) then
         if scale < 1 then
@@ -411,11 +412,15 @@ function MainMenuOptions:onKeyPressedWindowScale(key, is_repeat)
         end
     end
 
-    if Kristal.Config["windowScale"] ~= scale then
+    if old_scale ~= scale then
         Assets.stopAndPlaySound("ui_move")
 
         Kristal.Config["fullscreen"] = false
         Kristal.Config["windowScale"] = scale
+
+        if Kristal.Config["autoWindowScale"] then
+            Kristal.Config["autoWindowScale"] = false
+        end
 
         Kristal.resetWindow()
     end
@@ -578,10 +583,21 @@ function MainMenuOptions:initializeOptions()
         { "general", "graphics" },
         "Window Scale",
         function()
-            return tostring(Kristal.Config["windowScale"]) .. "x"
+            return tostring(Kristal.getWindowScale()) .. "x"
         end,
         function()
             self:setState("WINDOWSCALE")
+        end
+    )
+
+    self:registerOption({ "general", "graphics" }, "Auto Scale Window", function()
+            return Kristal.Config["autoWindowScale"] and "ON" or "OFF"
+        end, function()
+            local old_scale = Kristal.getWindowScale()
+            Kristal.Config["autoWindowScale"] = not Kristal.Config["autoWindowScale"]
+            if old_scale ~= Kristal.getWindowScale() then
+                Kristal.resetWindow()
+            end
         end
     )
 
