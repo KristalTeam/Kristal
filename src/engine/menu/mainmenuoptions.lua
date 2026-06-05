@@ -596,6 +596,10 @@ function MainMenuOptions:initializeOptions()
             local old_scale = Kristal.getWindowScale()
             Kristal.Config["autoWindowScale"] = not Kristal.Config["autoWindowScale"]
             if old_scale ~= Kristal.getWindowScale() then
+                if Kristal.Config["fullscreen"] then
+                    love.window.setFullscreen(false)
+                    Kristal.Config["fullscreen"] = false
+                end
                 Kristal.resetWindow()
             end
         end
