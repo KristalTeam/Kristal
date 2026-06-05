@@ -1618,6 +1618,10 @@ function Kristal.resetWindow()
         vsync = Kristal.Config["vSync"],
     }
 
+    if Kristal.isForcedFullscreen() then
+        properties.fullscreen = true
+    end
+
     local major, _, _, _ = love.getVersion()
 
     if major < 12 then
@@ -1637,6 +1641,11 @@ function Kristal.resetWindow()
             tilelayer.drawn = false
         end
     end
+end
+
+---@return boolean forced Whether the game is forced to be in fullscreen mode (on mobile platforms and consoles).
+function Kristal.isForcedFullscreen()
+    return love.system.getOS() == "Android" or love.system.getOS() == "iOS" or Kristal.isConsole()
 end
 
 ---@return boolean console Whether Kristal is in console mode.
@@ -1669,7 +1678,7 @@ end
 function Kristal.getBorderTypes()
     local types = {}
 
-    if not Kristal.isConsole() then
+    if not Kristal.isForcedFullscreen() then
         table.insert(types, { "off", "OFF", nil })
     end
 
@@ -1682,7 +1691,7 @@ end
 
 ---@return boolean enabled Whether borders are enabled.
 function Kristal.bordersEnabled()
-    return Kristal.isConsole() or Kristal.Config["borders"] ~= "off"
+    return Kristal.isForcedFullscreen() or Kristal.Config["borders"] ~= "off"
 end
 
 --- Returns the dimensions of the screen border, or (0, 0) if borders are disabled.
