@@ -1788,9 +1788,9 @@ function Kristal.getSoulColor()
     return 1, 0, 0, 1
 end
 
---- Called internally. Loads the saved user config, with default values.
----@return table config The user config.
-function Kristal.loadConfig()
+--- Called internally. Returns the default config.
+---@return table config The default config.
+function Kristal.getDefaultConfig()
     local config = {
         windowScale = 1,
         skipIntro = false,
@@ -1814,9 +1814,35 @@ function Kristal.loadConfig()
         verboseLoader = false,
         brokenMenuBoxes = false
     }
+
+    return config
+end
+
+--- Called internally. Loads the saved user config, with default values.
+---@return table config The user config.
+function Kristal.loadConfig()
+    local config = Kristal.getDefaultConfig()
+
     if love.filesystem.getInfo("settings.json") then
-        TableUtils.merge(config, JSON.decode(love.filesystem.read("settings.json")))
+        local success, message = pcall(JSON.decode, love.filesystem.read("settings.json"))
+        if not success then
+            print("Error loading settings.json: " .. tostring(message))
+            print("Using default config.")
+            return config
+        end
+
+        local config_type = type(message)
+        if config_type ~= "table" then
+            print("Error loading settings.json: Expected table, got " .. config_type)
+            print("Using default config.")
+            return config
+        end
+
+        TableUtils.merge(config, message)
+    else
+        print("No settings.json found, using default config.")
     end
+
     return config
 end
 
