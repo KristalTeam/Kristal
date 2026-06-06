@@ -436,21 +436,41 @@ function Sprite:resetCrossFade()
     self.crossfade_after = nil
 end
 
---- Starts a cross-fade from the current sprite to a new `texture`
+--- Starts a cross-fade from the current sprite to a new `texture`.
+---
+--- If "options" is instead a boolean, it will be treated as the value for `fade_out`. This behavior is deprecated and will be removed.
 ---@param texture   string|love.Image   The texture to fade into
 ---@param time?     number              The time, in seconds, that the cross-fade should take (Defaults to `1`)
----@param options?  table               A table defining additional properties to control the fade
+---@param options?  table|boolean       A table defining additional properties to control the fade
 ---@param after?    fun(sprite: Sprite) The function to run when the cross-fade is complete
 function Sprite:crossFadeTo(texture, time, options, after)
+    if (type(options) == "boolean") then
+        options = { fade_out = options }
+
+        local info = debug.getinfo(2, "Sln")
+        Kristal.Console:warn("Deprecated \"fade_to\" argument to crossFadeTo, expected a table of options")
+        Kristal.Console:warn(info.source .. ":"..info.currentline)
+    end
+
     self:crossFadeToSpeed(texture, (1 / (time or 1)) / 30 * (1 - self.crossfade_alpha), options, after)
 end
 
 --- Starts a cross-fade from the current sprite to a new `texture`
+---
+--- If "options" is instead a boolean, it will be treated as the value for `fade_out`. This behavior is deprecated and will be removed.
 ---@param texture   string|love.Image   The texture to fade into
 ---@param speed?    number              The speed at which the alpha of both sprites change, meaasured as the alpha value change per frame at 30FPS (Defaults to `0.04`)
----@param options?  table               A table defining additional properties to control the fade
+---@param options?  table|boolean       A table defining additional properties to control the fade.
 ---@param after?    fun(sprite: Sprite) The function to run when the cross-fade is complete
 function Sprite:crossFadeToSpeed(texture, speed, options, after)
+    if (type(options) == "boolean") then
+        options = { fade_out = options }
+
+        local info = debug.getinfo(2, "Sln")
+        Kristal.Console:warn("Deprecated \"fade_to\" argument to crossFadeToSpeed, expected a table of options")
+        Kristal.Console:warn(info.source .. ":"..info.currentline)
+    end
+
     options = options or {}
     self:setCrossFadeTexture(texture)
     self.crossfade_speed = speed or 0.04
