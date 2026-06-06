@@ -125,7 +125,8 @@ end
 function Battler:alert(duration, options)
     options = options or {}
     if options["play_sound"] == nil or options["play_sound"] then
-        Assets.stopAndPlaySound("alert")
+        local sound_to_use = options["sound"] or "alert"
+        Assets.stopAndPlaySound(sound_to_use)
     end
     local sprite_to_use = options["sprite"] or "effects/alert"
     self.alert_timer = duration and duration * 30 or 20
