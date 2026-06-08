@@ -39,6 +39,7 @@
 ---@field party             PartyMember[]
 ---@field party_data        PartyMember[]
 ---@field recruits_data     Recruit[]
+---@field private state_stack GameState[]
 ---
 ---@field fader             Fader
 ---@field max_followers     integer
@@ -78,12 +79,13 @@ function Game:clear()
 end
 
 function Game:clearStateStack()
-    if self.states ~= nil then
-        for i = #self.states, 1, -1 do
-            self.states[i]:exit()
+    if self.state_stack ~= nil then
+        for i = #self.state_stack, 1, -1 do
+            self.state_stack[i]:remove()
+            self.state_stack[i]:exit()
         end
     end
-    self.states = {}
+    self.state_stack = {}
 end
 
 ---@overload fun(self: Game, previous_state: string, save_data: SaveData, save_id: number)
@@ -1150,8 +1152,8 @@ function Game:update()
     end
 
     local visible = true
-    for i = #self.states, 1, -1 do
-        local state = self.states[i]
+    for i = #self.state_stack, 1, -1 do
+        local state = self.state_stack[i]
         state.visible = visible
         state.active = visible
         visible = visible and not state:shouldHideOtherStates()
@@ -1246,8 +1248,8 @@ function Game:getState(state)
     if not (isClass(state) and state:includes(GameState)) then
         error("Expected a GameState class to Game:getState")
     end
-    for i = #self.states, 1, -1 do
-        local this_state = self.states[i]
+    for i = #self.state_stack, 1, -1 do
+        local this_state = self.state_stack[i]
         if this_state:includes(state) then
             return this_state
         end
@@ -1257,13 +1259,13 @@ end
 
 ---@return GameState
 function Game:getCurrentState()
-    return self.states[#self.states]
+    return self.state_stack[#self.state_stack]
 end
 
 ---@private
 function Game:getMusicState()
-    for i = #self.states, 1, -1 do
-        local state = self.states[i] ---@type GameState
+    for i = #self.state_stack, 1, -1 do
+        local state = self.state_stack[i] ---@type GameState
         if state:isMusicActive() then
             return state
         end
@@ -1273,20 +1275,20 @@ end
 ---@param state GameState
 function Game:pushState(state)
     self.stage:addChild(state)
-    if #self.states > 0 and state:isMusicActive() then
+    if #self.state_stack > 0 and state:isMusicActive() then
         local old_state = self:getMusicState()
         if old_state then
             old_state.was_music_playing = old_state:getMusic():isPlaying()
             old_state:getMusic():pause()
         end
     end
-    table.insert(self.states, state)
+    table.insert(self.state_stack, state)
     self.state = self:getCurrentState():getLegacyGameStateID()
     state:enter()
 end
 
 function Game:popState()
-    local popped_state = table.remove(self.states, #self.states)
+    local popped_state = table.remove(self.state_stack, #self.state_stack)
     popped_state:exit()
     self.stage:removeChild(popped_state)
     local new_state = self:getCurrentState()
