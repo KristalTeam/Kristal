@@ -311,6 +311,7 @@ function Player:updateSlideDust()
         dust.layer = self.layer - 0.01
         dust.physics.speed_y = -6
         dust.physics.speed_x = MathUtils.random(-1, 1)
+        dust.debug_select = false
         self.world:addChild(dust)
     end
 end

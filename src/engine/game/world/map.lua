@@ -135,9 +135,10 @@ end
 ---@param name string The name of the marker to search for.
 ---@return number x The x-coordinate of the marker's center.
 ---@return number y The y-coordinate of the marker's center.
+---@return Marker marker The full marker data.
 function Map:getMarker(name)
     local marker = self.markers[name]
-    return marker and marker.center_x or (self.width * self.tile_width / 2), marker and marker.center_y or (self.height * self.tile_height / 2)
+    return marker and marker.center_x or (self.width * self.tile_width / 2), marker and marker.center_y or (self.height * self.tile_height / 2), marker
 end
 
 function Map:hasMarker(name)
@@ -538,6 +539,8 @@ function Map:loadMarkers(layer)
         v.y = v.y + (layer.offsety or 0)
         v.center_x = v.center_x + (layer.offsetx or 0)
         v.center_y = v.center_y + (layer.offsety or 0)
+
+        v.player_state = marker.properties["player_state"] or "WALK"
 
         self.markers[v.name] = v
     end

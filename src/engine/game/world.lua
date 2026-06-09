@@ -564,6 +564,7 @@ function World:spawnPlayer(...)
     local args = { ... }
 
     local x, y = 0, 0
+    local state = "WALK"
     local chara = self.player and self.player.actor
     local party
     if #args > 0 then
@@ -572,9 +573,14 @@ function World:spawnPlayer(...)
             chara = args[3] or chara
             party = args[4]
         elseif type(args[1]) == "string" then
-            x, y = self.map:getMarker(args[1])
+            local data
+            x, y, data = self.map:getMarker(args[1])
             chara = args[2] or chara
             party = args[3]
+
+            if data ~= nil then
+                state = data.player_state or "WALK"
+            end
         end
     end
 
@@ -592,6 +598,7 @@ function World:spawnPlayer(...)
     self.player = Player(chara, x, y)
     self.player.layer = self.map.object_layer
     self.player:setFacing(facing)
+    self.player:setState(state)
     self:addChild(self.player)
 
     if party then
