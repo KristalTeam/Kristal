@@ -648,15 +648,6 @@ function MainMenuOptions:initializeOptions()
 
     self:registerConfigOption("graphics", "Frame Skip", "frameSkip")
 
-    self:registerConfigOption(
-        "graphics",
-        "Broken Menu Boxes",
-        "brokenMenuBoxes",
-        function(toggled)
-            self.menu.mod_list:buildModList()
-        end
-    )
-
     ---------------------
     -- Engine Options
     ---------------------
