@@ -298,10 +298,10 @@ function Player:beginSlide(last_state, in_place, lock_movement)
 end
 
 function Player:updateSlideDust()
-    self.slide_dust_timer = MathUtils.approach(self.slide_dust_timer, 0, DTMULT)
+    self.slide_dust_timer = self.slide_dust_timer - DTMULT
 
-    if self.slide_dust_timer == 0 then
-        self.slide_dust_timer = 3
+    if self.slide_dust_timer <= 0 then
+        self.slide_dust_timer = self.slide_dust_timer + 3
 
         local dust = Sprite("effects/slide_dust")
         dust:play(1 / 15, false, function() dust:remove() end)
