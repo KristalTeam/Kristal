@@ -837,6 +837,8 @@ function Map:loadTilesetFromTilesetPath(filename)
     return true, tileset
 end
 
+---@return Tileset?
+---@return integer
 function Map:getTileset(id)
     if type(id) == "number" then
         id = TiledUtils.parseTileGid(id)

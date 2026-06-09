@@ -1,5 +1,6 @@
 ---@class Tileset : Class
 ---@overload fun(...) : Tileset
+---@field quads love.Quad[]
 local Tileset = Class()
 
 Tileset.ORIGINS = {
@@ -151,7 +152,15 @@ function Tileset:drawTile(id, x, y, ...)
     end
 end
 
-function Tileset:drawGridTile(id, x, y, gw, gh, flip_x, flip_y, flip_diag)
+---@return love.Quad quad
+---@return number x
+---@return number y
+---@return number rotation_radians
+---@return number scale_x
+---@return number scale_y
+---@return number ox
+---@return number oy
+function Tileset:getGridTile(id, x, y, gw, gh, flip_x, flip_y, flip_diag)
     local draw_id = self:getDrawTile(id)
     local w, h = self:getTileSize(draw_id)
 
@@ -176,16 +185,28 @@ function Tileset:drawGridTile(id, x, y, gw, gh, flip_x, flip_y, flip_diag)
 
     local ox, oy = (w * sx) / 2, gh - (h * sy) / 2
 
+    return self.quads[draw_id], (x or 0) + ox, (y or 0) + oy, rot, flip_x and -sx or sx, flip_y and -sy or sy, w / 2, h / 2
+end
+
+function Tileset:drawGridTile(id, x, y, gw, gh, flip_x, flip_y, flip_diag)
+    local draw_id = self:getDrawTile(id)
+    local quad, draw_x, draw_y, rot, scale_x, scale_y, ox, oy = self:getGridTile(id, x, y, gw, gh, flip_x, flip_y, flip_diag)
+
     local info = self.tile_info[draw_id]
     if info and info.texture then
         if not info.quad then
-            Draw.draw(info.texture, (x or 0) + ox, (y or 0) + oy, rot, flip_x and -sx or sx, flip_y and -sy or sy, w / 2, h / 2)
+            Draw.draw(info.texture, draw_x, draw_y, rot, scale_x, scale_y, ox, oy)
         else
-            Draw.draw(info.texture, info.quad, (x or 0) + ox, (y or 0) + oy, rot, flip_x and -sx or sx, flip_y and -sy or sy, w / 2, h / 2)
+            Draw.draw(info.texture, info.quad, draw_x, draw_y, rot, scale_x, scale_y, ox, oy)
         end
     else
-        Draw.draw(self.texture, self.quads[draw_id], (x or 0) + ox, (y or 0) + oy, rot, flip_x and -sx or sx, flip_y and -sy or sy, w / 2, h / 2)
+        Draw.draw(self.texture, quad, draw_x, draw_y, rot, scale_x, scale_y, ox, oy)
     end
+end
+
+---@param batch love.SpriteBatch
+function Tileset:addTileToBatch(batch, id, x, y, gw, gh, flip_x, flip_y, flip_diag)
+    batch:add(self:getGridTile(id, x, y, gw, gh, flip_x, flip_y, flip_diag))
 end
 
 function Tileset:canDeepCopy()
