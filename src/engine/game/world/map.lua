@@ -48,6 +48,7 @@ function Map:init(world, data)
     self.image_layers = {}
     self.shape_layers = {}
     self.markers = {}
+    self.markers_by_id = {}
     self.battle_areas = {}
     self.battle_borders = {}
     self.paths = {}
@@ -132,17 +133,38 @@ function Map:addFlag(flag, amount)
 end
 
 --- Gets a specific marker from the current map.
----@param name string The name of the marker to search for.
----@return number x The x-coordinate of the marker's center.
----@return number y The y-coordinate of the marker's center.
----@return Marker marker The full marker data.
-function Map:getMarker(name)
-    local marker = self.markers[name]
-    return marker and marker.center_x or (self.width * self.tile_width / 2), marker and marker.center_y or (self.height * self.tile_height / 2), marker
+---@param id string|integer|TiledObjectRef The name of the marker to search for, the unique numerical ID, or a Tiled object reference.
+---@return number x The x-coordinate of the marker's center (or the center of the map if it doesn't exist).
+---@return number y The y-coordinate of the marker's center (or the center of the map if it doesn't exist).
+---@return Marker? marker The full marker data.
+function Map:getMarker(id)
+    local marker
+
+    if type(id) == "table" then
+        if id.id ~= nil then
+            marker = self.markers_by_id[id.id]
+        end
+    elseif type(id) == "number" then
+        marker = self.markers_by_id[id]
+    else
+        marker = self.markers[id]
+    end
+
+    if marker == nil then
+        return (self.width * self.tile_width / 2), (self.height * self.tile_height / 2), nil
+    end
+
+    return marker.center_x, marker.center_y, marker
 end
 
-function Map:hasMarker(name)
-    return self.markers[name] ~= nil
+--- Checks if a marker exists.
+---@param id string|integer The name of the marker to search for, or the unique numerical ID.
+function Map:hasMarker(id)
+    if type(id) == "number" then
+        return self.markers_by_id[id] ~= nil
+    end
+
+    return self.markers[id] ~= nil
 end
 
 function Map:getPath(name)
@@ -186,10 +208,17 @@ function Map:setTile(x, y, tileset, ...)
 end
 
 --- Gets a specific event present in the current map.
----@param id string|number  The unique numerical id of an event OR the text id of an event type to get the first instance of.
----@return Event? event The event instnace, or `nil` if it was not found.
+---
+--- If multiple objects are found (if you pass in a name), only the first will be returned. Use `Map:getEvents` to get all of them.
+---@see Map.getEvents
+---@param id string|integer|TiledObjectRef The name of the event, the unique numerical ID, or a Tiled object reference.
+---@return Event? event The event instance, if found.
 function Map:getEvent(id)
-    if type(id) == "number" then
+    if type(id) == "table" then
+        if id.id ~= nil then
+            return self.events_by_id[id.id]
+        end
+    elseif type(id) == "number" then
         return self.events_by_id[id]
     else
         if self.events_by_name[id] then
@@ -542,7 +571,11 @@ function Map:loadMarkers(layer)
 
         v.player_state = marker.properties["player_state"] or "WALK"
 
-        self.markers[v.name] = v
+        if v.name ~= nil then
+            self.markers[v.name] = v
+        end
+
+        self.markers_by_id[v.id] = v
     end
 end
 

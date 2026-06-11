@@ -866,15 +866,17 @@ function World:partyReact(party_member, text, display_time)
     end
 end
 
---- Gets a specific event present in the current map
----@param id string|number  The unique numerical id of an event OR the text id of an event type to get the first instance of
----@return Event event The event instnace, or `nil` if it was not found
+--- Gets a specific event present in the current map.
+---
+--- If multiple objects are found (if you pass in a name), only the first will be returned. Use `Map:getEvents` to get all of them.
+---@param id string|number|TiledObjectRef The id of the event to search for, either as a string or a number
+---@return Event event The name of the event, the unique numerical ID, or a Tiled object reference.
 function World:getEvent(id)
     return self.map:getEvent(id)
 end
 
---- Gets a list of all instances of one type of event in the current maps
----@param name? string The text id of the event to search for, fetches every event if `nil`
+--- Gets all instances of an event present in the current map.
+---@param name? string The text id of the event to search for. If left unspecified, all events will be returned.
 ---@return Event[] events A table containing every instance of the event in the current map
 function World:getEvents(name)
     return self.map:getEvents(name)
