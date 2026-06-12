@@ -57,7 +57,7 @@ function OverworldActionBox:draw()
 
     love.graphics.setLineWidth(2)
     love.graphics.line(0, 1, 213, 1)
-    
+
     if Game:getConfig("oldUIPositions") then
         love.graphics.line(0, 2, 2, 2)
         love.graphics.line(211, 2, 213, 2)

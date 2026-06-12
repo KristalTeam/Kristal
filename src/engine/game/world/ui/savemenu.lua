@@ -225,7 +225,7 @@ function SaveMenu:draw()
             Draw.setColor(PALETTE["world_gray"])
         end
         love.graphics.print("Storage", 170, 260)
-        
+
         if Game:getConfig("enableRecruits") and #Game:getRecruits(true) > 0 then
             Draw.setColor(PALETTE["world_text"])
         else

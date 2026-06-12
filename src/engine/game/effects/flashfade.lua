@@ -10,7 +10,7 @@ function FlashFade:init(texture, x, y, color)
     self.target = nil
 
     self.alpha = 0
-    
+
     self.color = color or { 1, 1, 1 }
     self.color_mask = self:addFX(ColorMaskFX(self.color))
 end

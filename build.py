@@ -57,15 +57,15 @@ def setInfo(key, value):
             ver_data = resources[RT_VERSION][name][lang]
             ver_name = name
             ver_lang = lang
-    
+
     if ver_data is None:
         ver_data = VersionInfo()
-    
+
     params = {}
     params[key] = _IdentityReplace(value)
-    
+
     vi = parse_version_info(ver_data)
-    
+
     fvi = vi.get_fixed_info()
     if 'FileVersion' in params:
         ver = Version(params['FileVersion'](None))
@@ -74,7 +74,7 @@ def setInfo(key, value):
         ver = Version(params['ProductVersion'](None))
         fvi.dwProductVersionMS, fvi.dwProductVersionLS = ver.get_ms_ls()
     vi.set_fixed_info(fvi)
-    
+
     sfi = vi.string_file_info()
     for _, strings in sfi.items():
         for k, fn in params.items():

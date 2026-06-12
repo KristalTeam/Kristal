@@ -604,7 +604,7 @@ function DebugSystem:registerSubMenus()
     end)
 
     self:registerOption("engine_option_fps", "Back", "Go back to the previous menu.", function() self:returnMenu() end)
-    
+
     self:registerMenu("fast_forward", "Fast Forward")
     self:registerOption(
         "fast_forward",

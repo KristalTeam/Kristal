@@ -123,7 +123,7 @@ function PartyMember:init()
     }
     -- Max stats from level-ups
     self.max_stats = {}
-    
+
     -- Party members which will also get stronger when this character gets stronger, even if they're not in the party
     self.stronger_absent = {}
 

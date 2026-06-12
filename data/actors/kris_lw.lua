@@ -58,7 +58,7 @@ function actor:init()
         ["fallen"] = {-8, 16},
 
         ["sit"] = {-4, -8},
-        
+
         ["slide"] = {0, 0},
 
         ["ghostwalk_lf"] = {-4, 3},

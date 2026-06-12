@@ -89,14 +89,14 @@ function OverworldSoul:draw()
     if DEBUG_RENDER then
         self.collider:draw(0, 1, 0)
     end
-    
+
     local sx, sy = Game.world:screenToLocalPos()
     local main_chara = Game:getSoulPartyMember()
     local soul_chara = Game.world:getSoulPartyCharacter()
     if main_chara and soul_chara and main_chara:getSoulPriority() >= 0 then
         sx, sy = soul_chara:getRelativePos(soul_chara.actor:getSoulOffset())
     end
-    
+
     if Game.world.player then
         love.graphics.translate(MathUtils.lerp(sx - self.x, 0, self.alpha), MathUtils.lerp(sy - self.y, 0, self.alpha))
     end
