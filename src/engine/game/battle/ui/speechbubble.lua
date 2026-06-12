@@ -135,7 +135,7 @@ function SpeechBubble:setText(text, callback, line_callback)
             end
         end
     end
-    
+
     self.text:setText(text, callback or self.advance_callback, line_callback or self.line_callback)
 
     self:updateSize()

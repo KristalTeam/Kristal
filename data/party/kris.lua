@@ -98,7 +98,7 @@ function character:init()
             health = 240
         }
     end
-    
+
     -- Party members which will also get stronger when this character gets stronger, even if they're not in the party
     self.stronger_absent = {"kris","susie","ralsei"}
 

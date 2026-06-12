@@ -72,7 +72,7 @@ function NPC:init(actor, x, y, properties)
 
     self.set_flag = properties["setflag"]
     self.set_value = properties["setvalue"]
-    
+
     self.path = properties["path"]
     self.speed = properties["speed"] or 6
 

@@ -94,7 +94,7 @@ function Savepoint:update()
             end
         end
     end
-    
+
 end
 
 function Savepoint:getDebugInfo()

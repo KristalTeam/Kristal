@@ -90,7 +90,7 @@ function actor:initChapter1()
         ["walk_blush/up"] = "walk_blush/down",
         ["walk_blush/left"] = "walk_blush/left",
         ["walk_blush/right"] = "walk_blush/right",
-        
+
         ["walk_unhappy/down"] = "walk_unhappy/up",
         ["walk_unhappy/up"] = "walk_unhappy/down",
         ["walk_unhappy/left"] = "walk_unhappy/left",
@@ -152,7 +152,7 @@ function actor:initChapter2()
 
     -- Hitbox for this actor in the overworld (optional, uses width and height by default)
     self.hitbox = {1, 28, 19, 14}
-    
+
     -- A table that defines where the Soul should be placed on this actor if they are a player.
     -- First value is x, second value is y.
     self.soul_offset = {10.5, 24}
@@ -230,7 +230,7 @@ function actor:initChapter2()
         ["walk_unhappy/up"] = "walk_unhappy/down",
         ["walk_unhappy/left"] = "walk_unhappy/left",
         ["walk_unhappy/right"] = "walk_unhappy/right",
-        
+
         ["walk_blush/down"] = "walk_blush/up",
         ["walk_blush/up"] = "walk_blush/down",
         ["walk_blush/left"] = "walk_blush/left",

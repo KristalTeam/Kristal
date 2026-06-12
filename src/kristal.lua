@@ -701,7 +701,7 @@ function Kristal.errorHandler(msg, trace_level)
             -- msg = err
         end
     end
-    
+
     Draw.reset()
 
     local copy_color = { 1, 1, 1, 1 }

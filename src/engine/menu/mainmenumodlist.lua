@@ -354,7 +354,7 @@ function MainMenuModList:buildModListFavorited()
     -- Remember the last selected mod
     local last_scroll = self.list and self.list.scroll_target
     local last_selected = self.list and self.list:getSelectedId()
-    
+
     -- Create the mod list object if it doesn't exist
     if not self.list then
         self.list = ModList(69, 70, 502, 370)
@@ -368,14 +368,14 @@ function MainMenuModList:buildModListFavorited()
     else
         self.list:clearMods()
     end
-    
+
     -- Sort them by favorites or filepath
     table.sort(self.mods, function(a, b)
         local a_fav = TableUtils.contains(Kristal.Config["favorites"], a.id)
         local b_fav = TableUtils.contains(Kristal.Config["favorites"], b.id)
         return (a_fav and not b_fav) or (a_fav == b_fav and a.path:lower() < b.path:lower())
     end)
-    
+
     -- Add mods to the list
     for _, mod in ipairs(self.mods) do
         -- Create the mod button

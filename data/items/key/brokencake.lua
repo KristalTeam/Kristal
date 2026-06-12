@@ -19,7 +19,7 @@ function item:init()
     self.shop = ""
     -- Menu description
     self.description = "Though broken, it seethes with power.\nA master smith could fix it."
-    
+
     -- Amount healed (HealItem variable)
     self.heal_amount = 20
 

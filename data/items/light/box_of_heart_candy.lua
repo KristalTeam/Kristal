@@ -21,7 +21,7 @@ function item:init(inventory)
     self.usable_in = "all"
     -- Item this item will get turned into when consumed
     self.result_item = nil
-    
+
 end
 
 function item:onWorldUse()

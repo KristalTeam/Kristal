@@ -39,7 +39,7 @@ function spell:onCast(user, target)
         target:spare(true)
         if not Game:getConfig("oldPacify") then
             Assets.playSound("spell_pacify")
-            
+
             local pacify_x, pacify_y = target:getRelativePos(target.width/2, target.height/2)
             local z_count = 0
             local z_parent = target.parent
