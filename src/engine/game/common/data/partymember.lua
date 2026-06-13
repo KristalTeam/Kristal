@@ -516,10 +516,12 @@ end
 
 --- Adds a spell to this party member's set of available spells
 ---@param spell string|Spell
-function PartyMember:addSpell(spell)
+---@param? ... any
+function PartyMember:addSpell(spell, ...)
     if type(spell) == "string" then
-        spell = Registry.createSpell(spell)
+        spell = Registry.createSpell(spell, ...)
     end
+    spell.custom_data = {...}
     table.insert(self.spells, spell)
 end
 
@@ -550,11 +552,14 @@ end
 --- If `spell` is not in this party member's spell list, they will not learn `replacement`
 ---@param spell string|Spell
 ---@param replacement string
-function PartyMember:replaceSpell(spell, replacement)
+---@param? ... any
+function PartyMember:replaceSpell(spell, replacement, ...)
     local tempspells = {}
     for _, v in ipairs(self.spells) do
         if v == spell or (type(spell) == "string" and v.id == spell) then
-            table.insert(tempspells, Registry.createSpell(replacement))
+            local new_spell = Registry.createSpell(replacement, ...)
+            new_spell.custom_data = {...}
+            table.insert(tempspells, new_spell)
         else
             table.insert(tempspells, v)
         end
@@ -880,23 +885,32 @@ function PartyMember:loadEquipment(data)
     end
 end
 
----@return string[] spells An array of the spell IDs this party member knows 
+---@return table string|any spells An array of the spell IDs and its custom data this party member knows 
 function PartyMember:saveSpells()
     local result = {}
     for _, v in pairs(self.spells) do
-        table.insert(result, v.id)
+        table.insert(result, {v.id, v.custom_data})
     end
     return result
 end
 
----@param data string[] An array of the spell IDs this party member knows
+---@param data table string|any An array of the spell IDs and its custom data this party member knows
 function PartyMember:loadSpells(data)
     self.spells = {}
     for _, v in ipairs(data) do
-        if Registry.getSpell(v) then
-            self:addSpell(v)
+        if type(v) == "table" then
+            if Registry.getSpell(v[1]) then
+                self:addSpell(v[1], TableUtils.unpack(v[2]))
+            else
+                Kristal.Console:error("Could not load spell \"" .. (v[1] or "nil") .. "\"")
+            end
         else
-            Kristal.Console:error("Could not load spell \"" .. (v or "nil") .. "\"")
+            -- fallback to the deprecated system
+            if Registry.getSpell(v) then
+                self:addSpell(v)
+            else
+                Kristal.Console:error("Could not load spell \"" .. (v or "nil") .. "\"")
+            end
         end
     end
 end

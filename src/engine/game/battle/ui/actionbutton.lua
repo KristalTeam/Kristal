@@ -97,7 +97,7 @@ function ActionButton:registerSpells()
             ["name"] = spell:getName(),
             ["tp"] = spell:getTPCost(self.battler.chara),
             ["unusable"] = not spell:isUsable(self.battler.chara),
-            ["description"] = spell:getBattleDescription(),
+            ["description"] = spell:getBattleDescription(self.battler.chara),
             ["party"] = spell.party,
             ["color"] = color,
             ["data"] = spell,

@@ -36,8 +36,12 @@ function character:init()
 
     -- Spells
     self:addSpell("rude_buster")
-    if Game.chapter >= 2 then
+    if Game.chapter == 2 then
         self:addSpell("ultimate_heal")
+    elseif Game.chapter == 3 then
+        self:addSpell("ultimate_heal", "ultra_heal")
+    elseif Game.chapter >= 4 then
+        self:addSpell("ultimate_heal", "better_heal")
     end
 
     -- Current health (saved to the save file)
@@ -165,6 +169,7 @@ function character:init()
     -- Character flags (saved to the save file)
     self.flags = {
         ["auto_attack"] = false,
+        ["ultimateheals_used"] = 0,
     }
 end
 
