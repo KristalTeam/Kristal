@@ -202,9 +202,9 @@ end
 
 --- Sets the frame of the current sprite. \
 --- If the sprite has no frames, this will do nothing.
----@param frame number  The frame to set the sprite to. If this is outside of the range of frames, it will wrap around.
+---@param frame number The frame to set the sprite to. If this is outside of the range of frames, it will wrap around.
 function Sprite:setFrame(frame)
-    self.frame = ((frame - 1) % (self.frames and #self.frames or 1)) + 1
+    self.frame = ((math.floor(frame) - 1) % (self.frames and #self.frames or 1)) + 1
     self:updateTexture()
 end
 
