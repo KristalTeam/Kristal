@@ -1241,12 +1241,12 @@ function Game:draw()
     self:drawDevWarning()
 end
 
----@generic T: GameState|World|Shop|GameOver
+---@generic T: GameState
 ---@param state T
 ---@return T
 function Game:getState(state)
     if not (isClass(state) and state:includes(GameState)) then
-        error("Expected a GameState class to Game:getState")
+        error("Expected a GameState class as argument to Game:getState")
     end
     for i = #self.state_stack, 1, -1 do
         local this_state = self.state_stack[i]
