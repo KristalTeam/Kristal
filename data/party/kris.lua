@@ -184,7 +184,7 @@ function character:onPowerSelect(menu)
 end
 
 function character:drawPowerStat(index, x, y, menu)
-    if index == 1 and menu.kris_dog then
+    if (Game.chapter < 4 and index == 1 or Game.chapter >= 4 and index == 2) and menu.kris_dog then
         local frames = Assets.getFrames("misc/dog_sleep")
         local frame = math.floor(Kristal.getTime()) % #frames + 1
         love.graphics.print("Dog:", x, y)
