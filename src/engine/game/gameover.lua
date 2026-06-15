@@ -14,8 +14,6 @@ function GameOver:init(x, y)
         self.screenshot = love.graphics.newImage(SCREEN_CANVAS:newImageData())
     end
 
-    self.music = Music()
-
     self.soul = Sprite("player/heart")
     self.soul:setOrigin(0.5, 0.5)
     self.soul:setColor(Game:getSoulColor())

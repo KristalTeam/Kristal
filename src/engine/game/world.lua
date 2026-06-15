@@ -6,8 +6,6 @@
 ---@field state             string                          The current state that this `World` is in - should never be set manually, see [`World:setState()`](lua://World.setState) instead
 ---@field state_manager     StateManager                    An object that manages the state of this `World`
 ---
----@field music             Music                           The `Music` instance that controls audio playback for this `World`
----
 ---@field map               Map                             The currently loaded map instance
 ---
 ---@field camera            Camera                          The camera object used to display the world

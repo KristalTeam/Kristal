@@ -3,10 +3,6 @@
 local GameState, super = Class(Object)
 
 function GameState:enter()
-    -- Prevent memory leak in case Music is created in init
-    if self.music ~= nil then
-        self.music:remove()
-    end
     self.music = Music()
     self:onEnter()
 end
