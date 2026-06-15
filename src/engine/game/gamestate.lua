@@ -23,7 +23,8 @@ function GameState:shouldHideOtherStates()
 end
 
 -- *Override* Called when a keyboard key or gamepad button is pressed while
--- this state is active.
+-- this state is active. Note that it's generally preferred to check for
+-- inputs in `update`, rather than overriding this method.
 function GameState:onKeyPressed(key, is_repeat) end
 
 -- *Called internally* Used to set the Game.state field for states made prior
