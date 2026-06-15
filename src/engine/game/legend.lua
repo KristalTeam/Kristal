@@ -9,6 +9,8 @@ local Legend, super = Class(GameState, "legend")
 function Legend:init(cutscene, options)
     super.init(self, 0, 0)
 
+    self.music = Music()
+
     options = options or {}
 
     self.can_skip = options["can_skip"] or false
@@ -51,6 +53,11 @@ end
 
 function Legend:shouldHideOtherStates()
     return true
+end
+
+function Legend:enter()
+    -- Don't create a `Music` instance since that's done in `init`
+    self:onEnter()
 end
 
 function Legend:onEnter()
