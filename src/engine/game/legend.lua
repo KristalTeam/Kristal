@@ -52,7 +52,12 @@ function Legend:init(cutscene, options)
 end
 
 function Legend:shouldHideOtherStates()
-    return true
+    -- Some projects rely on the world updating for playing legends during world cutscenes.
+    return false
+end
+
+function Legend:getLegacyGameStateID()
+    return "LEGEND"
 end
 
 function Legend:enter()
