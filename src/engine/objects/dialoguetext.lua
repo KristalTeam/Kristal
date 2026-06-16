@@ -1,7 +1,7 @@
 --- The DialogueText object displays text letter-by-letter.
 ---
 ---@class DialogueText : Text
----@field actor? Actor 
+---@field actor? Actor
 ---@field state DialogueTextState
 ---@overload fun(...) : DialogueText
 local DialogueText, super = Class(Text)

@@ -420,8 +420,8 @@ function love.run()
             end
         else
             local err_msg_expose
-            local success, result = xpcall(mainLoop, 
-                function(err_msg) 
+            local success, result = xpcall(mainLoop,
+                function(err_msg)
                     --has a chance of failing due to a stack overflow. try and catch that, but this *also* might cause a stack overflow
                     local ok, msg = pcall(Kristal.errorHandler, err_msg, 4)
                     if(ok) then
@@ -438,7 +438,7 @@ function love.run()
                 error_result = result
             else
                 --this should only happen when there's an internal error with the errorhandler or the callstack overflows
-                --the LUA_ERRERR state is set internally by the lua engine for both of these cases 
+                --the LUA_ERRERR state is set internally by the lua engine for both of these cases
                 --see https://www.lua.org/source/5.4/ldo.c.html
                 error_result = Kristal.errorHandler({ critical = result, msg = err_msg_expose })
             end

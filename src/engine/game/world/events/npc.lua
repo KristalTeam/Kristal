@@ -2,7 +2,7 @@
 --- Naming an object `npc` on an `objects` layer in a map creates an NPC. \
 --- The actor used for an NPC can be set by defining an `actor` property and setting it to the id of the desired actor. \
 --- See this object's Fields for other configurable properties on this object.
---- 
+---
 ---@class NPC : Character
 ---
 ---@field idle_sprite string *[Property `sprite`]* The name of the sprite this NPC should use when idle
@@ -22,7 +22,7 @@
 --- *[Property `text`]* A line of text to display when interacting with this npc \
 --- *[Property list `text`]* Several lines of text to display when interacting with this npc \
 --- *[Property multi-list `text`]* Several groups of lines of text to display on sequential interactions with this npc - all of `text1_i` forms the first interaction, all of `text2_i` forms the second interaction etc...
----@field text string[] 
+---@field text string[]
 ---
 ---@field set_flag string   *[Property `setflag`]* The name of a flag to set the value of when interacting with this object
 ---@field set_value any     *[Property `setvalue`]* The value to set the flag specified by [`set_flag`](lua://Interactable.set_flag) to (Defaults to `true`)

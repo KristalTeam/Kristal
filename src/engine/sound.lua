@@ -86,7 +86,7 @@ function Sound:internal_updateSource()
 end
 
 --- Creates an identical copy of the Sound in the stopped state.
---- 
+---
 --- Static Sounds will use significantly less memory and take much less time to be created if Sound:clone is used to create them instead of love.audio.newSource, so this method should be preferred when making multiple Sounds which play the same sound.
 ---@return Sound
 function Sound:clone()
@@ -104,7 +104,7 @@ function Sound:getActiveEffects()
 end
 
 --- Gets the amount of air absorption applied to the Sound.
---- 
+---
 --- By default the value is set to 0 which means that air absorption effects are disabled. A value of 1 will apply high frequency attenuation to the Sound at a rate of 0.05 dB per meter.
 ---@return number
 function Sound:getAirAbsorption()
@@ -143,7 +143,7 @@ function Sound:getDuration(unit)
 end
 
 --- Gets the filter settings associated to a specific effect.
---- 
+---
 --- This function returns nil if the effect was applied with no filter settings associated to it.
 ---@param name string # The name of the effect.
 ---@param filtersettings table? # An optional empty table that will be filled with the filter settings. (Defaults to {}.)
@@ -236,7 +236,7 @@ function Sound:play()
 end
 
 --- Queues SoundData for playback in a queueable Sound.
---- 
+---
 --- This method requires the Sound to be created via love.audio.newQueueableSource.
 ---@param sounddata love.SoundData # The data to queue. The SoundData's sample rate, bit depth, and channel count must match the Sound's.
 ---@return boolean
@@ -252,9 +252,9 @@ function Sound:seek(offset, unit)
 end
 
 --- Sets the amount of air absorption applied to the Sound.
---- 
+---
 --- By default the value is set to 0 which means that air absorption effects are disabled. A value of 1 will apply high frequency attenuation to the Sound at a rate of 0.05 dB per meter.
---- 
+---
 --- Air absorption can simulate sound transmission through foggy air, dry air, smoky atmosphere, etc. It can be used to simulate different atmospheric conditions within different locations in an area.
 ---@param amount number # The amount of air absorption applied to the Sound. Must be between 0 and 10.
 function Sound:setAirAbsorption(amount)
@@ -262,7 +262,7 @@ function Sound:setAirAbsorption(amount)
 end
 
 --- Sets the reference and maximum attenuation distances of the Sound. The parameters, combined with the current DistanceModel, affect how the Sound's volume attenuates based on distance.
---- 
+---
 --- Distance attenuation is only applicable to Sounds based on mono (rather than stereo) audio.
 ---@param ref number # The new reference attenuation distance. If the current DistanceModel is clamped, this is the minimum attenuation distance.
 ---@param max number # The new maximum attenuation distance.
@@ -287,7 +287,7 @@ function Sound:setDirection(x, y, z)
 end
 
 --- Applies an audio effect to the Sound.
---- 
+---
 --- The effect must have been previously defined using love.audio.setEffect.
 ---@param name string # The name of the effect previously set up with love.audio.setEffect.
 ---@param enable boolean? # If false and the given effect name was previously enabled on this Sound, disables the effect. (Defaults to true.)
@@ -325,15 +325,15 @@ function Sound:setPosition(x, y, z)
 end
 
 --- Sets whether the Sound's position, velocity, direction, and cone angles are relative to the listener, or absolute.
---- 
---- By default, all sources are absolute and therefore relative to the origin of love's coordinate system 0, 0. Only absolute sources are affected by the position of the listener. Please note that positional audio only works for mono (i.e. non-stereo) sources. 
+---
+--- By default, all sources are absolute and therefore relative to the origin of love's coordinate system 0, 0. Only absolute sources are affected by the position of the listener. Please note that positional audio only works for mono (i.e. non-stereo) sources.
 ---@param enable boolean? # True to make the position, velocity, direction and cone angles relative to the listener, false to make them absolute. (Defaults to false.)
 function Sound:setRelative(enable)
     self.source:setRelative(enable)
 end
 
 --- Sets the rolloff factor which affects the strength of the used distance attenuation.
---- 
+---
 --- Extended information and detailed formulas can be found in the chapter '3.4. Attenuation By Distance' of OpenAL 1.1 specification.
 ---@param rolloff number # The new rolloff factor.
 function Sound:setRolloff(rolloff)
@@ -341,7 +341,7 @@ function Sound:setRolloff(rolloff)
 end
 
 --- Sets the velocity of the Sound.
---- 
+---
 --- This does '''not''' change the position of the Sound, but lets the application know how it has to calculate the doppler effect.
 ---@param x number # The X part of the velocity vector.
 ---@param y number # The Y part of the velocity vector.

@@ -1,6 +1,6 @@
 --- The inventory is where all of the player's ITEMs are held. In gameplay, the currently active inventory is stored in [`Game.inventory`](lua://Game.inventory). \
 --- In practice, the inventory will be either a [`LightInventory`](lua://LightInventory.init) or [`DarkInventory`](lua://DarkInventory.init), both inheriting from this class.
---- 
+---
 ---@class Inventory : Class
 ---
 ---@field storage_for_type  table<string, string>

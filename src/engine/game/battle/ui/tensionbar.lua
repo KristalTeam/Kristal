@@ -1,5 +1,5 @@
 --- The bar you see on the left of the battle UI.
---- 
+---
 --- This is simply a display for tension, but not where tension itself is stored.
 ---
 --- Does not depend on battle.

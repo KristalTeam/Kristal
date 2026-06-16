@@ -28,7 +28,7 @@ function Shopkeeper:getActor()
     return self.actor or (self.sprite and self.sprite.actor)
 end
 
----@param actor Actor|string 
+---@param actor Actor|string
 ---@return Sprite
 function Shopkeeper:setActor(actor)
     if type(actor) == "string" then

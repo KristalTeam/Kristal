@@ -92,7 +92,7 @@ function WorldBullet:onCollide(soul)
     end
 end
 
----@param texture?      string|love.Image   The new texture or path to the texture to set on the sprite (Removes the bullet's sprite if undefined) 
+---@param texture?      string|love.Image   The new texture or path to the texture to set on the sprite (Removes the bullet's sprite if undefined)
 ---@param speed?        number              The time between frames of the sprite, in seconds (Defaults to 1/30th second)
 ---@param loop?         boolean             Whether the sprite should continuously loop. (Defaults to `true`)
 ---@param on_finished?  fun(Sprite)         A function that is called when the animation finishes.

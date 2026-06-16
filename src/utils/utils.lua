@@ -177,7 +177,7 @@ end
 --- Utils.hook(Object, "setPosition", function(orig, obj, x, y)
 ---     -- calls the original code (setting its position as normal)
 ---     orig(obj, x, y)
----     
+---
 ---     -- sets 'new_x' and 'new_y' variables for the object instance
 ---     obj.new_x = x
 ---     obj.new_y = y

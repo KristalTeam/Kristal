@@ -1,6 +1,6 @@
 --- A combination of a tile from a tileset and an Event. \
 --- TileObject is not a standard event - it defines no properties and is placed in a map using the `Insert Tile` feature through Tiled, rather than as an object.
---- 
+---
 ---@class TileObject : Event
 ---
 ---@field tileset Tileset       The name of the tileset the tile is from

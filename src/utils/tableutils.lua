@@ -642,7 +642,7 @@ end
 ---
 --- Returns whether a table ends with the specified values. \
 --- The function will also return a second value, created by copying the initial value and removing the suffix.
---- 
+---
 --- @param value table      # The table to check the end of.
 --- @param suffix table     # The values that should be checked.
 --- @return boolean success # Whether the value ended with the specified suffix.

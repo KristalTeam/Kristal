@@ -1,8 +1,8 @@
 --- Waves are the bullet patterns that enemies use in battle. \
 --- Waves are defined in files in `scripts/battle/waves/` and should extend this class. \
---- Each wave is assigned an id that defaults to their filepath starting from `scripts/battle/waves`, 
+--- Each wave is assigned an id that defaults to their filepath starting from `scripts/battle/waves`,
 --- unless an id is specified as an argument to `Class()`. \
---- Wave ids can be placed into an `EnemyBattler`s [`waves`](lua://EnemyBattler.waves) table, or `Wave`s returned from 
+--- Wave ids can be placed into an `EnemyBattler`s [`waves`](lua://EnemyBattler.waves) table, or `Wave`s returned from
 --- [`EnemyBattler:selectWave()`](lua://EnemyBattler.selectWave) or [`Encounter:getNextWaves()`](lua://Encounter.getNextWaves) to to be used in battle. \
 --- Multiple waves can run in a single defending turn, but if multiple attackers select the same wave only one instance is created;
 --- see [`Wave:getAttackers()`](lua://Wave.getAttackers) for determining how many enemies are using a particular wave.
@@ -12,7 +12,7 @@
 ---@field arena_x           number? Wave arena x-coordinate
 ---@field arena_y           number? Wave arena y-coordinate
 ---
----@field arena_width       number? Wave arena rectangular width 
+---@field arena_width       number? Wave arena rectangular width
 ---@field arena_height      number? Wave arena rectangular height
 ---
 ---@field arena_shape       table?  Wave arena shape (overrides rectangle options)
@@ -39,7 +39,7 @@
 ---@overload fun(...) : Wave
 local Wave, super = Class(Object)
 
---- This function is called when the wave is initialised. Waves are initialised **before** they are due to start, 
+--- This function is called when the wave is initialised. Waves are initialised **before** they are due to start,
 --- so do not use this function to set up wave logic i.e. timers, bullets, objects, only use it for arena setup and setting fields such as `time`. \
 --- See [`Wave:onStart()`](lua://Wave.onStart) for a suitable alternative.
 function Wave:init()

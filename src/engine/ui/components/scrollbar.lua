@@ -49,7 +49,7 @@ function ScrollbarComponent:update()
     self:updatePosition()
 end
 
----@param ignore Component The component to ignore while reflowing. 
+---@param ignore Component The component to ignore while reflowing.
 function ScrollbarComponent:reflow(ignore)
     super.reflow(self, ignore)
     if self:isRemoved() then return end

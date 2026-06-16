@@ -1688,7 +1688,7 @@ end
 ---@param spell     string|Spell        The name of the spell that should be casted by `user`
 ---@param battler   Battler             The battler that initiates the ACT
 ---@param user      string              The id of the battler that should cast the spell
----@param target?   Battler[]|Battler   An optional list of battlers that 
+---@param target?   Battler[]|Battler   An optional list of battlers that
 function Battle:powerAct(spell, battler, user, target)
 
     local user_battler = self:getPartyBattler(user)
@@ -2631,7 +2631,7 @@ end
 ---@overload fun(self: Battle, id: string, ...)
 ---@overload fun(self: World, func: BattleCutsceneFunc, ...)
 ---@param group string  The name of the group the cutscene is a part of
----@param id    string  The id of the cutscene 
+---@param id    string  The id of the cutscene
 ---@param ...   any     Additional arguments that will be passed to the cutscene function
 ---@return BattleCutscene?
 function Battle:startCutscene(group, id, ...)
@@ -2654,7 +2654,7 @@ end
 --- Starts a cutscene in battle where the cutscene receives the the currently ACTing character and the ACT's target as additional arguments \
 ---@overload fun(self: Battle, id: string, dont_finish?: boolean)
 ---@param group         string  The name of the group the cutscene is a part of
----@param id            string  The id of the cutscene 
+---@param id            string  The id of the cutscene
 ---@param dont_finish?  boolean Whether the action should end when the cutscene finishes (defaults to `false`)
 ---@return Cutscene?
 function Battle:startActCutscene(group, id, dont_finish)

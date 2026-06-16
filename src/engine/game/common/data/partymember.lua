@@ -880,7 +880,7 @@ function PartyMember:loadEquipment(data)
     end
 end
 
----@return string[] spells An array of the spell IDs this party member knows 
+---@return string[] spells An array of the spell IDs this party member knows
 function PartyMember:saveSpells()
     local result = {}
     for _, v in pairs(self.spells) do

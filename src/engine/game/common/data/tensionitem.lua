@@ -1,6 +1,6 @@
 --- TensionItem is an extension of Item that provides additional functionality for items that restore TP in battle. \
 --- This class can be extended from in an item file instead of `Item` to include this functionality in the item.
----  
+---
 ---@class TensionItem : Item
 ---
 ---@field tp_amount     number  The amount of TP restored when using this item

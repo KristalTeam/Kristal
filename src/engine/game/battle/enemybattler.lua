@@ -56,7 +56,7 @@
 ---@field acts              table<table>        *(Used internally)* Stores the data of all ACTs available on this enemy
 ---
 ---@field hurt_timer        number              How long this enemy's hurt sprite should be displayed for when hit
----@field comment           string              The text displayed next to this enemy's name in menu's (such as "(Tired)" in DELTARUNE) 
+---@field comment           string              The text displayed next to this enemy's name in menu's (such as "(Tired)" in DELTARUNE)
 ---@field defeated          boolean             Whether this enemy has been defeated
 ---
 ---@field temporary_mercy           number              The current amount of temporary mercy
@@ -184,7 +184,7 @@ function EnemyBattler:getGrazeTension()
 end
 
 ---@param bool          boolean New tired state
----@param hide_message? boolean Hides the "TIRED" or "AWAKE" message (if it would otherwise have been shown) if set to `true`. 
+---@param hide_message? boolean Hides the "TIRED" or "AWAKE" message (if it would otherwise have been shown) if set to `true`.
 function EnemyBattler:setTired(bool, hide_message)
     local old_tired = self.tired
     self.tired = bool
@@ -192,7 +192,7 @@ function EnemyBattler:setTired(bool, hide_message)
         self.comment = "(Tired)"
         if Game:getConfig("tiredMessages") and not old_tired and not hide_message then
             -- Enemies can't spawn TIRED messages safely until fully initialised and parented.
-            -- To keep this function safe to use in `init()`, we must therefore check `self.parent` exists before trying to spawn the message. 
+            -- To keep this function safe to use in `init()`, we must therefore check `self.parent` exists before trying to spawn the message.
             if self.parent then
                 self:statusMessage("msg", "tired")
                 Assets.playSound("spellcast", 0.5, 0.9)
@@ -212,7 +212,7 @@ end
 ---@param description?  string          The short description of the act that appears in the menu
 ---@param party?        string[]|string A list of party member ids required to use this act. Alternatively, the keyword `"all"` can be used to insert the entire current party
 ---@param tp?           number          An amount of TP required to use this act
----@param highlight?    Battler[]       A list of battlers that will be highlighted when the act is used, overriding default highlighting logic             
+---@param highlight?    Battler[]       A list of battlers that will be highlighted when the act is used, overriding default highlighting logic
 ---@param icons?        string[]        A list of texture paths to icons that will display next to the name of this act (party member heads are drawn automatically as required)
 ---@return table act    The data of the act, also added to the `acts` table
 function EnemyBattler:registerAct(name, description, party, tp, highlight, icons)
@@ -252,7 +252,7 @@ end
 ---@param description?  string          The short description of the act that appears in the menu
 ---@param party?        string[]|string A list of party member ids required to use this act. Alternatively, the keyword `"all"` can be used to insert the entire current party
 ---@param tp?           number          An amount of TP required to use this act
----@param highlight?    Battler[]       A list of battlers that will be highlighted when the act is used, overriding default highlighting logic             
+---@param highlight?    Battler[]       A list of battlers that will be highlighted when the act is used, overriding default highlighting logic
 ---@param icons?        string[]        A list of texture paths to icons that will display next to the name of this act (party member heads are drawn automatically as required)
 ---@return table act    The data of the act, also added to the `acts` table
 function EnemyBattler:registerShortAct(name, description, party, tp, highlight, icons)
@@ -293,7 +293,7 @@ end
 ---@param description?  string          The short description of the act that appears in the menu
 ---@param party?        string[]|string A list of party member ids required to use this act. Alternatively, the keyword `"all"` can be used to insert the entire current party
 ---@param tp?           number          An amount of TP required to use this act
----@param highlight?    Battler[]       A list of battlers that will be highlighted when the act is used, overriding default highlighting logic             
+---@param highlight?    Battler[]       A list of battlers that will be highlighted when the act is used, overriding default highlighting logic
 ---@param icons?        string[]        A list of texture paths to icons that will display next to the name of this act (party member heads are drawn automatically as required)
 function EnemyBattler:registerActFor(char, name, description, party, tp, highlight, icons)
     if type(party) == "string" then
@@ -332,7 +332,7 @@ end
 ---@param description?  string          The short description of the act that appears in the menu
 ---@param party?        string[]|string A list of party member ids required to use this act. Alternatively, the keyword `"all"` can be used to insert the entire current party
 ---@param tp?           number          An amount of TP required to use this act
----@param highlight?    Battler[]       A list of battlers that will be highlighted when the act is used, overriding default highlighting logic             
+---@param highlight?    Battler[]       A list of battlers that will be highlighted when the act is used, overriding default highlighting logic
 ---@param icons?        string[]        A list of texture paths to icons that will display next to the name of this act (party member heads are drawn automatically as required)
 function EnemyBattler:registerShortActFor(char, name, description, party, tp, highlight, icons)
     if type(party) == "string" then

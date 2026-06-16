@@ -1,7 +1,7 @@
 --- Savepoints allow the player to SAVE their game. \
 --- `Savepoint` is an [`Event`](lua://Event.init) - naming an object `savepoint` on an `objects` layer in a map creates this object. \
 --- See this object's Fields for the configurable properties on this object. The location displayed on the savefile is determined by the map's `name` property.
---- 
+---
 ---@class Savepoint : Interactable
 ---
 ---@field marker        string  *[Property `marker`]* The name of the marker that the party should spawn at when a save from here is loaded

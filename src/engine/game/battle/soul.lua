@@ -36,7 +36,7 @@
 ---@field last_collided_x   boolean|number  The direction `(+/-)` the soul moved and collided with an object last frame on the x-axis (`false` when the soul has not moved, `0` when there is no collision)
 ---@field last_collided_y   boolean|number  The direction `(+/-)` the soul moved and collided with an object last frame on the y-axis (`false` when the soul has not moved, `0` when there is no collision)
 ---
----@field x                 integer         The soul's truncated (whole) x-coordinate. Its fractional part is in [`partial_x`](lua://Soul.x). 
+---@field x                 integer         The soul's truncated (whole) x-coordinate. Its fractional part is in [`partial_x`](lua://Soul.x).
 ---@field y                 integer         The soul's truncated (whole) y-coordinate. Its fractional part is in [`partial_y`](lua://Soul.y).
 ---
 ---@field moving_x          number          The `x` value the soul is moving by
@@ -222,8 +222,8 @@ function Soul:setExactPosition(x, y)
 end
 
 --- Moves the soul by `x` and `y`, accounting for collision in the soul's movement path
----@param x?     number 
----@param y?     number 
+---@param x?     number
+---@param y?     number
 ---@param speed? number An optional multiplier to the amount of `x` and `y` that the soul moves by.
 ---@return boolean  moved       Whether the soul moved from its previous position
 ---@return boolean  collided    Whether the soul collided with something on its movement path

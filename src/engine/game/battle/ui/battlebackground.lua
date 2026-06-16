@@ -1,5 +1,5 @@
 --- The battle background object. By default, this is a purple grid.
---- 
+---
 --- This gets automatically spawned during battles; if you'd like to disable or customize it, override [`Encounter:createBackground`](lua://Encounter.createBackground).
 ---
 ---@class BattleBackground : Object
