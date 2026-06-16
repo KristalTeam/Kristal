@@ -1,6 +1,6 @@
 --- HealItem is an extension of Item that provides additional functionality for items that perform healing when used. \
 --- This class can be extended from in an item file instead of `Item` to include this functionality in the item.
---- 
+---
 ---@class HealItem : Item
 ---
 ---@field heal_amount           integer

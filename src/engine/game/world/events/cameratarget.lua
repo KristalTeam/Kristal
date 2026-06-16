@@ -1,12 +1,12 @@
 --- A region in the Overworld that causes the camera to target a specific position while the player is inside. \
 --- `CameraTarget` is an [`Event`](lua://Event.init) - naming an object `cameratarget` on an `objects` layer in a map creates this object. \
 --- See this object's Fields for the configurable properties on this object.
---- 
+---
 ---@class CameraTarget : Event
 ---
 ---@field solid boolean
 ---
----@field target_x number       *[Property `x`]* The x-coordinate that the camera will center on 
+---@field target_x number       *[Property `x`]* The x-coordinate that the camera will center on
 ---@field target_y number       *[Property `y`]* The y-coordinate that the camera will center on
 ---@field target_marker string  *[Property `marker`]* The marker that the camera will center on
 ---

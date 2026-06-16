@@ -1,5 +1,5 @@
 --- The battle darkener object, used to darken the background while the enemy attacks.
---- 
+---
 --- This gets automatically spawned during battles; if you'd like to disable or customize it, override [`Encounter:createBattleDarkener`](lua://Encounter.createBattleDarkener).
 ---
 ---@class BattleDarkener : Object

@@ -112,7 +112,7 @@ function Cutscene:during(func, replace)
     table.insert(self.during_stack, func)
 end
 
---- *(Called internally)* Checks whether the cutscene is ready to resume. 
+--- *(Called internally)* Checks whether the cutscene is ready to resume.
 ---@return boolean ready Whether the cutscene is ready to resume.
 ---@return any a
 ---@return any b
@@ -177,7 +177,7 @@ end
 
 --- Temporarily suspends execution of the cutscene script.
 ---@param seconds? function|number When a `number`, waits this number of seconds before continuing. When a `function`, waits until this function returns `true`. (Defaults to `0`)
----@return any ... Any values passed into the adjacent Cutscene:resume(...) call. 
+---@return any ... Any values passed into the adjacent Cutscene:resume(...) call.
 function Cutscene:wait(seconds)
     if type(seconds) == "function" then
         self.wait_func = seconds

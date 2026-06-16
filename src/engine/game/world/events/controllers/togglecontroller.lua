@@ -2,7 +2,7 @@
 --- Unlike load control properties such as `flagcheck` and `cond`, toggle immediately updates the loaded state of objects based on its flag, rather than requiring a room reload. \
 --- `ToggleController` is a `controller` - naming an object `toggle` on a `controllers` layer in a map creates this object. \
 --- See this object's Fields for the configurable properties on this object.
---- 
+---
 ---@class ToggleController : Event
 ---
 ---@field flag              string  *[Property `flag`]* The name of the flag to check for whether targets should be active - if `!` is at the start of the flag, the check will be [`inverted`](lua://ToggleController.inverted)

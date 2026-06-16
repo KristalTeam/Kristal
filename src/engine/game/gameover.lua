@@ -64,7 +64,7 @@ function GameOver:update()
         local y_position_table = {0, 3, 6}
 
         self.shards = {}
-        for i = 1, shard_count do 
+        for i = 1, shard_count do
             local x_pos = x_position_table[((i - 1) % #x_position_table) + 1]
             local y_pos = y_position_table[((i - 1) % #y_position_table) + 1]
             local shard = Sprite("player/heart_shard", self.soul.x + x_pos, self.soul.y + y_pos)
@@ -121,7 +121,7 @@ function GameOver:update()
             end
         end
         if Game:getConfig("oldGameOver") and not Game:isLight() then
-            if Game.died_once then 
+            if Game.died_once then
                 self.current_stage = 6
             else
                 self.dialogue = DialogueText("[speed:0.5][spacing:8][voice:none]IT APPEARS YOU\nHAVE REACHED[wait:30]\n\n   AN END.", 164, 160, {style = "GONER", line_offset = 12})

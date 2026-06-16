@@ -1,4 +1,4 @@
---- The base class for participants in battles. 
+--- The base class for participants in battles.
 --- This class defines shared logic between types of `Battler`, but is not used on its own. \
 --- See [`EnemyBattler`](lua://EnemyBattler.init) or [`PartyBattler`](lua://PartyBattler.init) depending on which you are working with, as well as this object.
 ---
@@ -27,7 +27,7 @@
 ---@overload fun(x?:number, y?:number, width?:number, height?:number) : Battler
 local Battler, super = Class(Object)
 
----@param x?        number 
+---@param x?        number
 ---@param y?        number
 ---@param width?    number
 ---@param height?   number

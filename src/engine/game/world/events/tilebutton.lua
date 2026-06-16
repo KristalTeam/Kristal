@@ -1,7 +1,7 @@
 --- A button that either characters or [`PushBlock`s](lua://PushBlock.init) can activate. \
 --- `TileButton` is an [`Event`](lua://Event.init) - naming an object `tilebutton` on an `objects` layer in a map creates this object. \
 --- See this object's Fields for the configurable properties on this object.
---- 
+---
 ---@class TileButton : Event
 ---
 ---@field idle_sprite       string  *[Property `sprite`]* An optional custom sprite to use for this TileButton

@@ -14,19 +14,19 @@
 --- This object is used to create transitions in the Overworld to shops or other maps. \
 --- `Transition` is an [`Event`](lua://Event.init) - Naming an object `transition` on an `objects` layer in a map creates this object. \
 --- See this object's Fields for the configurable properties on this object.
---- 
+---
 ---@class Transition : Event
 ---
 --- The target of this transition: \
 --- *[Property `map`]* The name of the map to send the player to \
---- OR *[Property `shop`]* The name of the shop to send the player to 
+--- OR *[Property `shop`]* The name of the shop to send the player to
 ---
 --- *[Property `x`]* The x co-ordinate the player should appear at in the new map \
 --- AND *[Property `y`]* The y-co-ordinate the player should appear at in the new map \
 --- OR *[Property `marker`]* The name of the marker to spawn the player at in the new map
---- 
---- *[Property `facing`]* The direction the player and party should face when they spawn in the new map 
----@field target {map: string, shop: string, x: number, y: number, marker: string, facing: string} 
+---
+--- *[Property `facing`]* The direction the player and party should face when they spawn in the new map
+---@field target {map: string, shop: string, x: number, y: number, marker: string, facing: string}
 ---
 ---@field sound string? *[Property `sound`]* An optional sound to play when the player activates this transition
 ---@field pitch number  *[Property `pitch`]* The pitch the entry sound should play at

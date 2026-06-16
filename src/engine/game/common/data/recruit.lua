@@ -1,6 +1,6 @@
 --- Recruits are data files that define the properties of recruitable enemies. \
 --- Recruits are stored in `scripts/data/recruits`, and extend this class. Their filepath starting from here becomes their id, unless an id is specified as an argument to `Class()`. \
---- A recruit is linked to one enemy with the same id as it. 
+--- A recruit is linked to one enemy with the same id as it.
 ---
 ---@class Recruit : Class
 ---
@@ -29,7 +29,7 @@
 --- The status of this recruit:
 --- - As an integer, represents the recruit progress
 --- - As a boolean, represents Recruited (`true`) or Lost (`false`)
---- 
+---
 --- *This value is saved to the save file*
 ---@field recruited         integer|boolean
 ---

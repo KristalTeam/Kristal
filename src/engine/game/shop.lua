@@ -1,6 +1,6 @@
 --- The class which all Shops in Kristal use. \
 --- Shop files should be located in `scripts/shops`, and will use their filepath relative to this location as an id by default. \
---- Either [`World:shopTransition()`](lua://World.shopTransition) or a [`Transition`](lua://Transition) event with the property `shop` defined can be used to enter shops. 
+--- Either [`World:shopTransition()`](lua://World.shopTransition) or a [`Transition`](lua://Transition) event with the property `shop` defined can be used to enter shops.
 ---
 ---@class Shop : Object
 ---@overload fun(...) : Shop
@@ -121,7 +121,7 @@ local Shop, super = Class(Object, "shop")
 
 --- Runs the moment the player enters the shop. \
 --- Most dialogue and behaviour of the shop should be defined here. \
---- This includes (but is not limited to) defining most standard shop text (excluding TALK menu dialogue), 
+--- This includes (but is not limited to) defining most standard shop text (excluding TALK menu dialogue),
 --- registering items, talk topics, configuring the [`Shopkeeper`](lua://Shop.shopkeeper), and defining the assets to use (i.e. background and music).
 function Shop:init()
     super.init(self)
@@ -343,7 +343,7 @@ function Shop:postInit()
     self.talk_dialogue = { self.dialogue_text, self.right_text }
 end
 
---- *(Override)* Runs every time the player selects a topic in the TALK menu. \ 
+--- *(Override)* Runs every time the player selects a topic in the TALK menu. \
 --- Call [`Shop:startDialogue()`](lua://Shop.startDialogue) from within this function with text appropriate to the selected topic.
 ---@param talk string   The name of the Topic that the player selected.
 function Shop:startTalk(talk) end
@@ -1671,7 +1671,7 @@ end
 ---@param bonuses       table
 ---@param stat          string
 ---@param x             number
----@param y             number      
+---@param y             number
 function Shop:drawBonuses(party_member, old_item, bonuses, stat, x, y)
     love.graphics.setFont(self.plain_font)
 

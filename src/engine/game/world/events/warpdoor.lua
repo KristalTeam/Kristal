@@ -1,7 +1,7 @@
 --- Warp Doors allow for fast travel between Overworld locations. \
 --- `WarpDoor` is an [`Event`](lua://Event.init) - naming an object `warpdoor` on an `objects` layer in a map creates this object. \
 --- See this object's Fields for the configurable properties on this object.
---- 
+---
 ---@class WarpDoor : Event
 ---
 ---@field solid         boolean

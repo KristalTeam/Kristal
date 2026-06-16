@@ -502,7 +502,7 @@ end
 ---@overload fun(self: World, id: string, ...)
 ---@overload fun(self: World, func: WorldCutsceneFunc, ...)
 ---@param group string  The name of the group the cutscene is a part of
----@param id    string  The id of the cutscene 
+---@param id    string  The id of the cutscene
 ---@param ...   any     Additional arguments that will be passed to the cutscene function
 ---@return WorldCutscene?   The cutscene object that was created
 function World:startCutscene(group, id, ...)
@@ -737,7 +737,7 @@ end
 
 --- Spawns characters in the world for the current party
 ---@param marker?   string|{x: number, y: number}                               The marker or coordinates to spawn the player at
----@param party?    (PartyMember|string)[]                                      A table of party members to spawn (Defaults to [`Game.party`](lua://Game.party))    
+---@param party?    (PartyMember|string)[]                                      A table of party members to spawn (Defaults to [`Game.party`](lua://Game.party))
 ---@param extra?    (Follower|Actor|string|[Follower|Actor|string,integer])[]   Additional followers to add that are not in the party (defaults to [`Game.temp_followers`](lua://Game.temp_followers))
 ---@param facing?   FacingDirection                                             The direction the party should be facing when they spawn
 function World:spawnParty(marker, party, extra, facing)
@@ -1137,7 +1137,7 @@ end
 --- Loads a new map and starts the transition effects for world music, borders, and the screen as a whole
 ---@overload fun(self: World, map: string, ...: any)
 ---@param ... any   Additional arguments that will be passed into World:loadMap()
----@see World - World:loadMap() 
+---@see World - World:loadMap()
 function World:mapTransition(...)
     local args = { ... }
     local map = args[1]

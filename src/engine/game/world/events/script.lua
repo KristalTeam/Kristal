@@ -8,7 +8,7 @@
 ---@field cutscene  string  *[Property `cutscene`]* The name of a cutscene to start when this script is triggered
 ---@field script    string  *[Property `script`]* The name of a script file to run when this script is triggered
 ---
----@field set_flag  string  *[Property `setflag`]* The name of a flag to set the value of when this script is triggered 
+---@field set_flag  string  *[Property `setflag`]* The name of a flag to set the value of when this script is triggered
 ---@field set_value any     *[Property `setvalue`]* The value to set on the flag specified by [`set_flag`](lua://Script.set_flag) (Defaults to `true`)
 ---
 ---@field once      boolean *[Property `once`]* Whether this script can only be triggered once per save file (Defaults to `true`)

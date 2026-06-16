@@ -8,7 +8,7 @@
 ---@field actor Actor
 ---@field collider Hitbox
 ---@field solid boolean
----@field encounter string 
+---@field encounter string
 ---
 ---@overload fun(actor: string|Actor, x: number, y: number, properties: table) : FrozenEnemy
 local FrozenEnemy, super = Class(Interactable)

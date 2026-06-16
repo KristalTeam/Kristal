@@ -6,7 +6,7 @@
 ---
 ---@field encounter string *[Property `encounter`]* The encounter ID that will trigger when the player collides with the enemy.
 ---@field enemy string *[Property `enemy`]* The actor ID to use for this enemy.
----@field group string *[Property `group`]* An arbitrary ID that can be be used to group enemies together in a room. When one enemy in a group is defeated, all enemies in the group are defeated as well. 
+---@field group string *[Property `group`]* An arbitrary ID that can be be used to group enemies together in a room. When one enemy in a group is defeated, all enemies in the group are defeated as well.
 ---
 ---@field path string *[Property `path`]* The name of a path shape in the current map that the enemy will follow.
 ---@field speed number *[Property `speed`]* The speed that the enemy will move along the path specified in `path`, if defined.
@@ -36,7 +36,7 @@
 ---
 ---*[Property `actor`]* Actor to use for this enemy \
 ---*[Property `sprite` or `animation`]* Default sprite/animation to set on this enemy
----@field sprite ActorSprite 
+---@field sprite ActorSprite
 ---
 ---@field chase_timer number
 ---@field pace_timer number

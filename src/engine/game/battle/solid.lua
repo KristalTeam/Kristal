@@ -14,7 +14,7 @@
 local Solid, super = Class(Object)
 
 ---@param filled?   boolean    Whether the solid should be drawn filled in (Defaults to `false`)
----@param x?        number      
+---@param x?        number
 ---@param y?        number
 ---@param width?    number
 ---@param height?   number

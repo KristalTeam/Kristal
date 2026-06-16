@@ -1,7 +1,7 @@
 ---@class DebugSystem : Object
 ---
 ---@field flag_type             string          The current flag filter setting for value type
----@field flag_query            { [1]: string } The current flag filter query 
+---@field flag_query            { [1]: string } The current flag filter query
 ---@field flag_filter_mode      string          The current flag filter mode
 ---
 ---@field temp_flag_type        string          Temporary version of [`flag_type`](lua://DebugSystem.flag_type). Only set as filter once the settings are saved.

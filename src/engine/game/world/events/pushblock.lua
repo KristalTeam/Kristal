@@ -1,13 +1,13 @@
 --- A Pushable Block! Collision for Pushblocks can be created by adding a `blockcollision` layer to a map. \
 --- `PushBlock` is an [`Event`](lua://Event.init) - naming an object `pushblock` on an `objects` layer in a map creates this object. \
 --- See this object's Fields for the configurable properties on this object.
---- 
+---
 ---@class PushBlock : Event
 ---
 ---@field default_sprite    string      *[Property `sprite`]* An optional custom sprite the block should use
 ---@field solved_sprite     string      *[Property `solvedsprite`]* An optional custom solve sprite the block uses
 ---
----@field solid             boolean     
+---@field solid             boolean
 ---
 ---@field push_dist         number      *[Property `pushdist`]* The number of pixels the block moves per push (Defaults to `40`, one tile)
 ---@field push_timer        number      *[Property `pushtime`]* The time the block takes to complete a push, in seconds (Defaults to `0.2`)

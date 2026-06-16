@@ -19,7 +19,7 @@ continuation_indent = 4
 max_line_length = 120
 
 # optional crlf/lf/cr/auto, if it is 'auto', in windows it is crlf other platforms are lf
-# in neovim the value 'auto' is not a valid option, please use 'unset' 
+# in neovim the value 'auto' is not a valid option, please use 'unset'
 end_of_line = auto
 
 #  none/ comma / semicolon / only_kv_colon
@@ -114,8 +114,8 @@ keep_indents_on_empty_lines = false
 # [line space]
 
 # The following configuration supports four expressions
-# keep  
-# fixed(n)   
+# keep
+# fixed(n)
 # min(n)
 # max(n)
 # for eg. min(2)
