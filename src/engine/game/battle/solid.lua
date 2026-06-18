@@ -84,7 +84,7 @@ function Solid:doMoveAmount(amount, x_mult, y_mult)
         self.y = self.y + (moved * y_mult)
         Object.uncache(self)
 
-        for _, soul in ipairs(self.stage:getObjects(Soul)) do
+        for _, soul in ipairs(Game.stage:getObjects(Soul)) do
             if self:collidesWith(soul) then
                 soul_collided = true
 
@@ -107,25 +107,10 @@ end
 --- By default, this function is responsible for dealing damage to the soul if the solid deals squish damage, and then destroying the soul
 ---@param soul Soul
 function Solid:onSquished(soul)
-    --[[if soul.inv_timer == 0 and self.squish_damage and self.squish_damage ~= 0 then
-        local battler = Utils.pick(Game.battle:getActiveParty())
-        if battler then
-            battler:hurt(self.squish_damage)
-        end
-
-        soul.inv_timer = (4/3)
-    end]]
-
-    if self.squish_damage and self.squish_damage ~= 0 then
-        local battler = TableUtils.pick(Game.battle:getActiveParty())
-        if battler then
-            battler:hurt(self.squish_damage)
-        end
+    if soul.inv_timer == 0 and self.squish_damage and self.squish_damage ~= 0 then
+        Game.battle:hurt(self.squish_damage, false, "ANY")
+        soul.inv_timer = Game:getConfig("defaultInvulnTime") / 30
     end
-
-    soul:explode()
-
-    Game.battle:endWaves()
 end
 
 function Solid:draw()
