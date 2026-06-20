@@ -34,8 +34,8 @@ function item:onToss()
         if Game.chapter == 1 then
             cutscene:text("* You really didn't want to throw\nit away.")
         else
-            cutscene:text("* You took it from your pocket.[wait:5]\n" .. 
-                          "* You have a [color:yellow]very,[wait:5] very,[wait:5] bad\n" .. 
+            cutscene:text("* You took it from your pocket.[wait:5]\n" ..
+                          "* You have a [color:yellow]very,[wait:5] very,[wait:5] bad\n" ..
                             "feeling[color:reset] about throwing it away.")
         end
         cutscene:text("* Throw it away anyway?")
