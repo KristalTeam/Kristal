@@ -113,7 +113,8 @@ function TileLayer:regenerateTiles()
             else
                 local batch = tileset_sprite_batches[tileset]
                 if batch == nil then
-                    batch = love.graphics.newSpriteBatch(tileset.texture)
+                    local batch_size = self.map_width * self.map_height
+                    batch = love.graphics.newSpriteBatch(tileset.texture, batch_size, "static")
                     tileset_sprite_batches[tileset] = batch
                     table.insert(self.sprite_batches, batch)
                 end
@@ -131,14 +132,9 @@ function TileLayer:draw()
 
     local grid_w, grid_h = self.map.tile_width, self.map.tile_height
 
-
-    Draw.pushScissor()
-    love.graphics.setScissor(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
-    love.graphics.setBlendMode("alpha")
     for _,batch in ipairs(self.sprite_batches) do
         love.graphics.draw(batch)
     end
-    love.graphics.setBlendMode("alpha")
 
     Draw.setColor(r, g, b, a * self.tile_opacity)
     for _, tile in ipairs(self.unbatched_tiles) do
@@ -146,7 +142,6 @@ function TileLayer:draw()
     end
 
     Draw.setColor(1, 1, 1)
-    Draw.popScissor()
 
     super.draw(self)
 end
