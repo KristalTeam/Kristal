@@ -71,17 +71,20 @@ end
 --- Not calling `super.onDamage()` here will stop the normal damage logic from occurring.
 ---@param soul OverworldSoul
 function WorldBullet:onDamage(soul)
-    if self:getDamage() > 0 then
-        self.world:hurtParty(self.damage)
-
+    local damage = self:getDamage()
+    if damage > 0 then
+        self.world:hurtParty(damage)
         soul.inv_timer = self.inv_timer
+        soul:onDamage(self, damage)
     end
 end
 
 --- *(Override)* Called when the bullet collides with the player's soul, before invulnerability checks.
 ---@param soul OverworldSoul
 function WorldBullet:onCollide(soul)
-    if not self.world:inBattle() then return end
+    if not self.world:shouldBulletsHurt() then
+        return
+    end
 
     if soul.inv_timer == 0 then
         self:onDamage(soul)

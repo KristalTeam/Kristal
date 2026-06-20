@@ -156,6 +156,7 @@ Player = require("src.engine.game.world.player")
 OverworldSoul = require("src.engine.game.world.overworldsoul")
 WorldBullet = require("src.engine.game.world.worldbullet")
 ChaserEnemy = require("src.engine.game.world.chaserenemy")
+ClimbEnemy = require("src.engine.game.world.climbenemy")
 
 SaveMenu = require("src.engine.game.world.ui.savemenu")
 SimpleSaveMenu = require("src.engine.game.world.ui.simplesavemenu")
@@ -179,6 +180,8 @@ LightStatMenu = require("src.engine.game.world.ui.light.lightstatmenu")
 LightCellMenu = require("src.engine.game.world.ui.light.lightcellmenu")
 
 EventRegistry = require("src.engine.game.world.eventregistry")
+
+-- Events
 
 Event = require("src.engine.game.world.event")
 Script = require("src.engine.game.world.events.script")
@@ -205,6 +208,12 @@ DarkFountain = require("src.engine.game.world.events.darkfountain")
 FountainFloor = require("src.engine.game.world.events.fountainfloor")
 QuicksaveEvent = require("src.engine.game.world.events.quicksave")
 MirrorArea = require("src.engine.game.world.events.mirror")
+ClimbEntry = require("src.engine.game.world.events.climbing.climbentry")
+ClimbExit = require("src.engine.game.world.events.climbing.climbexit")
+ClimbLanding = require("src.engine.game.world.events.climbing.climblanding")
+ClimbArea = require("src.engine.game.world.events.climbing.climbarea")
+ClimbUnsafe = require("src.engine.game.world.events.climbing.climbunsafe")
+FallingClimbArea = require("src.engine.game.world.events.climbing.fallingclimbarea")
 
 ToggleController = require("src.engine.game.world.events.controllers.togglecontroller")
 FountainShadowController = require("src.engine.game.world.events.controllers.fountainshadowcontroller")
@@ -237,6 +246,7 @@ TensionBarGlow = require("src.engine.game.battle.ui.tensionbarglow")
 SpeechBubble = require("src.engine.game.battle.ui.speechbubble")
 
 FlashFade = require("src.engine.game.effects.flashfade")
+SpriteCutHalf = require("src.engine.game.effects.spritecuthalf")
 DamageNumber = require("src.engine.game.effects.damagenumber")
 RecruitMessage = require("src.engine.game.effects.recruitmessage")
 HeartBurst = require("src.engine.game.effects.heartburst")

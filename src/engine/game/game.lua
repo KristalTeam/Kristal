@@ -198,6 +198,36 @@ function Game:registerBuiltInEvents()
         sprite:setScale(data.properties["scalex"] or 2, data.properties["scaley"] or 2)
         return sprite
     end)
+
+    registry:register("climbentry", function(data)
+        return ClimbEntry(data.x, data.y, getRectData(data), {
+            target = data.properties.target,
+            solid = data.properties.solid,
+        })
+    end)
+
+    registry:register("climbexit", function(data)
+        return ClimbExit(data.x, data.y, getRectData(data), {
+            target = data.properties.target,
+            direction = data.properties.direction,
+            can_exit = data.properties.can_exit,
+        })
+    end)
+
+    registry:register("climblanding", function(data) return ClimbLanding(data.x, data.y, getRectData(data)) end)
+    registry:register("climbarea", function(data) return ClimbArea(data.x, data.y, getRectData(data)) end)
+
+    registry:register("fallingclimbarea", function(data)
+        return FallingClimbArea(data.x, data.y, getRectData(data), {
+            only_break_upwards = data.properties.only_break_upwards,
+            breaks_on_leave = data.properties.breaks_on_leave,
+            fall_time = data.properties.fall_time,
+            timed = data.properties.timed,
+            no_unsafe_area = data.properties.no_unsafe_area,
+        })
+    end)
+
+    registry:register("climbunsafe", function(data) return ClimbUnsafe(data.x, data.y, getRectData(data)) end)
 end
 
 function Game:leave()

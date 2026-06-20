@@ -1039,8 +1039,6 @@ function DebugSystem:registerSubMenus()
         )
     end
 
-    -- TODO: toggle rather than only give
-
     self:registerMenu("give_spell", "Give Spell", "search")
 
     for id, _ in pairs(Registry.party_members) do

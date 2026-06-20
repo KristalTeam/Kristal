@@ -18,6 +18,10 @@ end
 
 function SlideArea:onCollide(chara)
     if (chara.last_y or chara.y) < self.y + self.height and chara.is_player then
+        if chara.is_player and chara.jumping then
+            return
+        end
+
         if chara.state ~= "SLIDE" then
             if self:checkAgainstWall(chara) then return end
 

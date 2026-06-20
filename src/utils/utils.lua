@@ -936,7 +936,7 @@ function Utils.isPolygonClockwise(points)
     return sum > 0
 end
 
---- @alias linefailure
+---@alias linefailure
 ---| "The lines are parallel."
 ---| "The lines don't intersect."
 ---| "The lines are the same."

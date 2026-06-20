@@ -20,6 +20,8 @@
 ---
 ---@field interact_count number The number of times this interactable has been interacted with on this map load
 ---
+---@field private use_tile boolean *[Property `usetile`]* Whether to use the tile object from Tiled. Defaults to false.
+---
 ---@overload fun(...) : Interactable
 local Interactable, super = Class(Event)
 
@@ -45,6 +47,8 @@ function Interactable:init(x, y, shape, properties)
     self.once = properties["once"] or false
 
     self.interact_count = 0
+
+    self.use_tile = properties["usetile"]
 end
 
 function Interactable:getDebugInfo()
@@ -110,7 +114,13 @@ end
 function Interactable:onTextEnd() end
 
 function Interactable:applyTileObject(data, map)
+    if not self.use_tile then
+        return
+    end
+
     local tile = map:createTileObject(data, 0, 0, self.width, self.height)
+
+    tile.debug_select = false
 
     local ox, oy = tile:getOrigin()
     self:setOrigin(ox, oy)

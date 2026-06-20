@@ -349,7 +349,7 @@ function Encounter:addFlag(flag, amount)
 end
 
 --- Checks if the encounter has reduced tension.
---- @return boolean reduced Whether the encounter has reduced tension.
+---@return boolean reduced Whether the encounter has reduced tension.
 function Encounter:hasReducedTension()
     return self.reduced_tension
 end

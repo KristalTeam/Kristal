@@ -4,8 +4,8 @@ local MathUtils = {}
 ---
 --- Checks if a number is an integer.
 ---
---- @param value number # The number to check.
---- @return boolean is_integer # Whether the value is an integer or not.
+---@param value number # The number to check.
+---@return boolean is_integer # Whether the value is an integer or not.
 ---
 function MathUtils.isInteger(value)
     return (math.floor(value) == value)

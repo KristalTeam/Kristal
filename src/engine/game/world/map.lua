@@ -158,9 +158,13 @@ function Map:getMarker(id)
 end
 
 --- Checks if a marker exists.
----@param id string|integer The name of the marker to search for, or the unique numerical ID.
+---@param id string|integer|TiledObjectRef The name of the marker to search for, or the unique numerical ID.
 function Map:hasMarker(id)
-    if type(id) == "number" then
+    if type(id) == "table" then
+        if id.id ~= nil then
+            return self.markers_by_id[id.id] ~= nil
+        end
+    elseif type(id) == "number" then
         return self.markers_by_id[id] ~= nil
     end
 
@@ -730,7 +734,7 @@ function Map:loadObjects(layer, depth, layer_type)
                     obj.layer_name = layer.name
                     obj.data = v
 
-                    if v.properties["usetile"] and v.gid and obj.applyTileObject then
+                    if v.gid and obj.applyTileObject then
                         obj:applyTileObject(v, self)
                     end
 

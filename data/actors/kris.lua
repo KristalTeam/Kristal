@@ -69,6 +69,7 @@ function actor:init()
         -- Cutscene animations
         ["jump_fall"]           = {"fall", 1/5, true},
         ["jump_ball"]           = {"ball", 1/15, true},
+        ["jump_ball_slow"]      = {"ball", 4/30, true},
     }
 
     if Game.chapter == 1 then
@@ -112,6 +113,18 @@ function actor:init()
 
         ["battle/intro"] = {-8, -9},
         ["battle/victory"] = {-3, 0},
+
+        -- Climb offsets
+        ["climb/climbing"] = {-5, -15},
+        ["climb/fall"] = {-3, -14},
+        ["climb/charge"] = {-4, -12},
+        ["climb/charge_right"] = {-4, -12},
+        ["climb/charge_left"] = {-4, -12},
+        ["climb/slip_right"] = {-3, -13},
+        ["climb/slip_left"] = {-2, -13},
+        ["climb/jump_up"] = {-4, -13},
+        ["climb/land_right"] = {-4, -13},
+        ["climb/land_left"] = {-4, -13},
 
         -- Cutscene offsets
         ["pose"] = {-4, -2},

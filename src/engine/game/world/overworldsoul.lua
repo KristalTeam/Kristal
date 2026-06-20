@@ -34,12 +34,20 @@ function OverworldSoul:canDebugSelect()
     return self.alpha > 0 and super.canDebugSelect(self)
 end
 
---- *(Override)* Called whenever a bullet hits the soul \
---- *By default, calls `bullet:onCollide()` which handles the soul taking damage*
+--- *(Override)* Called whenever a bullet hits the soul.
+---
+--- By default, this calls `WorldBullet:onCollide()`, which handles the soul taking damage.
 ---@param bullet WorldBullet
 function OverworldSoul:onCollide(bullet)
     -- Handles damage
     bullet:onCollide(self)
+end
+
+--- *(Override)* Called when the soul takes damage from a [`WorldBullet`](lua://WorldBullet).
+---@param bullet WorldBullet
+---@param amount integer
+function OverworldSoul:onDamage(bullet, amount)
+    -- Can be overridden, called when the soul actually takes damage from a bullet
 end
 
 function OverworldSoul:update()
@@ -50,13 +58,15 @@ function OverworldSoul:update()
 
     self.sprite.alpha = 1 -- ??????
 
-    Object.startCache()
-    for _, bullet in ipairs(Game.stage:getObjects(WorldBullet)) do
-        if bullet:collidesWith(self.collider) then
-            self:onCollide(bullet)
+    if not Game.world.player or Game.world.player.state ~= "CLIMB" then
+        Object.startCache()
+        for _, bullet in ipairs(Game.stage:getObjects(WorldBullet)) do
+            if bullet:collidesWith(self.collider) then
+                self:onCollide(bullet)
+            end
         end
+        Object.endCache()
     end
-    Object.endCache()
 
     if self.inv_timer > 0 then
         self.inv_flash_timer = self.inv_flash_timer + DT
@@ -74,7 +84,7 @@ function OverworldSoul:update()
     local progress = 0
 
     if Game.world.player then
-        self.x, self.y = Game.world.player:getRelativePos(Game.world.player.actor:getSoulOffset())
+        self.x, self.y = Game.world.player:getRelativePos(Game.world.player:getSoulOffset())
         if Game.world.player.battle_alpha > 0 then
             progress = Game.world.player.battle_alpha * 2
         end
@@ -87,7 +97,9 @@ end
 
 function OverworldSoul:draw()
     if DEBUG_RENDER then
-        self.collider:draw(0, 1, 0)
+        if not Game.world.player or Game.world.player.state ~= "CLIMB" then
+            self.collider:draw(1, 0, 0, 0.5)
+        end
     end
 
     local sx, sy = Game.world:screenToLocalPos()

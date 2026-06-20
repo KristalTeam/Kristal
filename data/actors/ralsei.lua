@@ -209,6 +209,7 @@ function actor:initChapter2()
         -- Cutscene animations
         ["jump_fall"]           = {"fall", 1/5, true},
         ["jump_ball"]           = {"ball", 1/15, true},
+        ["jump_ball_slow"]      = {"ball", 4/30, true},
 
         ["laugh"]               = {"laugh", 4/30, true},
 

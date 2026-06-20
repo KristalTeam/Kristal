@@ -83,8 +83,7 @@ Event.onInteract = nil
 
 --- *(Override)* Called every frame the player and event are colliding with each other
 ---@param player    Player
----@param DT        number
-function Event:onCollide(player, DT)
+function Event:onCollide(player)
     -- Do stuff every frame the player collides with the object
 end
 
@@ -265,10 +264,14 @@ function Event:flash(sprite, offset_x, offset_y, layer, color)
     return sprite_to_use:flash(offset_x, offset_y, layer, color)
 end
 
+function Event:drawDebug()
+    self.collider:draw(1, 0, 1)
+end
+
 function Event:draw()
     super.draw(self)
     if DEBUG_RENDER then
-        self.collider:draw(1, 0, 1)
+        self:drawDebug()
     end
 end
 

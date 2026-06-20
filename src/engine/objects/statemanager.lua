@@ -85,6 +85,7 @@ function StateManager:hasEvent(event, state)
 end
 
 function StateManager:callOn(state, event, ...)
+    event = event:lower()
     local state_callbacks = self.state_events[event]
     if state_callbacks and state_callbacks[state] then
         local func = state_callbacks[state]
