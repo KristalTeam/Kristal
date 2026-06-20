@@ -2021,7 +2021,7 @@ function Kristal.callEvent(f, ...)
     if not Mod then return end
     local lib_result = { Kristal.libCall(nil, f, ...) }
     local mod_result = { Kristal.modCall(f, ...) }
-    --print("EVENT: "..tostring(f), #mod_result, #lib_result)
+    --print("EVENT: " .. tostring(f), #mod_result, #lib_result)
     if (#mod_result > 0) then
         return TableUtils.unpack(mod_result)
     else

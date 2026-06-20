@@ -139,9 +139,9 @@ function DarkInventory:tryGiveItem(item, ignore_light)
         local light_inv = self:getLightInventory()
         local result = light_inv:addItem(item)
         if result then
-            return true, "* ([color:yellow]"..item:getName().."[color:reset] was added to your [color:yellow]LIGHT ITEMs[color:reset].)"
+            return true, "* ([color:yellow]" .. item:getName() .. "[color:reset] was added to your [color:yellow]LIGHT ITEMs[color:reset].)"
         else
-            return false, "* (You have too many [color:yellow]LIGHT ITEMs[color:reset] to take [color:yellow]"..item:getName().."[color:reset].)"
+            return false, "* (You have too many [color:yellow]LIGHT ITEMs[color:reset] to take [color:yellow]" .. item:getName() .. "[color:reset].)"
         end
     end
 end

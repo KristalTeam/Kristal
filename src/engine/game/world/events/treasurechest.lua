@@ -82,15 +82,15 @@ function TreasureChest:onInteract(player, dir)
             success, result_text = Game.inventory:tryGiveItem(item)
             name = item:getName()
         elseif self.money then
-            name = self.money.." "..Game:getConfig("darkCurrency")
+            name = self.money .. " " .. Game:getConfig("darkCurrency")
             success = true
-            result_text = "* ([color:yellow]"..name.."[color:reset] was added to your [color:yellow]MONEY HOLE[color:reset].)"
+            result_text = "* ([color:yellow]" .. name .. "[color:reset] was added to your [color:yellow]MONEY HOLE[color:reset].)"
             Game.money = Game.money + self.money
         end
 
         if name then
             self.world:showText({
-                "* (You opened the treasure\nchest.)[wait:5]\n* (Inside was [color:yellow]"..name.."[color:reset].)",
+                "* (You opened the treasure\nchest.)[wait:5]\n* (Inside was [color:yellow]" .. name .. "[color:reset].)",
                 result_text
             }, function()
                 if not success then

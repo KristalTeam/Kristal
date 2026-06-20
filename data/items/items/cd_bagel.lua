@@ -67,7 +67,7 @@ function item:getShopDescription()
 end
 
 function item:onWorldUse(target)
-    local sound = self.sounds[target.id] or ("cd_bagel/"..target.id)
+    local sound = self.sounds[target.id] or ("cd_bagel/" .. target.id)
     if Assets.getSound(sound) then
         Assets.playSound(sound)
     end

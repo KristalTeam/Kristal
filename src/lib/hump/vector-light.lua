@@ -27,7 +27,7 @@ THE SOFTWARE.
 local sqrt, cos, sin, atan2 = math.sqrt, math.cos, math.sin, math.atan2
 
 local function str(x,y)
-    return "("..tonumber(x)..","..tonumber(y)..")"
+    return "(" .. tonumber(x) .. "," .. tonumber(y) .. ")"
 end
 
 local function mul(s, x,y)

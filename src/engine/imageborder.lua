@@ -8,7 +8,7 @@ function ImageBorder:init(texture, path)
     super.init(self)
     if type(texture) == "string" then
         path = texture
-        texture = Assets.getTexture("borders/"..texture)
+        texture = Assets.getTexture("borders/" .. texture)
     end
     self.texture = texture
     self.id = path

@@ -25,11 +25,11 @@ function item:init()
     end
 
     -- Battle description
-    self.effect = "Heals\nteam\n"..self.heal_amount.."HP"
+    self.effect = "Heals\nteam\n" .. self.heal_amount .. "HP"
     -- Shop description
     self.shop = ""
     -- Menu description
-    self.description = "A pastry in the shape of a top.\nHeals "..self.heal_amount.." HP to the team."
+    self.description = "A pastry in the shape of a top.\nHeals " .. self.heal_amount .. " HP to the team."
 
     -- Default shop price (sell price is halved)
     self.price = 5

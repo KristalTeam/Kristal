@@ -45,17 +45,17 @@ function WarpDoor:init(x, y, properties)
     self.markers = {}
     self.flags = {}
     local i = 1
-    while properties["map"..i] do
-        if properties["name"..i] then
-            self.names[i] = properties["name"..i]
+    while properties["map" .. i] do
+        if properties["name" .. i] then
+            self.names[i] = properties["name" .. i]
         else
-            self.names[i] = StringUtils.titleCase(properties["map"..i])
+            self.names[i] = StringUtils.titleCase(properties["map" .. i])
         end
-        if properties["flag"..i] then
-            self.flags[i] = properties["flag"..i]
+        if properties["flag" .. i] then
+            self.flags[i] = properties["flag" .. i]
         end
-        self.maps[self.names[i]] = properties["map"..i]
-        self.markers[self.names[i]] = properties["marker"..i]
+        self.maps[self.names[i]] = properties["map" .. i]
+        self.markers[self.names[i]] = properties["marker" .. i]
         i = i + 1
     end
 end

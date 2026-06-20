@@ -71,7 +71,7 @@ function actor:init(style)
         ["battle/defeat"]       = {"battle/defeat", 1 / 15, false},
         ["battle/swooned"]      = {"battle/swooned", 1 / 15, false},
 
-        ["battle/transition"]   = {self.default.."/right_1", 1 / 15, false},
+        ["battle/transition"]   = {self.default .. "/right_1", 1 / 15, false},
         ["battle/intro"]        = {"battle/attack", 1 / 15, true},
         ["battle/victory"]      = {"battle/victory", 1 / 10, false},
         ["battle/transition_out"] = {"battle/transition_out", 1 / 15, false},

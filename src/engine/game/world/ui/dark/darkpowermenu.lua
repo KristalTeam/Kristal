@@ -271,7 +271,7 @@ function DarkPowerMenu:drawSpells()
         else
             Draw.setColor(1, 1, 1)
         end
-        love.graphics.print(tostring(spell:getTPCost(self.party:getSelected())).."%", tp_x, tp_y + (offset * 25))
+        love.graphics.print(tostring(spell:getTPCost(self.party:getSelected())) .. "%", tp_x, tp_y + (offset * 25))
         love.graphics.print(spell:getName(), name_x, name_y + (offset * 25))
     end
 

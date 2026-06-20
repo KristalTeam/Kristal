@@ -28,9 +28,9 @@ function spell:getCastMessage(user, target)
     if target.tired then
         return message
     elseif target.mercy < 100 then
-        return message.."\n[wait:0.25s]* But the enemy wasn't [color:blue]TIRED[color:reset]..."
+        return message .. "\n[wait:0.25s]* But the enemy wasn't [color:blue]TIRED[color:reset]..."
     else
-        return message.."\n[wait:0.25s]* But the foe wasn't [color:blue]TIRED[color:reset]... try\n[color:yellow]SPARING[color:reset]!"
+        return message .. "\n[wait:0.25s]* But the foe wasn't [color:blue]TIRED[color:reset]... try\n[color:yellow]SPARING[color:reset]!"
     end
 end
 

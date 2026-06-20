@@ -145,13 +145,13 @@ function GameOver:update()
             self.lines = {}
             for _,dialogue in ipairs(member:getGameOverMessage(main_chara)) do
                 local spacing = Game:isLight() and 6 or 8
-                local full_line = "[speed:0.5][spacing:"..spacing.."][voice:"..voice.."]"
+                local full_line = "[speed:0.5][spacing:" .. spacing .. "][voice:" .. voice .. "]"
                 local lines = StringUtils.split(dialogue, "\n")
                 for i,line in ipairs(lines) do
                     if i > 1 then
-                        full_line = full_line.."\n  "..line
+                        full_line = full_line .. "\n  " .. line
                     else
-                        full_line = full_line.."  "..line
+                        full_line = full_line .. "  " .. line
                     end
                 end
                 table.insert(self.lines, full_line)

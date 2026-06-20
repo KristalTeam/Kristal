@@ -330,7 +330,7 @@ function Textbox:setText(text, callback)
                 text = TableUtils.copy(text)
             end
             for i,line in ipairs(text) do
-                text[i] = "[voice:"..self.actor:getVoice().."]"..line
+                text[i] = "[voice:" .. self.actor:getVoice() .. "]" .. line
             end
         end
         if self.actor:getFont() then
@@ -340,7 +340,7 @@ function Textbox:setText(text, callback)
                 text = TableUtils.copy(text)
             end
             for i,line in ipairs(text) do
-                text[i] = "[font:"..self.actor:getFont().."]"..line
+                text[i] = "[font:" .. self.actor:getFont() .. "]" .. line
             end
         end
         if self.actor:getIndentString() then

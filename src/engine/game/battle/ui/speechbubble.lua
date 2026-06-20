@@ -54,19 +54,19 @@ function SpeechBubble:setStyle(style)
     self.text:setTextColor(unpack(self.text_color))
     if self.auto then
         self.sprites = {
-            left         = self.bubble_data["sprites"]["left"        ] and Assets.getFramesOrTexture("bubbles/"..self.bubble_data["sprites"]["left"        ]),
-            right        = self.bubble_data["sprites"]["right"       ] and Assets.getFramesOrTexture("bubbles/"..self.bubble_data["sprites"]["right"       ]),
-            top          = self.bubble_data["sprites"]["top"         ] and Assets.getFramesOrTexture("bubbles/"..self.bubble_data["sprites"]["top"         ]),
-            bottom       = self.bubble_data["sprites"]["bottom"      ] and Assets.getFramesOrTexture("bubbles/"..self.bubble_data["sprites"]["bottom"      ]),
-            top_left     = self.bubble_data["sprites"]["top_left"    ] and Assets.getFramesOrTexture("bubbles/"..self.bubble_data["sprites"]["top_left"    ]),
-            top_right    = self.bubble_data["sprites"]["top_right"   ] and Assets.getFramesOrTexture("bubbles/"..self.bubble_data["sprites"]["top_right"   ]),
-            bottom_left  = self.bubble_data["sprites"]["bottom_left" ] and Assets.getFramesOrTexture("bubbles/"..self.bubble_data["sprites"]["bottom_left" ]),
-            bottom_right = self.bubble_data["sprites"]["bottom_right"] and Assets.getFramesOrTexture("bubbles/"..self.bubble_data["sprites"]["bottom_right"]),
-            tail         = self.bubble_data["sprites"]["tail"        ] and Assets.getFramesOrTexture("bubbles/"..self.bubble_data["sprites"]["tail"        ]),
-            fill         = self.bubble_data["sprites"]["fill"        ] and Assets.getFramesOrTexture("bubbles/"..self.bubble_data["sprites"]["fill"        ])
+            left         = self.bubble_data["sprites"]["left"        ] and Assets.getFramesOrTexture("bubbles/" .. self.bubble_data["sprites"]["left"        ]),
+            right        = self.bubble_data["sprites"]["right"       ] and Assets.getFramesOrTexture("bubbles/" .. self.bubble_data["sprites"]["right"       ]),
+            top          = self.bubble_data["sprites"]["top"         ] and Assets.getFramesOrTexture("bubbles/" .. self.bubble_data["sprites"]["top"         ]),
+            bottom       = self.bubble_data["sprites"]["bottom"      ] and Assets.getFramesOrTexture("bubbles/" .. self.bubble_data["sprites"]["bottom"      ]),
+            top_left     = self.bubble_data["sprites"]["top_left"    ] and Assets.getFramesOrTexture("bubbles/" .. self.bubble_data["sprites"]["top_left"    ]),
+            top_right    = self.bubble_data["sprites"]["top_right"   ] and Assets.getFramesOrTexture("bubbles/" .. self.bubble_data["sprites"]["top_right"   ]),
+            bottom_left  = self.bubble_data["sprites"]["bottom_left" ] and Assets.getFramesOrTexture("bubbles/" .. self.bubble_data["sprites"]["bottom_left" ]),
+            bottom_right = self.bubble_data["sprites"]["bottom_right"] and Assets.getFramesOrTexture("bubbles/" .. self.bubble_data["sprites"]["bottom_right"]),
+            tail         = self.bubble_data["sprites"]["tail"        ] and Assets.getFramesOrTexture("bubbles/" .. self.bubble_data["sprites"]["tail"        ]),
+            fill         = self.bubble_data["sprites"]["fill"        ] and Assets.getFramesOrTexture("bubbles/" .. self.bubble_data["sprites"]["fill"        ])
         }
     else
-        self.sprites = self.bubble_data["sprites"] and Assets.getFramesOrTexture("bubbles/"..self.bubble_data["sprites"])
+        self.sprites = self.bubble_data["sprites"] and Assets.getFramesOrTexture("bubbles/" .. self.bubble_data["sprites"])
     end
 
     self.text.x = self.text_bounds["left"] or 0
@@ -117,7 +117,7 @@ function SpeechBubble:setText(text, callback, line_callback)
                 text = TableUtils.copy(text)
             end
             for i,line in ipairs(text or {}) do
-                text[i] = "[voice:"..self.actor:getVoice().."]"..line
+                text[i] = "[voice:" .. self.actor:getVoice() .. "]" .. line
             end
         end
         if self.actor:getFont() then
@@ -128,9 +128,9 @@ function SpeechBubble:setText(text, callback, line_callback)
             end
             for i,line in ipairs(text or {}) do
                 if self.actor:getSpeechBubbleFontSize() then
-                    text[i] = "[font:"..self.actor:getFont()..","..self.actor:getSpeechBubbleFontSize().."]"..line
+                    text[i] = "[font:" .. self.actor:getFont() .. "," .. self.actor:getSpeechBubbleFontSize() .. "]" .. line
                 else
-                    text[i] = "[font:"..self.actor:getFont().."]"..line
+                    text[i] = "[font:" .. self.actor:getFont() .. "]" .. line
                 end
             end
         end

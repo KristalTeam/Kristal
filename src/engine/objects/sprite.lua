@@ -449,7 +449,7 @@ function Sprite:crossFadeTo(texture, time, options, after)
 
         local info = debug.getinfo(2, "Sln")
         Kristal.Console:warn("Deprecated \"fade_to\" argument to crossFadeTo, expected a table of options")
-        Kristal.Console:warn(info.source .. ":"..info.currentline)
+        Kristal.Console:warn(info.source .. ":" .. info.currentline)
     end
 
     self:crossFadeToSpeed(texture, (1 / (time or 1)) / 30 * (1 - self.crossfade_alpha), options, after)
@@ -468,7 +468,7 @@ function Sprite:crossFadeToSpeed(texture, speed, options, after)
 
         local info = debug.getinfo(2, "Sln")
         Kristal.Console:warn("Deprecated \"fade_to\" argument to crossFadeToSpeed, expected a table of options")
-        Kristal.Console:warn(info.source .. ":"..info.currentline)
+        Kristal.Console:warn(info.source .. ":" .. info.currentline)
     end
 
     options = options or {}

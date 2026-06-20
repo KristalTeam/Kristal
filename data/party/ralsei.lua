@@ -175,9 +175,9 @@ end
 function character:getTitle()
     if Game.chapter == 1 then
         if self:checkWeapon("ragger") then
-            return "LV"..self.level.." Prickly Prince\nDeals damage with\nhis rugged scarf."
+            return "LV" .. self.level .. " Prickly Prince\nDeals damage with\nhis rugged scarf."
         elseif self:checkWeapon("daintyscarf") then
-            return "LV"..self.level.." Fluffy Prince\nWeak, but has nice\nhealing powers."
+            return "LV" .. self.level .. " Fluffy Prince\nWeak, but has nice\nhealing powers."
         end
     end
     return super.getTitle(self)

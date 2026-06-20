@@ -28,7 +28,7 @@ function spell:init()
 end
 
 function spell:getCastMessage(user, target)
-    return "* "..user.chara:getName().." used "..self:getCastName().."!"
+    return "* " .. user.chara:getName() .. " used " .. self:getCastName() .. "!"
 end
 
 function spell:onCast(user, target)

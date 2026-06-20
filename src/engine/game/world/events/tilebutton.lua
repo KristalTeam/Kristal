@@ -159,7 +159,7 @@ function TileButton:checkCompletion()
             self:onIncompleted()
         end
     else
-        local flag_id = "tile_puzzle#"..tostring(self.group)
+        local flag_id = "tile_puzzle#" .. tostring(self.group)
 
         local was_completed = self.world.map:getFlag(flag_id)
 
