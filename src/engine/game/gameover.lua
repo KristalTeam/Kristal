@@ -205,13 +205,13 @@ function GameOver:update()
     if (self.current_stage == 7) then
         if not Game:getConfig("oldGameOver") then
             self.choicer = GonerChoice(160, 360, {
-                { { "CONTINUE",0,0 },{ "<<" },{ ">>" },{ "GIVE UP",220,0 } }
+                { { "CONTINUE", 0, 0 },{ "<<" },{ ">>" },{ "GIVE UP", 220, 0 } }
             })
             self.choicer:setSelectedOption(2, 1)
             self.choicer:setSoulPosition(140, 0)
         else
             self.choicer = GonerChoice(220, 360, {
-                { { "YES",0,0 },{ "<<" },{ ">>" },{ "NO",160,0 } }
+                { { "YES", 0, 0 },{ "<<" },{ ">>" },{ "NO", 160, 0 } }
             })
             self.choicer:setSelectedOption(2, 1)
             self.choicer:setSoulPosition(80, 0)
