@@ -206,7 +206,7 @@ function MainMenuCredits:draw()
     local right_column = page[3] or {}
 
     for index, value in ipairs(left_column) do
-        local color = {1, 1, 1, 1}
+        local color = { 1, 1, 1, 1 }
         local offset = 0
         if type(value) == "table" then
             color = value[2]
@@ -218,7 +218,7 @@ function MainMenuCredits:draw()
         Draw.printShadow(value, 32 + offset, 64 + (32 * index))
     end
     for index, value in ipairs(right_column) do
-        local color = {1, 1, 1, 1}
+        local color = { 1, 1, 1, 1 }
         local offset = 0
         if type(value) == "table" then
             color = value[2]

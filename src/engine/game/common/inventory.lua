@@ -209,7 +209,7 @@ function Inventory:updateStoredItems(storage)
         end
         for i = 1, storage.max do
             if storage[i] then
-                self.stored_items[storage[i]] = {storage = storage.id, index = i}
+                self.stored_items[storage[i]] = { storage = storage.id, index = i }
             end
         end
     end

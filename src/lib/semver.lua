@@ -37,7 +37,7 @@ local semver = {
     return value and value ~= ''
   end
 
-  -- splitByDot("a.bbc.d") == {"a", "bbc", "d"}
+  -- splitByDot("a.bbc.d") == { "a", "bbc", "d" }
   local function splitByDot(str)
     str = str or ""
     local t, count = {}, 0
@@ -199,7 +199,7 @@ local semver = {
     checkPositiveInteger(minor, "minor")
     checkPositiveInteger(patch, "patch")
 
-    local result = {major=major, minor=minor, patch=patch, prerelease=prerelease, build=build}
+    local result = { major=major, minor=minor, patch=patch, prerelease=prerelease, build=build }
     return setmetatable(result, mt)
   end
 

@@ -20,7 +20,7 @@ function spell:init()
     self.target = "party"
 
     -- Tags that apply to this spell
-    self.tags = {"heal"}
+    self.tags = { "heal" }
 end
 
 function spell:onCast(user, target)

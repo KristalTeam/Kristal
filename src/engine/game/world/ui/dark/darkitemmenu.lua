@@ -79,7 +79,7 @@ end
 function DarkItemMenu:useItem(item, party)
     local result = item:onWorldUse(party)
     if isClass(party) then
-        party = {party}
+        party = { party }
     end
     for _,char in ipairs(party) do
         for index, chara in ipairs(Game.party) do
@@ -246,7 +246,7 @@ end
 function DarkItemMenu:draw()
     love.graphics.setFont(self.font)
 
-    local headers = {"USE", "TOSS", "KEY"}
+    local headers = { "USE", "TOSS", "KEY" }
 
     for i,name in ipairs(headers) do
         if self.state == "MENU" then

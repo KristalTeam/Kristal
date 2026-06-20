@@ -46,9 +46,9 @@ function SpeechBubble:setStyle(style)
     self.bubble = style or Game:getConfig("speechBubble")
     self.bubble_data = Assets.getBubbleData(self.bubble)
     self.auto = self.bubble_data["auto"] or false -- Whether the bubble automatically resizes.
-    self.padding = self.bubble_data["text_padding"] or {left = 0, top = 0, right = 0, bottom = 0}
-    self.text_bounds = self.bubble_data["text_bounds"] or {left = 0, top = 0, width = 0, height = 0}
-    self.text_color = self.bubble_data["text_color"] or {0, 0, 0, 1}
+    self.padding = self.bubble_data["text_padding"] or { left = 0, top = 0, right = 0, bottom = 0 }
+    self.text_bounds = self.bubble_data["text_bounds"] or { left = 0, top = 0, width = 0, height = 0 }
+    self.text_color = self.bubble_data["text_color"] or { 0, 0, 0, 1 }
     self.bubble_speed = self.bubble_data["speed"] or 0.5
     self.bubble_anim_timer = 0
     self.text:setTextColor(unpack(self.text_color))
@@ -112,7 +112,7 @@ function SpeechBubble:setText(text, callback, line_callback)
     if self.actor then
         if self.actor:getVoice() then
             if type(text) ~= "table" then
-                text = {text}
+                text = { text }
             else
                 text = TableUtils.copy(text)
             end
@@ -122,7 +122,7 @@ function SpeechBubble:setText(text, callback, line_callback)
         end
         if self.actor:getFont() then
             if type(text) ~= "table" then
-                text = {text}
+                text = { text }
             else
                 text = TableUtils.copy(text)
             end
@@ -219,7 +219,7 @@ function SpeechBubble:getDebugRectangle()
         local inner_height = self.padding["top"] + inner_bottom
 
         -- TODO: FUck
-        return {-bl + inner_left, -bt + inner_top, inner_width + bl + br + self:getTailWidth(), inner_height + bt + bb}
+        return { -bl + inner_left, -bt + inner_top, inner_width + bl + br + self:getTailWidth(), inner_height + bt + bb }
     end
     return super.getDebugRectangle(self)
 end

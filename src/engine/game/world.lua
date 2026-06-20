@@ -1103,10 +1103,10 @@ end
                  ("mapid", "markerid", "up")
 ]]
 local function parseTransitionTargetArgs(...)
-    local args = {...}
+    local args = { ... }
     if #args == 0 then return {} end
     if type(args[1]) ~= "table" or isClass(args[1]) then
-        local target = {map = args[1]}
+        local target = { map = args[1] }
         if type(args[2]) == "number" and type(args[3]) == "number" then
             target.x = args[2]
             target.y = args[3]

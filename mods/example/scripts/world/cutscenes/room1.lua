@@ -47,7 +47,7 @@ return {
             cutscene:wait(1.5)
 
             -- owie
-            susie:setAnimation({"away_scratch", 0.25, true})
+            susie:setAnimation({ "away_scratch", 0.25, true })
             susie:shake(4)
             Assets.playSound("wing")
 

@@ -31,7 +31,7 @@ function ScrollbarComponent:init(options)
 
     super.init(self, FixedSizing(width), FillSizing(), options)
 
-    self:setMargins(unpack(options.margins or {0, 0, 0, 0}))
+    self:setMargins(unpack(options.margins or { 0, 0, 0, 0 }))
 
     self.gutter_color = options.gutter_color or (self.gutter == "dotted" and COLORS.white or COLORS.dkgray)
     self.scrollbar_width = options.scrollbar_width or options.width or 6

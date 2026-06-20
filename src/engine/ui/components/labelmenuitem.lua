@@ -12,7 +12,7 @@ local LabelMenuItemComponent, super = Class(AbstractMenuItemComponent)
 function LabelMenuItemComponent:init(text, child, x_sizing, y_sizing, options)
     super.init(self, x_sizing or FillSizing(), y_sizing or FitSizing(), nil, options)
 
-    self:setLayout(HorizontalLayout({align="space-between"}))
+    self:setLayout(HorizontalLayout({ align="space-between" }))
 
     if type(text) == "string" then
         text = Text(text)

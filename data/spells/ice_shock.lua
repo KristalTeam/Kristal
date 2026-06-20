@@ -20,7 +20,7 @@ function spell:init()
     self.target = "enemy"
 
     -- Tags that apply to this spell
-    self.tags = {"ice", "damage"}
+    self.tags = { "ice", "damage" }
 end
 
 function spell:getTPCost(chara)

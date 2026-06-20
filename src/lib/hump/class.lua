@@ -115,13 +115,13 @@ function _self.new(class)
 
     -- constructor call
     ---@overload fun(self: Class, ...) : Class
-    return setmetatable(class, {__call = function(c, ...)
+    return setmetatable(class, { __call = function(c, ...)
         ---@type Class
         local o = setmetatable({}, c)
         ---@diagnostic disable-next-line: invisible
         o:init(...)
         return o
-    end})
+    end })
 end
 
 -- interface for cross class-system compatibility (see https://github.com/bartbes/Class-Commons).

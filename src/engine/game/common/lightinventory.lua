@@ -19,16 +19,16 @@ function LightInventory:init()
     self.storage_enabled = false
 
     -- Order the storages are converted to the dark world
-    self.convert_order = {"items", "box_a", "box_b"}
+    self.convert_order = { "items", "box_a", "box_b" }
 end
 
 function LightInventory:clear()
     super.clear(self)
 
     self.storages = {
-        ["items"] = {id = "items", max = 8,  sorted = true, name = "INVENTORY", fallback = "box_a"},
-        ["box_a"] = {id = "box_a", max = 10, sorted = true, name = "BOX",       fallback = "box_b"},
-        ["box_b"] = {id = "box_b", max = 10, sorted = true, name = "BOX",       fallback = nil    },
+        ["items"] = { id = "items", max = 8,  sorted = true, name = "INVENTORY", fallback = "box_a" },
+        ["box_a"] = { id = "box_a", max = 10, sorted = true, name = "BOX",       fallback = "box_b" },
+        ["box_b"] = { id = "box_b", max = 10, sorted = true, name = "BOX",       fallback = nil    },
     }
 
     Kristal.callEvent(KRISTAL_EVENT.createLightInventory, self)

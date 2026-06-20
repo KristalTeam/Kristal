@@ -20,7 +20,7 @@ function spell:init()
     self.target = "enemy"
 
     -- Tags that apply to this spell
-    self.tags = {"spare_tired"}
+    self.tags = { "spare_tired" }
 end
 
 function spell:getCastMessage(user, target)
@@ -53,10 +53,10 @@ function spell:onCast(user, target)
     else
         local recolor = target:addFX(RecolorFX())
         Game.battle.timer:during(8 / 30, function()
-            recolor.color = ColorUtils.mergeColor(recolor.color, {0, 0, 1}, 0.12 * DTMULT)
+            recolor.color = ColorUtils.mergeColor(recolor.color, { 0, 0, 1 }, 0.12 * DTMULT)
         end, function()
             Game.battle.timer:during(8 / 30, function()
-                recolor.color = ColorUtils.mergeColor(recolor.color, {1, 1, 1}, 0.16 * DTMULT)
+                recolor.color = ColorUtils.mergeColor(recolor.color, { 1, 1, 1 }, 0.16 * DTMULT)
             end, function()
                 target:removeFX(recolor)
             end)

@@ -14,23 +14,23 @@ function VerticalLayout:refresh()
         for _, child in ipairs(self:getComponents()) do
             child.y = child.y + y_position
             local _, height = child:getScaledSize()
-            y_position = y_position + (child.getTotalSize and ({child:getTotalSize()})[2] or height)
+            y_position = y_position + (child.getTotalSize and ({ child:getTotalSize() })[2] or height)
             y_position = y_position + self.gap
         end
     elseif self.align == "end" then
-        local y_position = ({self:getInnerArea()})[2] - self:calculateTotalSize()
+        local y_position = ({ self:getInnerArea() })[2] - self:calculateTotalSize()
         for _, child in ipairs(self:getComponents()) do
             child.y = child.y + y_position
             local _, height = child:getScaledSize()
-            y_position = y_position + (child.getTotalSize and ({child:getTotalSize()})[2] or height)
+            y_position = y_position + (child.getTotalSize and ({ child:getTotalSize() })[2] or height)
             y_position = y_position + self.gap
         end
     elseif self.align == "center" then
-        local y_position = (({self:getInnerArea()})[2] - self:calculateTotalSize()) / 2
+        local y_position = (({ self:getInnerArea() })[2] - self:calculateTotalSize()) / 2
         for _, child in ipairs(self:getComponents()) do
             child.y = child.y + y_position
             local _, height = child:getScaledSize()
-            y_position = y_position + (child.getTotalSize and ({child:getTotalSize()})[2] or height)
+            y_position = y_position + (child.getTotalSize and ({ child:getTotalSize() })[2] or height)
             y_position = y_position + self.gap
         end
     elseif self.align == "space-between" then
@@ -40,7 +40,7 @@ function VerticalLayout:refresh()
         for _, child in ipairs(self:getComponents()) do
             child.y = child.y + y_position
             local _, height = child:getScaledSize()
-            y_position = y_position + (child.getTotalSize and ({child:getTotalSize()})[2] or height)
+            y_position = y_position + (child.getTotalSize and ({ child:getTotalSize() })[2] or height)
             y_position = y_position + gap
         end
     elseif self.align == "space-around" then
@@ -51,7 +51,7 @@ function VerticalLayout:refresh()
             y_position = y_position + gap
             child.y = child.y + y_position
             local _, height = child:getScaledSize()
-            y_position = y_position + (child.getTotalSize and ({child:getTotalSize()})[2] or height)
+            y_position = y_position + (child.getTotalSize and ({ child:getTotalSize() })[2] or height)
             y_position = y_position + gap
         end
     elseif self.align == "space-evenly" then
@@ -62,7 +62,7 @@ function VerticalLayout:refresh()
             y_position = y_position + gap
             child.y = child.y + y_position
             local _, height = child:getScaledSize()
-            y_position = y_position + (child.getTotalSize and ({child:getTotalSize()})[2] or height)
+            y_position = y_position + (child.getTotalSize and ({ child:getTotalSize() })[2] or height)
             y_position = y_position + gap
         end
     end
@@ -72,7 +72,7 @@ function VerticalLayout:calculateTotalSize()
     local y_position = 0
     for index, child in ipairs(self:getComponents()) do
         local _, height = child:getScaledSize()
-        y_position = y_position + (child.getTotalSize and ({child:getTotalSize()})[2] or height)
+        y_position = y_position + (child.getTotalSize and ({ child:getTotalSize() })[2] or height)
         if index ~= #self:getComponents() then
             y_position = y_position + self.gap
         end

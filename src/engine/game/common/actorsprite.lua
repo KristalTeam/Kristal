@@ -394,7 +394,7 @@ function ActorSprite:getOffset()
         local frames_for_dir = self.directional and Assets.getFramesFor(self:getDirectionalPath(self.full_sprite))
         offset = self.offsets[self.sprite] or (frames_for and self.offsets[frames_for]) or
             (self.directional and (self.offsets[self:getDirectionalPath(self.sprite)] or (frames_for_dir and self.offsets[frames_for_dir])))
-            or {0, 0}]]
+            or { 0, 0 }]]
     end
     return offset
 end

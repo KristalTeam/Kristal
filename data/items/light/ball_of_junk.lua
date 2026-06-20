@@ -42,9 +42,9 @@ function item:onToss()
 
         local dropped
         if Game.chapter == 1 then
-            dropped = cutscene:choicer({"No", "Yes"}) == 2
+            dropped = cutscene:choicer({ "No", "Yes" }) == 2
         else
-            dropped = cutscene:choicer({"Yes", "No"}) == 1
+            dropped = cutscene:choicer({ "Yes", "No" }) == 1
         end
 
         if dropped then

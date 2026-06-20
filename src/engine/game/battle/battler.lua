@@ -50,7 +50,7 @@ function Battler:init(x, y, width, height)
     self.sprite = nil
     self.overlay_sprite = nil
 
-    self.dialogue_offset = {0, 0}
+    self.dialogue_offset = { 0, 0 }
 
     self.dialogue_bubble = nil
 

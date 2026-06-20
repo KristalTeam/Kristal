@@ -134,7 +134,7 @@ function Textbox:init(x, y, width, height, default_font, default_font_size, batt
         reaction.layer = 0.1 + (#self.reaction_instances) * 0.01
         self:addChild(reaction)
         table.insert(self.reaction_instances, reaction)
-    end, {instant = false})
+    end, { instant = false })
 
     self.minifaces = {}
     self.miniface_path = "face/mini"
@@ -325,7 +325,7 @@ function Textbox:setText(text, callback)
     if self.actor then
         if self.actor:getVoice() then
             if type(text) ~= "table" then
-                text = {text}
+                text = { text }
             else
                 text = TableUtils.copy(text)
             end
@@ -335,7 +335,7 @@ function Textbox:setText(text, callback)
         end
         if self.actor:getFont() then
             if type(text) ~= "table" then
-                text = {text}
+                text = { text }
             else
                 text = TableUtils.copy(text)
             end
@@ -378,7 +378,7 @@ end
 function Textbox:getDebugRectangle()
     if not self.debug_rect then
         local bw, bh = self:getBorder()
-        return {-bw, -bh, self.width + bw*2, self.height + bh*2}
+        return { -bw, -bh, self.width + bw*2, self.height + bh*2 }
     end
     return super.getDebugRectangle(self)
 end

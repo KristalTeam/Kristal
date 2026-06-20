@@ -291,7 +291,7 @@ function MainMenuModList:draw()
                 end
             end
             --local control_text = Input.getText("menu") .. " " .. (self.heart_outline.visible and "Unfavorite" or "Favorite  ") .. "  " .. Input.getText("cancel") .. " Back"
-            --Draw.printShadow(control_text, 580 + (16 * 3) - self.menu_font:getWidth(control_text), 454 - 8, {1, 1, 1, 1})
+            --Draw.printShadow(control_text, 580 + (16 * 3) - self.menu_font:getWidth(control_text), 454 - 8, { 1, 1, 1, 1 })
         end
     end
 end

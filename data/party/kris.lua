@@ -27,7 +27,7 @@ function character:init()
     -- Determines which character the soul comes from (higher number = higher priority)
     self.soul_priority = 2
     -- The color of this character's soul (optional, defaults to red)
-    self.soul_color = {1, 0, 0}
+    self.soul_color = { 1, 0, 0 }
 
     -- Whether the party member can act / use spells
     self.has_act = true
@@ -100,7 +100,7 @@ function character:init()
     end
 
     -- Party members which will also get stronger when this character gets stronger, even if they're not in the party
-    self.stronger_absent = {"kris","susie","ralsei"}
+    self.stronger_absent = { "kris","susie","ralsei" }
 
     -- Weapon icon in equip menu
     self.weapon_icon = "ui/menu/equip/sword"
@@ -133,15 +133,15 @@ function character:init()
     self.lw_armor_default = "light/bandage"
 
     -- Character color (for action box outline and hp bar)
-    self.color = {0, 1, 1}
+    self.color = { 0, 1, 1 }
     -- Damage color (for the number when attacking enemies) (defaults to the main color)
-    self.dmg_color = {0.5, 1, 1}
+    self.dmg_color = { 0.5, 1, 1 }
     -- Attack bar color (for the target bar used in attack mode) (defaults to the main color)
-    self.attack_bar_color = {0, 162 / 255, 232 / 255}
+    self.attack_bar_color = { 0, 162 / 255, 232 / 255 }
     -- Attack box color (for the attack area in attack mode) (defaults to darkened main color)
-    self.attack_box_color = {0, 0, 1}
+    self.attack_box_color = { 0, 0, 1 }
     -- X-Action color (for the color of X-Action menu items) (defaults to the main color)
-    self.xact_color = {0.5, 1, 1}
+    self.xact_color = { 0.5, 1, 1 }
 
     -- Head icon in the equip / power menu
     self.menu_icon = "party/kris/head"
@@ -158,7 +158,7 @@ function character:init()
     self.attack_pitch = 1
 
     -- Battle position offset (optional)
-    self.battle_offset = {2, 1}
+    self.battle_offset = { 2, 1 }
     -- Head icon position offset (optional)
     self.head_icon_offset = nil
     -- Menu icon position offset (optional)

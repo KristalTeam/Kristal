@@ -78,7 +78,7 @@ function item:onWorldUse(target)
 end
 
 function item:onBattleUse(user, target)
-    target:heal(self.battle_heal_amount, {1, 0, 1})
+    target:heal(self.battle_heal_amount, { 1, 0, 1 })
     Assets.playSound("hurt")
 
     if target.poison_effect_timer then

@@ -54,10 +54,10 @@ end
 -- Note: returns polygon
 function Hitbox:getShapeFor(other)
     local points = {
-        {self.x, self.y},
-        {self.x+self.width, self.y},
-        {self.x+self.width, self.y+self.height},
-        {self.x, self.y+self.height}
+        { self.x, self.y },
+        { self.x+self.width, self.y },
+        { self.x+self.width, self.y+self.height },
+        { self.x, self.y+self.height }
     }
     return other:getLocalPointsWith(self, points)
 end

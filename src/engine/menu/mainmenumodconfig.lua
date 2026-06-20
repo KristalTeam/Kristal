@@ -168,7 +168,7 @@ function MainMenuModConfig:draw()
     Draw.printShadow("Back", menu_x, menu_y + (#self.options + 1) * 32, 2, "left", 640)
 
     -- Draw the scrollbar background
-    Draw.setColor({1, 1, 1, 0.5})
+    Draw.setColor({ 1, 1, 1, 0.5 })
     love.graphics.rectangle("fill", menu_x + width, 0, 4, menu_y + height - self.scroll_y)
 
     local scrollbar_height = (height / total_height) * height

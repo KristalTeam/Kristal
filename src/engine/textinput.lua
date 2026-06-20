@@ -781,7 +781,7 @@ function TextInput.draw(options)
     local font = options["font"] or love.graphics.getFont()
     local get_prefix = options["get_prefix"] or function(prefix) return "" end
     local print_func = options["print"] or love.graphics.print
-    local cursor_color = options["cursor_color"] or {0, 1, 1, 1}
+    local cursor_color = options["cursor_color"] or { 0, 1, 1, 1 }
 
     local base_off = (options["prefix_width"] or 0) + off_x
 

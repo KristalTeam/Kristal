@@ -49,7 +49,7 @@ function Dummy:init()
     self:registerAct("Smile")
     -- Register party act with Ralsei called "Tell Story"
     -- (second argument is description, usually empty)
-    self:registerAct("Tell Story", "", {"ralsei"})
+    self:registerAct("Tell Story", "", { "ralsei" })
 end
 
 function Dummy:onAct(battler, name)

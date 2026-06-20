@@ -11,10 +11,10 @@ function actor:init()
     self.height = 36
 
     -- Hitbox for this actor in the overworld (optional, uses width and height by default)
-    self.hitbox = {2, 26, 27, 10}
+    self.hitbox = { 2, 26, 27, 10 }
 
     -- Color for this actor used in outline areas (optional, defaults to red)
-    self.color = {1, 1, 0}
+    self.color = { 1, 1, 0 }
 
     -- Whether this actor flips horizontally (optional, values are "right" or "left", indicating the flip direction)
     self.flip = nil

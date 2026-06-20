@@ -24,7 +24,7 @@ return function(include, id)
         end
         o.__includes = include
     end
-    local class, super = _Class(o), setmetatable({}, {__index = function(t, k)
+    local class, super = _Class(o), setmetatable({}, { __index = function(t, k)
         if k == "super" then
             if include ~= nil then
                 include = getmetatable(include) and { include } or include
@@ -46,7 +46,7 @@ return function(include, id)
                 end
             end
         end
-    end})
+    end })
     class.id = id
     class.__super = super
     class.__includers = {}

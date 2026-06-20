@@ -22,7 +22,7 @@ function item:init(inventory)
     -- Item this item will get turned into when consumed
     self.result_item = nil
 
-    -- The items that will be given to you on inventory conversion (defaults to {"lancer", "rouxls_kaard"} when empty)
+    -- The items that will be given to you on inventory conversion (defaults to { "lancer", "rouxls_kaard" } when empty)
     self.cards = {}
 end
 
@@ -63,7 +63,7 @@ function item:onToss()
 end
 
 function item:convertToDark(inventory)
-    return #self.cards > 0 and self.cards or {"lancer", "rouxls_kaard"}
+    return #self.cards > 0 and self.cards or { "lancer", "rouxls_kaard" }
 end
 
 return item

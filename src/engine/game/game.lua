@@ -741,7 +741,7 @@ function Game:encounter(encounter, transition, enemy, context)
     if enemy and not isClass(enemy) then
         self.encounter_enemies = enemy
     else
-        self.encounter_enemies = {enemy}
+        self.encounter_enemies = { enemy }
     end
 
     self.state = "BATTLE"
@@ -921,7 +921,7 @@ end
 ---@param ... string|PartyMember
 ---@return PartyMember[]
 function Game:setPartyMembers(...)
-    local args = {...}
+    local args = { ... }
     self.party = {}
     for i,chara in ipairs(args) do
         if type(chara) == "string" then
@@ -1045,7 +1045,7 @@ function Game:addFollower(chara, index)
         chara = chara.actor.id
     end
     if index then
-        table.insert(self.temp_followers, {chara, index})
+        table.insert(self.temp_followers, { chara, index })
     else
         table.insert(self.temp_followers, chara)
     end

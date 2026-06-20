@@ -6,7 +6,7 @@ function ShadowFX:init(alpha, highlight, scale, priority)
     super.init(self, priority)
 
     self.alpha = alpha or 0.75
-    self.highlight = highlight or {0, 0, 0, 0}
+    self.highlight = highlight or { 0, 0, 0, 0 }
     self.scale = scale or 1
 
     self.shadow_offset = 0 -- for the fountain
@@ -26,9 +26,9 @@ end
 
 function ShadowFX:setHighlight(r, g, b, a)
     if not r then
-        self.highlight = {0, 0, 0, 0}
+        self.highlight = { 0, 0, 0, 0 }
     else
-        self.highlight = {r, g, b, a or 1}
+        self.highlight = { r, g, b, a or 1 }
     end
 end
 
@@ -50,7 +50,7 @@ function ShadowFX:draw(texture)
         local last_shader = love.graphics.getShader()
         local shader = Kristal.Shaders["AddColor"]
         love.graphics.setShader(shader)
-        shader:send("inputcolor", {hr, hg, hb})
+        shader:send("inputcolor", { hr, hg, hb })
         shader:send("amount", ha * alpha)
         Draw.drawCanvas(texture)
         love.graphics.setShader(last_shader)

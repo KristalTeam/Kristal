@@ -12,7 +12,7 @@ function actor:init()
     self.default = "idle"
 
     self.animations = {
-        ["idle"] = {"idle", function(sprite, wait)
+        ["idle"] = { "idle", function(sprite, wait)
             while true do
                 sprite:setFrame(1)
                 wait(2)
@@ -23,7 +23,7 @@ function actor:init()
                 sprite:setFrame(2)
                 wait(3 / 30)
             end
-        end}
+        end }
     }
 
     self.talk_sprites = {
@@ -34,8 +34,8 @@ function actor:init()
     }
 
     self.offsets = {
-        ["explaining"] = {-26, 0},
-        ["explaining_talk"] = {-26, 0}
+        ["explaining"] = { -26, 0 },
+        ["explaining_talk"] = { -26, 0 }
     }
 end
 

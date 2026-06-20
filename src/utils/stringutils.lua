@@ -225,9 +225,9 @@ function StringUtils.format(str, tbl)
     for i, v in ipairs(tbl) do
         -- Substitute numerical indexes first
         table.insert(processed, i)
-        if str:gsub("{" .. i .. "}", v) ~= str then
+        if str:gsub("{ " .. i .. "}", v) ~= str then
             -- Try substituting placeholders using the current numerical index
-            str = str:gsub("{" .. i .. "}", v)
+            str = str:gsub("{ " .. i .. "}", v)
         elseif str:gsub("{}", v, 1) ~= str then
             -- Otherwise, if empty placeholders exist,
             -- substitute the first one with the current value

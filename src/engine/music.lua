@@ -261,7 +261,7 @@ local function update()
 end
 
 local function new(music, volume, pitch)
-    local handler = setmetatable({}, {__index = Music})
+    local handler = setmetatable({}, { __index = Music })
 
     table.insert(_handlers, handler)
     handler:init()
@@ -286,4 +286,4 @@ local module = {
     lib = Music,
 }
 
-return setmetatable(module, {__call = function(t, ...) return new(...) end})
+return setmetatable(module, { __call = function(t, ...) return new(...) end })

@@ -7,7 +7,7 @@ function OutlineFX:init(color, settings, priority)
 
     settings = settings or {}
 
-    self.color = color or {1, 1, 1, 1}
+    self.color = color or { 1, 1, 1, 1 }
     self.thickness = settings["thickness"] or 1
     self.amount = settings["amount"] or 1
     self.cutout = settings["cutout"]
@@ -16,7 +16,7 @@ function OutlineFX:init(color, settings, priority)
 end
 
 function OutlineFX:setColor(r, g, b, a)
-    self.color = {r, g, b, a}
+    self.color = { r, g, b, a }
 end
 
 function OutlineFX:getColor()
@@ -51,7 +51,7 @@ function OutlineFX:draw(texture)
     local shader = Kristal.Shaders["AddColor"]
     love.graphics.setShader(shader)
 
-    shader:send("inputcolor", {self:getColor()})
+    shader:send("inputcolor", { self:getColor() })
     shader:send("amount", self.amount)
 
     -- Left

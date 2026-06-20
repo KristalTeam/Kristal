@@ -642,9 +642,9 @@ function Map:shouldLoadObject(data, layer)
     local skip_loading = false
     local uid = self:getUniqueID() .. "#" .. tostring(data.properties["uid"] or data.id)
     if data.properties["cond"] then
-        local env = setmetatable({}, {__index = function(t, k)
+        local env = setmetatable({}, { __index = function(t, k)
             return Game:getFlag(uid .. ":" .. k) or Game:getFlag(k) or _G[k]
-        end})
+        end })
         local chunk, _ = assert(loadstring("return " .. data.properties["cond"]))
         skip_loading = not setfenv(chunk, env)()
     elseif data.properties["flagcheck"] then

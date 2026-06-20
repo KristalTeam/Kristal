@@ -38,9 +38,9 @@ function MainMenuFileName:onEnter(old_state)
                 self.file_namer.name_preview.visible = false
                 self.file_namer.text:setText("")
             elseif self.file_namer.do_fadeout then
-                self.menu.fader:fadeOut{speed = 0.5, color = {0, 0, 0}}
+                self.menu.fader:fadeOut{ speed = 0.5, color = { 0, 0, 0 } }
             else
-                self.menu.fader.fade_color = {0, 0, 0}
+                self.menu.fader.fade_color = { 0, 0, 0 }
                 self.menu.fader.alpha = 1
             end
         end,

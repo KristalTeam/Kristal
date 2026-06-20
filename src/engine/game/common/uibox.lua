@@ -13,13 +13,13 @@ function UIBox:init(x, y, width, height, skin)
         self.skin = self:getWorldSkin()
     end
 
-    self.fill_color = {0,0,0}
+    self.fill_color = { 0,0,0 }
 
     self.left   = Assets.getFramesOrTexture("ui/box/" .. self.skin .. "/left")
     self.top    = Assets.getFramesOrTexture("ui/box/" .. self.skin .. "/top")
     self.corner = Assets.getFramesOrTexture("ui/box/" .. self.skin .. "/corner")
 
-    self.corners = {{0, 0}, {1, 0}, {1, 1}, {0, 1}}
+    self.corners = { { 0, 0 }, { 1, 0 }, { 1, 1 }, { 0, 1 } }
 
     self.speed = 10
 
@@ -45,7 +45,7 @@ end
 function UIBox:getDebugRectangle()
     if not self.debug_rect then
         local bw, bh = self:getBorder()
-        return {-bw, -bh, self.width + bw*2, self.height + bh*2}
+        return { -bw, -bh, self.width + bw*2, self.height + bh*2 }
     end
     return super.getDebugRectangle(self)
 end

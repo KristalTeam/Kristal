@@ -11,14 +11,14 @@ function actor:init()
     self.height = 37
 
     -- Hitbox for this actor in the overworld (optional, uses width and height by default)
-    self.hitbox = {0, 25, 19, 14}
+    self.hitbox = { 0, 25, 19, 14 }
 
     -- A table that defines where the Soul should be placed on this actor if they are a player.
     -- First value is x, second value is y.
-    self.soul_offset = {10, 24}
+    self.soul_offset = { 10, 24 }
 
     -- Color for this actor used in outline areas (optional, defaults to red)
-    self.color = {0, 1, 1}
+    self.color = { 0, 1, 1 }
 
     -- Path to this actor's sprites (defaults to "")
     self.path = "party/kris/light"
@@ -38,8 +38,8 @@ function actor:init()
     -- Table of sprite animations
     self.animations = {
         -- Cutscene animations
-        ["sit"] = {"sit", 0.25, true},
-        ["slide"] = {"slide", 0.25, true},
+        ["sit"] = { "sit", 0.25, true },
+        ["slide"] = { "slide", 0.25, true },
     }
 
     -- Tables of sprites to change into in mirrors
@@ -53,18 +53,18 @@ function actor:init()
     -- Table of sprite offsets (indexed by sprite name)
     self.offsets = {
         -- Cutscene offsets
-        ["fall"] = {-8, -2},
+        ["fall"] = { -8, -2 },
 
-        ["fallen"] = {-8, 16},
+        ["fallen"] = { -8, 16 },
 
-        ["sit"] = {-4, -8},
+        ["sit"] = { -4, -8 },
 
-        ["slide"] = {0, 0},
+        ["slide"] = { 0, 0 },
 
-        ["ghostwalk_lf"] = {-4, 3},
-        ["ghostwalk_lu"] = {-4, 3},
-        ["ghostwalk_rf"] = {-4, 3},
-        ["ghostwalk_ru"] = {-4, 3},
+        ["ghostwalk_lf"] = { -4, 3 },
+        ["ghostwalk_lu"] = { -4, 3 },
+        ["ghostwalk_rf"] = { -4, 3 },
+        ["ghostwalk_ru"] = { -4, 3 },
     }
 end
 

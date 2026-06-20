@@ -194,14 +194,14 @@ __call = function(tween, self, len, subject, target, method, after, ...)
             else
                 local ok, delta = pcall(function() return (v-ref)*1 end)
                 assert(ok, 'Field "' .. tostring(k) .. '" does not support arithmetic operations')
-                out[#out+1] = {subject, k, delta}
+                out[#out+1] = { subject, k, delta }
             end
         end
         return out
     end
 
     method = tween[method or 'linear'] -- see __index
-    local payload, t, args = tween_collect_payload(subject, target, {}), 0, {...}
+    local payload, t, args = tween_collect_payload(subject, target, {}), 0, { ... }
 
     local last_s = 0
     return self:during(len, function()
@@ -235,11 +235,11 @@ __index = function(tweens, key)
            or construct('^in%-out%-([^-]+)$', function(f) return chain(f, out(f)) end)
            or construct('^out%-in%-([^-]+)$', function(f) return chain(out(f), f) end)
            or error('Unknown interpolation method: ' .. key)
-end})
+end })
 
 -- Timer instancing
 function Timer.new()
-    return setmetatable({functions = {}, tween = Timer.tween}, Timer)
+    return setmetatable({ functions = {}, tween = Timer.tween }, Timer)
 end
 
 -- default instance
@@ -258,4 +258,4 @@ module.tween = setmetatable({}, {
     __call = function(t, ...) return default:tween(...) end,
 })
 
-return setmetatable(module, {__call = Timer.new})
+return setmetatable(module, { __call = Timer.new })

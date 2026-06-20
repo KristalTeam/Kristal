@@ -60,8 +60,8 @@ function GameOver:update()
         Assets.playSound("break2")
 
         local shard_count = 6
-        local x_position_table = {-2, 0, 2, 8, 10, 12}
-        local y_position_table = {0, 3, 6}
+        local x_position_table = { -2, 0, 2, 8, 10, 12 }
+        local y_position_table = { 0, 3, 6 }
 
         self.shards = {}
         for i = 1, shard_count do
@@ -124,7 +124,7 @@ function GameOver:update()
             if Game.died_once then
                 self.current_stage = 6
             else
-                self.dialogue = DialogueText("[speed:0.5][spacing:8][voice:none]IT APPEARS YOU\nHAVE REACHED[wait:30]\n\n   AN END.", 164, 160, {style = "GONER", line_offset = 12})
+                self.dialogue = DialogueText("[speed:0.5][spacing:8][voice:none]IT APPEARS YOU\nHAVE REACHED[wait:30]\n\n   AN END.", 164, 160, { style = "GONER", line_offset = 12 })
                 self.dialogue.skip_speed = true
                 self:addChild(self.dialogue)
                 self.current_stage = 6
@@ -197,7 +197,7 @@ function GameOver:update()
         end
     end
     if Game:getConfig("oldGameOver") and self.current_stage == 6 and Game.died_once then
-        self.dialogue = DialogueText("[speed:0.5][spacing:8][voice:none]WILL YOU PERSIST?", 104, 160, {style = "GONER", line_offset = 12})
+        self.dialogue = DialogueText("[speed:0.5][spacing:8][voice:none]WILL YOU PERSIST?", 104, 160, { style = "GONER", line_offset = 12 })
         self:addChild(self.dialogue)
         self.current_stage = 7
     end
@@ -205,13 +205,13 @@ function GameOver:update()
     if (self.current_stage == 7) then
         if not Game:getConfig("oldGameOver") then
             self.choicer = GonerChoice(160, 360, {
-                {{"CONTINUE",0,0},{"<<"},{">>"},{"GIVE UP",220,0}}
+                { { "CONTINUE",0,0 },{ "<<" },{ ">>" },{ "GIVE UP",220,0 } }
             })
             self.choicer:setSelectedOption(2, 1)
             self.choicer:setSoulPosition(140, 0)
         else
             self.choicer = GonerChoice(220, 360, {
-                {{"YES",0,0},{"<<"},{">>"},{"NO",160,0}}
+                { { "YES",0,0 },{ "<<" },{ ">>" },{ "NO",160,0 } }
             })
             self.choicer:setSelectedOption(2, 1)
             self.choicer:setSoulPosition(80, 0)
@@ -233,7 +233,7 @@ function GameOver:update()
                 if not Game:getConfig("oldGameOver") then
                     self.text:remove()
 
-                    self.dialogue = DialogueText(world_ended_text, 120, 160, {style = "GONER", line_offset = 12})
+                    self.dialogue = DialogueText(world_ended_text, 120, 160, { style = "GONER", line_offset = 12 })
                     self:addChild(self.dialogue)
                 else
                     self.dialogue:setText(world_ended_text)
@@ -271,7 +271,7 @@ function GameOver:update()
             self.current_stage = 11
             Game:loadQuick()
             if Game:isLight() then
-                Game.fader:fadeIn(nil, {alpha = 1, speed = 12 / 30, color = self.fade_white and {1, 1, 1} or {0, 0, 0}})
+                Game.fader:fadeIn(nil, { alpha = 1, speed = 12 / 30, color = self.fade_white and { 1, 1, 1 } or { 0, 0, 0 } })
             end
         end
     end

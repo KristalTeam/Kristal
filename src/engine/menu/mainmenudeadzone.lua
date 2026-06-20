@@ -14,8 +14,8 @@ function MainMenuDeadzone:init(menu)
     self.menu = menu
 
     self.state_manager = StateManager("SELECT", self, true)
-    self.state_manager:addState("SELECT", {keypressed = self.onKeyPressedSelect})
-    self.state_manager:addState("SLIDER", {keypressed = self.onKeyPressedSlider})
+    self.state_manager:addState("SELECT", { keypressed = self.onKeyPressedSelect })
+    self.state_manager:addState("SLIDER", { keypressed = self.onKeyPressedSlider })
 
     self.selected_option = 1
 end

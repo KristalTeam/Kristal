@@ -105,7 +105,7 @@ end
 ---@return number width
 function Component:getScrollbarGutter()
     if self.scrollbar then
-        return ({self.scrollbar:getTotalSize()})[1]
+        return ({ self.scrollbar:getTotalSize() })[1]
     end
     return 0
 end

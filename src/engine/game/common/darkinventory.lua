@@ -16,18 +16,18 @@ function DarkInventory:init()
     self.storage_enabled = Game.default_storage_slots > 0
 
     -- Order the storages are converted to the light world
-    self.convert_order = {"key_items", "weapons", "armors", "items", "storage"}
+    self.convert_order = { "key_items", "weapons", "armors", "items", "storage" }
 end
 
 function DarkInventory:clear()
     super.clear(self)
 
     self.storages = {
-        ["items"]     = {id = "items",     max = 12,                         sorted = true,  name = "ITEMs",       fallback = "storage"},
-        ["key_items"] = {id = "key_items", max = 12,                         sorted = true,  name = "KEY ITEMs",   fallback = nil      },
-        ["weapons"]   = {id = "weapons",   max = Game.default_equip_slots,   sorted = false, name = "WEAPONs",     fallback = nil      },
-        ["armors"]    = {id = "armors",    max = Game.default_equip_slots,   sorted = false, name = "ARMORs",      fallback = nil      },
-        ["storage"]   = {id = "storage",   max = Game.default_storage_slots, sorted = false, name = "STORAGE",     fallback = nil      },
+        ["items"]     = { id = "items",     max = 12,                         sorted = true,  name = "ITEMs",       fallback = "storage" },
+        ["key_items"] = { id = "key_items", max = 12,                         sorted = true,  name = "KEY ITEMs",   fallback = nil      },
+        ["weapons"]   = { id = "weapons",   max = Game.default_equip_slots,   sorted = false, name = "WEAPONs",     fallback = nil      },
+        ["armors"]    = { id = "armors",    max = Game.default_equip_slots,   sorted = false, name = "ARMORs",      fallback = nil      },
+        ["storage"]   = { id = "storage",   max = Game.default_storage_slots, sorted = false, name = "STORAGE",     fallback = nil      },
     }
 
     Kristal.callEvent(KRISTAL_EVENT.createDarkInventory, self)
