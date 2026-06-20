@@ -35,7 +35,7 @@ function TileButton:init(x, y, shape, properties, idle_sprite, pressed_sprite)
     self.idle_sprite = properties["sprite"] or idle_sprite or "world/events/glowtile/idle"
     self.pressed_sprite = properties["pressedsprite"] or properties["sprite"] or pressed_sprite or idle_sprite or "world/events/glowtile/pressed"
 
-    self:setSprite(self.idle_sprite, 5/30)
+    self:setSprite(self.idle_sprite, 5 / 30)
     self:setHitbox(10, 6, 20, 12)
 
     properties = properties or {}
@@ -117,9 +117,9 @@ function TileButton:onPressed()
     end
 end
 
---- Called whenever the button is released, playing its idle sprite at 6fps (`5/30` seconds speed), and playing the release sound
+--- Called whenever the button is released, playing its idle sprite at 6fps (`5 / 30` seconds speed), and playing the release sound
 function TileButton:onReleased()
-    self:setSprite(self.idle_sprite, 5/30)
+    self:setSprite(self.idle_sprite, 5 / 30)
     if self.off_sound and self.off_sound ~= "" then
         Assets.stopAndPlaySound(self.off_sound)
     end

@@ -149,7 +149,7 @@ function Textbox:init(x, y, width, height, default_font, default_font_size, batt
         end
         local x_scale = tonumber(node.arguments[4]) or 2
         local y_scale = tonumber(node.arguments[5]) or 2
-        local speed = tonumber(node.arguments[6]) or (4/30)
+        local speed = tonumber(node.arguments[6]) or (4 / 30)
         local y = self.text.state.current_y
         if (not dry) then
             local miniface = Sprite(nil, 0 + ox, y + oy)
@@ -224,7 +224,7 @@ end
 
 function Textbox:setFace(face, ox, oy)
     self.face:setSprite(face)
-    self.face:play(4/30)
+    self.face:play(4 / 30)
 
     if self.actor then
         local actor_ox, actor_oy = self.actor:getPortraitOffset()

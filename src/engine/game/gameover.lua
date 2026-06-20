@@ -72,7 +72,7 @@ function GameOver:update()
             shard.physics.direction = math.rad(MathUtils.random(360))
             shard.physics.speed = 7
             shard.physics.gravity = 0.2
-            shard:play(5/30)
+            shard:play(5 / 30)
             table.insert(self.shards, shard)
             self:addChild(shard)
         end
@@ -271,7 +271,7 @@ function GameOver:update()
             self.current_stage = 11
             Game:loadQuick()
             if Game:isLight() then
-                Game.fader:fadeIn(nil, {alpha = 1, speed = 12/30, color = self.fade_white and {1, 1, 1} or {0, 0, 0}})
+                Game.fader:fadeIn(nil, {alpha = 1, speed = 12 / 30, color = self.fade_white and {1, 1, 1} or {0, 0, 0}})
             end
         end
     end

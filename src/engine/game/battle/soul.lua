@@ -48,7 +48,7 @@
 ---@field transition_destroy    boolean     *(Used internally)* Whether the soul should be removed by an upcoming transition
 ---
 ---@field can_move          boolean         Whether the player is able to move the soul
----@field allow_focus       boolean         Whether the player is able to focus with the soul (hold Cancel key for 1/2 speed)
+---@field allow_focus       boolean         Whether the player is able to focus with the soul (hold Cancel key for 1 / 2 speed)
 ---
 ---@field target_alpha      number?         The target alpha of the soul
 ---

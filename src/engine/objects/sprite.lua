@@ -366,7 +366,7 @@ function Sprite:_basicAnimation(wait)
 end
 
 --- Starts animating the sprite's current texture
----@param speed?         number                 The speed of the animation as the number of seconds between frames (Defaults to `1/30`)
+---@param speed?         number                 The speed of the animation as the number of seconds between frames (Defaults to `1 / 30`)
 ---@param loop?          boolean                Whether the animation should loop (Defaults to `false`)
 ---@param on_finished?   fun(sprite: Sprite)    A function to run when the animation finishes
 function Sprite:play(speed, loop, on_finished)

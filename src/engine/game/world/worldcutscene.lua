@@ -298,7 +298,7 @@ end
 --- Sets the sprite of a particular character.
 ---@param chara     string|Character    The Character or character id to change the sprite of.
 ---@param sprite?   string              The name of the sprite to be set.
----@param speed?    number              The time, in seconds, between frames for the sprite, if it has multiple frames. (Defaults to 1/30)
+---@param speed?    number              The time, in seconds, between frames for the sprite, if it has multiple frames. (Defaults to 1 / 30)
 function WorldCutscene:setSprite(chara, sprite, speed)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
@@ -449,7 +449,7 @@ end
 ---@param x        number?             The amount of shake in the `x` direction. (Defaults to `4`)
 ---@param y        number?             The amount of shake in the `y` direction. (Defaults to `0`)
 ---@param friction number?             The amount that the shake should decrease by, per frame at 30FPS. (Defaults to `1`)
----@param delay    number?             The time it takes for the object to invert its shake direction, in seconds. (Defaults to `1/30`)
+---@param delay    number?             The time it takes for the object to invert its shake direction, in seconds. (Defaults to `1 / 30`)
 ---@return fun() : boolean finished A function that returns `true` once the shake value has returned to 0.
 function WorldCutscene:shakeCharacter(chara, x, y, friction, delay)
     if type(chara) == "string" then

@@ -48,47 +48,47 @@ function actor:init(style)
     -- Table of sprite animations
     self.animations = {
         -- Movement animations
-        ["slide"]               = {"slide", 4/30, true},
+        ["slide"]               = {"slide", 4 / 30, true},
 
         -- Battle animations
-        ["battle/idle"]         = {"battle/idle", 1/6, true},
+        ["battle/idle"]         = {"battle/idle", 1 / 6, true},
 
-        ["battle/attack"]       = {"battle/attack", 1/15, false},
-        ["battle/act"]          = {"battle/act", 1/15, false},
-        ["battle/spell"]        = {"battle/spell", 1/15, false, next="battle/idle"},
-        ["battle/item"]         = {"battle/item", 1/12, false, next="battle/idle"},
-        ["battle/spare"]        = {"battle/act", 1/15, false, next="battle/idle"},
+        ["battle/attack"]       = {"battle/attack", 1 / 15, false},
+        ["battle/act"]          = {"battle/act", 1 / 15, false},
+        ["battle/spell"]        = {"battle/spell", 1 / 15, false, next="battle/idle"},
+        ["battle/item"]         = {"battle/item", 1 / 12, false, next="battle/idle"},
+        ["battle/spare"]        = {"battle/act", 1 / 15, false, next="battle/idle"},
 
         ["battle/attack_ready"] = {"battle/attackready", 0.2, true},
         ["battle/act_ready"]    = {"battle/actready", 0.2, true},
         ["battle/spell_ready"]  = {"battle/spellready", 0.2, true},
         ["battle/item_ready"]   = {"battle/itemready", 0.2, true},
-        ["battle/defend_ready"] = {"battle/defend", 1/15, false},
+        ["battle/defend_ready"] = {"battle/defend", 1 / 15, false},
 
-        ["battle/act_end"]      = {"battle/actend", 1/15, false, next="battle/idle"},
+        ["battle/act_end"]      = {"battle/actend", 1 / 15, false, next="battle/idle"},
 
-        ["battle/hurt"]         = {"battle/hurt", 1/15, false, temp=true, duration=0.5},
-        ["battle/defeat"]       = {"battle/defeat", 1/15, false},
-        ["battle/swooned"]      = {"battle/swooned", 1/15, false},
+        ["battle/hurt"]         = {"battle/hurt", 1 / 15, false, temp=true, duration=0.5},
+        ["battle/defeat"]       = {"battle/defeat", 1 / 15, false},
+        ["battle/swooned"]      = {"battle/swooned", 1 / 15, false},
 
-        ["battle/transition"]   = {self.default.."/right_1", 1/15, false},
-        ["battle/intro"]        = {"battle/attack", 1/15, true},
-        ["battle/victory"]      = {"battle/victory", 1/10, false},
-        ["battle/transition_out"] = {"battle/transition_out", 1/15, false},
+        ["battle/transition"]   = {self.default.."/right_1", 1 / 15, false},
+        ["battle/intro"]        = {"battle/attack", 1 / 15, true},
+        ["battle/victory"]      = {"battle/victory", 1 / 10, false},
+        ["battle/transition_out"] = {"battle/transition_out", 1 / 15, false},
 
-        ["battle/rude_buster"]  = {"battle/rudebuster", 1/15, false, next="battle/idle"},
+        ["battle/rude_buster"]  = {"battle/rudebuster", 1 / 15, false, next="battle/idle"},
 
         -- Cutscene animations
-        ["jump_fall"]           = {"fall", 1/5, true},
-        ["jump_ball"]           = {"ball", 1/15, true},
+        ["jump_fall"]           = {"fall", 1 / 5, true},
+        ["jump_ball"]           = {"ball", 1 / 15, true},
 
-        ["diagonal_kick_right"] = {"diagonal_kick_right", 4/30, false},
-        ["diagonal_kick_left"] = {"diagonal_kick_left", 4/30, false}
+        ["diagonal_kick_right"] = {"diagonal_kick_right", 4 / 30, false},
+        ["diagonal_kick_left"] = {"diagonal_kick_left", 4 / 30, false}
     }
 
     if susie_style == 1 then
         self.animations["battle/transition"] = {"bangs_wall_right", 0, true}
-        self.animations["battle/transition_out"] = {"battle/transition_out_bangs", 1/15, false}
+        self.animations["battle/transition_out"] = {"battle/transition_out_bangs", 1 / 15, false}
     end
 
     -- Tables of sprites to change into in mirrors

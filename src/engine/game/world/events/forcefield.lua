@@ -7,7 +7,7 @@
 ---@field middle_sprite     love.Image[]
 ---@field single_sprite     love.Image[]
 ---
----@field anim_speed        number  Speed of the forcefield animation, in seconds (Defaults to `3/30`)
+---@field anim_speed        number  Speed of the forcefield animation, in seconds (Defaults to `3 / 30`)
 ---@field anim_timer        number  Internal timer for the sprite animation
 ---
 ---@field solid             boolean *[Property `solid`]* Whether the forcefield is solid (Defaults to `true`)

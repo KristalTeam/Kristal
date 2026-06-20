@@ -172,7 +172,7 @@ Timer.tween = setmetatable({
     end,
 
     bounce = function(s) -- magic numbers ahead
-        local a,b = 7.5625, 1/2.75
+        local a,b = 7.5625, 1 / 2.75
         return math.min(a*s^2, a*(s-1.5*b)^2 + .75, a*(s-2.25*b)^2 + .9375, a*(s-2.625*b)^2 + .984375)
     end,
 

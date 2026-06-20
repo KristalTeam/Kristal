@@ -9,7 +9,7 @@ function SnowglobeEffect:init(x, y, foreground)
     self.a_factor = 0
 
     --local sprite = self:addChild(Sprite("party/noelle/dark_b/battle/pray", 35, 6))
-    --sprite:play(1/30 / 0.2, true)
+    --sprite:play(1 / 30 / 0.2, true)
     --sprite:setScale(2)
 
     self.foreground = foreground

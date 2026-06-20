@@ -52,7 +52,7 @@ function spell:onCast(user, target)
         anim_finished = false
         user:setAnimation("battle/attack", finishAnim)
     end
-    Game.battle.timer:after(15/30, function()
+    Game.battle.timer:after(15 / 30, function()
         Assets.playSound("rudebuster_swing")
         local x, y = user:getRelativePos(user.width, user.height/2 - 10, Game.battle)
         local tx, ty = target:getRelativePos(target.width/2, target.height/2, Game.battle)

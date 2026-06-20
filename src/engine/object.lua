@@ -484,7 +484,7 @@ end
 ---@param x?        number   The amount of shake in the `x` direction. (Defaults to `4`)
 ---@param y?        number   The amount of shake in the `y` direction. (Defaults to `0`)
 ---@param friction? number   The amount that the shake should decrease by, per frame at 30FPS. (Defaults to `1`)
----@param delay?    number   The time it takes for the object to invert its shake direction, in seconds. (Defaults to `1/30`)
+---@param delay?    number   The time it takes for the object to invert its shake direction, in seconds. (Defaults to `1 / 30`)
 function Object:shake(x, y, friction, delay)
     self.graphics.shake_x = x or 4
     self.graphics.shake_y = y or 0

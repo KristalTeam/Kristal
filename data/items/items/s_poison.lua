@@ -86,7 +86,7 @@ function item:onBattleUse(user, target)
     end
 
     local poison_left = self.battle_poison_amount
-    target.poison_effect_timer = Game.battle.timer:every(10/30, function()
+    target.poison_effect_timer = Game.battle.timer:every(10 / 30, function()
         if poison_left == 0 then
             return false
         end

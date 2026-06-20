@@ -858,7 +858,7 @@ end
 --- Creates a reaction text on a party member's healthbar (usually used for equipment and items)
 ---@param party_member  string|PartyMember  The party member who will react
 ---@param text          string              The text to display for the reaction
----@param display_time? number              The display time, in seconds, of the reaction (defaults to 5/3 seconds)
+---@param display_time? number              The display time, in seconds, of the reaction (defaults to 5 / 3 seconds)
 function World:partyReact(party_member, text, display_time)
     local action_box = self:getActionBox(party_member)
     if action_box then

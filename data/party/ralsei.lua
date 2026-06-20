@@ -134,7 +134,7 @@ function character:init()
     -- Damage color (for the number when attacking enemies) (defaults to the main color)
     self.dmg_color = {0.5, 1, 0.5}
     -- Attack bar color (for the target bar used in attack mode) (defaults to the main color)
-    self.attack_bar_color = {181/255, 230/255, 29/255}
+    self.attack_bar_color = {181 / 255, 230 / 255, 29 / 255}
     -- Attack box color (for the attack area in attack mode) (defaults to darkened main color)
     self.attack_box_color = {0, 0.5, 0}
     -- X-Action color (for the color of X-Action menu items) (defaults to the main color)

@@ -17,11 +17,11 @@ function actor:init()
                 sprite:setFrame(1)
                 wait(2)
                 sprite:setFrame(2)
-                wait(3/30)
+                wait(3 / 30)
                 sprite:setFrame(3)
-                wait(3/30)
+                wait(3 / 30)
                 sprite:setFrame(2)
-                wait(3/30)
+                wait(3 / 30)
             end
         end}
     }

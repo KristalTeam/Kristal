@@ -63,7 +63,7 @@ function Event:init(x, y, width, height)
     -- Sprite object, gets set by setSprite()
     self.sprite = nil
 
-    -- Duration that the player cannot interact with any event after interacting with this one, in seconds (defaults to `5/30`)
+    -- Duration that the player cannot interact with any event after interacting with this one, in seconds (defaults to `5 / 30`)
     self.interact_buffer = (5 / 30)
 end
 
@@ -221,7 +221,7 @@ end
 ---@param x?        number   The amount of shake in the `x` direction. (Defaults to `4`)
 ---@param y?        number   The amount of shake in the `y` direction. (Defaults to `0`)
 ---@param friction? number   The amount that the shake should decrease by, per frame at 30FPS. (Defaults to `1`)
----@param delay?    number   The time it takes for the object to invert its shake direction, in seconds. (Defaults to `1/30`)
+---@param delay?    number   The time it takes for the object to invert its shake direction, in seconds. (Defaults to `1 / 30`)
 function Event:shakeSelf(x, y, friction, delay)
     super.shake(self, x, y, friction, delay)
 end
@@ -235,7 +235,7 @@ end
 ---@param x?        number   The amount of shake in the `x` direction. (Defaults to `4`)
 ---@param y?        number   The amount of shake in the `y` direction. (Defaults to `0`)
 ---@param friction? number   The amount that the shake should decrease by, per frame at 30FPS. (Defaults to `1`)
----@param delay?    number   The time it takes for the object to invert its shake direction, in seconds. (Defaults to `1/30`)
+---@param delay?    number   The time it takes for the object to invert its shake direction, in seconds. (Defaults to `1 / 30`)
 function Event:shake(x, y, friction, delay)
     if self.sprite then
         self.sprite:shake(x, y, friction, delay)

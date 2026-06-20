@@ -43,7 +43,7 @@ end
 ---@param callback? fun(music:Music)
 function Music:fade(to, speed, callback)
     self.target_volume = to or 0
-    self.fade_speed = speed or (10/30)
+    self.fade_speed = speed or (10 / 30)
     self.fade_callback = callback
 end
 

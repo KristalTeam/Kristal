@@ -84,7 +84,7 @@ function WarpDoor:onInteract(chara, facing)
                     self.sprite:setFrame(2)
                     self.light:remove()
                     cutscene:text("* (The door opened...)")
-                    cutscene:wait(0.2) -- 6/30
+                    cutscene:wait(0.2) -- 6 / 30
                     Assets.stopAllSounds()
                     Assets.playSound("doorclose")
                     Game.world.music:stop()

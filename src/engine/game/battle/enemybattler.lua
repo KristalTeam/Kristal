@@ -149,7 +149,7 @@ function EnemyBattler:init(actor, use_overlay)
     self.temporary_mercy = 0
     self.temporary_mercy_percent = nil
 
-    self.graze_tension = 1.6 -- (1/10 of a defend, or cheap spell)
+    self.graze_tension = 1.6 -- (1 / 10 of a defend, or cheap spell)
 end
 
 --- *(Override)* Get what this enemy's HP should display in the enemy select menu.
