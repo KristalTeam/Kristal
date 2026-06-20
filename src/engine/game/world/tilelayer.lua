@@ -125,18 +125,19 @@ function TileLayer:regenerateTiles()
 end
 
 function TileLayer:draw()
-    local r, g, b, a = self:getDrawColor()
     if not self.drawn then
         self:regenerateTiles()
     end
 
-    local grid_w, grid_h = self.map.tile_width, self.map.tile_height
+    local r, g, b, a = self:getDrawColor()
+    Draw.setColor(r, g, b, a * self.tile_opacity)
 
     for _,batch in ipairs(self.sprite_batches) do
         love.graphics.draw(batch)
     end
 
-    Draw.setColor(r, g, b, a * self.tile_opacity)
+    local grid_w, grid_h = self.map.tile_width, self.map.tile_height
+
     for _, tile in ipairs(self.unbatched_tiles) do
         tile.tileset:drawGridTile(tile.id, tile.x, tile.y, grid_w, grid_h, tile.flip_x, tile.flip_y, tile.flip_diag)
     end
