@@ -22,27 +22,24 @@ function PlayerClimbState:registerEvents()
     self:registerEvent("update", self.onUpdate)
     self:registerEvent("leave", self.onExit)
     self:registerEvent("remove", self.onRemove)
+    self:registerEvent("removeFromStage", self.onRemove)
     self:registerEvent("drawUnderPlayer", self.drawUnderPlayer)
     self:registerEvent("drawOverPlayer", self.drawOverPlayer)
     self:registerEvent("preDraw", self.preDraw)
     self:registerEvent("postDraw", self.postDraw)
     self:registerEvent("drawDebug", self.drawDebug)
-    self:registerEvent("getDrawInfo", self.getDrawInfo)
+    self:registerEvent("getDebugInfo", self.getDebugInfo)
 end
 
 -------------------------------------------------------------------------------
 -- Callbacks
 -------------------------------------------------------------------------------
 
-function PlayerClimbState:getDrawInfo(info)
+function PlayerClimbState:getDebugInfo(info)
     table.insert(info, "Force climb: " .. (self.player.force_climb and "True" or "False"))
     table.insert(info, "Can jump: " .. (self.can_jump and "True" or "False"))
     table.insert(info, string.format("Direction: %s, (%s, %s)", self.direction, self.climbing_x_dir, self.climbing_y_dir))
     table.insert(info, "Momentum: " .. self.momentum)
-end
-
-function PlayerClimbState:onRemove()
-    self.charge_sound:stop()
 end
 
 function PlayerClimbState:onEnter(old_state, settings)
@@ -201,11 +198,11 @@ end
 ---@param obj Object The class of object to check for overlap with.
 ---@return boolean is_overlapping
 function PlayerClimbState:isOverlappingInstance(obj)
-    local obj_left, obj_top = obj:localToScreenPos(0, 0)
-    local obj_right, obj_bottom = obj:localToScreenPos(obj.width, obj.height)
+    local obj_left, obj_top = obj:getRelativePos(0, 0, Game.world)
+    local obj_right, obj_bottom = obj:getRelativePos(obj.width, obj.height, Game.world)
 
-    local player_left, player_top = self.player:localToScreenPos(0, 0)
-    local player_right, player_bottom = self.player:localToScreenPos(self.player.width, self.player.height)
+    local player_left, player_top = self.player:getRelativePos(0, 0, Game.world)
+    local player_right, player_bottom = self.player:getRelativePos(self.player.width, self.player.height, Game.world)
 
     return player_right > obj_left and player_left < obj_right and player_bottom > obj_top and player_top < obj_bottom
 end

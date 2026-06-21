@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.11" tiledversion="1.12.1" orientation="orthogonal" renderorder="right-down" width="20" height="12" tilewidth="40" tileheight="40" infinite="0" nextlayerid="9" nextobjectid="91">
+ <editorsettings>
+  <export target="postclimb.lua" format="lua"/>
+ </editorsettings>
+ <properties>
+  <property name="name" value="Test Map - Climbing"/>
+ </properties>
+ <tileset firstgid="1" source="../tilesets/castle.tsx"/>
+ <layer id="1" name="tiles" width="20" height="12">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,32,29,34,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,32,29,34,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,32,29,34,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,32,29,34,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,32,29,34,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,32,29,34,0,0,0,0,
+0,0,0,0,0,0,0,0,8,9,10,0,0,32,29,34,0,0,0,0,
+0,0,0,0,0,0,0,0,14,15,16,0,0,38,35,40,0,0,0,0,
+0,0,0,8,9,9,9,9,15,15,15,9,9,9,41,9,10,0,0,0,
+0,0,0,20,21,21,21,21,21,21,21,21,21,21,21,21,22,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <objectgroup color="#0000ff" id="3" name="collision" opacity="0.5">
+  <object id="77" x="600" y="280" width="80" height="40"/>
+  <object id="79" x="680" y="320" width="40" height="80"/>
+  <object id="80" x="120" y="400" width="560" height="40"/>
+  <object id="82" x="440" y="240" width="40" height="80"/>
+  <object id="83" x="320" y="200" width="120" height="40"/>
+  <object id="84" x="120" y="280" width="160" height="40"/>
+  <object id="85" x="480" y="280" width="80" height="40"/>
+  <object id="86" x="280" y="240" width="40" height="80"/>
+  <object id="89" x="80" y="320" width="40" height="80"/>
+ </objectgroup>
+ <objectgroup color="#00ffff" id="7" name="climbing" class="objects"/>
+ <objectgroup color="#7f00ff" id="4" name="markers">
+  <object id="73" name="slide" x="580" y="60">
+   <properties>
+    <property name="player_state" value="SLIDE"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="74" name="spawn" x="380" y="380">
+   <point/>
+  </object>
+ </objectgroup>
+ <objectgroup color="#ff00ff" id="5" name="objects">
+  <object id="72" name="slidearea" x="560" y="0" width="40" height="320">
+   <properties>
+    <property name="lock" type="bool" value="true"/>
+   </properties>
+  </object>
+  <object id="90" name="chest" x="360" y="250" width="40" height="40">
+   <properties>
+    <property name="item" value="cheesekey"/>
+   </properties>
+  </object>
+ </objectgroup>
+</map>

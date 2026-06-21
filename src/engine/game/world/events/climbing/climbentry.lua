@@ -64,9 +64,10 @@ function ClimbEntry:onLoad()
 end
 
 function ClimbEntry:onInteract(player, dir)
-    local x_screen, y_screen = self.target:localToScreenPos(self.target:getRelativeJumpTarget())
+    local x, y = self.target:getRelativeJumpTarget()
+    local world_x, world_y = self.target:getRelativePos(x, y, Game.world)
 
-    local target_x, target_y = player.parent:screenToLocalPos(x_screen, y_screen)
+    local target_x, target_y = Game.world:getRelativePos(world_x, world_y, player.parent)
 
     local exit_direction = self.target:getExitDirection()
     local facing_direction = nil

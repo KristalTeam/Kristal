@@ -15,7 +15,7 @@ function Player:init(chara, x, y)
 
     self.state_manager = StateManager("WALK", self, true)
     self.state_manager:addState("WALK", { update = self.updateWalk, drawDebug = self.drawDebug })
-    self.state_manager:addState("SLIDE", { update = self.updateSlide, enter = self.beginSlide, leave = self.endSlide, remove = self.cleanupSlide })
+    self.state_manager:addState("SLIDE", { update = self.updateSlide, enter = self.beginSlide, leave = self.endSlide })
     self.state_manager:addState("CLIMB_MOUNT", { postJump = self.postJumpClimbMount, enter = self.beginClimbMount })
     self.state_manager:addState("CLIMB", self.climb_state)
     self.state_manager:addState("CLIMB_DISMOUNT", { update = self.updateClimbDismount, enter = self.beginClimbDismount, leave = self.endClimbDismount })
@@ -168,7 +168,9 @@ end
 function Player:onRemove(parent)
     super.onRemove(self, parent)
 
-    self.state_manager:call("remove")
+    -- TODO: For some reason, we can't call state manager in here
+    self.slide_sound:stop()
+    self.climb_state.charge_sound:stop()
 
     if parent:includes(World) and parent.player == self then
         parent.player = nil
@@ -440,10 +442,6 @@ function Player:endSlide(next_state)
         self.sprite:resetSprite()
     end
     self.auto_moving = false
-end
-
-function Player:cleanupSlide()
-    self.slide_sound:stop()
 end
 
 function Player:cancelFollowerTweens()

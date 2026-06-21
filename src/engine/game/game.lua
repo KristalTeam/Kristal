@@ -219,7 +219,7 @@ function Game:registerBuiltInEvents()
 
     registry:register("fallingclimbarea", function(data)
         return FallingClimbArea(data.x, data.y, getRectData(data), {
-            only_break_upwards = data.properties.only_break_upwards,
+            dont_break = data.properties.dont_break,
             breaks_on_leave = data.properties.breaks_on_leave,
             fall_time = data.properties.fall_time,
             timed = data.properties.timed,

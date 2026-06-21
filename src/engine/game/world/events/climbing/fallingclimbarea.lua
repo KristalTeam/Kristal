@@ -1,6 +1,6 @@
 --- The settings for a FallingClimbArea.
 ---@class FallingClimbAreaSettings
----@field only_break_upwards boolean? If true, the area will only break if the player leaves it from the top. Defaults to false.
+---@field dont_break FacingDirection? If this is set, the area will not break in the specified direction.
 ---@field breaks_on_leave boolean? If true, leaving this area will cause it to fall. Defaults to true.
 ---@field fall_time number? If "timed" is true, this is the amount of time it takes for this area to fall, in frames. Defaults to 60 frames (2 seconds).
 ---@field timed boolean? If this is true, this area will fall after a set amount of time, starting once the player is on it. Defaults to false.
@@ -24,7 +24,7 @@ function FallingClimbArea:init(x, y, shape, settings)
     shape = shape or { TILE_WIDTH, TILE_HEIGHT }
     super.init(self, x, y, shape)
 
-    self.only_break_upwards = settings.only_break_upwards or false
+    self.dont_break = settings.dont_break
     self.breaks_on_leave = settings.breaks_on_leave ~= false
     self.fall_time = settings.fall_time or 60
     self.timed = settings.timed or false
@@ -77,7 +77,19 @@ function FallingClimbArea:update()
 
     if self.breaks_on_leave then
         if target ~= nil and (not target.climb_state:isOverlappingInstance(self)) then
-            if (not self.only_break_upwards) or target.y < self.y then
+            if self.dont_break == nil then
+                self.state = 2
+                should_destroy = true
+            elseif (self.dont_break == "down") and target.y < self.y then
+                self.state = 2
+                should_destroy = true
+            elseif (self.dont_break == "up") and target.y >= self.y + (self.height / 2) then
+                self.state = 2
+                should_destroy = true
+            elseif (self.dont_break == "left") and target.x >= self.x + (self.width / 2) then
+                self.state = 2
+                should_destroy = true
+            elseif (self.dont_break == "right") and target.x < self.x then
                 self.state = 2
                 should_destroy = true
             else

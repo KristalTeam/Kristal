@@ -102,7 +102,10 @@ function ClimbMover:onCollide(char)
                     self.state = "MOVING"
                 end
             else
-                local target_x, target_y = char.parent:screenToLocalPos(self:localToScreenPos(self.width / 2, self.height / 2))
+                local world_x, world_y = self:getRelativePos(self.width / 2, self.height / 2, Game.world)
+
+                local target_x, target_y = Game.world:getRelativePos(world_x, world_y, char.parent)
+
                 char:setState("CLIMB_MOUNT", {
                     target_x = target_x,
                     target_y = target_y,
