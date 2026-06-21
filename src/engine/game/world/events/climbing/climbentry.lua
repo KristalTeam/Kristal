@@ -1,9 +1,9 @@
----@alias ClimbEntryTarget string|integer|TiledObjectRef|ClimbExit
+---@alias ClimbExitRef KristalObjectRef|ClimbExit
 
 --- The settings for a ClimbEntry.
 ---@class ClimbEntrySettings
 ---@field solid boolean?
----@field target ClimbEntryTarget?
+---@field target ClimbExitRef?
 
 --- A ClimbEntry allows the player to begin climbing on climbable areas.
 ---
@@ -11,8 +11,8 @@
 ---
 ---@class ClimbEntry : Event
 ---
----@field target_identifier ClimbEntryTarget? The identifier of the target event that this ClimbEntry leads to.
----@field target ClimbExit? The target object that this ClimbEntry leads to.
+---@field target_identifier ClimbExitRef? The identifier of the ClimbExit that this ClimbEntry leads to.
+---@field target ClimbExit? The target ClimbExit that this ClimbEntry leads to.
 ---
 ---@overload fun(...) : ClimbEntry
 local ClimbEntry, super = Class(Event)
@@ -63,17 +63,29 @@ function ClimbEntry:onLoad()
     end
 end
 
-function ClimbEntry:getDebugInfo()
-    local info = super.getDebugInfo(self)
-    return info
-end
-
 function ClimbEntry:onInteract(player, dir)
     local x_screen, y_screen = self.target:localToScreenPos(self.target:getRelativeJumpTarget())
 
     local target_x, target_y = player.parent:screenToLocalPos(x_screen, y_screen)
 
-    player:setState("CLIMB_MOUNT", target_x, target_y, self.target:getExitDirection())
+    local exit_direction = self.target:getExitDirection()
+    local facing_direction = nil
+
+    if exit_direction == "up" then
+        facing_direction = "down"
+    elseif exit_direction == "down" then
+        facing_direction = "up"
+    elseif exit_direction == "left" then
+        facing_direction = "right"
+    elseif exit_direction == "right" then
+        facing_direction = "left"
+    end
+
+    player:setState("CLIMB_MOUNT", {
+        target_x = target_x,
+        target_y = target_y,
+        facing_direction = facing_direction
+    })
 
     return true
 end

@@ -133,7 +133,7 @@ function Map:addFlag(flag, amount)
 end
 
 --- Gets a specific marker from the current map.
----@param id string|integer|TiledObjectRef The name of the marker to search for, the unique numerical ID, or a Tiled object reference.
+---@param id KristalObjectRef The name of the marker to search for, the unique numerical ID, or a Tiled object reference.
 ---@return number x The x-coordinate of the marker's center (or the center of the map if it doesn't exist).
 ---@return number y The y-coordinate of the marker's center (or the center of the map if it doesn't exist).
 ---@return Marker? marker The full marker data.

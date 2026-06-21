@@ -1081,7 +1081,6 @@ function World:loadMap(...)
         self.player:onMapLoad()
     end
 
-
     for _, event in ipairs(self.map.events) do
         if event.postLoad then
             event:postLoad()

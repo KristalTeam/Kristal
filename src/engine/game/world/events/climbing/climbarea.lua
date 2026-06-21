@@ -1,6 +1,8 @@
 --- A ClimbArea is an area the player can climb on.
 ---
---- This requires a [`ClimbEntry`](lua://ClimbEntry) to enter, and a [`ClimbExit`](lua://ClimbExit) to exit.
+--- To enter one, you must either use a [`ClimbEntry`](lua://ClimbEntry), or enter the room at a marker with "player_state" set to "CLIMB".
+---
+--- To exit one, you must use a [`ClimbExit`](lua://ClimbExit).
 ---
 --- `ClimbArea` is an [`Event`](lua://Event.init) - naming an object `climbarea` on an `objects` layer in a map creates this object.
 ---
@@ -24,10 +26,12 @@ end
 function ClimbArea:onClimbMove(player)
 end
 
+--- Whether or not this area can be climbed on.
 function ClimbArea:isClimbable()
     return self.climbable
 end
 
+--- Sets whether or not this area can be climbed on.
 function ClimbArea:setClimbable(climbable)
     self.climbable = climbable
 end

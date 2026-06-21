@@ -1,10 +1,6 @@
----@alias ClimbTargetPosition [number, number]
-
----@alias ClimbExitTarget string|integer|ClimbTargetPosition|Marker|TiledObjectRef
-
 --- The settings for a ClimbExit.
 ---@class ClimbExitSettings
----@field target ClimbExitTarget?
+---@field target MarkerRef?
 ---@field direction "up"|"down"|"left"|"right"?
 ---@field can_exit boolean? If false, the player will not be able to exit through this ClimbExit. Defaults to true.
 
@@ -14,7 +10,7 @@
 ---
 ---@class ClimbExit : Event
 ---
----@field target_identifier ClimbEntryTarget The identifier of the target event that this ClimbEntry leads to.
+---@field target MarkerRef The identifier of the target event that this ClimbExit leads to.
 ---@field target_x number? The x position that the player will jump to.
 ---@field target_y number? The y position that the player will jump to.
 ---
@@ -30,7 +26,7 @@ function ClimbExit:init(x, y, shape, settings)
     shape = shape or { TILE_WIDTH, TILE_HEIGHT }
     super.init(self, x, y, shape)
 
-    self.target_identifier = settings.target
+    self.target = settings.target
 
     self.target_x = nil
     self.target_y = nil
@@ -40,7 +36,7 @@ function ClimbExit:init(x, y, shape, settings)
     self.exit = settings.direction
     self.auto_exit = nil
 
-    if self.can_exit and self.target_identifier == nil then
+    if self.can_exit and self.target == nil then
         error(string.format("ClimbExit at (%d, %d) requires a target, found none", self.x, self.y))
     end
 end
@@ -103,45 +99,7 @@ function ClimbExit:onLoad()
         return
     end
 
-    local target = self.target_identifier
-
-    if type(target) == "table" then
-        ---@cast target ClimbTargetPosition|Marker|TiledObjectRef
-        if target.center_x ~= nil and target.center_y ~= nil then
-            -- This is marker data.
-            self.target_x = target.center_x
-            self.target_y = target.center_y
-            self:calculateAutoExit()
-            return
-        elseif target.id ~= nil then
-            -- This is a Tiled object reference.
-            ---@cast target TiledObjectRef
-            if not Game.world.map:hasMarker(target) then
-                error(string.format("ClimbExit at (%d, %d) has invalid target", self.x, self.y))
-            end
-
-            self.target_x, self.target_y = Game.world.map:getMarker(target)
-            self:calculateAutoExit()
-            return
-        elseif target[1] ~= nil and target[2] ~= nil then
-            -- This is a position table.
-            self.target_x = target[1]
-            self.target_y = target[2]
-            self:calculateAutoExit()
-            return
-        else
-            error(string.format("ClimbExit at (%d, %d) has invalid target", self.x, self.y))
-        end
-    end
-
-    -- Not a table, could be a string or a number (a marker reference)
-
-    if not Game.world.map:hasMarker(target) then
-        error(string.format("ClimbExit at (%d, %d) has invalid target", self.x, self.y))
-    end
-
-    self.target_x, self.target_y = Game.world.map:getMarker(target)
-
+    self.target_x, self.target_y, _ = TiledUtils.parseMarkerProperty(self, self.target, "target")
     self:calculateAutoExit()
 end
 

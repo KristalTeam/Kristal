@@ -2,6 +2,53 @@
 local TiledUtils = {}
 
 ---
+--- Converts a "marker input" to a set of coordinates.
+---
+--- This can either take a tiled object reference, a string, marker data itself (which'll get returned untouched) or a user-made position table.
+---
+--- NOTE: Don't put this in your event's `init`! Markers aren't guaranteed to be loaded at that point. Use `onLoad` instead.
+---
+--- This will error if no marker exists.
+---
+---@param obj Object # The object calling this function. Most of the time, you should just enter `self`.
+---@param target MarkerRef The marker input.
+---@param name string # The name of the property being parsed, used for error messages.
+---@return number x
+---@return number x
+---@return Marker? data
+function TiledUtils.parseMarkerProperty(obj, target, name)
+    if type(target) == "table" then
+        ---@cast target Position|Marker|TiledObjectRef
+        if target.center_x ~= nil and target.center_y ~= nil then
+            -- This is marker data.
+            return target.center_x, target.center_y, target
+        elseif target.id ~= nil then
+            -- This is a Tiled object reference.
+            ---@cast target TiledObjectRef
+
+            if not Game.world.map:hasMarker(target) then
+                error(string.format("%s at (%d, %d) has invalid position property \"%s\"", ClassUtils.getClassName(obj), obj.x, obj.y, name))
+            end
+
+            return Game.world.map:getMarker(target)
+        elseif target[1] ~= nil and target[2] ~= nil then
+            -- This is a position table.
+            return target[1], target[2], nil
+        else
+            error(string.format("%s at (%d, %d) has invalid position property \"%s\"", ClassUtils.getClassName(obj), obj.x, obj.y, name))
+        end
+    end
+
+    -- Not a table, could be a string or a number (a marker reference)
+
+    if not Game.world.map:hasMarker(target) then
+        error(string.format("%s at (%d, %d) has invalid position property \"%s\"", ClassUtils.getClassName(obj), obj.x, obj.y, name))
+    end
+
+    return Game.world.map:getMarker(target)
+end
+
+---
 --- Converts a Tiled color property to an RGBA color table.
 ---
 ---@param property string # The property string to convert.
@@ -19,7 +66,8 @@ function TiledUtils.parseColorProperty(property)
 end
 
 ---
---- Returns a table with values based on Tiled properties. \
+--- Returns a table with values based on Tiled properties.
+---
 --- The function will check for a series of numbered properties starting with the specified `id` string, eg. `"id1"`, followed by `"id2"`, etc.
 ---
 ---@param id string        # The name the series of properties should all start with.

@@ -73,6 +73,11 @@ end
 
 function Transition:onEnter(chara)
     if chara.is_player then
+        if chara:isClimbing() then
+            -- TODO: this is some kludge to update the normal direction with the climb direction. maybe find a better way
+            chara:setFacing(chara.climb_state.direction)
+        end
+
         local x, y = self.target.x, self.target.y
         local facing = self.target.facing
         local marker = self.target.marker

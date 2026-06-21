@@ -1,3 +1,6 @@
+---@class ClimbStateSettings
+---@field starting_direction FacingDirection? The direction the player will face when they start climbing.
+
 ---@class PlayerClimbState : StateClass
 ---
 ---@field player Player
@@ -12,9 +15,6 @@ function PlayerClimbState:init(player)
     self.charge_sound:setLooping(true)
 
     self.hurtbox = Hitbox(player, 3, 3, 14, 14)
-
-    self.climbing_x_dir = 0
-    self.climbing_y_dir = -1
 end
 
 function PlayerClimbState:registerEvents()
@@ -27,17 +27,27 @@ function PlayerClimbState:registerEvents()
     self:registerEvent("preDraw", self.preDraw)
     self:registerEvent("postDraw", self.postDraw)
     self:registerEvent("drawDebug", self.drawDebug)
+    self:registerEvent("getDrawInfo", self.getDrawInfo)
 end
 
 -------------------------------------------------------------------------------
 -- Callbacks
 -------------------------------------------------------------------------------
 
+function PlayerClimbState:getDrawInfo(info)
+    table.insert(info, "Force climb: " .. (self.player.force_climb and "True" or "False"))
+    table.insert(info, "Can jump: " .. (self.can_jump and "True" or "False"))
+    table.insert(info, string.format("Direction: %s, (%s, %s)", self.direction, self.climbing_x_dir, self.climbing_y_dir))
+    table.insert(info, "Momentum: " .. self.momentum)
+end
+
 function PlayerClimbState:onRemove()
     self.charge_sound:stop()
 end
 
-function PlayerClimbState:onEnter(old_state)
+function PlayerClimbState:onEnter(old_state, settings)
+    settings = settings or {}
+
     self:resetClimbState()
 
     self.player.sprite:setSprite("climb/climbing")
@@ -54,6 +64,35 @@ function PlayerClimbState:onEnter(old_state)
             table.insert(self.player.follower_tweens, Game.world.timer:tween(7 / 30, follower, { alpha = 0 }))
         end
     end
+
+    if settings.starting_direction ~= nil then
+        self:setDirection(settings.starting_direction)
+    end
+end
+
+--- *(Called internally)* Sets the climbing direction, used for determining the "default" direction the player will charge a jump to.
+---
+---@param direction FacingDirection
+function PlayerClimbState:setDirection(direction)
+    self.climbing_x_dir = 0
+    self.climbing_y_dir = 0
+
+    if direction == "up" then
+        self.climbing_y_dir = -1
+    elseif direction == "left" then
+        self.climbing_x_dir = -1
+    elseif direction == "right" then
+        self.climbing_x_dir = 1
+    elseif direction == "down" then
+        self.climbing_y_dir = 1
+    end
+end
+
+--- Returns whether or not the player can move normally -- this means they can start charging a jump, or they can move in the direction they're holding.
+---
+---@return boolean can_move
+function PlayerClimbState:isIdle()
+    return self.neutral_state == 1
 end
 
 function PlayerClimbState:resetClimbState()
@@ -139,8 +178,12 @@ function PlayerClimbState:resetClimbState()
     self.climb_exit_settings = {}
 
     self.timer = 0
+
+    self.climbing_x_dir = 0
+    self.climbing_y_dir = -1
 end
 
+---@param settings ClimbDismountSettings
 function PlayerClimbState:queueExit(settings)
     self.exit_queued = true
     self.exit_settings = settings
@@ -805,8 +848,8 @@ function PlayerClimbState:updateClimbGrabEnd()
 
     if self.grab_timer >= initwait then
         local progress = (self.grab_timer / waittime) - (initwait / waittime)
-        self.player.y = Utils.ease(self.grab_start_y, self.climb_grab_y, progress, "inOutCubic")
-        self.player.x = Utils.ease(self.grab_start_x, self.climb_grab_x, progress, "inOutCubic")
+        self.player.y = Utils.ease(self.grab_start_y, self.climb_grab_y, progress, "inOutQuart")
+        self.player.x = Utils.ease(self.grab_start_x, self.climb_grab_x, progress, "inOutQuart")
     end
 
     if self.grab_timer >= (initwait + waittime) then
@@ -938,13 +981,13 @@ function PlayerClimbState:handleClimbIdle()
     end
 end
 
---- *(Called internally)* Checks if exiting the climb is queued up, and if so, sets the player's state to "CLIMB_EXIT" with the appropriate settings.
+--- *(Called internally)* Checks if exiting the climb is queued up, and if so, sets the player's state to "CLIMB_DISMOUNT" with the appropriate settings.
 ---
 --- This should not be called by user code.
 ---@private
 function PlayerClimbState:checkClimbExiting()
     if self.exit_queued then
-        self.player:setState("CLIMB_EXIT", self.exit_settings)
+        self.player:setState("CLIMB_DISMOUNT", self.exit_settings)
     end
 end
 
@@ -1155,8 +1198,8 @@ function PlayerClimbState:updateClimbMove()
             self.timer = climbrate
         end
 
-        new_x = Utils.ease(self.last_x, self.last_x + self.climbing_x_dir, self.timer / climbrate, "inOutCubic")
-        new_y = Utils.ease(self.last_y, self.last_y + self.climbing_y_dir, self.timer / climbrate, "inOutCubic")
+        new_x = Utils.ease(self.last_x, self.last_x + self.climbing_x_dir, self.timer / climbrate, "inOutQuad")
+        new_y = Utils.ease(self.last_y, self.last_y + self.climbing_y_dir, self.timer / climbrate, "inOutQuad")
         self.player.sprite:setFrame(self.climb_frame)
 
         if math.abs(new_x - self.last_x) > 3 or math.abs(new_y - self.last_y) > 3 then
@@ -1367,13 +1410,15 @@ function PlayerClimbState:onUpdate()
     self:checkClimbBullets()
     self:checkClimbCollisions()
 
+    -- Check if we're still in a climb area (Kristal-specific)
+    self:checkClimbAreaExists()
+
     -- Falling
     self:handleClimbFall()
     self:handleClimbGrab()
     self:handleClimbRecover()
 
-    -- Normal climbing
-    self:checkClimbAreaExists()
+    -- Idle movement (also handles starting certain actions)
     self:handleClimbIdle()
 
     -- Exiting a climb
@@ -1415,7 +1460,7 @@ function PlayerClimbState:onExit(next_state)
 
     Game.world:setCameraAttached(true, true)
 
-    if next_state ~= "CLIMB_EXIT" then
+    if next_state ~= "CLIMB_DISMOUNT" then
         self.player:cancelFollowerTweens()
         local blend_time = self.player.climb_exit_landing and 12 or 8
 

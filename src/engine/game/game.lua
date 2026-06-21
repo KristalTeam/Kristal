@@ -202,7 +202,7 @@ function Game:registerBuiltInEvents()
     registry:register("climbentry", function(data)
         return ClimbEntry(data.x, data.y, getRectData(data), {
             target = data.properties.target,
-            solid = data.properties.solid,
+            solid = data.properties.solid
         })
     end)
 
@@ -210,7 +210,7 @@ function Game:registerBuiltInEvents()
         return ClimbExit(data.x, data.y, getRectData(data), {
             target = data.properties.target,
             direction = data.properties.direction,
-            can_exit = data.properties.can_exit,
+            can_exit = data.properties.can_exit
         })
     end)
 
@@ -223,11 +223,20 @@ function Game:registerBuiltInEvents()
             breaks_on_leave = data.properties.breaks_on_leave,
             fall_time = data.properties.fall_time,
             timed = data.properties.timed,
-            no_unsafe_area = data.properties.no_unsafe_area,
+            no_unsafe_area = data.properties.no_unsafe_area
         })
     end)
 
     registry:register("climbunsafe", function(data) return ClimbUnsafe(data.x, data.y, getRectData(data)) end)
+
+    registry:register("climbmover", function(data)
+        return ClimbMover(data.x, data.y, getRectData(data), {
+            target = data.properties.target,
+            exit = data.properties.exit,
+            start_exit = data.properties.start_exit,
+            one_way = data.properties.one_way
+        })
+    end)
 end
 
 function Game:leave()

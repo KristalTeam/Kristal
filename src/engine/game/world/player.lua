@@ -18,7 +18,7 @@ function Player:init(chara, x, y)
     self.state_manager:addState("SLIDE", { update = self.updateSlide, enter = self.beginSlide, leave = self.endSlide, remove = self.cleanupSlide })
     self.state_manager:addState("CLIMB_MOUNT", { postJump = self.postJumpClimbMount, enter = self.beginClimbMount })
     self.state_manager:addState("CLIMB", self.climb_state)
-    self.state_manager:addState("CLIMB_EXIT", { update = self.updateClimbExit, enter = self.beginClimbExit, leave = self.endClimbExit })
+    self.state_manager:addState("CLIMB_DISMOUNT", { update = self.updateClimbDismount, enter = self.beginClimbDismount, leave = self.endClimbDismount })
 
     self.force_run = false
     self.force_walk = false
@@ -57,10 +57,12 @@ function Player:init(chara, x, y)
     self.outlinefx = self:addFX(outlinefx)
 
     self.force_climb = false
-    self.climb_exit_direction = nil
+    self.climb_facing_direction = nil
 
     self.climb_mount_target_x = 0
     self.climb_mount_target_y = 0
+
+    self.climb_mount_callback = nil
 
     self.climb_exit_landing = false
     self.climb_exit_target_x = 0
@@ -93,13 +95,10 @@ function Player:getDebugInfo()
     local info = super.getDebugInfo(self)
     table.insert(info, "State: " .. self.state_manager.state)
 
+    self.state_manager:call("getDebugInfo", info)
+
     if self.state_manager.state == "SLIDE" then
         table.insert(info, "Slide in place: " .. (self.slide_in_place and "True" or "False"))
-    elseif self.state_manager.state == "CLIMB" then
-        table.insert(info, "Force climb: " .. (self.force_climb and "True" or "False"))
-        table.insert(info, "Can jump: " .. (self.climb_state.can_jump and "True" or "False"))
-        table.insert(info, string.format("Direction: %s, (%s, %s)", self.climb_state.direction, self.climb_state.climbing_x_dir, self.climb_state.climbing_y_dir))
-        table.insert(info, "Momentum: " .. self.climb_state.momentum)
     elseif self.state_manager.state == "WALK" then
         table.insert(info, "Walk speed: " .. self:getBaseWalkSpeed())
         table.insert(info, "Current walk speed: " .. self:getCurrentSpeed(false))
@@ -283,7 +282,7 @@ function Player:isCameraAttachable()
         return false
     end
 
-    if self.state_manager.state == "CLIMB_EXIT" then
+    if self.state_manager.state == "CLIMB_DISMOUNT" then
         return false
     end
 
@@ -365,6 +364,8 @@ function Player:onMapLoad()
             follower.alpha = 0
             follower.visible = false
         end
+
+        self.climb_state:setDirection(self:getFacing())
     end
 end
 
@@ -452,17 +453,30 @@ function Player:cancelFollowerTweens()
     self.follower_tweens = {}
 end
 
-function Player:beginClimbMount(last_state, target_x, target_y, exit_direction)
+---@class ClimbMountSettings
+---@field target_x number? The x position that the player will jump to.
+---@field target_y number? The y position that the player will jump to.
+---@field facing_direction FacingDirection? The climb direction the player will face after mounting.
+---@field post_jump fun():nil? A function that will be called after the player finishes the jump, before they enter the CLIMB state.
+
+function Player:beginClimbMount(last_state, settings)
+    settings = settings or {}
+
     Game.lock_movement = true
 
     Game.world:detachFollowers()
 
-    self.climb_mount_target_x = target_x
-    self.climb_mount_target_y = target_y
+    self.climb_mount_target_x = settings.target_x or self.x
+    self.climb_mount_target_y = settings.target_y or self.y
 
-    self.climb_exit_direction = exit_direction
+    self.climb_facing_direction = settings.facing_direction
 
-    self:jumpTo(target_x, target_y + self:getScaledHeight() / 2, 8, 8 / 30, "jump_ball_slow")
+    if self.climb_facing_direction == nil then
+        -- If a facing direction isn't supplied, let's try to guess one...
+        self.climb_facing_direction = Utils.facingFromAngle(MathUtils.angle(self.x, self.y, self.climb_mount_target_x, self.climb_mount_target_y))
+    end
+
+    self:jumpTo(self.climb_mount_target_x, self.climb_mount_target_y + self:getScaledHeight() / 2, 8, 8 / 30, "jump_ball_slow")
 
     self:cancelFollowerTweens()
 
@@ -475,28 +489,7 @@ function Player:beginClimbMount(last_state, target_x, target_y, exit_direction)
 
     Assets.playSound("wing")
 
-    -- Calculate auto direction based on target position and current position
-    local x_diff = target_x - self.x
-    local y_diff = target_y - self.y
-
-    local climb_x = MathUtils.sign(x_diff)
-    local climb_y = MathUtils.sign(y_diff)
-
-    if climb_x ~= 0 and climb_y ~= 0 then
-        -- Figure out which one went further
-        if math.abs(x_diff) > math.abs(y_diff) then
-            climb_y = 0
-        else
-            climb_x = 0
-        end
-    end
-
-    if climb_x == 0 and climb_y == 0 then
-        climb_y = -1
-    end
-
-    self.climb_state.climbing_x_dir = climb_x
-    self.climb_state.climbing_y_dir = climb_y
+    self.climb_mount_callback = settings.post_jump
 end
 
 function Player:postJumpClimbMount()
@@ -506,21 +499,11 @@ function Player:postJumpClimbMount()
     self.y = self.climb_mount_target_y
 
     Game.lock_movement = false
-    self:setState("CLIMB")
+    self:setState("CLIMB", { starting_direction = self.climb_facing_direction })
 
-    if self.climb_exit_direction ~= nil then
-        self.climb_state.climbing_x_dir = 0
-        self.climb_state.climbing_y_dir = 0
-
-        if self.climb_exit_direction == "up" then
-            self.climb_state.climbing_y_dir = 1
-        elseif self.climb_exit_direction == "left" then
-            self.climb_state.climbing_x_dir = 1
-        elseif self.climb_exit_direction == "right" then
-            self.climb_state.climbing_x_dir = -1
-        elseif self.climb_exit_direction == "down" then
-            self.climb_state.climbing_y_dir = -1
-        end
+    if self.climb_mount_callback then
+        self.climb_mount_callback()
+        self.climb_mount_callback = nil
     end
 end
 
@@ -529,19 +512,35 @@ end
 ---@field recover_from_fall boolean? Whether the player should be teleported back to the last safe position after falling. Defaults to true.
 ---@field max_speed number? The maximum speed the player can reach while falling. Defaults to 10.
 
+--- Make the player fall while in the climb state. Does nothing if the player is not climbing.
 ---@param time integer The amount of time (in frames) that it takes the player to attempt to re-grab the wall. Defaults to 20. Common values are 10, 15, 20, 24, 30, 34, and 80.
 ---@param settings ClimbFallSettings? The settings for the climb fall. Optional.
 function Player:climbFall(time, settings)
+    if not self:isClimbing() then
+        return
+    end
+
     self.climb_state:fall(time, settings)
 end
 
----@class ClimbExitStateSettings
+--- Requests that the player exits the climb state, jumping to a defined location.
+---@param settings ClimbDismountSettings The settings for the climb dismount.
+function Player:queueClimbDismount(settings)
+    if not self:isClimbing() then
+        return
+    end
+
+    self.climb_state:queueExit(settings)
+end
+
+---@class ClimbDismountSettings
 ---@field obj ClimbExit|ClimbLanding?
 ---@field landing boolean?
 ---@field x number?
 ---@field y number?
+---@field facing FacingDirection?
 
-function Player:beginClimbExit(last_state, settings)
+function Player:beginClimbDismount(last_state, settings)
     Game.lock_movement = true
 
     local landing = settings.landing
@@ -549,14 +548,20 @@ function Player:beginClimbExit(last_state, settings)
     local target_x = settings.x
     local target_y = settings.y
 
-    if landing then
-        local landing_strip = settings.obj --[[@as ClimbLanding]]
+    if settings.facing ~= nil then
+        self:setFacing(settings.facing)
+    end
 
-        target_x, target_y = self.x, landing_strip.y
-    else
-        local exit = settings.obj --[[@as ClimbExit]]
+    if settings.obj ~= nil then
+        if landing then
+            local landing_strip = settings.obj --[[@as ClimbLanding]]
 
-        target_x, target_y = exit:getExitPosition()
+            target_x, target_y = self.x, landing_strip.y
+        else
+            local exit = settings.obj --[[@as ClimbExit]]
+
+            target_x, target_y = exit:getExitPosition()
+        end
     end
 
     if target_x == nil or target_y == nil then
@@ -667,7 +672,7 @@ function Player:beginClimbExit(last_state, settings)
     end
 end
 
-function Player:updateClimbExit()
+function Player:updateClimbDismount()
     self.climb_exit_timer = self.climb_exit_timer + DTMULT
 
     if self.climb_exit_timer >= 16 then
@@ -701,7 +706,7 @@ function Player:updateClimbExit()
     end
 end
 
-function Player:endClimbExit()
+function Player:endClimbDismount()
     self.auto_moving = false
     Game.lock_movement = false
     Game.world.camera:setAttached(true, true)

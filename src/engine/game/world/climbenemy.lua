@@ -72,6 +72,7 @@ function ClimbEnemy:update()
     end
 end
 
+--- Spawns effects when this enemy is attacked.
 function ClimbEnemy:spawnAttackEffects()
     local sprite = self.parent:addChild(Sprite("effects/attack/cut", self.x, self.y))
     sprite.layer = self.layer + 0.1
@@ -85,11 +86,13 @@ function ClimbEnemy:spawnAttackEffects()
     fade:setOrigin(self:getOrigin())
 end
 
+--- Plays sounds when this enemy is attacked.
 function ClimbEnemy:playAttackSounds()
     Assets.playSound("swing", 0.4, 1.2)
     Assets.playSound("laz_c", 0.3, 1.2)
 end
 
+--- Spawns effects when this enemy dies.
 function ClimbEnemy:spawnDeathEffects()
     -- Attack animation
     local sprite = self.parent:addChild(Sprite("effects/attack/slap_n", self.x, self.y))
@@ -121,12 +124,14 @@ function ClimbEnemy:spawnDeathEffects()
     cut:setOrigin(self:getOrigin())
 end
 
+--- Plays sounds when this enemy dies.
 function ClimbEnemy:playDeathSounds()
     Assets.playSound("swing", 1, 0.5)
     Assets.playSound("damage", 0.5, 0.5)
     Assets.playSound("punchmed", 0.4, 1)
 end
 
+--- Called when this enemy dies. By default, it spawns death effects, plays sounds, and removes itself.
 function ClimbEnemy:onDeath()
     self:spawnDeathEffects()
     self:playDeathSounds()
