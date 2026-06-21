@@ -888,7 +888,7 @@ end
 ---@param recruit string
 ---@return boolean
 function Game:hasRecruit(recruit)
-    return self:getRecruit(recruit):getRecruited() == true
+    return self:getRecruit(recruit) and self:getRecruit(recruit):getRecruited() == true
 end
 
 ---@param chara     string|PartyMember
