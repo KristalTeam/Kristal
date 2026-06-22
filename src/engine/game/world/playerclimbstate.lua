@@ -53,6 +53,8 @@ function PlayerClimbState:onEnter(old_state, settings)
     self.player:setOrigin(0.5, 0.5)
     self.player.collider = Hitbox(self.player, 0, 0, 20, 20)
 
+    Game.world:detachFollowers()
+
     -- If we're entering the climb state, and the followers aren't already invisible, fade them out
     self.player:cancelFollowerTweens()
     for _, follower in ipairs(Game.world.followers) do

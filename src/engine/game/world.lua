@@ -211,7 +211,9 @@ function World:hurtParty(battler, amount)
 
             for _, char in ipairs(self.stage:getObjects(Character)) do
                 if char.actor and (char.actor.id == party:getActor().id) and dealt_amount > 0 then
-                    char:statusMessage("damage", dealt_amount)
+                    if char.visible then
+                        char:statusMessage("damage", dealt_amount)
+                    end
                 end
             end
         elseif party:getHealth() > current_amount then
@@ -615,7 +617,7 @@ function World:spawnPlayer(...)
             x, y = args[1], args[2]
             chara = args[3] or chara
             party = args[4]
-        elseif type(args[1]) == "string" then
+        elseif type(args[1]) == "string" or type(args[1]) == "table" then
             local data
             x, y, data = self.map:getMarker(args[1])
             chara = args[2] or chara
@@ -779,7 +781,7 @@ function World:spawnFollower(chara, options)
 end
 
 --- Spawns characters in the world for the current party
----@param marker?   string|{x: number, y: number}                               The marker or coordinates to spawn the player at
+---@param marker?   string|KristalObjectRef|Position                            The marker or coordinates to spawn the player at
 ---@param party?    (PartyMember|string)[]                                      A table of party members to spawn (Defaults to [`Game.party`](lua://Game.party))
 ---@param extra?    (Follower|Actor|string|[Follower|Actor|string,integer])[]   Additional followers to add that are not in the party (defaults to [`Game.temp_followers`](lua://Game.temp_followers))
 ---@param facing?   FacingDirection                                             The direction the party should be facing when they spawn
@@ -791,10 +793,16 @@ function World:spawnParty(marker, party, extra, facing)
                 party[i] = Game:getPartyMember(chara)
             end
         end
-        if type(marker) == "table" then
+
+        if type(marker) == "table" and marker[1] ~= nil and marker[2] ~= nil then
+            -- It's a position table...
             self:spawnPlayer(marker[1], marker[2], party[1]:getActor(), party[1].id)
         else
-            self:spawnPlayer(marker or "spawn", party[1]:getActor(), party[1].id)
+            if not self.map:hasMarker(marker) then
+                marker = "spawn"
+            end
+
+            self:spawnPlayer(marker, party[1]:getActor(), party[1].id)
         end
 
         if facing then
@@ -1043,7 +1051,7 @@ function World:loadMap(...)
     -- x, y, facing, callback
     local map = table.remove(args, 1)
     local marker, x, y, facing, callback
-    if type(args[1]) == "string" then
+    if type(args[1]) == "string" or type(args[1]) == "table" then
         marker = table.remove(args, 1)
     elseif type(args[1]) == "number" then
         x = table.remove(args, 1)

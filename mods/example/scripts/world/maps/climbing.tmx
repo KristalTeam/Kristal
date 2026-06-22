@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.11" tiledversion="1.12.1" orientation="orthogonal" renderorder="right-down" width="41" height="27" tilewidth="40" tileheight="40" infinite="0" nextlayerid="9" nextobjectid="83">
+<map version="1.11" tiledversion="1.12.1" orientation="orthogonal" renderorder="right-down" width="41" height="27" tilewidth="40" tileheight="40" infinite="0" nextlayerid="9" nextobjectid="84">
  <editorsettings>
   <export target="climbing.lua" format="lua"/>
  </editorsettings>
@@ -69,12 +69,6 @@
    </properties>
   </object>
   <object id="50" name="fallingclimbarea" gid="6" x="320" y="480" width="40" height="40"/>
-  <object id="52" name="climbmover" x="560" y="160" width="40" height="40">
-   <properties>
-    <property name="one_way" type="bool" value="true"/>
-    <property name="target" type="object" value="55"/>
-   </properties>
-  </object>
   <object id="53" name="fallingclimbarea" gid="6" x="400" y="200" width="40" height="40"/>
   <object id="54" name="fallingclimbarea" gid="6" x="440" y="200" width="40" height="40"/>
   <object id="56" type="climbarea" x="1000" y="200" width="40" height="120"/>
@@ -162,6 +156,12 @@
    <properties>
     <property name="map" value="postclimb"/>
     <property name="marker" value="slide"/>
+   </properties>
+  </object>
+  <object id="83" name="climbmover" x="560" y="160" width="40" height="40">
+   <properties>
+    <property name="one_way" type="bool" value="true"/>
+    <property name="target" type="object" value="55"/>
    </properties>
   </object>
  </objectgroup>

@@ -10,7 +10,7 @@ return {
   tilewidth = 40,
   tileheight = 40,
   nextlayerid = 9,
-  nextobjectid = 83,
+  nextobjectid = 84,
   properties = {
     ["name"] = "Test Map - Climbing"
   },
@@ -444,23 +444,6 @@ return {
           properties = {}
         },
         {
-          id = 52,
-          name = "climbmover",
-          type = "",
-          shape = "rectangle",
-          x = 560,
-          y = 160,
-          width = 40,
-          height = 40,
-          rotation = 0,
-          opacity = 1,
-          visible = true,
-          properties = {
-            ["one_way"] = true,
-            ["target"] = { id = 55 }
-          }
-        },
-        {
           id = 53,
           name = "fallingclimbarea",
           type = "",
@@ -833,6 +816,23 @@ return {
           properties = {
             ["map"] = "postclimb",
             ["marker"] = "slide"
+          }
+        },
+        {
+          id = 83,
+          name = "climbmover",
+          type = "",
+          shape = "rectangle",
+          x = 560,
+          y = 160,
+          width = 40,
+          height = 40,
+          rotation = 0,
+          opacity = 1,
+          visible = true,
+          properties = {
+            ["one_way"] = true,
+            ["target"] = { id = 55 }
           }
         }
       }

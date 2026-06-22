@@ -10,7 +10,7 @@ return {
   tilewidth = 40,
   tileheight = 40,
   nextlayerid = 9,
-  nextobjectid = 91,
+  nextobjectid = 102,
   properties = {
     ["name"] = "Test Map - Climbing"
   },
@@ -44,13 +44,13 @@ return {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 29, 34, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 29, 34, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 29, 34, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 29, 34, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 29, 34, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 29, 34, 0, 0, 0, 0,
+        12, 12, 12, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 32, 29, 34, 0, 0, 0, 0,
+        0, 0, 0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 32, 29, 34, 0, 0, 0, 0,
+        0, 0, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 0, 32, 29, 34, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 8, 9, 10, 0, 0, 32, 29, 34, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 14, 15, 16, 0, 0, 38, 35, 40, 0, 0, 0, 0,
-        0, 0, 0, 8, 9, 9, 9, 9, 15, 15, 15, 9, 9, 9, 41, 9, 10, 0, 0, 0,
-        0, 0, 0, 20, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 22, 0, 0, 0,
+        0, 0, 8, 9, 9, 9, 9, 9, 15, 15, 15, 9, 9, 9, 41, 9, 10, 0, 0, 0,
+        0, 0, 20, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 22, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
       }
@@ -102,9 +102,9 @@ return {
           name = "",
           type = "",
           shape = "rectangle",
-          x = 120,
+          x = 80,
           y = 400,
-          width = 560,
+          width = 600,
           height = 40,
           rotation = 0,
           opacity = 1,
@@ -144,9 +144,9 @@ return {
           name = "",
           type = "",
           shape = "rectangle",
-          x = 120,
+          x = 200,
           y = 280,
-          width = 160,
+          width = 80,
           height = 40,
           rotation = 0,
           opacity = 1,
@@ -186,10 +186,24 @@ return {
           name = "",
           type = "",
           shape = "rectangle",
-          x = 80,
+          x = 40,
           y = 320,
           width = 40,
           height = 80,
+          rotation = 0,
+          opacity = 1,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 92,
+          name = "",
+          type = "",
+          shape = "rectangle",
+          x = 80,
+          y = 280,
+          width = 80,
+          height = 40,
           rotation = 0,
           opacity = 1,
           visible = true,
@@ -210,7 +224,36 @@ return {
       parallaxx = 1,
       parallaxy = 1,
       properties = {},
-      objects = {}
+      objects = {
+        {
+          id = 97,
+          name = "",
+          type = "climbarea",
+          shape = "rectangle",
+          x = 160,
+          y = 120,
+          width = 40,
+          height = 120,
+          rotation = 0,
+          opacity = 1,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 98,
+          name = "",
+          type = "climbarea",
+          shape = "rectangle",
+          x = -80,
+          y = 120,
+          width = 200,
+          height = 40,
+          rotation = 0,
+          opacity = 1,
+          visible = true,
+          properties = {}
+        }
+      }
     },
     {
       type = "objectgroup",
@@ -255,6 +298,36 @@ return {
           opacity = 1,
           visible = true,
           properties = {}
+        },
+        {
+          id = 95,
+          name = "",
+          type = "",
+          shape = "point",
+          x = 180,
+          y = 380,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          opacity = 1,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 101,
+          name = "entry_left",
+          type = "",
+          shape = "point",
+          x = 60,
+          y = 140,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          opacity = 1,
+          visible = true,
+          properties = {
+            ["player_state"] = "CLIMB"
+          }
         }
       }
     },
@@ -302,6 +375,55 @@ return {
           visible = true,
           properties = {
             ["item"] = "cheesekey"
+          }
+        },
+        {
+          id = 93,
+          name = "climbentry",
+          type = "",
+          shape = "rectangle",
+          x = 160,
+          y = 280,
+          width = 40,
+          height = 40,
+          rotation = 0,
+          opacity = 1,
+          visible = true,
+          properties = {
+            ["target"] = { id = 94 }
+          }
+        },
+        {
+          id = 94,
+          name = "climbexit",
+          type = "",
+          shape = "rectangle",
+          x = 160,
+          y = 200,
+          width = 40,
+          height = 40,
+          rotation = 0,
+          opacity = 1,
+          visible = true,
+          properties = {
+            ["target"] = { id = 95 }
+          }
+        },
+        {
+          id = 100,
+          name = "transition",
+          type = "",
+          shape = "rectangle",
+          x = 0,
+          y = 120,
+          width = 20,
+          height = 40,
+          rotation = 0,
+          opacity = 1,
+          visible = true,
+          properties = {
+            ["map"] = "voidclimb",
+            ["marker"] = "entry_right"
           }
         }
       }

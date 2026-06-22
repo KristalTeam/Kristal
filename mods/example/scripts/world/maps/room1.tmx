@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.11" tiledversion="1.12.1" orientation="orthogonal" renderorder="right-down" width="20" height="24" tilewidth="40" tileheight="40" infinite="0" nextlayerid="6" nextobjectid="37">
+<map version="1.11" tiledversion="1.12.1" orientation="orthogonal" renderorder="right-down" width="20" height="33" tilewidth="40" tileheight="40" infinite="0" nextlayerid="8" nextobjectid="57">
  <editorsettings>
   <export target="room1.lua" format="lua"/>
  </editorsettings>
@@ -7,7 +7,7 @@
   <property name="name" value="Test Map - Room 1"/>
  </properties>
  <tileset firstgid="1" source="../tilesets/castle.tsx"/>
- <layer id="1" name="tiles" width="20" height="24">
+ <layer id="1" name="tiles" width="20" height="33">
   <data encoding="csv">
 0,32,19,33,33,19,33,33,33,19,33,33,19,34,0,0,0,0,0,0,
 0,32,33,33,33,33,33,31,33,33,33,33,33,34,0,0,0,0,0,0,
@@ -32,10 +32,19 @@
 0,14,15,15,15,15,15,15,15,15,15,15,15,16,0,0,0,0,0,0,
 0,14,15,15,15,15,15,15,15,15,15,15,15,16,0,0,0,0,0,0,
 0,20,21,21,21,21,21,21,21,21,21,21,21,22,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,0,18,18,12,18,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <layer id="2" name="decal" width="20" height="24">
+ <layer id="2" name="decal" width="20" height="33">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -45,6 +54,15 @@
 0,0,0,0,0,0,44,45,46,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,50,51,52,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,56,57,58,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -82,9 +100,40 @@
   <object id="17" x="200" y="440" width="40" height="240"/>
   <object id="18" x="360" y="440" width="40" height="240"/>
   <object id="23" x="600" y="640" width="40" height="40"/>
-  <object id="24" x="640" y="600" width="120" height="40"/>
+  <object id="24" x="640" y="600" width="20" height="40"/>
   <object id="25" x="760" y="640" width="40" height="160"/>
   <object id="26" x="600" y="800" width="160" height="40"/>
+  <object id="52" x="740" y="600" width="20" height="40"/>
+ </objectgroup>
+ <objectgroup color="#ff00ff" id="7" name="lower_objects" class="objects">
+  <object id="56" name="mouseholeentry" x="660" y="560" width="80" height="80"/>
+ </objectgroup>
+ <objectgroup color="#00ffff" id="6" name="climbing" class="objects">
+  <object id="42" type="climbarea" x="640" y="1240" width="240" height="40"/>
+  <object id="43" type="climbarea" x="560" y="1240" width="40" height="40"/>
+ </objectgroup>
+ <objectgroup color="#7f00ff" id="5" name="markers">
+  <object id="20" name="spawn" x="300" y="250">
+   <point/>
+  </object>
+  <object id="30" name="entry" x="760" y="240">
+   <point/>
+  </object>
+  <object id="38" name="entry_climb" x="740" y="1260">
+   <properties>
+    <property name="player_state" value="CLIMB"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="47" x="300" y="980">
+   <point/>
+  </object>
+  <object id="49" x="300" y="850">
+   <point/>
+  </object>
+  <object id="55" x="700" y="710">
+   <point/>
+  </object>
  </objectgroup>
  <objectgroup color="#ff00ff" id="4" name="objects">
   <object id="19" name="npc" x="480" y="840" width="40" height="40">
@@ -104,7 +153,6 @@
     </property>
    </properties>
   </object>
-  <object id="28" name="squeak" x="680" y="600" width="40" height="40"/>
   <object id="29" name="transition" x="800" y="200" width="40" height="80">
    <properties>
     <property name="map" value="room2"/>
@@ -127,13 +175,25 @@ no-good wall slammers.</property>
    </properties>
    <point/>
   </object>
- </objectgroup>
- <objectgroup color="#7f00ff" id="5" name="markers">
-  <object id="20" name="spawn" x="300" y="250">
-   <point/>
+  <object id="45" name="climbmover" x="480" y="1240" width="40" height="40">
+   <properties>
+    <property name="exit" type="object" value="49"/>
+    <property name="one_way" type="bool" value="true"/>
+    <property name="target" type="object" value="47"/>
+   </properties>
   </object>
-  <object id="30" name="entry" x="760" y="240">
-   <point/>
+  <object id="51" name="transition" x="780" y="1240" width="20" height="40">
+   <properties>
+    <property name="map" value="voidclimb"/>
+    <property name="marker" value="entry_left"/>
+   </properties>
+  </object>
+  <object id="53" name="transition" x="660" y="590" width="80" height="40">
+   <properties>
+    <property name="facing" value="down"/>
+    <property name="marker" type="object" value="55"/>
+    <property name="shop" value="mousehole"/>
+   </properties>
   </object>
  </objectgroup>
 </map>

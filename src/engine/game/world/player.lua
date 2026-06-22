@@ -361,6 +361,7 @@ end
 
 function Player:onMapLoad()
     if self:isClimbing() then
+        Game.world:detachFollowers()
         self:cancelFollowerTweens()
         for _, follower in ipairs(Game.world.followers) do
             follower.alpha = 0

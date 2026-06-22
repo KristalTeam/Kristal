@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.11" tiledversion="1.12.1" orientation="orthogonal" renderorder="right-down" width="27" height="30" tilewidth="40" tileheight="40" infinite="0" nextlayerid="9" nextobjectid="143">
+ <editorsettings>
+  <export target="voidclimb.lua" format="lua"/>
+ </editorsettings>
+ <properties>
+  <property name="name" value="Test Map - Climbing"/>
+ </properties>
+ <tileset firstgid="1" source="../tilesets/castle.tsx"/>
+ <layer id="1" name="tiles" width="27" height="30">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,18,18,0,0,12,18,12,12,18,12,12,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+18,12,18,18,12,0,0,12,0,0,18,0,0,12,0,0,12,0,0,18,0,0,12,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,
+0,0,0,0,0,0,0,0,12,18,18,0,12,18,0,18,18,12,0,18,18,0,18,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <objectgroup color="#0000ff" id="3" name="collision" opacity="0.5"/>
+ <objectgroup color="#00ffff" id="7" name="climbing" class="objects">
+  <object id="98" type="climbarea" x="800" y="200" width="360" height="40"/>
+  <object id="104" name="fallingclimbarea" gid="6" x="320" y="240" width="40" height="40">
+   <properties>
+    <property name="fall_time" type="int" value="30"/>
+    <property name="timed" type="bool" value="true"/>
+   </properties>
+  </object>
+  <object id="105" name="fallingclimbarea" gid="6" x="440" y="240" width="40" height="40"/>
+  <object id="106" name="fallingclimbarea" gid="6" x="520" y="240" width="40" height="40">
+   <properties>
+    <property name="dont_break" value="right"/>
+   </properties>
+  </object>
+  <object id="107" type="climbarea" x="600" y="200" width="120" height="40"/>
+  <object id="108" type="climbarea" x="320" y="1040" width="120" height="40"/>
+  <object id="109" type="climbarea" x="600" y="1040" width="120" height="40"/>
+  <object id="110" type="climbarea" x="480" y="1040" width="80" height="40"/>
+  <object id="112" type="climbarea" x="760" y="1040" width="80" height="40"/>
+  <object id="113" type="climbarea" x="880" y="960" width="40" height="120"/>
+  <object id="114" type="climbarea" x="760" y="680" width="40" height="40"/>
+  <object id="115" type="climbarea" x="640" y="680" width="40" height="40"/>
+  <object id="116" type="climbarea" x="520" y="680" width="40" height="40"/>
+  <object id="117" type="climbarea" x="400" y="680" width="40" height="40"/>
+  <object id="118" type="climbarea" x="280" y="680" width="40" height="40"/>
+  <object id="119" type="climbarea" x="-80" y="680" width="280" height="40"/>
+  <object id="139" type="climbarea" x="880" y="800" width="40" height="80"/>
+  <object id="140" type="climbarea" x="880" y="680" width="40" height="80"/>
+ </objectgroup>
+ <objectgroup color="#7f00ff" id="4" name="markers">
+  <object id="73" name="entry_right" x="1020" y="220">
+   <properties>
+    <property name="player_state" value="CLIMB"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="74" name="spawn" x="860" y="220">
+   <properties>
+    <property name="player_state" value="CLIMB"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="142" name="entry_left" x="60" y="700">
+   <properties>
+    <property name="player_state" value="CLIMB"/>
+   </properties>
+   <point/>
+  </object>
+ </objectgroup>
+ <objectgroup color="#ff00ff" id="5" name="objects">
+  <object id="101" name="transition" x="1060" y="200" width="20" height="40">
+   <properties>
+    <property name="map" value="postclimb"/>
+    <property name="marker" value="entry_left"/>
+   </properties>
+  </object>
+  <object id="131" name="climbshooter" x="520" y="840" width="40" height="40">
+   <properties>
+    <property name="timer_offset" type="int" value="15"/>
+   </properties>
+  </object>
+  <object id="132" name="climbshooter" x="640" y="840" width="40" height="40"/>
+  <object id="133" name="climbshooter" x="760" y="840" width="40" height="40">
+   <properties>
+    <property name="timer_offset" type="int" value="15"/>
+   </properties>
+  </object>
+  <object id="134" name="climbshooter" x="400" y="840" width="40" height="40"/>
+  <object id="135" name="climbshooter" x="440" y="480" width="40" height="40">
+   <properties>
+    <property name="shoot_speed" type="int" value="30"/>
+    <property name="timer_offset" type="int" value="4"/>
+   </properties>
+  </object>
+  <object id="136" name="climbshooter" x="480" y="480" width="40" height="40">
+   <properties>
+    <property name="shoot_speed" type="int" value="30"/>
+   </properties>
+  </object>
+  <object id="137" name="climbshooter" x="580" y="480" width="40" height="40">
+   <properties>
+    <property name="timer_offset" type="int" value="15"/>
+   </properties>
+  </object>
+  <object id="138" name="climbshooter" x="700" y="480" width="40" height="40"/>
+  <object id="141" name="transition" x="0" y="680" width="20" height="40">
+   <properties>
+    <property name="map" value="room1"/>
+    <property name="marker" value="entry_climb"/>
+   </properties>
+  </object>
+ </objectgroup>
+</map>

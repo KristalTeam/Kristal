@@ -29,6 +29,7 @@ function SlideArea:onCollide(chara)
         end
 
         chara:setState("SLIDE", false, self.lock_movement)
+        chara.slide_lock_movement = self.lock_movement
 
         chara.current_slide_area = self
     end
