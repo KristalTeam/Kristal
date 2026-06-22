@@ -261,8 +261,8 @@ function Wave:setArenaOffset(x, y)
 end
 
 --- Sets the initial size of the rectangular arena (Defaults to `142` by `142` pixels)
---- @param width    number
---- @param height   number
+---@param width    number
+---@param height   number
 function Wave:setArenaSize(width, height)
     self.arena_width = width
     self.arena_height = height or width

@@ -91,7 +91,7 @@ function Spell:getCastMessage(user, target)
 end
 
 --- *(Override)* Gets the animation that is set when this spell is cast in battle
---- @return string
+---@return string
 function Spell:getCastAnimation()
     return self.cast_anim or "battle/spell"
 end

@@ -373,8 +373,8 @@ function Shop:getVoice()
 end
 
 --- Adds the [`voice`](lua://Shop.voice) of the Shop to a set of dialogue texts.
---- @param text string[]|string
---- @return string[]|string
+---@param text string[]|string
+---@return string[]|string
 function Shop:getVoicedText(text)
     local voice = self:getVoice()
 

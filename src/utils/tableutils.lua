@@ -643,10 +643,10 @@ end
 --- Returns whether a table ends with the specified values. \
 --- The function will also return a second value, created by copying the initial value and removing the suffix.
 ---
---- @param value table      # The table to check the end of.
---- @param suffix table     # The values that should be checked.
---- @return boolean success # Whether the value ended with the specified suffix.
---- @return table rest   # A new value created by removing the suffix substring or values from the initial value. If the result was unsuccessful, this value will simply be the initial unedited value.
+---@param value table      # The table to check the end of.
+---@param suffix table     # The values that should be checked.
+---@return boolean success # Whether the value ended with the specified suffix.
+---@return table rest   # A new value created by removing the suffix substring or values from the initial value. If the result was unsuccessful, this value will simply be the initial unedited value.
 ---
 function TableUtils.endsWith(value, suffix)
     -- If the value is a table, check if the last few values match the suffix
