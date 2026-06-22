@@ -427,7 +427,7 @@ end
 
 --- *(Called internally)* Initializes the climb charge state.
 ---
---- To enter the climb charging state, set `self.climb_charge_state` to 1.
+--- To enter the climb charging state, set `self.charge_state` to 1.
 ---
 --- This should not be called by user code.
 ---@private
@@ -472,7 +472,7 @@ end
 
 --- *(Called internally)* Updates the climb charge state, charging the jump.
 ---
---- This happens every frame while `climb_charge_state` is 2 and the user is holding Z.
+--- This happens every frame while `charge_state` is 2 and the user is holding Z.
 ---
 --- This should not be called by user code.
 ---@private
@@ -533,7 +533,7 @@ end
 
 --- *(Called internally)* Updates the climb charge state.
 ---
---- This function calls every frame while `climb_charge_state` is 2.
+--- This function calls every frame while `charge_state` is 2.
 ---
 --- This should not be called by user code.
 ---@private
@@ -651,7 +651,7 @@ end
 function PlayerClimbState:initClimbFall()
     self.player.sprite:setSprite("climb/fall")
     self.player.sprite:setFrame(1)
-    self.climb_fall_speed = 0
+    self.fall_speed = 0
     self.fall_state = 2
     self.neutral_state = 0
 
@@ -684,34 +684,34 @@ end
 --- This should not be called by user code.
 ---@private
 function PlayerClimbState:updateClimbFall()
-    self.climb_fall_speed = self.climb_fall_speed + 0.5 * DTMULT
+    self.fall_speed = self.fall_speed + 0.5 * DTMULT
 
-    if (self.climb_fall_speed >= self.fall_max_speed) then
-        self.climb_fall_speed = self.fall_max_speed
+    if (self.fall_speed >= self.fall_max_speed) then
+        self.fall_speed = self.fall_max_speed
     end
 
-    if (self.climb_fall_speed >= 20) and (self.fall_direction == "down") then
+    if (self.fall_speed >= 20) and (self.fall_direction == "down") then
         self.camera_y_offset = math.min(self.camera_y_offset + 2, 80)
     end
 
     if (self.fall_direction == "down") then
-        self.player.y = self.player.y + math.ceil(self.climb_fall_speed) * DTMULT
+        self.player.y = self.player.y + math.ceil(self.fall_speed) * DTMULT
     elseif (self.fall_direction == "right") then
-        self.player.x = self.player.x + math.ceil(self.climb_fall_speed) * DTMULT
+        self.player.x = self.player.x + math.ceil(self.fall_speed) * DTMULT
     elseif (self.fall_direction == "up") then
-        self.player.y = self.player.y - math.ceil(self.climb_fall_speed) * DTMULT
+        self.player.y = self.player.y - math.ceil(self.fall_speed) * DTMULT
     elseif (self.fall_direction == "left") then
-        self.player.x = self.player.x - math.ceil(self.climb_fall_speed) * DTMULT
+        self.player.x = self.player.x - math.ceil(self.fall_speed) * DTMULT
     end
 
     self.fall_timer = self.fall_timer - DTMULT
 
     if (self.fall_timer <= 0) then
         if (self.can_grab) then
-            self.climb_grab_x = self.last_x + (MathUtils.round((self.player.x - self.last_x) / 40) * 40)
-            self.climb_grab_y = self.last_y + (MathUtils.round((self.player.y - self.last_y) / 40) * 40)
+            self.grab_x = self.last_x + (MathUtils.round((self.player.x - self.last_x) / 40) * 40)
+            self.grab_y = self.last_y + (MathUtils.round((self.player.y - self.last_y) / 40) * 40)
 
-            if self:isOverlappingClimbable(self.climb_grab_x, self.climb_grab_y, ClimbArea) then
+            if self:isOverlappingClimbable(self.grab_x, self.grab_y, ClimbArea) then
                 self.grab_state = 1
                 self.direction = "down"
                 self.fall_state = 0
@@ -810,23 +810,23 @@ function PlayerClimbState:updateClimbGrab()
     end
 
     -- Cap climb speed to 7
-    if (self.climb_fall_speed > 7) then
-        self.climb_fall_speed = 7
+    if (self.fall_speed > 7) then
+        self.fall_speed = 7
     end
 
-    self.climb_fall_speed = self.climb_fall_speed - DTMULT
+    self.fall_speed = self.fall_speed - DTMULT
 
     if self.fall_direction == "down" then
-        self.player.y = self.player.y + math.ceil(self.climb_fall_speed) * DTMULT
+        self.player.y = self.player.y + math.ceil(self.fall_speed) * DTMULT
     elseif self.fall_direction == "right" then
-        self.player.x = self.player.x + math.ceil(self.climb_fall_speed) * DTMULT
+        self.player.x = self.player.x + math.ceil(self.fall_speed) * DTMULT
     elseif self.fall_direction == "up" then
-        self.player.y = self.player.y - math.ceil(self.climb_fall_speed) * DTMULT
+        self.player.y = self.player.y - math.ceil(self.fall_speed) * DTMULT
     elseif self.fall_direction == "left" then
-        self.player.x = self.player.x - math.ceil(self.climb_fall_speed) * DTMULT
+        self.player.x = self.player.x - math.ceil(self.fall_speed) * DTMULT
     end
 
-    if (self.climb_fall_speed <= 0) then
+    if (self.fall_speed <= 0) then
         self.grab_timer = 0
         self.grab_state = 3
         self.grab_start_y = self.player.y
@@ -847,8 +847,8 @@ function PlayerClimbState:updateClimbGrabEnd()
 
     if self.grab_timer >= initwait then
         local progress = (self.grab_timer / waittime) - (initwait / waittime)
-        self.player.y = Utils.ease(self.grab_start_y, self.climb_grab_y, progress, "inOutQuart")
-        self.player.x = Utils.ease(self.grab_start_x, self.climb_grab_x, progress, "inOutQuart")
+        self.player.y = Utils.ease(self.grab_start_y, self.grab_y, progress, "inOutQuart")
+        self.player.x = Utils.ease(self.grab_start_x, self.grab_x, progress, "inOutQuart")
     end
 
     if self.grab_timer >= (initwait + waittime) then
