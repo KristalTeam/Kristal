@@ -40,7 +40,7 @@
   <object id="98" type="climbarea" x="-80" y="120" width="200" height="40"/>
  </objectgroup>
  <objectgroup color="#7f00ff" id="4" name="markers">
-  <object id="73" name="slide" x="580" y="60">
+  <object id="73" name="slide" x="580" y="-50">
    <properties>
     <property name="player_state" value="SLIDE"/>
    </properties>
@@ -60,7 +60,7 @@
   </object>
  </objectgroup>
  <objectgroup color="#ff00ff" id="5" name="objects">
-  <object id="72" name="slidearea" x="560" y="0" width="40" height="320">
+  <object id="72" name="slidearea" x="560" y="-80" width="40" height="400">
    <properties>
     <property name="lock" type="bool" value="true"/>
    </properties>

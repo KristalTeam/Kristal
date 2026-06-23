@@ -41,6 +41,7 @@ function MouseHole:init()
 
     self:registerTalk("About Yourself")
     self:registerTalk("About Wall Guardian")
+    self:registerTalk("Cheese Key")
 
     self:registerTalkAfter("Cheese?", 1)
     self:registerTalkAfter("Picture Frame", 2, "talk_2", 1)
@@ -84,6 +85,17 @@ function MouseHole:startTalk(talk)
         self:startDialogue({
             "[emote:left]* U-us? [wait:5]No, [wait:5]we're not... [wait:5]I-I mean, [wait:5]I don't have much goin' for me.",
             "[emote:happy]* That's all!!"
+        })
+    elseif talk == "Cheese Key" then
+        self:startDialogue({
+            "[emote:idle]* Oh,[wait:5] why the shop's locked behind a key?",
+            "[emote:left]* Well, [wait:5]we can't have just anyone coming in,[wait:5] cause we've had some nasty visitors in the past.",
+            "[emote:idle]* That's why we give trusted customers a key to the shop.",
+            "[emote:idle]* The littlest ones can come in without it,[wait:5] though.",
+            "[emote:left]* I don't wanna turn anyone away,[wait:5]\nbut it's a system we've had for some time now.",
+            "[emote:left]* The fact that you found one,[wait:5] though...",
+            "[emote:idle]* Well,[wait:5] the fact you tried so hard to get in,[wait:5] I guess that means you can be trusted.",
+            "[emote:happy]* Plus,[wait:5] I wanna see what you've got."
         })
     end
 end

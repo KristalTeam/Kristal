@@ -2,6 +2,9 @@
 ---@overload fun(name: string, text: string, type: string, callback: fun(text: string)) : DebugWindow
 local DebugWindow, super = Class(Object)
 
+---@param name string
+---@param text string
+---@param type "input"|string
 function DebugWindow:init(name, text, type, callback)
     super.init(self, 0, 0)
     self.layer = 10000000 + 1

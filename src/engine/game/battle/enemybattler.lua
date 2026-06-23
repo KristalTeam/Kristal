@@ -619,7 +619,7 @@ function EnemyBattler:getNameColors()
                 end
             end
             if can_pacify then
-                tiredcol = Utils.mergeColor(tiredcol, COLORS.white, 0.5 + math.sin(Game.battle.pacify_glow_timer / 4) * 0.5)
+                tiredcol = ColorUtils.mergeColor(tiredcol, COLORS.white, 0.5 + math.sin(Game.battle.pacify_glow_timer / 4) * 0.5)
             end
         end
         table.insert(result, tiredcol)

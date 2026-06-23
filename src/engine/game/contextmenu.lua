@@ -277,15 +277,14 @@ function ContextMenu:draw()
     Draw.draw(canvas, 0, 12 - (anim * 12))
 
     if tooltip_to_draw then
-        local mouse_x, mouse_y                     = self:getLocalMousePosition()
-        local tooltip_x, tooltip_y                 = mouse_x, mouse_y
-        tooltip_x                                  = tooltip_x + 12
+        local mouse_x, mouse_y = self:getLocalMousePosition()
+        local tooltip_x, tooltip_y = mouse_x, mouse_y
+        tooltip_x = tooltip_x + 12
         local tooltip_padding_x, tooltip_padding_y = 2, 2
-        local tooltip_width, tooltip_height        = tooltip_padding_x * 2, tooltip_padding_y * 2
+        local tooltip_width, tooltip_height = tooltip_padding_x * 2, tooltip_padding_y * 2
 
-        tooltip_width                              = tooltip_width + self.font:getWidth(tooltip_to_draw.description)
-        tooltip_height                             = tooltip_height +
-            self.font:getHeight() * #StringUtils.split(tooltip_to_draw.description, "\n", false)
+        tooltip_width = tooltip_width + self.font:getWidth(tooltip_to_draw.description)
+        tooltip_height = tooltip_height + self.font:getHeight() * #StringUtils.split(tooltip_to_draw.description, "\n", false)
 
         if tooltip_x + tooltip_width > self:screenToLocalPos(SCREEN_WIDTH, SCREEN_HEIGHT) then
             tooltip_x = mouse_x - tooltip_width - 4
