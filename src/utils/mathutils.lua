@@ -355,7 +355,7 @@ function MathUtils.xor(...)
 end
 
 ---
----Lerps between two angles properly accounting for wrap arounds
+--- Lerps between two angles properly accounting for wrap arounds
 ---
 ---@param from number # The starting angle (in radians)
 ---@param to number # The target angle (in radians)

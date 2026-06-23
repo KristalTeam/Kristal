@@ -1483,7 +1483,11 @@ function DebugSystem:onStateChange(old, new)
         Kristal.showCursor()
     elseif new == "IDLE" then
         self:unselectObject()
-        self.menu_anim_timer = 0
+
+        if old ~= "IDLE" then
+            self.menu_anim_timer = 0
+        end
+
         OVERLAY_OPEN = false
 
         Kristal.hideCursor()
