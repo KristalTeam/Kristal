@@ -273,7 +273,7 @@ print("Zipping Kristal packages...")
 shutil.make_archive(os.path.join(output_path, "kristal-"+ver_str+"-love"), 'zip', os.path.join(build_path, "lovepkg"))
 shutil.make_archive(os.path.join(output_path, "kristal-"+ver_str+"-win"), 'zip', os.path.join(build_path, "executable"))
 
-print("Packaging example mod...")
+print("Packaging example project...")
 
 try:
     os.makedirs(os.path.join(build_path, "example"))
@@ -286,10 +286,10 @@ shutil.copy(os.path.join(kristal_path, "mods", "example", "mod.json"), os.path.j
 shutil.copy(os.path.join(kristal_path, "mods", "example", "mod.lua"), os.path.join(build_path, "example", "mod.lua"))
 shutil.copy(os.path.join(kristal_path, "mods", "example", "example.tiled-project"), os.path.join(build_path, "example", "example.tiled-project"))
 
-shutil.make_archive(os.path.join(output_path, "example-mod"), 'zip', os.path.join(build_path, "example"))
+shutil.make_archive(os.path.join(output_path, "example-project"), 'zip', os.path.join(build_path, "example"))
 
 print("Done!")
 print("Generated files:")
 print("> kristal-"+ver_str+"-love.zip")
 print("> kristal-"+ver_str+"-win.zip")
-print("> example-mod.zip")
+print("> example-project.zip")
