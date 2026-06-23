@@ -472,15 +472,15 @@ end
 --- Creates an alert bubble above a character.
 ---@param chara     string|Character    The character or character id to trigger an alert bubble for.
 ---@param ...       unknown             Arguments to be passed to Character:alert().
+---@return fun()    finished            A function that returns `true` once the alert icon has disappeared.
 ---@return Sprite   alert_icon          The result alert icon created above the character's head.
----@return fun()    finished            A function that returns `true` once the alert icon has disappeared. \
 ---@see Character.alert for details on the arguments to pass to this function.
 function WorldCutscene:alert(chara, ...)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
     end
     local function waitForAlertRemoval() return chara.alert_icon == nil or chara.alert_timer == 0 end
-    return chara:alert(...), waitForAlertRemoval
+    return waitForAlertRemoval, chara:alert(...)
 end
 
 --- Detaches the camera from the player character.
