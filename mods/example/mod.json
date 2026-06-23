@@ -6,7 +6,7 @@
     "version": "v1.0.0",
     "engineVer": "v0.10.0-dev",
 
-    "chapter": 2,
+    "chapter": 4,
 
     "map": "room1",
     "party": ["kris", "susie", "ralsei"],
