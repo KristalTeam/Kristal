@@ -241,9 +241,15 @@ function character:drawPowerStat(index, x, y, menu)
         Draw.draw(icon, x-26, y+6, 0, 2, 2)
         love.graphics.print("Rudeness", x, y)
         if Game.chapter == 1 then
-            love.graphics.print("99", x+130, y)
-        else
+            local rudeness = 99
+            if self:getFlag("auto_attack", false) then
+                rudeness = rudeness + 1
+            end
+            love.graphics.print(rudeness, x+130, y)
+        elseif Game.chapter == 2 then
             love.graphics.print("89", x+130, y)
+        else
+            love.graphics.print("100", x+130, y)
         end
         return true
     elseif index == 2 then
