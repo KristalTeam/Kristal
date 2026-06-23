@@ -810,7 +810,7 @@ return {
           x = 1320,
           y = 560,
           width = 40,
-          height = 520,
+          height = 640,
           rotation = 0,
           opacity = 1,
           visible = true,

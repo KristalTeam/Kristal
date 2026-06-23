@@ -153,7 +153,7 @@
     <property name="target" type="object" value="57"/>
    </properties>
   </object>
-  <object id="68" name="slidearea" x="1320" y="560" width="40" height="520">
+  <object id="68" name="slidearea" x="1320" y="560" width="40" height="640">
    <properties>
     <property name="lock" type="bool" value="true"/>
    </properties>

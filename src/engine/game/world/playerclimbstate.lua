@@ -27,11 +27,16 @@ function PlayerClimbState:registerEvents()
     self:registerEvent("postDraw", self.postDraw)
     self:registerEvent("drawDebug", self.drawDebug)
     self:registerEvent("getDebugInfo", self.getDebugInfo)
+    self:registerEvent("remove", self.onRemove)
 end
 
 -------------------------------------------------------------------------------
 -- Callbacks
 -------------------------------------------------------------------------------
+
+function PlayerClimbState:onRemove()
+    self.charge_sound:stop()
+end
 
 function PlayerClimbState:getDebugInfo(info)
     table.insert(info, "Force climb: " .. (self.player.force_climb and "True" or "False"))

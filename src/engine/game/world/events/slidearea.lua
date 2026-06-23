@@ -36,7 +36,9 @@ function SlideArea:onCollide(chara)
 end
 
 function SlideArea:update()
-    if not Game.world.player then return end
+    if not Game.world.player then
+        return
+    end
 
     local stopped = false
 
