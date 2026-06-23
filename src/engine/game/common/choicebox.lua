@@ -27,14 +27,16 @@ function Choicebox:init(x, y, width, height, battle_box, options)
     self.font = Assets.getFont("main")
 
     self.heart = Assets.getTexture("player/heart_menu")
+
+    Input.clear("confirm")
 end
 
 function Choicebox:update()
     local old_choice = self.current_choice
-    if Input.pressed("left") then self.current_choice = 1 end
-    if Input.pressed("right") then self.current_choice = 2 end
-    if Input.pressed("up") then self.current_choice = 3 end
-    if Input.pressed("down") then self.current_choice = 4 end
+    if Input.down("left") then self.current_choice = 1 end
+    if Input.down("right") then self.current_choice = 2 end
+    if Input.down("up") then self.current_choice = 3 end
+    if Input.down("down") then self.current_choice = 4 end
 
     if self.current_choice > #self.choices then
         self.current_choice = old_choice
