@@ -9,6 +9,9 @@ function DarkEquipMenu:init()
 
     self.font = Assets.getFont("main")
 
+    self.layer = WORLD_LAYERS["ui"]
+    self:setParallax(0, 0)
+
     self.ui_move = Assets.newSound("ui_move")
     self.ui_select = Assets.newSound("ui_select")
     self.ui_cant_select = Assets.newSound("ui_cant_select")

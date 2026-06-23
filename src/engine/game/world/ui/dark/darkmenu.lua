@@ -81,8 +81,8 @@ function DarkMenu:addButtons()
         ["desc_sprite"]    = Assets.getTexture("ui/menu/desc/item"),
         ["callback"]       = function()
             self.box = DarkItemMenu()
-            self.box.layer = 1
-            self:addChild(self.box)
+            self.box.layer = self.layer + 1
+            Game.world:addChild(self.box)
 
             self.ui_select:stop()
             self.ui_select:play()
@@ -97,8 +97,8 @@ function DarkMenu:addButtons()
         ["desc_sprite"]    = Assets.getTexture("ui/menu/desc/equip"),
         ["callback"]       = function()
             self.box = DarkEquipMenu()
-            self.box.layer = 1
-            self:addChild(self.box)
+            self.box.layer = self.layer + 1
+            Game.world:addChild(self.box)
 
             self.ui_select:stop()
             self.ui_select:play()
@@ -113,8 +113,8 @@ function DarkMenu:addButtons()
         ["desc_sprite"]    = Assets.getTexture("ui/menu/desc/power"),
         ["callback"]       = function()
             self.box = DarkPowerMenu()
-            self.box.layer = 1
-            self:addChild(self.box)
+            self.box.layer = self.layer + 1
+            Game.world:addChild(self.box)
 
             self.ui_select:stop()
             self.ui_select:play()
@@ -129,8 +129,8 @@ function DarkMenu:addButtons()
         ["desc_sprite"]    = Assets.getTexture("ui/menu/desc/config"),
         ["callback"]       = function()
             self.box = DarkConfigMenu()
-            self.box.layer = -1
-            self:addChild(self.box)
+            self.box.layer = self.layer - 1
+            Game.world:addChild(self.box)
 
             self.ui_select:stop()
             self.ui_select:play()
@@ -203,7 +203,7 @@ function DarkMenu:onKeyPressed(key)
         return
     end
 
-    if not self.animation_done then return end
+    if (not self.animation_done) and self.animate_out then return end
 
     if self.state == "MAIN" then
         local old_selected = self.selected_submenu

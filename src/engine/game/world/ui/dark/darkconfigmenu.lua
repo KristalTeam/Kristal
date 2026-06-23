@@ -9,6 +9,9 @@ function DarkConfigMenu:init()
 
     self.font = Assets.getFont("main")
 
+    self.layer = WORLD_LAYERS["ui"]
+    self:setParallax(0, 0)
+
     self.heart_sprite = Assets.getTexture("player/heart")
     self.arrow_sprite = Assets.getTexture("ui/page_arrow_down")
 
