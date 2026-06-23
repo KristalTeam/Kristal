@@ -10,7 +10,7 @@ return {
   tilewidth = 40,
   tileheight = 40,
   nextlayerid = 8,
-  nextobjectid = 57,
+  nextobjectid = 59,
   properties = {
     ["name"] = "Test Map - Room 1"
   },
@@ -524,6 +524,24 @@ return {
           opacity = 1,
           visible = true,
           properties = {}
+        },
+        {
+          id = 58,
+          name = "climbmover",
+          type = "",
+          shape = "rectangle",
+          x = 480,
+          y = 1240,
+          width = 40,
+          height = 40,
+          rotation = 0,
+          opacity = 1,
+          visible = true,
+          properties = {
+            ["exit"] = { id = 49 },
+            ["one_way"] = true,
+            ["target"] = { id = 47 }
+          }
         }
       }
     },
@@ -732,24 +750,6 @@ return {
             ["actor"] = "wall",
             ["flagcheck"] = "wall_hit",
             ["text1"] = "* I Am the Wall Guardian.[wait:5]\n* This Wall is Off Limits for you\nno-good wall slammers."
-          }
-        },
-        {
-          id = 45,
-          name = "climbmover",
-          type = "",
-          shape = "rectangle",
-          x = 480,
-          y = 1240,
-          width = 40,
-          height = 40,
-          rotation = 0,
-          opacity = 1,
-          visible = true,
-          properties = {
-            ["exit"] = { id = 49 },
-            ["one_way"] = true,
-            ["target"] = { id = 47 }
           }
         },
         {

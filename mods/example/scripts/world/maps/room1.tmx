@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.11" tiledversion="1.12.1" orientation="orthogonal" renderorder="right-down" width="20" height="33" tilewidth="40" tileheight="40" infinite="0" nextlayerid="8" nextobjectid="57">
+<map version="1.11" tiledversion="1.12.1" orientation="orthogonal" renderorder="right-down" width="20" height="33" tilewidth="40" tileheight="40" infinite="0" nextlayerid="8" nextobjectid="59">
  <editorsettings>
   <export target="room1.lua" format="lua"/>
  </editorsettings>
@@ -111,6 +111,13 @@
  <objectgroup color="#00ffff" id="6" name="climbing" class="objects">
   <object id="42" type="climbarea" x="640" y="1240" width="240" height="40"/>
   <object id="43" type="climbarea" x="560" y="1240" width="40" height="40"/>
+  <object id="58" name="climbmover" x="480" y="1240" width="40" height="40">
+   <properties>
+    <property name="exit" type="object" value="49"/>
+    <property name="one_way" type="bool" value="true"/>
+    <property name="target" type="object" value="47"/>
+   </properties>
+  </object>
  </objectgroup>
  <objectgroup color="#7f00ff" id="5" name="markers">
   <object id="20" name="spawn" x="300" y="250">
@@ -174,13 +181,6 @@
 no-good wall slammers.</property>
    </properties>
    <point/>
-  </object>
-  <object id="45" name="climbmover" x="480" y="1240" width="40" height="40">
-   <properties>
-    <property name="exit" type="object" value="49"/>
-    <property name="one_way" type="bool" value="true"/>
-    <property name="target" type="object" value="47"/>
-   </properties>
   </object>
   <object id="51" name="transition" x="780" y="1240" width="20" height="40">
    <properties>
