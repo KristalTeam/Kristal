@@ -187,7 +187,8 @@ end
 
 function character:drawPowerStat(index, x, y, menu)
     local dog_index = 1
-    if Game.chapter >= 4 then
+
+    if Game.chapter == 4 then
         dog_index = 2
     end
 
