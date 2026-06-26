@@ -20,8 +20,10 @@ function character:init()
         self.title = "Dark Prince\nDark-World being.\nHas friends now."
     elseif Game.chapter == 3 then
         self.title = "Dark Prince\nDark-World being.\nHas friends."
-    else
+    elseif Game.chapter == 4 then
         self.title = "Dark Hero\nRecords and faces\nthe fate."
+    elseif Game.chapter >= 5 then
+        self.title = "Artemisia\nGoes well with tea."
     end
 
     -- Determines which character the soul comes from (higher number = higher priority)
@@ -49,8 +51,10 @@ function character:init()
         self.health = 100
     elseif Game.chapter == 3 then
         self.health = 140
-    else
+    elseif Game.chapter == 4 then
         self.health = 180
+    elseif Game.chapter >= 5 then
+        self.health = 210
     end
 
     -- Base stats (saved to the save file)
@@ -75,12 +79,19 @@ function character:init()
             defense = 2,
             magic = 11,
         }
-    else
+    elseif Game.chapter == 4 then
         self.stats = {
             health = 180,
             attack = 15,
             defense = 2,
             magic = 14,
+        }
+    elseif Game.chapter >= 5 then
+        self.stats = {
+            health = 210,
+            attack = 10,
+            defense = 2,
+            magic = 9,
         }
     end
     -- Max stats from level-ups
@@ -98,11 +109,17 @@ function character:init()
             attack = 14,
             magic = 13
         }
-    else
+    elseif Game.chapter == 4 then
         self.max_stats = {
             health = 210,
             attack = 17,
             magic = 16
+        }
+    elseif Game.chapter >= 5 then
+        self.max_stats = {
+            health = 210,
+            attack = 12,
+            magic = 11
         }
     end
 
@@ -123,10 +140,14 @@ function character:init()
         self:setWeapon("fiberscarf")
         self:setArmor(1, "amber_card")
         self:setArmor(2, "glowwrist")
-    elseif Game.chapter >= 4 then
+    elseif Game.chapter == 4 then
         self:setWeapon("flexscarf")
         self:setArmor(1, "gingerguard")
         self:setArmor(2, "glowwrist")
+    elseif Game.chapter >= 5 then
+        self:setWeapon("flexscarf")
+        self:setArmor(1, "gingerguard")
+        self:setArmor(2, "gingerguard")
     end
 
     -- Default light world equipment item IDs (saves current equipment)

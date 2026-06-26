@@ -20,8 +20,10 @@ function character:init()
         self.title = "Tactician\nCommands the party\nby ACTs. Sometimes."
     elseif Game.chapter == 3 then
         self.title = "Tactician\nCommands the party\nby ACTs."
-    else
+    elseif Game.chapter == 4 then
         self.title = "Dark Hero\nCarries out fate\nwith the blade."
+    elseif Game.chapter >= 5 then
+        self.title = "Blue Rose\nQuiet, yet\nflirtatious."
     end
 
     -- Determines which character the soul comes from (higher number = higher priority)
@@ -71,15 +73,22 @@ function character:init()
             defense = 2,
             magic = 0
         }
-    else
+    elseif Game.chapter == 4 then
         self.stats = {
             health = 200,
             attack = 17,
             defense = 2,
             magic = 0
         }
-
+    elseif Game.chapter >= 5 then
+        self.stats = {
+            health = 240,
+            attack = 17,
+            defense = 2,
+            magic = 0
+        }
     end
+
     -- Max stats from level-ups
     if Game.chapter == 1 then
         self.max_stats = {
@@ -94,9 +103,14 @@ function character:init()
             health = 200,
             attack = 16
         }
-    else
+    elseif Game.chapter == 4 then
         self.max_stats = {
             health = 240,
+            attack = 19
+        }
+    elseif Game.chapter >= 5 then
+        self.max_stats = {
+            health = 280,
             attack = 19
         }
     end
@@ -122,6 +136,10 @@ function character:init()
         self:setWeapon("saber10")
         self:setArmor(1, "gingerguard")
         self:setArmor(2, "glowwrist")
+    elseif Game.chapter >= 5 then
+        self:setWeapon("winglade")
+        self:setArmor(1, "gingerguard")
+        self:setArmor(2, "gingerguard")
     end
 
     -- Default light world equipment item IDs (saves current equipment)
@@ -129,9 +147,12 @@ function character:init()
         self.lw_weapon_default = "light/pencil"
     elseif Game.chapter == 3 then
         self.lw_weapon_default = "light/mech_pencil"
-    elseif Game.chapter >= 4 then
+    elseif Game.chapter == 4 then
         self.lw_weapon_default = "light/cactusneedle"
+    elseif Game.chapter >= 5 then
+        self.lw_weapon_default = "light/quillpen"
     end
+
     self.lw_armor_default = "light/bandage"
 
     -- Character color (for action box outline and hp bar)
