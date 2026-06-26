@@ -70,28 +70,28 @@ function character:init()
             health = 100,
             attack = 10,
             defense = 2,
-            magic = 9,
+            magic = 9
         }
     elseif Game.chapter == 3 then
         self.stats = {
             health = 140,
             attack = 12,
             defense = 2,
-            magic = 11,
+            magic = 11
         }
     elseif Game.chapter == 4 then
         self.stats = {
             health = 180,
             attack = 15,
             defense = 2,
-            magic = 14,
+            magic = 14
         }
     elseif Game.chapter >= 5 then
         self.stats = {
             health = 210,
-            attack = 10,
+            attack = 15,
             defense = 2,
-            magic = 9,
+            magic = 14
         }
     end
     -- Max stats from level-ups
@@ -118,8 +118,8 @@ function character:init()
     elseif Game.chapter >= 5 then
         self.max_stats = {
             health = 210,
-            attack = 12,
-            magic = 11
+            attack = 17,
+            magic = 16
         }
     end
 
