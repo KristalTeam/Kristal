@@ -47,8 +47,10 @@ function character:init()
         self.health = 120
     elseif Game.chapter == 3 then
         self.health = 160
-    else
+    elseif Game.chapter == 4 then
         self.health = 200
+    elseif Game.chapter >= 5 then
+        self.health = 240
     end
 
     -- Base stats (saved to the save file)
