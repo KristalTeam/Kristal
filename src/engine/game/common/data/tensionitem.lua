@@ -28,13 +28,9 @@ end
 function TensionItem:onBattleSelect(user, target)
     self.tension_given = Game:giveTension(self:getTensionAmount())
 
+    Assets.playSound("cardrive", 0.8, 1.4)
+
     user:flash()
-
-    local sound = Assets.newSound("cardrive")
-    sound:setPitch(1.4)
-    sound:setVolume(0.8)
-    sound:play()
-
     user:sparkle(1, 0.625, 0.25)
 end
 
