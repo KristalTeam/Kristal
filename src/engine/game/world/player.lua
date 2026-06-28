@@ -8,14 +8,16 @@ function Player:init(chara, x, y)
 
     self.is_player = true
 
-    self.slide_sound = Assets.newSound("paper_surf")
-    self.slide_sound:setLooping(true)
-
     self.climb_state = PlayerClimbState(self)
+    self.slide_state = PlayerSlideState(self)
+    self.slide_lock_state = PlayerSlideLockState(self)
+    self.slide_free_state = PlayerSlideFreeState(self)
 
     self.state_manager = StateManager("WALK", self, true)
     self.state_manager:addState("WALK", { update = self.updateWalk, drawDebug = self.drawDebug })
-    self.state_manager:addState("SLIDE", { update = self.updateSlide, enter = self.beginSlide, leave = self.endSlide, remove = self.removeSlide })
+    self.state_manager:addState("SLIDE", self.slide_state)
+    self.state_manager:addState("SLIDE_LOCK", self.slide_lock_state)
+    self.state_manager:addState("SLIDE_FREE", self.slide_free_state)
     self.state_manager:addState("CLIMB_MOUNT", { postJump = self.postJumpClimbMount, enter = self.beginClimbMount })
     self.state_manager:addState("CLIMB", self.climb_state)
     self.state_manager:addState("CLIMB_DISMOUNT", { update = self.updateClimbDismount, enter = self.beginClimbDismount, leave = self.endClimbDismount })
@@ -26,12 +28,6 @@ function Player:init(chara, x, y)
     self.run_timer_grace = 0
 
     self.auto_moving = false
-
-    self.current_slide_area = nil
-    self.slide_in_place = false
-    self.slide_lock_movement = false
-    self.slide_dust_timer = 0
-    self.slide_land_timer = 0
 
     self.hurt_timer = 0
 
@@ -97,9 +93,7 @@ function Player:getDebugInfo()
 
     self.state_manager:call("getDebugInfo", info)
 
-    if self.state_manager.state == "SLIDE" then
-        table.insert(info, "Slide in place: " .. (self.slide_in_place and "True" or "False"))
-    elseif self.state_manager.state == "WALK" then
+    if self.state_manager.state == "WALK" then
         table.insert(info, "Walk speed: " .. self:getBaseWalkSpeed())
         table.insert(info, "Current walk speed: " .. self:getCurrentSpeed(false))
         table.insert(info, "Current run speed: " .. self:getCurrentSpeed(true))
@@ -169,8 +163,6 @@ function Player:onRemove(parent)
     super.onRemove(self, parent)
 
     self.state_manager:call("remove")
-
-    self.slide_sound:stop()
 
     if parent:includes(World) and parent.player == self then
         parent.player = nil
@@ -288,7 +280,7 @@ function Player:isCameraAttachable()
         return false
     end
 
-    if self.state_manager.state == "SLIDE" and self.slide_in_place then
+    if self.state_manager.state == "SLIDE_FREE" then
         return false
     end
 
@@ -298,7 +290,7 @@ end
 function Player:isMovementEnabled()
     return not OVERLAY_OPEN
         and not Game.lock_movement
-        and not self.slide_lock_movement
+        and self.state ~= "SLIDE_LOCK"
         and Game.state == "OVERWORLD"
         and self.world.state == "GAMEPLAY"
         and self.hurt_timer == 0
@@ -384,69 +376,9 @@ function Player:isClimbJumping()
     return self:isClimbing() and self.climb_state.jumping and self.climb_state.state == 2
 end
 
-function Player:beginSlide(last_state, in_place, lock_movement)
-    self.slide_sound:play()
-    self.auto_moving = true
-    self.slide_in_place = in_place or false
-    self.slide_lock_movement = lock_movement or false
-    self.slide_land_timer = 0
-    self.sprite:setAnimation("slide")
-end
-
-function Player:updateSlideDust()
-    self.slide_dust_timer = self.slide_dust_timer - DTMULT
-
-    if self.slide_dust_timer <= 0 then
-        self.slide_dust_timer = self.slide_dust_timer + 3
-
-        local dust = Sprite("effects/slide_dust")
-        dust:play(1 / 15, false, function() dust:remove() end)
-        dust:setOrigin(0.5, 0.5)
-        dust:setScale(2, 2)
-        dust:setPosition(self.x, self.y)
-        dust.layer = self.layer - 0.01
-        dust.physics.speed_y = -6
-        dust.physics.speed_x = MathUtils.random(-1, 1)
-        dust.debug_select = false
-        self.world:addChild(dust)
-    end
-end
-
-function Player:updateSlide()
-    local slide_x = 0
-    local slide_y = 0
-
-    if self:isMovementEnabled() then
-        if Input.down("right") then slide_x = slide_x + 1 end
-        if Input.down("left") then slide_x = slide_x - 1 end
-        if Input.down("down") then slide_y = slide_y + 1 end
-        if Input.down("up") then slide_y = slide_y - 1 end
-    end
-
-    if not self.slide_in_place then
-        slide_y = 2
-    end
-
-    self.run_timer = 50
-    local speed = self:getBaseWalkSpeed() + 4
-
-    self:move(slide_x, slide_y, speed * DTMULT)
-
-    self:updateSlideDust()
-end
-
-function Player:endSlide(next_state)
-    if self.slide_lock_movement then
-        self.slide_land_timer = 4
-    else
-        self.slide_sound:stop()
-        self.sprite:resetSprite()
-    end
-    self.auto_moving = false
-end
-
-function Player:removeSlide()
-    self.slide_sound:stop()
+function Player:isSliding()
+    local state = self.state_manager.state
+    return state == "SLIDE" or state == "SLIDE_LOCK" or state == "SLIDE_FREE"
 end
 
 function Player:cancelFollowerTweens()
@@ -800,15 +732,6 @@ end
 function Player:update()
     if self.hurt_timer > 0 then
         self.hurt_timer = MathUtils.approach(self.hurt_timer, 0, DTMULT)
-    end
-
-    if self.slide_land_timer > 0 and self.state_manager.state ~= "SLIDE" then
-        self.slide_land_timer = MathUtils.approach(self.slide_land_timer, 0, DTMULT)
-        if self.slide_land_timer == 0 then
-            self.slide_sound:stop()
-            self.sprite:resetSprite()
-            self.slide_lock_movement = false
-        end
     end
 
     self.state_manager:update()

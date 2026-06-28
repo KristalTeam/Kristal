@@ -282,7 +282,7 @@ return {
           opacity = 1,
           visible = true,
           properties = {
-            ["player_state"] = "SLIDE"
+            ["player_state"] = "SLIDE_LOCK"
           }
         },
         {

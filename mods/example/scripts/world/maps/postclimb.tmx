@@ -42,7 +42,7 @@
  <objectgroup color="#7f00ff" id="4" name="markers">
   <object id="73" name="slide" x="580" y="-50">
    <properties>
-    <property name="player_state" value="SLIDE"/>
+    <property name="player_state" value="SLIDE_LOCK"/>
    </properties>
    <point/>
   </object>

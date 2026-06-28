@@ -14,6 +14,8 @@ function Follower:init(chara, x, y, target)
     self.state_manager = StateManager("WALK", self, true)
     self.state_manager:addState("WALK")
     self.state_manager:addState("SLIDE", { enter = self.beginSlide, leave = self.endSlide })
+    self.state_manager:addState("SLIDE_LOCK", { enter = self.beginSlide, leave = self.endSlide })
+    self.state_manager:addState("SLIDE_FREE", { enter = self.beginSlide, leave = self.endSlide })
 
     self.history_time = 0
     self.history = {}
