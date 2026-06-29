@@ -73,37 +73,56 @@ end
 function Choicebox:draw()
     super.draw(self)
     love.graphics.setFont(self.font)
-    if self.choices[1] then
-        Draw.setColor(self.main_colors[1])
-        if self.current_choice == 1 then Draw.setColor(self.hover_colors[1]) end
+
+    if self.choices[1] ~= nil then
+        Draw.setColor(self.current_choice == 1 and self.hover_colors[1] or self.main_colors[1])
         love.graphics.print(self.choices[1], 36, 24)
     end
-    if self.choices[2] then
-        Draw.setColor(self.main_colors[2])
-        if self.current_choice == 2 then Draw.setColor(self.hover_colors[2]) end
+
+    if self.choices[2] ~= nil then
+        Draw.setColor(self.current_choice == 2 and self.hover_colors[2] or self.main_colors[2])
         love.graphics.print(self.choices[2], 528 - self.font:getWidth(self.choices[2]), 24)
     end
-    if self.choices[3] then
-        Draw.setColor(self.main_colors[3])
-        if self.current_choice == 3 then Draw.setColor(self.hover_colors[3]) end
-        love.graphics.print(self.choices[3], 17 + MathUtils.round(self.width / 2) - MathUtils.round(self.font:getWidth(self.choices[3]) / 2), -8)
+
+    local top_width = 0
+    local bottom_width = 0
+
+    if self.choices[3] ~= nil then
+        top_width = self.font:getWidth(self.choices[3])
     end
-    if self.choices[4] then
-        Draw.setColor(self.main_colors[4])
-        if self.current_choice == 4 then Draw.setColor(self.hover_colors[4]) end
-        love.graphics.print(self.choices[4], 17 + MathUtils.round(self.width / 2) - MathUtils.round(self.font:getWidth(self.choices[4]) / 2), 78)
+
+    if self.choices[4] ~= nil then
+        bottom_width = self.font:getWidth(self.choices[4])
+    end
+
+    local vertical_width = math.max(top_width, bottom_width)
+
+    if self.choices[3] ~= nil then
+        Draw.setColor(self.current_choice == 3 and self.hover_colors[3] or self.main_colors[3])
+        love.graphics.print(self.choices[3], 17 + MathUtils.round(self.width / 2) - MathUtils.round(vertical_width / 2), -8)
+    end
+
+    if self.choices[4] ~= nil then
+        Draw.setColor(self.current_choice == 4 and self.hover_colors[4] or self.main_colors[4])
+        love.graphics.print(self.choices[4], 17 + MathUtils.round(self.width / 2) - MathUtils.round(vertical_width / 2), 78)
     end
 
     local soul_positions = {
-        --[[ Center: ]] { 224, 38 },
         --[[ Left:   ]] { 4,   34 },
         --[[ Right:  ]] { 528 - self.font:getWidth(self.choices[2] or "") - 32, 34 },
-        --[[ Top:    ]] { 17 + MathUtils.round(self.width / 2) - MathUtils.round(self.font:getWidth(self.choices[3] or "") / 2) - 32, -8 + 6 },
-        --[[ Bottom: ]] { 17 + MathUtils.round(self.width / 2) - MathUtils.round(self.font:getWidth(self.choices[4] or "") / 2) - 32, 78 + 6 }
+        --[[ Top:    ]] { 17 + MathUtils.round(self.width / 2) - MathUtils.round(vertical_width / 2) - 32, -8 + 6 },
+        --[[ Bottom: ]] { 17 + MathUtils.round(self.width / 2) - MathUtils.round(vertical_width / 2) - 32, 78 + 6 }
     }
 
-    local heart_x = soul_positions[self.current_choice + 1][1]
-    local heart_y = soul_positions[self.current_choice + 1][2]
+    -- Default to center
+    local heart_x = 224
+    local heart_y = 38
+
+    local position = soul_positions[self.current_choice]
+    if position ~= nil then
+        heart_x = position[1]
+        heart_y = position[2]
+    end
 
     Draw.setColor(Game:getSoulColor())
     Draw.draw(self.heart, heart_x, heart_y, 0, 2, 2)
@@ -112,7 +131,6 @@ end
 function Choicebox:setSize(w, h)
     self.width, self.height = w or 0, h or 0
 
-    self.text:setSize(self.width, self.height)
     self.box:setSize(self.width, self.height)
 end
 
