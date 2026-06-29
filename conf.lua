@@ -14,17 +14,17 @@ function love.conf(t)
 
     t.identity = "kristal"
 
-    t.version = "11.5"
-
     t.window.title = "Kristal"
     t.window.icon = "icon.png"
     t.window.width = 640
     t.window.height = 480
 
     if major >= 12 then
+        t.version = "12.0"
         t.highdpi = true
         t.window.usedpiscale = false
     else
+        t.version = "11.5"
         t.window.highdpi = true
         t.window.usedpiscale = false
     end

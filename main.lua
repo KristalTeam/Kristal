@@ -4,8 +4,16 @@ require("src.engine.vendcust")
 
 DiscordRPC = require("src.lib.discordrpc")
 
----@diagnostic disable-next-line: lowercase-global
-https = require("src.lib.https")
+local major, _, _, _ = love.getVersion()
+
+if major >= 12 then
+    ---@diagnostic disable-next-line: lowercase-global
+    https = require("https")
+    HTTPS_AVAILABLE = true
+else
+    ---@diagnostic disable-next-line: lowercase-global, different-requires
+    https = require("src.lib.https")
+end
 
 ---@diagnostic disable-next-line: lowercase-global
 utf8 = require("utf8")

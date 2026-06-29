@@ -37,17 +37,23 @@ function SnowglobeEffect:draw()
         self:remove() -- added by Kristal
     end
 
-    love.graphics.stencil(
-        function()
-            local last_shader = love.graphics.getShader()
-            love.graphics.setShader(Kristal.Shaders["Mask"])
-            Draw.draw(Assets.getTexture("effects/snowglobe/mask"), n_x_off - x_off, n_y_off - y_off, 0, 2, 2)
-            love.graphics.setShader(last_shader)
-        end,
-        "replace",
-        1
-    )
-    love.graphics.setStencilTest("less", 1)
+    local major, _, _, _ = love.getVersion()
+
+    local drawStencil = function()
+        Draw.pushShader("Mask")
+        Draw.draw(Assets.getTexture("effects/snowglobe/mask"), n_x_off - x_off, n_y_off - y_off, 0, 2, 2)
+        Draw.popShader()
+    end
+
+    if major >= 12 then
+        love.graphics.clear(false, true, false)
+        love.graphics.setStencilMode("draw", 1, "replace")
+        self:drawStencil()
+        love.graphics.setStencilMode("test", 0, "greater")
+    else
+        love.graphics.stencil(drawStencil, "replace", 1)
+        love.graphics.setStencilTest("less", 1)
+    end
 
     if not self.foreground then
         Draw.setColor(1, 1, 1, 0.6 * self.a_factor)
@@ -73,7 +79,11 @@ function SnowglobeEffect:draw()
         love.graphics.setBlendMode("alpha")
     end
 
-    love.graphics.setStencilTest()
+    if major >= 12 then
+        love.graphics.setStencilMode()
+    else
+        love.graphics.setStencilTest()
+    end
 
     Draw.popScissor()
     love.graphics.pop()

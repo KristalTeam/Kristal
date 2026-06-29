@@ -14,16 +14,6 @@ function Outline:init(x, y, shape)
     super.init(self, x, y, shape)
 
     self.solid = false
-
-    self.shader = love.graphics.newShader([[
-        vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) {
-           if (Texel(texture, texture_coords).a == 0.0) {
-              // a discarded pixel wont be applied as the stencil.
-              discard;
-           }
-           return vec4(1.0);
-        }
-    ]])
 end
 
 ---@param object Object
@@ -37,9 +27,9 @@ end
 
 ---@param object Object
 function Outline:drawMask(object)
-    love.graphics.setShader(self.shader)
+    Draw.pushShader("Mask")
     self:drawCharacter(object)
-    love.graphics.setShader()
+    Draw.popShader()
 end
 
 function Outline:draw()
@@ -50,15 +40,24 @@ function Outline:draw()
 
     love.graphics.translate(-self.x, -self.y)
 
+    local major, _, _, _ = love.getVersion()
+
     for _, object in ipairs(Game.world.children) do
         if object:includes(Character) then
-            love.graphics.stencil((function() self:drawMask(object) end), "replace", 1)
-            love.graphics.setStencilTest("less", 1)
+            if major >= 12 then
+                love.graphics.clear(false, true, false)
+                love.graphics.setStencilMode("draw", 1, "replace")
 
-            love.graphics.setShader(Kristal.Shaders["AddColor"])
+                self:drawMask(object)
 
-            Kristal.Shaders["AddColor"]:sendColor("inputcolor", { object.actor:getColor() })
-            Kristal.Shaders["AddColor"]:send("amount", 1)
+                love.graphics.setStencilMode("test", 0, "greater")
+            else
+                love.graphics.stencil(function() self:drawMask(object) end, "replace", 1)
+                love.graphics.setStencilTest("less", 1)
+            end
+
+            local shader = Draw.pushShader(Kristal.Shaders["AddColor"], { amount = 1 })
+            shader:sendColor("inputcolor", { object.actor:getColor() })
 
             love.graphics.translate(-2, 0)
             self:drawCharacter(object)
@@ -76,9 +75,13 @@ function Outline:draw()
             self:drawCharacter(object)
             love.graphics.translate(0, 2)
 
-            love.graphics.setShader()
+            Draw.popShader()
 
-            love.graphics.setStencilTest()
+            if major >= 12 then
+                love.graphics.setStencilMode()
+            else
+                love.graphics.setStencilTest()
+            end
         end
     end
 

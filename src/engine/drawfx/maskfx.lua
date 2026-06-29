@@ -40,20 +40,45 @@ function MaskFX:draw(texture)
         end
     end
     Draw.popCanvas()
+
     Draw.setColor(1, 1, 1)
-    love.graphics.stencil(function()
-        local last_shader = love.graphics.getShader()
-        love.graphics.setShader(Kristal.Shaders["Mask"])
-        Draw.draw(mask)
-        love.graphics.setShader(last_shader)
-    end, "replace", 1)
-    if not self.inverted then
-        love.graphics.setStencilTest("greater", 0)
-    else
-        love.graphics.setStencilTest("less", 1)
+
+    local drawStencil = function()
+        Draw.pushShader("Mask")
+        Draw.drawCanvas(mask)
+        Draw.popShader()
     end
+
+    local major, _, _, _ = love.getVersion()
+
+    if major >= 12 then
+        love.graphics.setStencilMode("draw", 1, "always")
+        love.graphics.clear(false, true, false)
+
+        drawStencil()
+
+        if not self.inverted then
+            love.graphics.setStencilMode("test", 1, "less")
+        else
+            love.graphics.setStencilMode("test", 0, "greater")
+        end
+    else
+        love.graphics.stencil(drawStencil, "replace", 1)
+
+        if not self.inverted then
+            love.graphics.setStencilTest("greater", 0)
+        else
+            love.graphics.setStencilTest("less", 1)
+        end
+    end
+
     Draw.drawCanvas(texture)
-    love.graphics.setStencilTest()
+
+    if major >= 12 then
+        love.graphics.setStencilMode()
+    else
+        love.graphics.setStencilTest()
+    end
 end
 
 return MaskFX

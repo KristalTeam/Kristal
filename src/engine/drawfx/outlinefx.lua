@@ -11,8 +11,6 @@ function OutlineFX:init(color, settings, priority)
     self.thickness = settings["thickness"] or 1
     self.amount = settings["amount"] or 1
     self.cutout = settings["cutout"]
-
-    self.cutout_shader = Kristal.Shaders["Mask"]
 end
 
 function OutlineFX:setColor(r, g, b, a)
@@ -38,14 +36,27 @@ function OutlineFX:draw(texture)
 
     local outline = Draw.pushCanvas(texture:getWidth(), texture:getHeight())
 
-    if self.cutout then
-        love.graphics.stencil((function()
-            love.graphics.setShader(self.cutout_shader)
-            Draw.drawCanvas(texture)
-            love.graphics.setShader()
-        end), "replace", 1)
+    local major, _, _, _ = love.getVersion()
 
-        love.graphics.setStencilTest("less", 1)
+    local drawStencil = function()
+        Draw.pushShader("Mask")
+        Draw.drawCanvas(texture)
+        Draw.popShader()
+    end
+
+    if self.cutout then
+        if major >= 12 then
+            love.graphics.clear(false, true, false)
+            love.graphics.setStencilMode("draw", 1, "replace")
+
+            drawStencil()
+
+            love.graphics.setStencilMode("test", 0, "greater")
+        else
+            love.graphics.stencil(drawStencil, "replace", 1)
+
+            love.graphics.setStencilTest("less", 1)
+        end
     end
 
     local shader = Kristal.Shaders["AddColor"]
@@ -72,7 +83,12 @@ function OutlineFX:draw(texture)
         love.graphics.translate(0, -1 * mult_y)
         love.graphics.setShader(last_shader)
         Draw.drawCanvas(texture)
-        love.graphics.setStencilTest()
+
+        if major >= 12 then
+            love.graphics.setStencilMode()
+        else
+            love.graphics.setStencilTest()
+        end
     end
 
     Draw.popCanvas()
