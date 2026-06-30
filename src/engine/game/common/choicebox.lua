@@ -28,13 +28,21 @@ function Choicebox:init(x, y, width, height, battle_box, options)
 
     self.heart = Assets.getTexture("player/heart_menu")
 
-    Input.clear("confirm")
-
-    self.heart_x = 224
-    self.heart_y = 38
-
     self.text_positions = {}
     self.heart_positions = {}
+
+    self.heart_offset_x = options["heart_offset_x"] or 0
+    self.heart_offset_y = options["heart_offset_y"] or 0
+
+    self.choice_offsets = options["choice_offsets"] or { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } }
+
+    if self:shouldUseNewStyle() then
+        self.heart_x = 254 + self.heart_offset_x
+        self.heart_y = 4 + self.heart_offset_y
+    else
+        self.heart_x = 224
+        self.heart_y = 38
+    end
 end
 
 function Choicebox:handleConfirmInput()
@@ -75,7 +83,74 @@ function Choicebox:handleDirectionalInput()
     end
 end
 
-function Choicebox:updateChoicer()
+function Choicebox:shouldUseNewStyle()
+    if self.battle_box then
+        return false
+    end
+
+    return Game:getConfig("newChoicers")
+end
+
+function Choicebox:initNewChoices()
+    self.heart_x = 254 + self.heart_offset_x
+    self.heart_y = 42 + self.heart_offset_y
+
+    self.text_positions = {
+        { 97 + self.choice_offsets[1][1], 52 + self.choice_offsets[1][2] },
+        { 429 + self.choice_offsets[2][1], 52 + self.choice_offsets[2][2] },
+        { 263 + self.choice_offsets[3][1], 12 + self.choice_offsets[3][2] },
+        { 269 + self.choice_offsets[4][1], 91 + self.choice_offsets[4][2] }
+    }
+
+    local line_counts = {}
+
+    for i = 1, #self.choices do
+
+        self.text_positions[i][1] = self.text_positions[i][1] + 2 -- Unsure why this is needed
+        self.text_positions[i][2] = self.text_positions[i][2] - 3
+
+        local width = self.font:getWidth(self.choices[i])
+        local split = StringUtils.split(self.choices[i], "\n", false)
+        line_counts[i] = #split
+
+        if i == 3 and line_counts[i] > 1 then
+            self.text_positions[3][2] = self.text_positions[3][2] + 4
+            self.heart_y = self.heart_y + 5
+        end
+
+        self.heart_positions[i] = {
+            self.text_positions[i][1] - ((width / 2) + 22),
+            self.text_positions[i][2]
+        }
+    end
+
+    if #self.choices == 3 then
+        if line_counts[3] == 1 and line_counts[4] == 2 then
+            self.heart_y = self.heart_y - 11
+        end
+
+        if line_counts[3] == 2 and line_counts[4] == 1 then
+            self.heart_y = self.heart_y + 3
+        end
+
+        if line_counts[3] == 2 and line_counts[4] == 2 then
+            self.heart_y = self.heart_y - 4
+        end
+    end
+
+    -- Take input early
+    self:handleDirectionalInput()
+
+    if self.current_choice ~= 0 then
+        self.heart_x = self.heart_positions[self.current_choice][1]
+        self.heart_y = self.heart_positions[self.current_choice][2]
+    end
+end
+
+function Choicebox:initOldChoices()
+    self.heart_x = 224
+    self.heart_y = 38
+
     self.heart_positions[1] = { 4, 34 }
     self.text_positions[1] = { 4 + 32, -8 }
 
@@ -109,26 +184,13 @@ function Choicebox:updateChoicer()
 
         local vertical_width = math.max(top_width, bottom_width)
 
-        self.heart_positions[3] = {
-            (left_bound + ((right_bound - left_bound) / 2)) - (vertical_width / 2),
-            -2
-        }
-
-        self.text_positions[3] = {
-            self.heart_positions[3][1] + 32,
-            -8
-        }
+        self.heart_positions[3] = { (left_bound + ((right_bound - left_bound) / 2)) - (vertical_width / 2), -2 }
+        self.text_positions[3] = { self.heart_positions[3][1] + 32, -8 }
 
         if #self.choices >= 4 then
-            self.heart_positions[4] = {
-                self.heart_positions[3][1],
-                86
-            }
+            self.heart_positions[4] = { self.heart_positions[3][1], 86 }
 
-            self.text_positions[4] = {
-                self.heart_positions[4][1] + 32,
-                78
-            }
+            self.text_positions[4] = { self.heart_positions[4][1] + 32, 78 }
         end
     end
 
@@ -138,11 +200,43 @@ function Choicebox:updateChoicer()
     end
 end
 
+function Choicebox:initChoices()
+    if self:shouldUseNewStyle() then
+        self:initNewChoices()
+    else
+        self:initOldChoices()
+    end
+end
+
+function Choicebox:updateNewHeart()
+    if self.current_choice ~= 0 then
+        local t = 1 - (1 - 0.8) ^ DTMULT
+
+        self.heart_x = MathUtils.lerp(self.heart_x, self.heart_positions[self.current_choice][1], t)
+        self.heart_y = MathUtils.lerp(self.heart_y, self.heart_positions[self.current_choice][2] - 8, t)
+    end
+end
+
+function Choicebox:updateOldHeart()
+    if self.current_choice ~= 0 then
+        self.heart_x = self.heart_positions[self.current_choice][1]
+        self.heart_y = self.heart_positions[self.current_choice][2]
+    end
+end
+
+function Choicebox:updateHeart()
+    if self:shouldUseNewStyle() then
+        self:updateNewHeart()
+    else
+        self:updateOldHeart()
+    end
+end
+
 function Choicebox:update()
     self:handleConfirmInput()
     self:handleDirectionalInput()
 
-    self:updateChoicer()
+    self:updateHeart()
 
     super.update(self)
 end
@@ -163,6 +257,11 @@ function Choicebox:draw()
         local text_x = self.text_positions[i][1]
         local text_y = self.text_positions[i][2]
 
+        if self:shouldUseNewStyle() then
+            text_x = text_x - (self.font:getWidth(self.choices[i]) / 2)
+            text_y = text_y - (self.font:getHeight() / 2)
+        end
+
         love.graphics.print(self.choices[i], text_x, text_y)
     end
 
@@ -180,38 +279,46 @@ end
 
 function Choicebox:clearChoices()
     self.choices = {}
+    self.text_positions = {}
+    self.heart_positions = {}
     self.current_choice = 0
 end
 
 --- Adds a new choice to the choicebox.
 ---@param name string The name of the new choice that will be shown for the selection.
 function Choicebox:addChoice(name)
+    if #self.choices >= 4 then
+        error("Choicebox cannot have more than 4 choices")
+    end
+
     table.insert(self.choices, name)
+    self:initChoices()
 end
 
 --- Sets the main and hover colors for every choice in the choicebox.
 ---@param main? table   The main color to set for all choices, or a table of main colors for each individual choice. (Defaults to `COLORS.white`)
 ---@param hover? table  The hover color to set for all choices, or a table of hover colors for each individual choice. (Defaults to `COLORS.yellow`)
 function Choicebox:setColors(main, hover)
-    main = main or { 1, 1, 1 }
+    main = main or COLORS.white
+    hover = hover or COLORS.yellow
+
     if type(main[1]) == "number" then
         self.main_colors = {
-            { main[1], main[2], main[3], main[4] or 1 },
-            { main[1], main[2], main[3], main[4] or 1 },
-            { main[1], main[2], main[3], main[4] or 1 },
-            { main[1], main[2], main[3], main[4] or 1 },
+            ColorUtils.ensureAlpha(main),
+            ColorUtils.ensureAlpha(main),
+            ColorUtils.ensureAlpha(main),
+            ColorUtils.ensureAlpha(main)
         }
     else
         self.main_colors = TableUtils.copy(main)
     end
 
-    hover = hover or { 1, 1, 0 }
     if type(hover[1]) == "number" then
         self.hover_colors = {
-            { hover[1], hover[2], hover[3], hover[4] or 1 },
-            { hover[1], hover[2], hover[3], hover[4] or 1 },
-            { hover[1], hover[2], hover[3], hover[4] or 1 },
-            { hover[1], hover[2], hover[3], hover[4] or 1 },
+            ColorUtils.ensureAlpha(hover),
+            ColorUtils.ensureAlpha(hover),
+            ColorUtils.ensureAlpha(hover),
+            ColorUtils.ensureAlpha(hover)
         }
     else
         self.hover_colors = TableUtils.copy(hover)
