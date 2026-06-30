@@ -466,7 +466,6 @@ function Battle:checkEndWaves(old, new, reason)
             end
         end
     end
-    print(old, new)
 
     if old == "DEFENDING" and new ~= "DEFENDINGBEGIN" and should_end then
         self:endWaves()
