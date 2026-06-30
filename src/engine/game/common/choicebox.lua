@@ -79,10 +79,18 @@ function Choicebox:updateChoicer()
     self.heart_positions[1] = { 4, 34 }
     self.text_positions[1] = { 4 + 32, -8 }
 
+    if #StringUtils.split(self.choices[1], "\n", false) < 3 then
+        self.text_positions[1][2] = self.text_positions[1][2] + self.font:getHeight()
+    end
+
     if #self.choices >= 2 then
         local str_width = self.font:getWidth(self.choices[2])
         self.heart_positions[2] = { 496 - str_width, 34 }
         self.text_positions[2] = { 496 - str_width + 32, -8 }
+
+        if #StringUtils.split(self.choices[2], "\n", false) < 3 then
+            self.text_positions[2][2] = self.text_positions[2][2] + self.font:getHeight()
+        end
     end
 
     if #self.choices >= 3 then
