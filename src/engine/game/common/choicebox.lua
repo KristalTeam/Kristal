@@ -29,9 +29,41 @@ function Choicebox:init(x, y, width, height, battle_box, options)
     self.heart = Assets.getTexture("player/heart_menu")
 
     Input.clear("confirm")
+
+    self.heart_x = 224
+    self.heart_y = 38
+
+    self.text_positions = {}
+    self.heart_positions = {}
 end
 
-function Choicebox:update()
+function Choicebox:handleConfirmInput()
+    if Input.pressed("confirm") and self.current_choice ~= 0 then
+        self.selected_choice = self.current_choice
+
+        self.done = true
+
+        if not self.battle_box then
+            self:remove()
+            if Game.world:hasCutscene() then
+                Game.world.cutscene.choice = self.selected_choice
+                Game.world.cutscene:tryResume()
+            end
+        else
+            self:clearChoices()
+            self.active = false
+            self.visible = false
+            Game.battle.battle_ui.encounter_text.active = true
+            Game.battle.battle_ui.encounter_text.visible = true
+            if Game.battle:hasCutscene() then
+                Game.battle.cutscene.choice = self.selected_choice
+                Game.battle.cutscene:tryResume()
+            end
+        end
+    end
+end
+
+function Choicebox:handleDirectionalInput()
     local old_choice = self.current_choice
     if Input.down("left") then self.current_choice = 1 end
     if Input.down("right") then self.current_choice = 2 end
@@ -41,91 +73,95 @@ function Choicebox:update()
     if self.current_choice > #self.choices then
         self.current_choice = old_choice
     end
+end
 
-    if Input.pressed("confirm") then
-        if self.current_choice ~= 0 then
-            self.selected_choice = self.current_choice
+function Choicebox:updateChoicer()
+    self.heart_positions[1] = { 4, 34 }
+    self.text_positions[1] = { 4 + 32, -8 }
 
-            self.done = true
+    if #self.choices >= 2 then
+        local str_width = self.font:getWidth(self.choices[2])
+        self.heart_positions[2] = { 496 - str_width, 34 }
+        self.text_positions[2] = { 496 - str_width + 32, -8 }
+    end
 
-            if not self.battle_box then
-                self:remove()
-                if Game.world:hasCutscene() then
-                    Game.world.cutscene.choice = self.selected_choice
-                    Game.world.cutscene:tryResume()
-                end
-            else
-                self:clearChoices()
-                self.active = false
-                self.visible = false
-                Game.battle.battle_ui.encounter_text.active = true
-                Game.battle.battle_ui.encounter_text.visible = true
-                if Game.battle:hasCutscene() then
-                    Game.battle.cutscene.choice = self.selected_choice
-                    Game.battle.cutscene:tryResume()
-                end
-            end
+    if #self.choices >= 3 then
+        -- The left bound is the right side of the left choice (plus 32 pixels of padding)
+        local left_bound = self.heart_positions[1][1] + 32 + self.font:getWidth(self.choices[1])
+
+        -- The right bound is the left side of the right choice
+        local right_bound = self.heart_positions[2][1]
+
+        local top_width = self.font:getWidth(self.choices[3]) + 32
+        local bottom_width = 0
+
+        if #self.choices >= 4 then
+            bottom_width = self.font:getWidth(self.choices[4]) + 32
+        end
+
+        local vertical_width = math.max(top_width, bottom_width)
+
+        self.heart_positions[3] = {
+            (left_bound + ((right_bound - left_bound) / 2)) - (vertical_width / 2),
+            -2
+        }
+
+        self.text_positions[3] = {
+            self.heart_positions[3][1] + 32,
+            -8
+        }
+
+        if #self.choices >= 4 then
+            self.heart_positions[4] = {
+                self.heart_positions[3][1],
+                86
+            }
+
+            self.text_positions[4] = {
+                self.heart_positions[4][1] + 32,
+                78
+            }
         end
     end
+
+    if self.current_choice ~= 0 then
+        self.heart_x = self.heart_positions[self.current_choice][1]
+        self.heart_y = self.heart_positions[self.current_choice][2]
+    end
+end
+
+function Choicebox:update()
+    self:handleConfirmInput()
+    self:handleDirectionalInput()
+
+    self:updateChoicer()
+
     super.update(self)
 end
 
 function Choicebox:draw()
     super.draw(self)
+
+    love.graphics.push("all")
     love.graphics.setFont(self.font)
 
-    if self.choices[1] ~= nil then
-        Draw.setColor(self.current_choice == 1 and self.hover_colors[1] or self.main_colors[1])
-        love.graphics.print(self.choices[1], 36, 24)
-    end
+    for i = 1, #self.choices do
+        if self.current_choice == i then
+            Draw.setColor(self.hover_colors[i])
+        else
+            Draw.setColor(self.main_colors[i])
+        end
 
-    if self.choices[2] ~= nil then
-        Draw.setColor(self.current_choice == 2 and self.hover_colors[2] or self.main_colors[2])
-        love.graphics.print(self.choices[2], 528 - self.font:getWidth(self.choices[2]), 24)
-    end
+        local text_x = self.text_positions[i][1]
+        local text_y = self.text_positions[i][2]
 
-    local top_width = 0
-    local bottom_width = 0
-
-    if self.choices[3] ~= nil then
-        top_width = self.font:getWidth(self.choices[3])
-    end
-
-    if self.choices[4] ~= nil then
-        bottom_width = self.font:getWidth(self.choices[4])
-    end
-
-    local vertical_width = math.max(top_width, bottom_width)
-
-    if self.choices[3] ~= nil then
-        Draw.setColor(self.current_choice == 3 and self.hover_colors[3] or self.main_colors[3])
-        love.graphics.print(self.choices[3], 17 + MathUtils.round(self.width / 2) - MathUtils.round(vertical_width / 2), -8)
-    end
-
-    if self.choices[4] ~= nil then
-        Draw.setColor(self.current_choice == 4 and self.hover_colors[4] or self.main_colors[4])
-        love.graphics.print(self.choices[4], 17 + MathUtils.round(self.width / 2) - MathUtils.round(vertical_width / 2), 78)
-    end
-
-    local soul_positions = {
-        --[[ Left:   ]] { 4,   34 },
-        --[[ Right:  ]] { 528 - self.font:getWidth(self.choices[2] or "") - 32, 34 },
-        --[[ Top:    ]] { 17 + MathUtils.round(self.width / 2) - MathUtils.round(vertical_width / 2) - 32, -8 + 6 },
-        --[[ Bottom: ]] { 17 + MathUtils.round(self.width / 2) - MathUtils.round(vertical_width / 2) - 32, 78 + 6 }
-    }
-
-    -- Default to center
-    local heart_x = 224
-    local heart_y = 38
-
-    local position = soul_positions[self.current_choice]
-    if position ~= nil then
-        heart_x = position[1]
-        heart_y = position[2]
+        love.graphics.print(self.choices[i], text_x, text_y)
     end
 
     Draw.setColor(Game:getSoulColor())
-    Draw.draw(self.heart, heart_x, heart_y, 0, 2, 2)
+    Draw.draw(self.heart, self.heart_x, self.heart_y, 0, 2, 2)
+
+    love.graphics.pop()
 end
 
 function Choicebox:setSize(w, h)
