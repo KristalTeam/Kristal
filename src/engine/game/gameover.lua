@@ -1,8 +1,8 @@
 --- An object that is created whenever the player reaches a Game Over, responsible for managing the GameOver sequence. \
 --- The type of GameOver that plays (Chapter 1, Chapter 2, or Undertale) is dependent on the project configuration and whether the death occurred in the Light World or not.
----@class GameOver : Object
+---@class GameOver : GameState
 ---@overload fun(...) : GameOver
-local GameOver, super = Class(Object, "gameover")
+local GameOver, super = Class(GameState, "gameover")
 
 function GameOver:init(x, y)
     super.init(self, 0, 0)
@@ -13,8 +13,6 @@ function GameOver:init(x, y)
     if not Game:isLight() then
         self.screenshot = love.graphics.newImage(SCREEN_CANVAS:newImageData())
     end
-
-    self.music = Music()
 
     self.soul = Sprite("player/heart")
     self.soul:setOrigin(0.5, 0.5)
@@ -34,6 +32,10 @@ function GameOver:init(x, y)
     if Game:isLight() then
         self.timer = 28 -- We only wanna show one frame if we're in Undertale mode
     end
+end
+
+function GameOver:getLegacyGameStateID()
+    return "GAMEOVER"
 end
 
 function GameOver:onRemove(parent)

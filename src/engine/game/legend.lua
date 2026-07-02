@@ -1,18 +1,25 @@
 --- The handler object for Legend-style cutscenes. \
 --- For the object that is received by legend cutscene scripts, see [`LegendCutscene`](lua://LegendCutscene.init).
----@class Legend : Object
+---@class Legend : GameState
 ---@overload fun(...) : Legend
-local Legend, super = Class(Object, "legend")
+local Legend, super = Class(GameState, "legend")
 
+---@param cutscene LegendCutscene
+---@param options table
 function Legend:init(cutscene, options)
     super.init(self, 0, 0)
+
+    self.music = Music()
 
     options = options or {}
 
     self.can_skip = options["can_skip"] or false
     self.cutscene = cutscene
-
-    self.music = Music(options["music"], options["music_volume"] or 1, options["music_pitch"] or 1)
+    self.music_options = {
+        name = options["music"] --[[@as string?]],
+        volume = options["music_volume"] or 1,
+        pitch = options["music_pitch"] or 1,
+    }
     if self.music.source then
         self.music.source:setLooping(true)
     end
@@ -44,9 +51,28 @@ function Legend:init(cutscene, options)
     self.slides = {}
 end
 
+function Legend:shouldHideOtherStates()
+    -- Some projects rely on the world updating for playing legends during world cutscenes.
+    return false
+end
+
+function Legend:getLegacyGameStateID()
+    return "LEGEND"
+end
+
+function Legend:enter()
+    -- Don't create a `Music` instance since that's done in `init`
+    self:onEnter()
+end
+
+function Legend:onEnter()
+    if self.music_options.name ~= nil then
+        self.music:play(self.music_options.name, self.music_options.volume, self.music_options.pitch)
+    end
+end
+
 function Legend:onFinish(skip)
-    self:remove()
-    Game.state = "OVERWORLD"
+    Game:popState()
     Game.world.fader:fadeIn(
         function()
             if not Game.world:hasCutscene() then
@@ -65,8 +91,6 @@ end
 
 function Legend:onRemove(parent)
     super.onRemove(self, parent)
-
-    self.music:remove()
 end
 
 

@@ -2,7 +2,7 @@
 --- Shop files should be located in `scripts/shops`, and will use their filepath relative to this location as an id by default. \
 --- Either [`World:shopTransition()`](lua://World.shopTransition) or a [`Transition`](lua://Transition) event with the property `shop` defined can be used to enter shops.
 ---
----@class Shop : Object
+---@class Shop : GameState
 ---@overload fun(...) : Shop
 ---
 --- The label used for currency in this shop.
@@ -105,7 +105,7 @@
 ---@field private current_selected_main_option integer The current selected menu option in the MAINMENU state.
 ---@field private current_selecting_storage integer The current selected item storage index in the SELLMENU state.
 ---
-local Shop, super = Class(Object, "shop")
+local Shop, super = Class(GameState, "shop")
 
 ---@alias ShopState
 ---| "MAINMENU"    # The state used when the player is in the Main menu.
@@ -190,7 +190,6 @@ function Shop:init()
     self.state_reason = nil
 
     self.shop_music = ""
-    self.music = Music()
 
     self.timer = Timer()
     self:addChild(self.timer)
@@ -243,6 +242,10 @@ function Shop:init()
 
     self.hide_world = true
     self.hide_main_menu_currency = false
+end
+
+function Shop:getLegacyGameStateID()
+    return "SHOP"
 end
 
 --- A function that runs later than `Shop:init()`, primarily setting up UI elements of the shop. \
@@ -362,8 +365,10 @@ end
 ---@param parent Object
 function Shop:onRemove(parent)
     super.onRemove(self, parent)
+end
 
-    self.music:remove()
+function Shop:isMusicActive()
+    return self.shop_music ~= nil
 end
 
 ---@return string
@@ -658,14 +663,14 @@ end
 
 --- Leaves the shop instantly, without a transition.
 function Shop:leaveImmediate()
-    self:remove()
-    Game.shop = nil
-    Game.state = "OVERWORLD"
+    Game:popState()
+end
+
+function Shop:onExit()
     if self:shouldFade() then
         Game.fader.alpha = 1
         Game.fader:fadeIn()
     end
-    Game.world:setState("GAMEPLAY")
 
     --self.transition_target.shop = nil
     --Game.world:transitionImmediate(self.transition_target)
@@ -679,8 +684,8 @@ function Shop:leaveImmediate()
         if self.leave_options["facing"] then
             Game.world.player:setFacing(self.leave_options["facing"])
         end
-        Game.world.music:resume()
     end
+    Game.shop = nil
 end
 
 function Shop:shouldFade()
@@ -1708,6 +1713,10 @@ end
 ---@return boolean Whether the world is hidden.
 function Shop:isWorldHidden()
     return self.hide_world
+end
+
+function Shop:shouldHideOtherStates()
+    return self:isWorldHidden()
 end
 
 --- *(Override)* Returns whether the shop should hide the currency while in the MAINMENU state.
