@@ -27,6 +27,13 @@
             "width": 800,
             "x": 2520,
             "y": 480
+        },
+        {
+            "fileName": "maps/voidclimb.tmx",
+            "height": 1200,
+            "width": 1080,
+            "x": 1160,
+            "y": 480
         }
     ],
     "onlyShowAdjacentMaps": false,
