@@ -63,7 +63,22 @@ function MirrorArea:drawCharacter(chara)
     -- See Object.drawSelf
     love.graphics.push()
     chara:preDraw()
-    love.graphics.translate(0, -chara.y + self.bottom + self.offset)
+
+    -- Unscale
+    love.graphics.scale(1 / chara.scale_x, 1 / chara.scale_y)
+    -- Go back to the origin
+    love.graphics.translate(0, -chara.y)
+
+    -- Start drawing at the bottom of the mirror area...
+    local y_offset = (self.bottom + self.offset)
+    love.graphics.translate(0, y_offset)
+
+    -- ...and flip the character's position relative to that area
+    love.graphics.translate(0, y_offset - chara.y)
+
+    -- Re-scale
+    love.graphics.scale(chara.scale_x, chara.scale_y)
+
     if chara.draw_children_below then
         chara:drawChildren(nil, chara.draw_children_below)
     end
