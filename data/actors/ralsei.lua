@@ -43,6 +43,9 @@ function actor:initChapter1()
 
     -- Table of sprite animations
     self.animations = {
+        -- Movement animations
+        ["slide"]               = {"slide", 4/30, true},
+        
         -- Battle animations
         ["battle/idle"]         = {"battle/idle", 1/6, true},
 
@@ -70,6 +73,9 @@ function actor:initChapter1()
         ["battle/transition_out"] = {"battle/transition_out", 1/15, false},
 
         -- Cutscene animations
+        ["jump_ball"]           = {"ball", 1/15, true},
+        ["jump_ball_slow"]      = {"ball", 4/30, true},
+
         ["hood"]                = {"hood", 0.25, true},
         ["pullhat"]             = {"pullhat", 0.25, true},
         ["removehood"]          = {"removehood", 0.25, false, next="walk/down"},
@@ -110,6 +116,8 @@ function actor:initChapter1()
         ["walk_blush/right"] = {0, 0},
         ["walk_blush/up"] = {0, 0},
 
+        ["slide"] = {-2, 2},
+
         -- Battle offsets
         ["battle/idle"] = {-7, -2},
 
@@ -131,6 +139,11 @@ function actor:initChapter1()
         ["battle/victory"] = {-3, -2},
 
         -- Cutscene offsets
+        ["pose"] = {-1, 1},
+
+        ["ball"] = {0, 9},
+        ["landed"] = {-3, -6},
+        
         ["hood"] = {-2, -1},
         ["pullhat"] = {-1, -2},
         ["removehood"] = {-2, -1},
@@ -138,7 +151,9 @@ function actor:initChapter1()
         ["sing"] = {-10, -2},
         ["sit"] = {0, 0},
         ["shock"] = {-17, -4},
-        ["fallen"] = {-8, 20}
+        ["fallen"] = {-8, 20},
+
+        ["splat"] = {-14, 22},
     }
 end
 
@@ -217,7 +232,9 @@ function actor:initChapter2()
         ["hug_stop"]            = {"hug_stop", 2/9, false},
 
         ["wave_start"]          = {"wave_start", 5/30, false, next="wave_down"},
-        ["wave_down"]           = {"wave_down", 5/30, true}
+        ["wave_down"]           = {"wave_down", 5/30, true},
+
+        ["hatdrop"]             = {"hatdrop", 4/30, false}
     }
 
     -- Tables of sprites to change into in mirrors
@@ -298,7 +315,9 @@ function actor:initChapter2()
         ["wave_down"] = {2, 1},
 
         ["splat"] = {-15, 21},
-        ["stool"] = {-11, 18}
+        ["stool"] = {-11, 18},
+
+        ["hatdrop"] = {-7, -3}
     }
 end
 
