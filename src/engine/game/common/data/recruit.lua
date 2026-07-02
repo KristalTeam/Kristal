@@ -57,6 +57,7 @@ function Recruit:init()
     self.element = "UNSET"
     self.like = "Undefined"
     self.dislike = "Undefined"
+    self.wish = "Undefined"
 
     self.box_gradient_type = "bright"
 
@@ -97,6 +98,7 @@ function Recruit:getDefense() return self.defense end
 function Recruit:getElement() return self.element end
 function Recruit:getLike() return self.like end
 function Recruit:getDislike() return self.dislike end
+function Recruit:getWish() return self.wish end
 
 function Recruit:getBoxGradientType() return self.box_gradient_type end
 function Recruit:getBoxGradientColor() return self.box_gradient_color end
