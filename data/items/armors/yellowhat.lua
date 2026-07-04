@@ -1,25 +1,25 @@
-local item, super = Class(Item, "twinribbon")
+local item, super = Class(Item, "yellowhat")
 
 function item:init()
     super.init(self)
 
     -- Display name
-    self.name = "TwinRibbon"
+    self.name = "YellowHat"
 
     -- Item type (item, key, weapon, armor)
     self.type = "armor"
     -- Item icon (for equipment)
-    self.icon = "ui/menu/icon/armor"
+    self.icon = "ui/menu/icon/cowboy_hat"
 
     -- Battle description
     self.effect = ""
     -- Shop description
     self.shop = ""
     -- Menu description
-    self.description = "Two ribbons. You'll have to put\nyour hair into pigtails."
+    self.description = "The hat of a just cowboy. Makes spells\n20% more effective."
 
     -- Default shop price (sell price is halved)
-    self.price = 400
+    self.price = 2
     -- Whether the item can be sold
     self.can_sell = true
 
@@ -34,12 +34,12 @@ function item:init()
 
     -- Equip bonuses (for weapons and armor)
     self.bonuses = {
-        defense = 3,
-
-        graze_size = 0.2,
+        attack = 4,
+        defense = 4,
+        magic = 4
     }
     -- Bonus name and icon (displayed in equip menu)
-    self.bonus_name = "GrazeArea"
+    self.bonus_name = "Skill20%"
     self.bonus_icon = "ui/menu/icon/up"
 
     -- Equippable characters (default true for armors, false for weapons)
@@ -47,31 +47,10 @@ function item:init()
 
     -- Character reactions
     self.reactions = {
-        susie = "NOT the hair though.",
-        ralsei = "Try around my horns!",
-        noelle = "... nostalgic, huh.",
+        susie = "Get in Horse Mode, Ralsei.",
+        ralsei = "Can Susie be the horse?",
+        noelle = "(At least I'm not the horse)",
     }
-    self.susie_rejection = "... it gets worse and worse."
-end
-
-function item:canEquip(character, slot_type, slot_index)
-    if character.id == "susie" and not character:getFlag("can_wear_ribbons", false) then
-        return false
-    end
-
-    return super.canEquip(self, character, slot_type, slot_index)
-end
-
-function item:getReaction(user_id, reactor_id)
-    if user_id == "susie" and reactor_id == "susie" then
-        local susie = Game:getPartyMember("susie")
-
-        if not susie:getFlag("can_wear_ribbons", false) then
-            return self.susie_rejection
-        end
-    end
-
-    return super.getReaction(self, user_id, reactor_id)
 end
 
 return item

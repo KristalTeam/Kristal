@@ -43,24 +43,44 @@ function item:init()
     self.bonus_icon = "ui/menu/icon/up"
 
     -- Equippable characters (default true for armors, false for weapons)
-    self.can_equip = {
-        susie = false
-    }
+    self.can_equip = {}
 
     -- Character reactions
     if Game.chapter == 2 then
         self.reactions = {
-            susie = "I said NO! C'mon already!",
+            susie = "Fine. On my shoulder.",
             ralsei = "It's nice being dressed up...",
             noelle = "... feels familiar.",
         }
+        self.susie_rejection = "I said NO! C'mon already!"
     else
         self.reactions = {
-            susie = "Nope. Not in 1st grade anymore.",
+            susie = "Fine. On my shoulder.",
             ralsei = "Um... D-do I look cute...?",
             noelle = "... feels familiar.",
         }
+        self.susie_rejection = "Nope. Not in 1st grade anymore."
     end
+end
+
+function item:canEquip(character, slot_type, slot_index)
+    if character.id == "susie" and not character:getFlag("can_wear_ribbons", false) then
+        return false
+    end
+
+    return super.canEquip(self, character, slot_type, slot_index)
+end
+
+function item:getReaction(user_id, reactor_id)
+    if user_id == "susie" and reactor_id == "susie" then
+        local susie = Game:getPartyMember("susie")
+
+        if not susie:getFlag("can_wear_ribbons", false) then
+            return self.susie_rejection
+        end
+    end
+
+    return super.getReaction(self, user_id, reactor_id)
 end
 
 return item

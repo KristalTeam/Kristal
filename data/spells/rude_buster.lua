@@ -75,7 +75,12 @@ function spell:onCast(user, target)
 end
 
 function spell:getDamage(user, target, damage_bonus)
-    local damage = math.ceil((user.chara:getStat("magic") * 5) + (user.chara:getStat("attack") * 11) - (target.defense * 3)) + damage_bonus
+    local _, yellowhat_count = user.chara:checkArmor("yellowhat")
+
+    local magic_part = user.chara:getStat("magic") * (5 + (yellowhat_count * 0.5))
+    local attack_part = user.chara:getStat("attack") * (11 + yellowhat_count)
+
+    local damage = math.ceil(magic_part + attack_part - (target.defense * 3)) + damage_bonus
     return damage
 end
 

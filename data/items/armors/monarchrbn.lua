@@ -1,10 +1,10 @@
-local item, super = Class(Item, "white_ribbon")
+local item, super = Class(Item, "monarchrbn")
 
 function item:init()
     super.init(self)
 
     -- Display name
-    self.name = "White Ribbon"
+    self.name = "MonarchRBN"
 
     -- Item type (item, key, weapon, armor)
     self.type = "armor"
@@ -16,10 +16,10 @@ function item:init()
     -- Shop description
     self.shop = ""
     -- Menu description
-    self.description = "A crinkly hair ribbon that slightly\nincreases your defense."
+    self.description = "A ribbon like the wings of a butterfly.\nIncreases healing ability when equipped."
 
     -- Default shop price (sell price is halved)
-    self.price = 90
+    self.price = 4000
     -- Whether the item can be sold
     self.can_sell = true
 
@@ -34,31 +34,23 @@ function item:init()
 
     -- Equip bonuses (for weapons and armor)
     self.bonuses = {
-        defense = 2
+        defense = 6,
+        magic = 2
     }
     -- Bonus name and icon (displayed in equip menu)
-    self.bonus_name = "Cuteness"
-    self.bonus_icon = "ui/menu/icon/up"
+    self.bonus_name = "HasAntenna"
+    self.bonus_icon = "ui/menu/icon/smile"
 
     -- Equippable characters (default true for armors, false for weapons)
     self.can_equip = {}
 
     -- Character reactions
-    if Game.chapter == 2 then
-        self.reactions = {
-            susie = "Cool. A fist wrap.",
-            ralsei = "It's nice being dressed up...",
-            noelle = "... feels familiar.",
-        }
-        self.susie_rejection = "I said NO! C'mon already!"
-    else
-        self.reactions = {
-            susie = "Cool. A fist wrap.",
-            ralsei = "Um... D-do I look cute...?",
-            noelle = "... feels familiar.",
-        }
-        self.susie_rejection = "Nope. Not in 1st grade anymore."
-    end
+    self.reactions = {
+        susie = "Got a taranchula one?",
+        ralsei = "My horns are like antenna!",
+        noelle = "They're not ANTENNA!! They're ant-LERS!",
+    }
+    self.susie_rejection = "I'll squash it."
 end
 
 function item:canEquip(character, slot_type, slot_index)
@@ -79,6 +71,22 @@ function item:getReaction(user_id, reactor_id)
     end
 
     return super.getReaction(self, user_id, reactor_id)
+end
+
+function item:calculateBattleHeal(heal, base_heal, caster, target)
+    -- Increase heal by 1/8 of the base heal for each equipped on the healer
+    local heal_add = math.ceil(base_heal / 8)
+
+    if caster ~= nil then
+        local _, amount = caster:checkArmor(self.id)
+        heal_add = heal_add * amount
+    end
+
+    return heal + heal_add
+end
+
+function item:calculateBattleHealPriority()
+    return -0.8
 end
 
 return item

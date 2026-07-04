@@ -1,10 +1,10 @@
-local item, super = Class(Item, "white_ribbon")
+local item, super = Class(Item, "redribbon")
 
 function item:init()
     super.init(self)
 
     -- Display name
-    self.name = "White Ribbon"
+    self.name = "RedRibbon"
 
     -- Item type (item, key, weapon, armor)
     self.type = "armor"
@@ -14,12 +14,12 @@ function item:init()
     -- Battle description
     self.effect = ""
     -- Shop description
-    self.shop = ""
+    self.shop = "Remember\nyour receipt"
     -- Menu description
-    self.description = "A crinkly hair ribbon that slightly\nincreases your defense."
+    self.description = "A ribbon with an inscription to drive\naway resident spirits, if they don't pay."
 
     -- Default shop price (sell price is halved)
-    self.price = 90
+    self.price = 555
     -- Whether the item can be sold
     self.can_sell = true
 
@@ -34,31 +34,23 @@ function item:init()
 
     -- Equip bonuses (for weapons and armor)
     self.bonuses = {
-        defense = 2
+        defense = 4,
+        magic = 1
     }
     -- Bonus name and icon (displayed in equip menu)
-    self.bonus_name = "Cuteness"
-    self.bonus_icon = "ui/menu/icon/up"
+    self.bonus_name = nil
+    self.bonus_icon = nil
 
     -- Equippable characters (default true for armors, false for weapons)
     self.can_equip = {}
 
     -- Character reactions
-    if Game.chapter == 2 then
-        self.reactions = {
-            susie = "Cool. A fist wrap.",
-            ralsei = "It's nice being dressed up...",
-            noelle = "... feels familiar.",
-        }
-        self.susie_rejection = "I said NO! C'mon already!"
-    else
-        self.reactions = {
-            susie = "Cool. A fist wrap.",
-            ralsei = "Um... D-do I look cute...?",
-            noelle = "... feels familiar.",
-        }
-        self.susie_rejection = "Nope. Not in 1st grade anymore."
-    end
+    self.reactions = {
+        susie = "Kris's got the tab.",
+        ralsei = "Red and white...",
+        noelle = "Umm, your dad's name is on this.",
+    }
+    self.susie_rejection = "Nah, I guess... not."
 end
 
 function item:canEquip(character, slot_type, slot_index)

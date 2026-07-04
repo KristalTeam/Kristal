@@ -2297,9 +2297,34 @@ end
 
 function Battle:startProcessing()
     self.has_acted = false
+
+    for _, battler in ipairs(self.party) do
+        -- GreenApron healing effect
+        local _, greenapron_count = battler.chara:checkArmor("greenapron")
+        if greenapron_count > 0 then
+            self:doGreenApronHeal(battler, greenapron_count)
+        end
+    end
+
     if not self.encounter:onActionsStart() then
         self:setState("ACTIONS")
     end
+end
+
+---@param battler PartyBattler
+---@param num_equipped integer
+function Battle:doGreenApronHeal(battler, num_equipped)
+    local action = self:getActionBy(battler)
+
+    if action == nil or action.action ~= "DEFEND" then
+        return
+    end
+
+    -- DIFFERENCE: In DELTARUNE, this does not stack, as you cannot have multiple equipped.
+    local heal_percentage = 0.16 * num_equipped
+
+    local heal_amount = MathUtils.round(battler.chara:getStat("health") * heal_percentage)
+    battler:heal(heal_amount)
 end
 
 ---@param index integer
