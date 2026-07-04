@@ -1,3 +1,5 @@
+--- The config menu, for changing in-game settings.
+---
 ---@class DarkConfigMenu : Object
 ---@overload fun(...) : DarkConfigMenu
 local DarkConfigMenu, super = Class(Object)
@@ -28,6 +30,191 @@ function DarkConfigMenu:init()
 
     self.reset_flash_timer = 0
     self.rebinding = false
+
+    self.options = {}
+    self:registerDefaults()
+    Kristal.callEvent(KRISTAL_EVENT.getConfigOptions, self, self.options)
+
+    self:sortConfigOptions()
+
+    self:addBackOption()
+end
+
+--- Adds the default back button.
+function DarkConfigMenu:addBackOption()
+    self:addOption(DarkConfigOption(self, "Back", function()
+        if Game.chapter ~= 1 then -- TODO
+            Assets.stopAndPlaySound("ui_cancel_small")
+        end
+        Game.world.menu:closeBox()
+    end))
+end
+
+--- Clears all options from the menu.
+function DarkConfigMenu:clearOptions()
+    for i = #self.options, 1, -1 do
+        self.options[i]:remove()
+    end
+
+    self.options = {}
+end
+
+--- Sorts the config options and updates their positions.
+function DarkConfigMenu:sortConfigOptions()
+    for i, option in ipairs(self.options) do
+        option:setPosition(0, 38 + ((i - 1) * 35))
+    end
+
+    self.currently_selected = MathUtils.clamp(self.currently_selected, 1, #self.options)
+    self:updateCurrentlySelected()
+end
+
+--- Updates the currently selected option's hover state.
+function DarkConfigMenu:updateCurrentlySelected()
+    for i, option in ipairs(self.options) do
+        option:setHovered(i == self.currently_selected)
+    end
+end
+
+--- Removes an option from the menu.
+---@param index integer
+---@return DarkConfigOption option
+function DarkConfigMenu:removeOption(index)
+    if index < 1 or index > #self.options then
+        error("DarkConfigMenu:removeOption() - Index out of bounds")
+    end
+
+    local option = self.options[index]
+
+    option:remove()
+    table.remove(self.options, index)
+
+    self:sortConfigOptions()
+
+    return option
+end
+
+--- Removes an option from the menu.
+---@generic T : DarkConfigOption
+---@param child T
+---@return T option
+function DarkConfigMenu:removeOptionByChild(child)
+    for i, option in ipairs(self.options) do
+        if option == child then
+            self:removeOption(i)
+            return child
+        end
+    end
+
+    error("DarkConfigMenu:removeOptionByChild() - Child not found in options")
+end
+
+--- Inserts an option into the menu at a specific index.
+---@generic T : DarkConfigOption
+---@param index integer
+---@param option T
+---@return T option
+function DarkConfigMenu:insertOption(index, option)
+    if index < 1 or index > #self.options + 1 then
+        error("DarkConfigMenu:insertOption() - Index out of bounds")
+    end
+
+    ---@cast option DarkConfigOption
+    option:setPosition(0, 38 + ((index - 1) * 35))
+    self:addChild(option)
+
+    table.insert(self.options, index, option)
+
+    self:sortConfigOptions()
+
+    return option
+end
+
+--- Adds an option to the menu.
+---@generic T : DarkConfigOption
+---@param option T
+---@return T option
+function DarkConfigMenu:addOption(option)
+    ---@cast option DarkConfigOption
+    option:setPosition(0, 38 + (#self.options * 35))
+    self:addChild(option)
+
+    table.insert(self.options, option)
+
+    return option
+end
+
+function DarkConfigMenu:setState(state)
+    local old_state = self.state
+    self.state = state
+    self:onStateChanged(old_state, state)
+end
+
+function DarkConfigMenu:getState()
+    return self.state
+end
+
+function DarkConfigMenu:onStateChanged(old, new)
+    for _, option in ipairs(self.options) do
+        option:onStateChanged(old, new)
+    end
+
+    if old == "CONTROLS" then
+        for i = #self.options, 1, -1 do
+            self.options[i].visible = true
+        end
+    end
+
+    if new == "VOLUME" then
+        self.noise_timer = 0
+    elseif new == "CONTROLS" then
+        for i = #self.options, 1, -1 do
+            self.options[i].visible = false
+        end
+
+        self.currently_selected = 1
+        self:updateCurrentlySelected()
+    elseif new == "EXIT" then
+        self:clearOptions()
+    end
+end
+
+--- Registers the default options.
+---
+--- If "forced fullscreen" is enabled (consoles, phones) then the fullscreen option is not present, and replaced with the border option.
+function DarkConfigMenu:registerDefaults()
+    self:addOption(DarkConfigVolumeOption(self))
+
+    self:addOption(DarkConfigOption(self, "Controls", function()
+        self:setState("CONTROLS")
+    end))
+
+    self:addOption(DarkConfigBooleanOption(self, "Simplify VFX", function(option)
+        Kristal.Config["simplifyVFX"] = not Kristal.Config["simplifyVFX"]
+        option:setEnabled(Kristal.Config["simplifyVFX"])
+    end, Kristal.Config["simplifyVFX"]))
+
+    if not Kristal.isForcedFullscreen() then
+        self:addOption(DarkConfigBooleanOption(self, "Fullscreen", function(option)
+            Kristal.Config["fullscreen"] = not Kristal.Config["fullscreen"]
+            love.window.setFullscreen(Kristal.Config["fullscreen"])
+            option:setEnabled(Kristal.Config["fullscreen"])
+        end, Kristal.Config["fullscreen"]))
+    end
+
+    self:addOption(DarkConfigBooleanOption(self, "Auto-Run", function(option)
+        Kristal.Config["autoRun"] = not Kristal.Config["autoRun"]
+        option:setEnabled(Kristal.Config["autoRun"])
+    end, Kristal.Config["autoRun"]))
+
+    if Kristal.isForcedFullscreen() then
+        self:addOption(DarkConfigBorderOption(self))
+    end
+
+    self:addOption(DarkConfigOption(self, "Return to Title", function()
+        self:setState("EXIT")
+        Game:returnToMenu()
+    end))
 end
 
 function DarkConfigMenu:getBindNumberFromIndex(current_index)
@@ -91,7 +278,7 @@ function DarkConfigMenu:onKeyPressed(key)
 
             if self.currently_selected == 9 then
                 self.reset_flash_timer = 0
-                self.state = "MAIN"
+                self:setState("MAIN")
                 self.currently_selected = 2
 
                 Assets.stopAndPlaySound("ui_select")
@@ -122,39 +309,9 @@ function DarkConfigMenu:update()
         if Input.pressed("confirm") then
             Assets.stopAndPlaySound("ui_select")
 
-            if Kristal.isForcedFullscreen() then
-                if self.currently_selected == 4 then
-                    Kristal.Config["autoRun"] = not Kristal.Config["autoRun"]
-                    return
-                end
-
-                if self.currently_selected == 5 then
-                    self.state = "BORDERS"
-                    return
-                end
-            else
-                if self.currently_selected == 4 then
-                    Kristal.Config["fullscreen"] = not Kristal.Config["fullscreen"]
-                    love.window.setFullscreen(Kristal.Config["fullscreen"])
-                    return
-                elseif self.currently_selected == 5 then
-                    Kristal.Config["autoRun"] = not Kristal.Config["autoRun"]
-                    return
-                end
-            end
-
-            if self.currently_selected == 1 then
-                self.state = "VOLUME"
-                self.noise_timer = 0
-            elseif self.currently_selected == 2 then
-                self.state = "CONTROLS"
-                self.currently_selected = 1
-            elseif self.currently_selected == 3 then
-                Kristal.Config["simplifyVFX"] = not Kristal.Config["simplifyVFX"]
-            elseif self.currently_selected == 6 then
-                Game:returnToMenu()
-            elseif self.currently_selected == 7 then
-                Game.world.menu:closeBox()
+            local option = self.options[self.currently_selected]
+            if option ~= nil then
+                option:onSelected()
             end
 
             return
@@ -175,14 +332,16 @@ function DarkConfigMenu:update()
             Assets.stopAndPlaySound("ui_move")
         end
 
-        self.currently_selected = MathUtils.clamp(self.currently_selected, 1, 7)
+        self.currently_selected = MathUtils.clamp(self.currently_selected, 1, #self.options)
+
+        self:updateCurrentlySelected()
     elseif self.state == "VOLUME" then
         if Input.pressed("cancel") or Input.pressed("confirm") then
             Kristal.setVolume(MathUtils.round(Kristal.getVolume() * 100) / 100)
 
             Assets.stopAndPlaySound("ui_select")
 
-            self.state = "MAIN"
+            self:setState("MAIN")
             return
         end
 
@@ -206,7 +365,7 @@ function DarkConfigMenu:update()
         end
     elseif self.state == "BORDERS" then
         if Input.pressed("cancel") or Input.pressed("confirm") then
-            self.state = "MAIN"
+            self:setState("MAIN")
             return
         end
 
@@ -247,53 +406,16 @@ function DarkConfigMenu:update()
 end
 
 function DarkConfigMenu:draw()
-    if Game.state == "EXIT" then
+    if self:getState() == "EXIT" then
         super.draw(self)
         return
     end
+
     love.graphics.setFont(self.font)
     Draw.setColor(PALETTE["world_text"])
 
     if self.state ~= "CONTROLS" then
         love.graphics.print("CONFIG", 188, -12)
-
-        if self.state == "VOLUME" then
-            Draw.setColor(PALETTE["world_text_selected"])
-        end
-        love.graphics.print("Master Volume", 88, 38 + (0 * 35))
-        love.graphics.print(MathUtils.round(Kristal.getVolume() * 100) .. "%", 348, 38 + (0 * 35))
-
-        Draw.setColor(PALETTE["world_text"])
-
-        love.graphics.print("Controls", 88, 38 + (1 * 35))
-        love.graphics.print("Simplify VFX", 88, 38 + (2 * 35))
-        love.graphics.print(Kristal.Config["simplifyVFX"] and "ON" or "OFF", 348, 38 + (2 * 35))
-
-        if Kristal.isForcedFullscreen() then
-            love.graphics.print("Auto-Run", 88, 38 + (3 * 35))
-            love.graphics.print(Kristal.Config["autoRun"] and "ON" or "OFF", 348, 38 + (3 * 35))
-
-            if self.state == "BORDERS" then
-                Draw.setColor(PALETTE["world_text_selected"])
-            end
-
-            love.graphics.print("Border", 88, 38 + (4 * 35))
-            love.graphics.print(Kristal.getBorderName(), 348, 38 + (4 * 35))
-
-            Draw.setColor(PALETTE["world_text"])
-        else
-            love.graphics.print("Fullscreen", 88, 38 + (3 * 35))
-            love.graphics.print(Kristal.Config["fullscreen"] and "ON" or "OFF", 348, 38 + (3 * 35))
-
-            love.graphics.print("Auto-Run", 88, 38 + (4 * 35))
-            love.graphics.print(Kristal.Config["autoRun"] and "ON" or "OFF", 348, 38 + (4 * 35))
-        end
-
-        love.graphics.print("Return to Title", 88, 38 + (5 * 35))
-        love.graphics.print("Back", 88, 38 + (6 * 35))
-
-        Draw.setColor(Game:getSoulColor())
-        Draw.draw(self.heart_sprite, 63, 48 + ((self.currently_selected - 1) * 35))
     else
         -- NOTE: This is forced to true if using a PlayStation in DELTARUNE... Kristal doesn't have a PlayStation port though.
         local dualshock = Input.getControllerType() == "ps4"

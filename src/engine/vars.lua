@@ -206,6 +206,7 @@ KRISTAL_EVENT = {
     getDarkMenuButtons = "getDarkMenuButtons", -- optional creation of buttons for custom dark world menu / at: DarkMenu:init() / passes: table:buttons, DarkMenu:self / returns: nil|table
     getUISkin = "getUISkin", --optional default UI skin key / at: UIBox:init(x, y, width, height, skin) / passes: skin:string / returns: nil|string
     onDarkMenuOpen = "onDarkMenuOpen",  -- dark world menu is opened / at: DarkMenu:onAdd(parent) / passes: DarkMenu:self / returns: NONE
+    getConfigOptions = "getConfigOptions", -- dark world config menu is opened / at: DarkConfigMenu:init() / passes: DarkConfigMenu:self, table:options / returns: NONE
 
     --discordrpc events--
     getPresenceDetails = "getPresenceDetails", -- optional discordRPC detail message at mod start / at: Game:enter(previous_state, save_id, save_name, fade) / passes: NONE / returns: nil|string
