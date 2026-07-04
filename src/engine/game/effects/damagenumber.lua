@@ -13,12 +13,12 @@ function DamageNumber:init(type, arg, x, y, color, delay)
     self:setOrigin(1, 0)
 
     self.color = color or { 1, 1, 1 }
+    self.darken = false
 
     -- Halfway between UI and the layer above it
     self.layer = BATTLE_LAYERS["damage_numbers"]
 
-    self:setDisplay(type, arg, true)
-
+    self:setDisplay(type, arg)
     self.timer = 0
     self.delay = delay or 2
     self.kill_delay = 0
@@ -42,17 +42,16 @@ function DamageNumber:init(type, arg, x, y, color, delay)
     self.do_once = false
 
     self.kill_others = false
-    self.kill_condition = function()
-        return true
-    end
+    self.kill_condition = nil
     self.kill_condition_succeed = false
 end
 
-function DamageNumber:setDisplay(type, arg, set_color)
+function DamageNumber:setDisplay(type, arg)
     self.amount = nil
     self.message = nil
     self.texture = nil
     self.text = nil
+    self.darken = false
 
     self.type = type or "msg"
     if self.type == "msg" then
@@ -66,9 +65,7 @@ function DamageNumber:setDisplay(type, arg, set_color)
                 self.message = "mercy"
             elseif self.amount < 0 then
                 self.text = self.amount .. "%"
-                if set_color then
-                    self.color = { self.color[1] * 0.75, self.color[2] * 0.75, self.color[3] * 0.75 }
-                end
+                self.darken = true
             else
                 self.text = "+" .. self.amount .. "%"
             end
@@ -138,19 +135,20 @@ function DamageNumber:update()
             self.y = self.start_y
         end
 
-        if self.bounces < 2 or (self.kill_condition_succeed or self.kill_condition()) then
-            if self.bounces >= 2 then
-                self.kill_condition_succeed = true
-            end
-            if not self.stretch_done then
-                self.stretch = self.stretch + 0.4 * DTMULT
-            end
+        if not self.stretch_done then
+            self.stretch = self.stretch + 0.4 * DTMULT
+        end
 
-            if self.stretch >= 1.2 then
-                self.stretch = 1
-                self.stretch_done = true
-            end
+        if self.stretch >= 1.2 then
+            self.stretch = 1
+            self.stretch_done = true
+        end
 
+        if self.kill_condition ~= nil and not self.kill_condition_succeed and self.kill_condition() then
+            self.kill_condition_succeed = true
+        end
+
+        if self.kill_condition == nil or self.kill_condition_succeed then
             self.kill_timer = self.kill_timer + DTMULT
             if self.kill_timer > 35 + self.kill_delay then
                 self.killing = true
@@ -179,6 +177,9 @@ end
 function DamageNumber:draw()
     if self.timer >= self.delay then
         local r, g, b, a = self:getDrawColor()
+        if self.darken then
+            r, g, b = r * 0.75, g * 0.75, b * 0.75
+        end
         Draw.setColor(r, g, b, a * (1 - self.kill))
 
         if self.texture then
