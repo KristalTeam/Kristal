@@ -53,8 +53,13 @@ function item:init()
     }
 end
 
-function item:applyMoneyBonus(gold)
-    return gold * 1.05
+function item:calculateBattleMoney(money, base_money, num_equipped)
+    -- DIFFERENCE: In DELTARUNE, this does not stack, as you cannot have multiple equipped.
+    return money + (math.floor(money / 20) * num_equipped)
+end
+
+function item:calculateBattleMoneyPriority()
+    return 0.1
 end
 
 function item:convertToLightEquip(chara)

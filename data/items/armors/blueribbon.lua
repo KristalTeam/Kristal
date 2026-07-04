@@ -95,13 +95,19 @@ function item:getReaction(user_id, reactor_id)
     return super.getReaction(self, user_id, reactor_id)
 end
 
-function item:applyHealBonus(current_heal, base_heal, healer)
-    if self:isEquippedBy(healer) then
-        -- Apply healing bonus if healing is performed by equipped party member
-        current_heal = current_heal + math.ceil(base_heal / 8)
+function item:calculateBattleHeal(heal, base_heal, caster, target)
+    -- Increase heal by 1/8 of the base heal for each equipped on the healer
+    local heal_add = math.ceil(base_heal / 8)
+
+    if caster ~= nil then
+        heal_add = heal_add * caster:checkArmor(self.id)
     end
 
-    return current_heal
+    return heal + heal_add
+end
+
+function item:calculateBattleHealPriority()
+    return -0.9
 end
 
 return item

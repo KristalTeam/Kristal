@@ -54,12 +54,12 @@ function item:getHealAmount(id)
     end
 end
 
-function item:getBattleHealAmountModified(id, healer)
+function item:getBattleHealAmountModified(id, caster, target)
     local amount = self:getBattleHealAmount(id)
 
     -- For accuracy, only apply heal bonuses when used on Noelle
     if id == "noelle" then
-        return Game.battle:applyHealBonuses(amount, healer)
+        return Game.battle:applyHealBonuses(amount, caster, target)
     else
         return amount
     end

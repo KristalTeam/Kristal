@@ -58,7 +58,7 @@ function item:init()
     }
 end
 
-function item:getBattleHealAmountModified(id, healer)
+function item:getBattleHealAmountModified(id, caster, target)
     -- GigaSalad, unaffected by bonuses, truly only heals 4 HP
     return self:getBattleHealAmount(id)
 end

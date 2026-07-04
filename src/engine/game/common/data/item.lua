@@ -331,6 +331,7 @@ end
 --- *(Override)* If the item grants bonus `gold`, it applies its bonus here
 ---@param gold number   The current amount of victory gold
 ---@return number new_gold  The amount of gold with the bonus applied
+---@deprecated Use `Item.calculateBattleMoney` instead
 function Item:applyMoneyBonus(gold)
     return gold
 end
@@ -340,8 +341,59 @@ end
 ---@param base_heal number      The original heal amount
 ---@param healer PartyMember    The character performing the heal
 ---@return number new_heal      The new heal amount affected by this item
+---@deprecated Use `Item.calculateBattleHeal` instead
 function Item:applyHealBonus(current_heal, base_heal, healer)
     return current_heal
+end
+
+--- *(Override)* Takes in the current amount of money earned in battle, returning the new amount modified by this item.
+---
+--- This function is only called once per unique item id, and it is given the amount of that same item equipped.
+--- @param money number # The current amount of money earned in battle.
+--- @param base_money number # The base amount of money before any bonuses.
+--- @param num_equipped number # The number of the same item id equipped by the party.
+--- @return number new_money # The new amount of money earned in battle after applying this item's bonus.
+function Item:calculateBattleMoney(money, base_money, num_equipped)
+    return money
+end
+
+--- *(Override)* Returns the priority of this item when calculating battle money bonuses.
+---
+--- By default, this is `0`. Higher priority items are applied later, lower priority items are applied first, and items with the same priority
+--- are applied in an arbitrary order. For example, an item with a "gain no money" effect (multiplies by 0) should have a higher priority than
+--- any effects which add a flat amount of money, ensuring the multiplication is applied after the addition.
+---
+--- Recommended use is to use a negative priority for additive bonuses (e.g. `+ 100`) and a positive priority for multiplicative bonuses (e.g. `* 2`).
+--- Built-in DELTARUNE items will use decimal priorities between `0` and `1`.
+---@return number priority # The priority of this item when calculating battle money bonuses.
+function Item:calculateBattleMoneyPriority()
+    return 0
+end
+
+--- *(Override)* Takes in the heal amount of a spell or item used in battle, returning the new amount modified by this item.
+---
+--- This function is only called once per unique item id. It is recommended you make the effect scale with amount equipped, which can be checked via
+--- [Game.checkPartyEquipped](lua://Game.checkPartyEquipped), [PartyMember.checkArmor](lua://PartyMember.checkArmor), or [PartyMember.checkWeapon](lua://PartyMember.checkWeapon).
+--- @param heal number # The current amount of healing done.
+--- @param base_heal number # The base amount of healing done before any bonuses.
+--- @param caster PartyMember? # The party member performing the heal, if applicable.
+--- @param target PartyMember? # The party member receiving the heal, if applicable.
+--- @return number new_heal # The new amount of healing done in battle after applying this item's bonus.
+function Item:calculateBattleHeal(heal, base_heal, caster, target)
+    return heal
+end
+
+--- *(Override)* Returns the priority of this item when calculating battle heal bonuses.
+---
+--- By default, this is `0`. Higher priority items are applied later, lower priority items are applied first, and items with the same priority
+--- are applied in an arbitrary order. For example, an item with a "double healing" effect (multiplies by 2) should have a higher priority than
+--- any effects which add a flat amount of healing, ensuring the multiplication is applied after the addition.
+---
+--- Recommended use is to use a negative priority for additive bonuses (e.g. `+ 100`) and a positive priority for multiplicative bonuses (e.g. `* 2`).
+--- Built-in DELTARUNE items will use decimal priorities between `0` and `1`.
+---@return number priority # The priority of this item when calculating battle heal bonuses.
+function Item:calculateBattleHealPriority()
+    return 0
 end
 
 --- Gets the stat bonus an item has for a specific stat

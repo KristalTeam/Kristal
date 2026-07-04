@@ -64,7 +64,7 @@ function item:onBattleUse(user, target)
         if battler.chara:getHealth() <= 0 then
             heal_amount = math.abs(battler.chara:getHealth()) + math.ceil(battler.chara:getStat("health") / 4)
         end
-        battler:heal(Game.battle:applyHealBonuses(heal_amount, user.chara))
+        battler:heal(Game.battle:applyHealBonuses(heal_amount, user.chara, battler.chara))
     end
 end
 

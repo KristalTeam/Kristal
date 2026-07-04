@@ -55,6 +55,14 @@ function item:init()
     }
 end
 
+function item:calculateBattleMoney(money, base_money, num_equipped)
+    return money - (money * (0.1 * num_equipped))
+end
+
+function item:calculateBattleMoneyPriority()
+    return 0.5
+end
+
 function item:applyMoneyBonus(gold)
     return gold * 0.9
 end

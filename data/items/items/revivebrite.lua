@@ -63,7 +63,7 @@ function item:onBattleUse(user, target)
         if battler.chara:getHealth() <= 0 then
             battler:heal(math.abs(battler.chara:getHealth()) + battler.chara:getStat("health"))
         else
-            battler:heal(Game.battle:applyHealBonuses(50, user.chara))
+            battler:heal(Game.battle:applyHealBonuses(50, user.chara, battler.chara))
         end
     end
 end
