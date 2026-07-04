@@ -949,7 +949,7 @@ end
 function Text:draw()
     if self.draw_every_frame then
         for i, node in ipairs(self.nodes_to_draw) do
-            self:drawChar(node[1], node[2], true)
+            self:drawChar(node[1], node[2], false)
         end
     else
         --love.graphics.setBlendMode("alpha", "premultiplied")
