@@ -97,7 +97,7 @@ end
 --- Removes an option from the menu.
 ---@generic T : DarkConfigOption
 ---@param child T
----@return T option
+---@return T? option
 function DarkConfigMenu:removeOptionByChild(child)
     for i, option in ipairs(self.options) do
         if option == child then
@@ -105,8 +105,6 @@ function DarkConfigMenu:removeOptionByChild(child)
             return child
         end
     end
-
-    error("DarkConfigMenu:removeOptionByChild() - Child not found in options")
 end
 
 --- Inserts an option into the menu at a specific index.
