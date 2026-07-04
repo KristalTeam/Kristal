@@ -1647,6 +1647,19 @@ function Kristal.resetWindow()
         love.window.fromPixels(window_height),
         properties
     )
+
+    -- Force text to redraw, since resetWindow destroys their canvases.
+    -- TODO: not this...
+
+    local stages = { Kristal.Stage, Kristal.States["Testing"].stage, Game.stage, MainMenu.stage }
+
+    for _, stage in pairs(stages) do
+        if stage ~= nil then
+            for _, obj in ipairs(stage:getObjects(Text)) do
+                obj:forceRedraw()
+            end
+        end
+    end
 end
 
 ---@return boolean forced Whether the game is forced to be in fullscreen mode (on mobile platforms and consoles).

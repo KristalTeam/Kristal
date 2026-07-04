@@ -287,6 +287,18 @@ function Text:setText(text)
     end
 end
 
+function Text:forceRedraw()
+    if self.draw_every_frame then
+        return
+    end
+
+    self:drawToCanvas(function()
+        for i, node in ipairs(self.nodes_to_draw) do
+            self:drawChar(node[1], node[2], true)
+        end
+    end)
+end
+
 --- Returns the current font.
 ---@return love.Font
 function Text:getFont()
