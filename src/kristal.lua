@@ -1647,13 +1647,6 @@ function Kristal.resetWindow()
         love.window.fromPixels(window_height),
         properties
     )
-
-    -- Force tilelayers to redraw, since resetWindow destroys their canvases
-    if Game.world then
-        for _, tilelayer in ipairs(Game.world.stage:getObjects(TileLayer)) do
-            tilelayer.drawn = false
-        end
-    end
 end
 
 ---@return boolean forced Whether the game is forced to be in fullscreen mode (on mobile platforms and consoles).
