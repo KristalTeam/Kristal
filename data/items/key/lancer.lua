@@ -61,19 +61,19 @@ end
 
 function item:onMenuUpdate(menu)
     if menu then
-        local x, y = menu.box:screenToLocalPos(0, 0)
-        if menu.box.state == "SELECT" and menu.box.lancer_actor == nil and self:isVisible() then
-            menu.box.lancer_actor = menu.box:addChild(LancerKeyItem(x, y))
+        local x, y = menu:screenToLocalPos(0, 0)
+        if menu.state == "SELECT" and menu.lancer_actor == nil and self:isVisible() then
+            menu.lancer_actor = menu:addChild(LancerKeyItem(x, y))
             if self:getCustomAnimation() then
-                menu.box.lancer_actor.movecon = -1
-                menu.box.lancer_actor.custom_animation = self:getCustomAnimation()
+                menu.lancer_actor.movecon = -1
+                menu.lancer_actor.custom_animation = self:getCustomAnimation()
             end
         end
-        if menu.box.state ~= "SELECT" and menu.box.lancer_actor ~= nil then
-            menu.box.lancer_actor:remove()
-            menu.box.lancer_actor = nil
+        if menu.state ~= "SELECT" and menu.lancer_actor ~= nil then
+            menu.lancer_actor:remove()
+            menu.lancer_actor = nil
         end
-        menu.box:setLayer(WORLD_LAYERS["ui"])
+        menu:setLayer(WORLD_LAYERS["ui"])
     end
 end
 
