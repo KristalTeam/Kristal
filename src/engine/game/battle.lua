@@ -261,6 +261,20 @@ function Battle:createPartyBattlers()
     end
 end
 
+function Battle:createBattleUI()
+    return self:addChild(BattleUI())
+end
+
+function Battle:createTensionBar()
+    return self:addChild(TensionBar(-25, 40, true))
+end
+
+function Battle:createUI()
+    self.background = self.encounter:createBackground()
+    self.battle_ui = self:createBattleUI()
+    self.tension_bar = self:createTensionBar()
+end
+
 ---@param state string
 ---@param encounter string|Encounter
 function Battle:postInit(state, encounter)
@@ -271,8 +285,6 @@ function Battle:postInit(state, encounter)
     else
         self.encounter = encounter
     end
-
-    self.background = self.encounter:createBackground()
 
     if Game.world.music:isPlaying() and self.encounter.music then
         self.resume_world_music = true
@@ -292,11 +304,7 @@ function Battle:postInit(state, encounter)
         end
     end
 
-    self.battle_ui = BattleUI()
-    self:addChild(self.battle_ui)
-
-    self.tension_bar = TensionBar(-25, 40, true)
-    self:addChild(self.tension_bar)
+    self:createUI()
 
     self.battler_targets = {}
     for index, battler in ipairs(self.party) do

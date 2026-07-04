@@ -11,7 +11,7 @@
 ---
 ---@field left number Leftmost horizontal position of the arena. May be inaccurate if the arena is transformed. Use [`Arena:getLeft()`](lua://Arena.getLeft) where possible.
 ---@field right number Rightost horizontal position of the arena. May be inaccurate if the arena is transformed. Use [`Arena:getRight()`](lua://Arena.getRight) where possible.
----@field top number Topmost vertical position of the arena. May be inaccurate if the arena is transformed. Use [`Arena:getLeft()`](lua://Arena.getTop) where possible.
+---@field top number Topmost vertical position of the arena. May be inaccurate if the arena is transformed. Use [`Arena:getTop()`](lua://Arena.getTop) where possible.
 ---@field bottom number Bottommost vertical position of the arena. May be inaccurate if the arena is transformed. Use [`Arena:getBottom()`](lua://Arena.getBottom) where possible.
 ---
 ---@field line_width integer The thickness of the arena border in pixels, must call [`Arena:setShape()`](lua://Arena.setShape) or [`Arena:setSize()`](lua://Arena.setSize) after changing this to make the change take effect. (Defaults to `4`)

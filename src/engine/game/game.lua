@@ -765,6 +765,12 @@ function Game:loadQuick(fade)
     self.quick_save = save
 end
 
+--- Creates the battle instance. You most likely do not need to call this directly.
+---@return Battle
+function Game:createBattle()
+    return Battle()
+end
+
 --- Starts a battle using the specified encounter file.
 ---@param encounter     Encounter|string    The encounter id or instance to use for this battle.
 ---@param transition?   boolean|string      Whether to start in the transition state (Defaults to `true`). As a string, represents the state to start the battle in.
@@ -785,7 +791,7 @@ function Game:encounter(encounter, transition, enemy, context)
 
     self.state = "BATTLE"
 
-    self.battle = Battle()
+    self.battle = self:createBattle()
 
     if context then
         self.battle.encounter_context = context

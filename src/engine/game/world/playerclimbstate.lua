@@ -510,6 +510,7 @@ function PlayerClimbState:chargeClimbCharge()
             afterimage:setScale(2)
             afterimage:fadeOutSpeedAndRemove(0.1)
             afterimage:setOrigin(0.5)
+            afterimage.debug_select = false
             afterimage.layer = self.player.layer + 20
             local scale_x, scale_y = self.player:getScale()
             afterimage.graphics.grow_x = 0.2 / scale_x
@@ -1251,6 +1252,7 @@ function PlayerClimbState:updateClimbMove()
             afterimage:setOrigin(0.5)
             afterimage.alpha = 0.2
             afterimage.layer = self.player.layer - 0.01
+            afterimage.debug_select = false
             afterimage:fadeOutSpeedAndRemove(0.04)
             self.player.parent:addChild(afterimage)
         end
