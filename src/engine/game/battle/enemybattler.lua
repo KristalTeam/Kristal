@@ -529,8 +529,6 @@ function EnemyBattler:addTemporaryMercy(amount, play_sound, clamp, kill_conditio
                 self.temporary_mercy_percent = self:statusMessage("msg", "miss")
                 self.temporary_mercy_percent.kill_condition = kill_condition
                 self.temporary_mercy_percent.kill_others = true
-                -- In Deltarune, the mercy percent takes a bit more time to start to fade out after the enemy's turn ends
-                self.temporary_mercy_percent.kill_delay = 30
             else
                 self.temporary_mercy_percent:setDisplay("msg", "miss")
             end
@@ -539,7 +537,6 @@ function EnemyBattler:addTemporaryMercy(amount, play_sound, clamp, kill_conditio
                 self.temporary_mercy_percent = self:statusMessage("mercy", self.temporary_mercy)
                 self.temporary_mercy_percent.kill_condition = kill_condition
                 self.temporary_mercy_percent.kill_others = true
-                self.temporary_mercy_percent.kill_delay = 30
 
                 -- Only play the mercyadd sound when the DamageNumber is first shown
                 if play_sound ~= false then
@@ -1105,7 +1102,7 @@ function EnemyBattler:update()
         end
     end
 
-    if self.temporary_mercy_percent and self.temporary_mercy_percent.kill_condition_succeed then
+    if self.temporary_mercy_percent and (self.temporary_mercy_percent.kill_condition_succeed or self.temporary_mercy_percent:isRemoved()) then
         self.mercy = MathUtils.clamp(self.mercy + self.temporary_mercy, 0, 100)
         self.temporary_mercy = 0
         self.temporary_mercy_percent = nil
