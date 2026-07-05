@@ -463,20 +463,9 @@ function Battle:checkEndWaves(old, new, reason)
                 should_end = false
             end
         end
-        if should_end then
-            self:returnSoul()
-            if self.arena then
-                self.arena:remove()
-                self.arena = nil
-            end
-            for _, battler in ipairs(self.party) do
-                battler.targeted = false
-            end
+        if should_end and old == "DEFENDING" and new ~= "DEFENDINGBEGIN" then
+            self:internalEndWaves(reason == "WAVEENDED")
         end
-    end
-
-    if old == "DEFENDING" and new ~= "DEFENDINGBEGIN" and should_end then
-        self:endWaves()
     end
 end
 
@@ -706,7 +695,7 @@ function Battle:onVictory()
         self.tension_bar:hide()
     end
 
-    self:endWaves()
+    self:internalEndWaves(false)
 
     for _, battler in ipairs(self.party) do
         battler:setSleeping(false)
@@ -979,8 +968,30 @@ function Battle:onStateChange(old, new, reason)
 end
 
 --- Forcibly end the wave.
+---
 --- This should not be called in place of normal wave ending via time or enemy defeat.
+---
+--- This ends up entering the DEFENDINGEND state.
 function Battle:endWaves()
+    self:setState("DEFENDINGEND", "WAVEENDED")
+end
+
+--- Responsible for actually ending the waves.
+---
+--- This removes the arena, returns the soul, ends all of the waves, and moves to the next turn if specified.
+---
+--- This should NOT be called by user code; instead, use [`Battle:endWaves()`](lua://Battle.endWaves) to end the waves if an immediate end is needed.
+---@private
+function Battle:internalEndWaves(next_turn)
+    self:returnSoul()
+    if self.arena then
+        self.arena:remove()
+        self.arena = nil
+    end
+    for _, battler in ipairs(self.party) do
+        battler.targeted = false
+    end
+
     for _, wave in ipairs(self.waves) do
         if not wave:onEnd(false) then
             wave:clear()
@@ -995,21 +1006,19 @@ function Battle:endWaves()
         self.waves = {}
     end
 
-    local ending_wave = self.state_reason == "WAVEENDED"
-
     self.encounter:onWavesDone()
 
     if self:hasCutscene() then
         self.cutscene:after(function()
             exitWaves()
-            if ending_wave then
+            if next_turn then
                 self:nextTurn()
             end
         end)
     else
         self.timer:after(15 / 30, function()
             exitWaves()
-            if ending_wave then
+            if next_turn then
                 self:nextTurn()
             end
         end)
@@ -2984,7 +2993,7 @@ function Battle:updateWaves()
 
     if all_done and not self.finished_waves then
         self.finished_waves = true
-        self:setState("DEFENDINGEND", "WAVEENDED")
+        self:endWaves()
     end
 end
 
