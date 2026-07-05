@@ -215,6 +215,7 @@ function Battle:init()
     self.on_finish_action = nil
 
     self.defending_begin_timer = 0
+    self.defending_end_timer = 0
 end
 
 function Battle:createPartyBattlers()
@@ -464,7 +465,7 @@ function Battle:checkEndWaves(old, new, reason)
             end
         end
         if should_end and old == "DEFENDING" and new ~= "DEFENDINGBEGIN" then
-            self:internalEndWaves(reason == "WAVEENDED")
+            self:internalEndWaves()
         end
     end
 end
@@ -695,7 +696,7 @@ function Battle:onVictory()
         self.tension_bar:hide()
     end
 
-    self:internalEndWaves(false)
+    self:internalEndWaves()
 
     for _, battler in ipairs(self.party) do
         battler:setSleeping(false)
@@ -911,6 +912,7 @@ end
 function Battle:onDefendingEndState()
     self:undarken()
     self:hideTargets()
+    self.defending_end_timer = 0
 end
 
 --- Called when the [`BattleState`](lua://BattleState) is changed to BATTLETEXT.
@@ -973,7 +975,7 @@ end
 ---
 --- This ends up entering the DEFENDINGEND state.
 function Battle:endWaves()
-    self:setState("DEFENDINGEND", "WAVEENDED")
+    self:setState("DEFENDINGEND")
 end
 
 --- Responsible for actually ending the waves.
@@ -982,7 +984,7 @@ end
 ---
 --- This should NOT be called by user code; instead, use [`Battle:endWaves()`](lua://Battle.endWaves) to end the waves if an immediate end is needed.
 ---@private
-function Battle:internalEndWaves(next_turn)
+function Battle:internalEndWaves()
     self:returnSoul()
     if self.arena then
         self.arena:remove()
@@ -999,30 +1001,14 @@ function Battle:internalEndWaves(next_turn)
         end
     end
 
-    local function exitWaves()
+    self.encounter:onWavesDone()
+
+    self.timer:after(15 / 30, function()
         for _, wave in ipairs(self.waves) do
             wave:onArenaExit()
         end
         self.waves = {}
-    end
-
-    self.encounter:onWavesDone()
-
-    if self:hasCutscene() then
-        self.cutscene:after(function()
-            exitWaves()
-            if next_turn then
-                self:nextTurn()
-            end
-        end)
-    else
-        self.timer:after(15 / 30, function()
-            exitWaves()
-            if next_turn then
-                self:nextTurn()
-            end
-        end)
-    end
+    end)
 end
 
 --- Gets the location the soul should spawn at when waves start by default
@@ -2754,6 +2740,8 @@ function Battle:update()
         self:updateDefendingBegin()
     elseif self.state == "DEFENDING" then
         self:updateWaves()
+    elseif self.state == "DEFENDINGEND" then
+        self:updateDefendingEnd()
     elseif self.state == "ENEMYDIALOGUE" then
         self:updateEnemyDialogue()
     elseif self.state == "SHORTACTTEXT" then
@@ -2995,6 +2983,13 @@ function Battle:updateWaves()
         self.finished_waves = true
         self:endWaves()
     end
+end
+
+function Battle:updateDefendingEnd()
+    if self.defending_end_timer >= 15 then
+        self:nextTurn()
+    end
+    self.defending_end_timer = self.defending_end_timer + DTMULT
 end
 
 function Battle:updateShortActText()
