@@ -19,8 +19,10 @@ function spell:init()
         self.description = "You can do many things.\nDon't confuse it with magic."
     elseif Game.chapter == 3 then
         self.description = "Many different skills.\nIt has nothing to do with magic."
-    else
+    elseif Game.chapter == 4 then
         self.description = "Execute various behaviors.\nIt can't be considered magic."
+    else
+        self.description = "It's not magic, is it?\nNo, not something like this."
     end
 
     -- TP cost
