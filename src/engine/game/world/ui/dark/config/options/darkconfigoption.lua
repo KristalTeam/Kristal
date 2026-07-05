@@ -21,14 +21,22 @@ function DarkConfigOption:init(menu, name, callback)
 
     self.hovered = false
 
+    self.added = false
+
     self.text = self:addChild(Text(name, 88, 0, 301, 35))
     self.text:setColor(PALETTE["world_text"])
+end
+
+function DarkConfigOption:setAdded(added)
+    self.added = added
 end
 
 function DarkConfigOption:onRemove(parent)
     super.onRemove(self, parent)
 
-    self.menu:removeOptionByChild(self)
+    if self.added then
+        self.menu:removeOptionByChild(self)
+    end
 end
 
 function DarkConfigOption:onStateChanged(old, new)

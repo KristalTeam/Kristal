@@ -37,11 +37,16 @@ function DarkConfigMenu:init()
 
     self:sortConfigOptions()
 
-    self:addBackOption()
+    self:addExitOptions()
 end
 
---- Adds the default back button.
-function DarkConfigMenu:addBackOption()
+--- Adds the default "return to title" and "back" buttons.
+function DarkConfigMenu:addExitOptions()
+    self:addOption(DarkConfigOption(self, "Return to Title", function()
+        self:setState("EXIT")
+        Game:returnToMenu()
+    end))
+
     self:addOption(DarkConfigOption(self, "Back", function()
         if Game.chapter ~= 1 then -- TODO
             Assets.stopAndPlaySound("ui_cancel_small")
@@ -54,6 +59,7 @@ end
 function DarkConfigMenu:clearOptions()
     for i = #self.options, 1, -1 do
         self.options[i]:remove()
+        self.options[i]:setAdded(false)
     end
 
     self.options = {}
@@ -87,6 +93,7 @@ function DarkConfigMenu:removeOption(index)
     local option = self.options[index]
 
     option:remove()
+    option:setAdded(false)
     table.remove(self.options, index)
 
     self:sortConfigOptions()
@@ -105,6 +112,8 @@ function DarkConfigMenu:removeOptionByChild(child)
             return child
         end
     end
+
+    error("DarkConfigMenu:removeOptionByChild() - Child not found in options")
 end
 
 --- Inserts an option into the menu at a specific index.
@@ -120,6 +129,7 @@ function DarkConfigMenu:insertOption(index, option)
     ---@cast option DarkConfigOption
     option:setPosition(0, 38 + ((index - 1) * 35))
     self:addChild(option)
+    option:setAdded(true)
 
     table.insert(self.options, index, option)
 
@@ -136,6 +146,7 @@ function DarkConfigMenu:addOption(option)
     ---@cast option DarkConfigOption
     option:setPosition(0, 38 + (#self.options * 35))
     self:addChild(option)
+    option:setAdded(true)
 
     table.insert(self.options, option)
 
@@ -208,11 +219,6 @@ function DarkConfigMenu:registerDefaults()
     if Kristal.isForcedFullscreen() then
         self:addOption(DarkConfigBorderOption(self))
     end
-
-    self:addOption(DarkConfigOption(self, "Return to Title", function()
-        self:setState("EXIT")
-        Game:returnToMenu()
-    end))
 end
 
 function DarkConfigMenu:getBindNumberFromIndex(current_index)
