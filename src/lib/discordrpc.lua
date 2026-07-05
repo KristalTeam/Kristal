@@ -12,13 +12,15 @@ local search_paths = { "", (love.filesystem.getRealDirectory("lib/") or "") .. "
 
 local ok, discordRPClib
 for _, search_path in ipairs(search_paths) do
-    ok, discordRPClib = pcall(ffi.load, search_path .. name)
+    local path = search_path .. name
+    ok, discordRPClib = pcall(ffi.load, path)
 
     if not discordRPClib then
         ok = false
     end
 
     if ok then
+        DISCORD_RPC_INFO = "Found at \"" .. path .. "\""
         break
     end
 end
@@ -26,6 +28,13 @@ end
 DISCORD_RPC_AVAILABLE = ok
 
 if not ok then
+    print("Discord RPC unavailable! Print DISCORD_RPC_INFO for more information")
+
+    DISCORD_RPC_INFO = "Missing, tried:\n"
+    for _, search_path in ipairs(search_paths) do
+        DISCORD_RPC_INFO = DISCORD_RPC_INFO .. "  - " .. search_path .. name .. "\n"
+    end
+    DISCORD_RPC_INFO = DISCORD_RPC_INFO .. "Discord RPC not loaded"
     return
 end
 
