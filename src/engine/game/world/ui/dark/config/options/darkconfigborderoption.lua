@@ -36,6 +36,8 @@ function DarkConfigBorderOption:draw()
         Draw.setColor(PALETTE["world_text"])
     end
 
+    love.graphics.setFont(Assets.getFont("main"))
+
     love.graphics.print(Kristal.getBorderName(), 348, 0)
 end
 

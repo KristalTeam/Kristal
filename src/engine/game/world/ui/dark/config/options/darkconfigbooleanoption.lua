@@ -18,6 +18,7 @@ function DarkConfigBooleanOption:draw()
     super.draw(self)
 
     Draw.setColor(PALETTE["world_text"])
+    love.graphics.setFont(Assets.getFont("main"))
     love.graphics.print(self.enabled and "ON" or "OFF", 348, 0)
 end
 
