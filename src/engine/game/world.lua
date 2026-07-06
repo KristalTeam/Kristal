@@ -456,6 +456,9 @@ function World:onKeyPressed(key)
         if key == "n" then
             NOCLIP = not NOCLIP
         end
+        if key == "i" then
+            INVINCIBILITY = not INVINCIBILITY
+        end
     end
 
     if Game.lock_movement then return end

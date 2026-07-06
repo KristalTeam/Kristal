@@ -1231,6 +1231,7 @@ function Kristal.resetDevMode()
     FAST_FORWARD = false
     DEBUG_RENDER = false
     NOCLIP = false
+    INVINCIBILITY = false
 end
 
 --- Clears all state expected to be changed by projects. \
@@ -1332,6 +1333,7 @@ function Kristal.quickReload(mode)
     local dev_fast_forward = FAST_FORWARD
     local dev_debug_render = DEBUG_RENDER
     local dev_noclip = NOCLIP
+    local dev_invincibility = INVINCIBILITY
 
     -- Temporarily save game variables
     local save, save_id, encounter, shop
@@ -1386,6 +1388,7 @@ function Kristal.quickReload(mode)
                         FAST_FORWARD = dev_fast_forward
                         DEBUG_RENDER = dev_debug_render
                         NOCLIP = dev_noclip
+                        INVINCIBILITY = dev_invincibility
                     end
                 end
             end)

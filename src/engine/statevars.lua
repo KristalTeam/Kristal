@@ -39,6 +39,7 @@ MOUSE_SPRITE = nil
 
 OVERLAY_OPEN = false
 NOCLIP = false
+INVINCIBILITY = false
 
 REGISTRY_LOADED = false
 

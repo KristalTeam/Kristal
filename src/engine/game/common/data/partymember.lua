@@ -399,6 +399,10 @@ end
 --- Sets this party member's health value
 ---@param health number
 function PartyMember:setHealth(health)
+    if INVINCIBILITY then
+        return
+    end
+
     if Game:isLight() then
         self.lw_health = health
     else

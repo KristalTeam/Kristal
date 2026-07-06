@@ -3041,6 +3041,7 @@ function Battle:drawDebug()
     self:debugPrintOutline("CTRL+B - kill party", 4, 144)
     self:debugPrintOutline("CTRL+K - fill tension", 4, 160)
     self:debugPrintOutline("CTRL+N - toggle noclip", 4, 176)
+    self:debugPrintOutline("CTRL+I - toggle invincibility", 4, 192)
 end
 
 function Battle:draw()
@@ -3272,6 +3273,9 @@ function Battle:onKeyPressed(key)
         end
         if key == "n" then
             NOCLIP = not NOCLIP
+        end
+        if key == "i" then
+            INVINCIBILITY = not INVINCIBILITY
         end
     end
 

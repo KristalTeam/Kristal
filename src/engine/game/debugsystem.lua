@@ -1205,6 +1205,14 @@ function DebugSystem:registerDefaults()
 
     self:registerOption(
         "main",
+        "Invincibility",
+        function() return self:appendBool("Toggle invincibility.", INVINCIBILITY) end,
+        function() INVINCIBILITY = not INVINCIBILITY end,
+        in_game
+    )
+
+    self:registerOption(
+        "main",
         "Give Item",
         "Give an item.",
         function()
