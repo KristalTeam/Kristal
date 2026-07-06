@@ -45,6 +45,8 @@ function DarkConfigMenu:init()
 
     self:addExitOptions()
 
+    Kristal.callEvent(KRISTAL_EVENT.postConfigOptions, self, self.options)
+
     self.config_text = self:addChild(Text("CONFIG", 188, -12))
     self.config_text:setColor(PALETTE["world_text"])
 
