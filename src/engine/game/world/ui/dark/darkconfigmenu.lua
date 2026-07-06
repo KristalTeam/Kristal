@@ -14,7 +14,7 @@ function DarkConfigMenu:init()
     self.border_state = DarkConfigBorderState(self)
 
     self.state_manager = StateManager("MAIN", self, true)
-    self.state_manager:addState("MAIN", { update = self.updateMainState })
+    self.state_manager:addState("MAIN", { update = self.updateMainState, draw = self.drawMainState })
     self.state_manager:addState("REBIND", self.rebind_state)
     self.state_manager:addState("VOLUME", self.volume_state)
     self.state_manager:addState("BORDERS", self.border_state)
@@ -34,18 +34,29 @@ function DarkConfigMenu:init()
     self:addChild(self.bg)
 
     self.currently_selected = 0
+    self.scroll_offset = 0
     self.noise_timer = 0
 
     self.options = {}
     self:registerDefaults()
     Kristal.callEvent(KRISTAL_EVENT.getConfigOptions, self, self.options)
 
-    self:sortConfigOptions()
+    self:updateConfigOptions()
 
     self:addExitOptions()
 
     self.config_text = self:addChild(Text("CONFIG", 188, -12))
     self.config_text:setColor(PALETTE["world_text"])
+
+    self.options_hidden = false
+end
+
+function DarkConfigMenu:getMaxScroll()
+    return 7
+end
+
+function DarkConfigMenu:getOptionHeight()
+    return 35
 end
 
 --- Adds the default "return to title" and "back" buttons.
@@ -73,20 +84,31 @@ function DarkConfigMenu:clearOptions()
     self.options = {}
 end
 
---- Sorts the config options and updates their positions.
-function DarkConfigMenu:sortConfigOptions()
-    for i, option in ipairs(self.options) do
-        option:setPosition(0, 38 + ((i - 1) * 35))
+--- Updates the config options.
+function DarkConfigMenu:updateConfigOptions()
+    self.currently_selected = MathUtils.clamp(self.currently_selected, 1, #self.options)
+
+    if self.currently_selected - self.scroll_offset > self:getMaxScroll() then
+        self.scroll_offset = self.currently_selected - self:getMaxScroll()
     end
 
-    self.currently_selected = MathUtils.clamp(self.currently_selected, 1, #self.options)
-    self:updateCurrentlySelected()
-end
+    if self.currently_selected <= self.scroll_offset then
+        self.scroll_offset = self.currently_selected - 1
+    end
 
---- Updates the currently selected option's hover state.
-function DarkConfigMenu:updateCurrentlySelected()
     for i, option in ipairs(self.options) do
         option:setHovered(i == self.currently_selected)
+        local position = i - 1 - self.scroll_offset
+        option:setPosition(0, 38 + (position * self:getOptionHeight()))
+        if self.options_hidden then
+            option.visible = false
+        else
+            if position < 0 or position >= self:getMaxScroll() then
+                option.visible = false
+            else
+                option.visible = true
+            end
+        end
     end
 end
 
@@ -104,7 +126,7 @@ function DarkConfigMenu:removeOption(index)
     option:setAdded(false)
     table.remove(self.options, index)
 
-    self:sortConfigOptions()
+    self:updateConfigOptions()
 
     return option
 end
@@ -134,14 +156,14 @@ function DarkConfigMenu:insertOption(index, option)
         error("DarkConfigMenu:insertOption() - Index out of bounds")
     end
 
-    ---@cast option DarkConfigOption
-    option:setPosition(0, 38 + ((index - 1) * 35))
     self:addChild(option)
+
+    ---@cast option DarkConfigOption
     option:setAdded(true)
 
     table.insert(self.options, index, option)
 
-    self:sortConfigOptions()
+    self:updateConfigOptions()
 
     return option
 end
@@ -152,11 +174,12 @@ end
 ---@return T option
 function DarkConfigMenu:addOption(option)
     ---@cast option DarkConfigOption
-    option:setPosition(0, 38 + (#self.options * 35))
     self:addChild(option)
     option:setAdded(true)
 
     table.insert(self.options, option)
+
+    self:updateConfigOptions()
 
     return option
 end
@@ -172,19 +195,17 @@ function DarkConfigMenu:getState()
 end
 
 function DarkConfigMenu:showOptions()
-    for i = #self.options, 1, -1 do
-        self.options[i].visible = true
-    end
-
+    self.options_hidden = false
     self.config_text.visible = true
+
+    self:updateConfigOptions()
 end
 
 function DarkConfigMenu:hideOptions()
-    for i = #self.options, 1, -1 do
-        self.options[i].visible = false
-    end
-
+    self.options_hidden = true
     self.config_text.visible = false
+
+    self:updateConfigOptions()
 end
 
 function DarkConfigMenu:onStateChanged(old, new)
@@ -259,7 +280,50 @@ function DarkConfigMenu:updateMainState()
 
     self.currently_selected = MathUtils.clamp(self.currently_selected, 1, #self.options)
 
-    self:updateCurrentlySelected()
+    self:updateConfigOptions()
+end
+
+-- Responsible for drawing the scroll bar in the main state.
+function DarkConfigMenu:drawMainState()
+    local item_count = #self.options
+
+    if item_count <= self:getMaxScroll() then
+        return
+    end
+
+    local x = 469
+    local y = 38
+
+    local bar_size = 190
+
+    if item_count > self:getMaxScroll() then
+        Draw.setColor(1, 1, 1)
+        local sine_off = math.sin((Kristal.getTime() * 30) / 12) * 3
+        if self.scroll_offset + self:getMaxScroll() < item_count then
+            Draw.draw(self.arrow_sprite, x + 0, y + bar_size + 39 + sine_off)
+        end
+        if self.scroll_offset > 0 then
+            Draw.draw(self.arrow_sprite, x + 0, y + 14 - sine_off, 0, 1, -1)
+        end
+    end
+
+    if item_count <= 12 then
+        Draw.setColor(1, 1, 1)
+        for i = 1, item_count do
+            local percentage = (i - 1) / (item_count - 1)
+            if i == self.currently_selected then
+                love.graphics.rectangle("fill", x + 1, y + 21 + percentage * bar_size, 10, 10)
+            else
+                love.graphics.rectangle("fill", x + 4, y + 25 + percentage * bar_size, 4, 4)
+            end
+        end
+    else
+        Draw.setColor(0.25, 0.25, 0.25)
+        love.graphics.rectangle("fill", x + 4, y + 24, 6, bar_size + 9)
+        local percent = self.scroll_offset / (item_count - self:getMaxScroll())
+        Draw.setColor(1, 1, 1)
+        love.graphics.rectangle("fill", x + 4, y + 24 + math.floor(percent * bar_size), 6, 6)
+    end
 end
 
 function DarkConfigMenu:onExitState()
