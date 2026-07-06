@@ -391,4 +391,14 @@ function Textbox:isDone()
     return self.text:isDone()
 end
 
+function Textbox:draw()
+    super.draw(self)
+
+    if DEBUG_RENDER then
+        love.graphics.setColor(1, 0, 0, 0.5)
+        love.graphics.rectangle("line", 0, 0, self.width, self.height)
+    end
+
+end
+
 return Textbox
