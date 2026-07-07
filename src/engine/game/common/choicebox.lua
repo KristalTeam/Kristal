@@ -258,12 +258,18 @@ function Choicebox:draw()
         local text_y = self.text_positions[i][2]
 
         if self:shouldUseNewStyle() then
-            local line_count = #StringUtils.split(self.choices[i], "\n", false)
-            text_x = text_x - (self.font:getWidth(self.choices[i]) / 2)
-            text_y = text_y - (self.font:getHeight() * line_count / 2)
-        end
+            local lines = StringUtils.split(self.choices[i], "\n", false)
 
-        love.graphics.print(self.choices[i], text_x, text_y)
+            local starting_y = text_y - (self.font:getHeight() * #lines / 2)
+
+            for j = 1, #lines do
+                local draw_x = text_x - (self.font:getWidth(lines[j]) / 2)
+                local draw_y = starting_y + (self.font:getHeight() * (j - 1))
+                love.graphics.print(lines[j], draw_x, draw_y)
+            end
+        else
+            love.graphics.print(self.choices[i], text_x, text_y)
+        end
     end
 
     Draw.setColor(Game:getSoulColor())
