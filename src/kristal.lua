@@ -1393,7 +1393,20 @@ function Kristal.quickReload(mode)
                 end
             end)
         else
-            Kristal.loadMod(mod_id, save_id)
+            Kristal.loadMod(mod_id, save_id, nil, function()
+                if Kristal.preInitMod(mod_id) then
+                    Kristal.setDesiredWindowTitleAndIcon()
+                    Kristal.setState("Game", save_id)
+                    Kristal.resetDevMode()
+                    if Kristal.isDevMode() then
+                        DEBUG_OVERRIDE = dev_debug_override
+                        FAST_FORWARD = dev_fast_forward
+                        DEBUG_RENDER = dev_debug_render
+                        NOCLIP = dev_noclip
+                        INVINCIBILITY = dev_invincibility
+                    end
+                end
+            end)
         end
     end)
 end
