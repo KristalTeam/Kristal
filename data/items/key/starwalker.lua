@@ -47,18 +47,14 @@ function item:init()
     self.reactions = {}
 end
 
-function item:onMenuOpen(menu)
-    menu.box:setLayer(WORLD_LAYERS["ui"])
-end
-
 function item:isVisible()
     return true
 end
 
 function item:onMenuDraw(menu)
-    local x, y = menu.box:screenToLocalPos(0, 0)
-    if menu.box.state == "SELECT" and self:isVisible() then
-        love.graphics.draw(Assets.getTexture("kristal/starwalker", x, y), x, y)
+    local x, y = menu:screenToLocalPos(0, 0)
+    if menu.state == "SELECT" and self:isVisible() then
+        love.graphics.draw(Assets.getTexture("kristal/starwalker"), x, y)
     end
 end
 

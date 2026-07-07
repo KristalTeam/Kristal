@@ -73,7 +73,6 @@ function item:onMenuUpdate(menu)
             menu.lancer_actor:remove()
             menu.lancer_actor = nil
         end
-        menu:setLayer(WORLD_LAYERS["ui"])
     end
 end
 
