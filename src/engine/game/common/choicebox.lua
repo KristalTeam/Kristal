@@ -258,8 +258,9 @@ function Choicebox:draw()
         local text_y = self.text_positions[i][2]
 
         if self:shouldUseNewStyle() then
+            local line_count = #StringUtils.split(self.choices[i], "\n", false)
             text_x = text_x - (self.font:getWidth(self.choices[i]) / 2)
-            text_y = text_y - (self.font:getHeight() / 2)
+            text_y = text_y - (self.font:getHeight() * line_count / 2)
         end
 
         love.graphics.print(self.choices[i], text_x, text_y)
