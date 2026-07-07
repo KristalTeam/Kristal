@@ -43,6 +43,9 @@ function actor:initChapter1()
 
     -- Table of sprite animations
     self.animations = {
+        -- Movement animations
+        ["slide"]               = {"slide", 4/30, true},
+
         -- Battle animations
         ["battle/idle"]         = {"battle/idle", 1/6, true},
 
@@ -109,6 +112,8 @@ function actor:initChapter1()
         ["walk_blush/left"] = {0, 0},
         ["walk_blush/right"] = {0, 0},
         ["walk_blush/up"] = {0, 0},
+
+        ["slide"] = {-2, 2},
 
         -- Battle offsets
         ["battle/idle"] = {-7, -2},
