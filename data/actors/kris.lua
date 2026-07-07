@@ -38,7 +38,7 @@ function actor:init()
     -- Table of sprite animations
     self.animations = {
         -- Movement animations
-        ["slide"]               = {"slide", 4/30, true},
+        ["slide"]               = {"slide_new", 4/30, true},
 
         -- Battle animations
         ["battle/idle"]         = {"battle/idle", 1/6, true},
@@ -72,10 +72,6 @@ function actor:init()
         ["jump_ball_slow"]      = {"ball", 4/30, true},
     }
 
-    if Game.chapter == 1 then
-        self.animations["battle/transition"] = {"walk/right", 0, true}
-    end
-
     -- Tables of sprites to change into in mirrors
     self.mirror_sprites = {
         ["walk/down"] = "walk/up",
@@ -95,6 +91,8 @@ function actor:init()
         ["walk_blush/down"] = {0, 0},
 
         ["slide"] = {0, 0},
+        ["slide_animated"] = {-5, -2},
+        ["slide_new"] = {-5, -2},
 
         -- Battle offsets
         ["battle/idle"] = {-5, -1},
@@ -151,6 +149,16 @@ function actor:init()
 
         ["t_pose"] = {-4, 0},
     }
+
+    if Game.chapter <= 2 then
+        self.animations["slide"] = {"slide", 4/30, true}
+    elseif Game.chapter == 3 then
+        self.animations["slide"] = {"slide_animated", 4/30, true}
+    end
+
+    if Game.chapter == 1 then
+        self.animations["battle/transition"] = {"walk/right", 0, true}
+    end
 end
 
 return actor
