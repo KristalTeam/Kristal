@@ -127,6 +127,10 @@ function graphics.push(stack)
     transform = transform:clone()
 end
 
+function graphics.getStackDepth()
+    return #transformStack
+end
+
 function graphics.replaceTransform(t)
     transform = t
     old_replaceTransform(transform)
