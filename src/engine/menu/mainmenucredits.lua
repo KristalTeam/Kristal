@@ -91,7 +91,7 @@ function MainMenuCredits:init(menu)
                 "WIL-TZY",
                 "YeetusSnoopy",
                 "Maks7594",
-                "NakuAutumn/GoldofLeaves/GoldenLeaf"
+                "NakuAutumn"
             }
         }
     }
