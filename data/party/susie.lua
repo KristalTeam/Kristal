@@ -269,17 +269,19 @@ function character:drawPowerStat(index, x, y, menu)
         end
         return true
     elseif index == 2 then
-        if Game.chapter >= 3 then
-            return
+        if Game.chapter < 3 then
+            local icon = Assets.getTexture("ui/menu/icon/demon")
+            Draw.draw(icon, x-26, y+6, 0, 2, 2)
         end
-        local icon = Assets.getTexture("ui/menu/icon/demon")
-        Draw.draw(icon, x-26, y+6, 0, 2, 2)
         if Game.chapter == 1 then
             love.graphics.print("Crudeness", x, y, 0, 0.8, 1)
             love.graphics.print("100", x+130, y)
         elseif Game.chapter == 2 then
             love.graphics.print("Purple", x, y, 0, 0.8, 1)
             love.graphics.print("Yes", x+130, y)
+        elseif Game.chapter >= 4 then
+            love.graphics.print("* Healing", x-24, y)
+            love.graphics.print(15 + (self:getFlag("healing_used") or 0), x+130, y)
         end
         return true
     elseif index == 3 then
