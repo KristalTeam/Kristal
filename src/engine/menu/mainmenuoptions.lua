@@ -291,6 +291,8 @@ function MainMenuOptions:onKeyPressedVolume(key, is_repeat)
     if Input.isCancel(key) or Input.isConfirm(key) then
         Kristal.setVolume(MathUtils.round(Kristal.getVolume() * 100) / 100)
 
+        Kristal.saveConfig()
+
         Assets.stopAndPlaySound("ui_select")
         self:setState("MENU")
     end

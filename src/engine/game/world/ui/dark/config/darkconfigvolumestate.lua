@@ -26,6 +26,8 @@ function DarkConfigVolumeState:onUpdate()
     if Input.pressed("cancel") or Input.pressed("confirm") then
         Kristal.setVolume(MathUtils.round(Kristal.getVolume() * 100) / 100)
 
+        Kristal.saveConfig()
+        
         Assets.stopAndPlaySound("ui_select")
 
         self.menu:setState("MAIN")
