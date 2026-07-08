@@ -292,6 +292,8 @@ function Item:getShopDescription()
     return self:getTypeName() .. "\n" .. self.shop
 end
 
+function Item:getEquipIcon() return self.icon end
+
 function Item:getPrice() return self.price end
 
 function Item:getBuyPrice() return self.buy_price or self:getPrice() end
@@ -304,6 +306,7 @@ function Item:isSellable() return self.can_sell end
 function Item:getStatBonuses() return self.bonuses end
 function Item:getBonusName() return self.bonus_name end
 function Item:getBonusIcon() return self.bonus_icon end
+function Item:getBonusColor() return self.bonus_color end
 
 function Item:getAttackSprite(battler, enemy, points) return battler.chara:getAttackSprite() end
 function Item:getAttackSound(battler, enemy, points) return battler.chara:getAttackSound() end
