@@ -27,7 +27,6 @@
 ---
 ---@field speed             number          The speed of the soul, in pixels per frame at 30FPS (defaults to `4`)
 ---
----@field inv_timer         number          The remaining invulnerability time for the soul
 ---@field inv_flash_timer   number          *(Used internally)* A timer for the flashing of the soul when invulnerable
 ---
 ---@field partial_x         number          *(Used internally)* Stores the fractional part of the soul's x-coordinate
@@ -106,7 +105,6 @@ function Soul:init(x, y, color)
     self.transitioning = false
     self.speed = 4
 
-    self.inv_timer = 0
     self.inv_flash_timer = 0
 
     -- 1px movement increments
@@ -427,6 +425,14 @@ end
 ---@param old_graze boolean
 function Soul:onGraze(bullet, old_graze) end
 
+--- *(Override)* Whether the soul should decrease the invulnerability timer.
+---
+--- By default, this returns `true` unless the soul is currently transitioning.
+---@return boolean decrease_invuln # `true` if the invulnerability timer should decrease.
+function Soul:shouldDecreaseInvuln()
+    return not self.transitioning
+end
+
 --- Called every frame from within [`Soul:update()`](lua://Soul.update) if the soul is able to move. \
 --- Movement for the soul based on player input should be controlled within this method.
 function Soul:doMovement()
@@ -487,10 +493,6 @@ function Soul:update()
     end
 
     -- Bullet collision !!! Yay
-    if self.inv_timer > 0 then
-        self.inv_timer = MathUtils.approach(self.inv_timer, 0, DT)
-    end
-
     local collided_bullets = {}
     Object.startCache()
     for _, bullet in ipairs(Game.stage:getObjects(Bullet)) do
@@ -499,7 +501,7 @@ function Soul:update()
             -- to avoid issues with cacheing inside onCollide
             table.insert(collided_bullets, bullet)
         end
-        if self.inv_timer == 0 then
+        if not Game:hasInvulnerability() then
             if bullet:canGraze() and bullet:collidesWith(self.graze_collider) then
                 local old_graze = bullet.grazed
                 if bullet.grazed then
@@ -530,7 +532,7 @@ function Soul:update()
         self:onCollide(bullet)
     end
 
-    if self.inv_timer > 0 then
+    if Game.inv_frames > 0 then
         self.inv_flash_timer = self.inv_flash_timer + DT
         local amt = math.floor(self.inv_flash_timer / (4 / 30))
         if (amt % 2) == 1 then

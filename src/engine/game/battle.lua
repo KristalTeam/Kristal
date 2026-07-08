@@ -1029,17 +1029,20 @@ end
 function Battle:spawnSoul(x, y)
     local bx, by = self:getSoulLocation()
     local color = { self.encounter:getSoulColor() }
+
     self:addChild(HeartBurst(bx - 2, by + 1, color))
+
     if not self.soul then
         self.soul = self.encounter:createSoul(bx, by, color)
         self.soul:transitionTo(x or SCREEN_WIDTH / 2, y or SCREEN_HEIGHT / 2)
         self.soul.target_alpha = self.soul.alpha
         self.soul.alpha = 0
-        if Game:getConfig("soulInvBetweenWaves") then
-            self.soul.inv_timer = Game.old_soul_inv_timer
-        end
-        Game.old_soul_inv_timer = 0
         self:addChild(self.soul)
+    end
+
+    if not Game:getConfig("soulInvBetweenWaves") then
+        -- There is technically one frame of invulnerability here, otherwise it would be `-1`
+        Game:setInvulnFrames(0)
     end
 
     if self.state == "DEFENDINGBEGIN" or self.state == "DEFENDING" then
@@ -1052,7 +1055,6 @@ function Battle:returnSoul(dont_destroy)
     if dont_destroy == nil then dont_destroy = false end
     local bx, by = self:getSoulLocation(true)
     if self.soul then
-        Game.old_soul_inv_timer = self.soul.inv_timer
         self.soul:transitionTo(bx - 2, by + 1, not dont_destroy)
     end
 end
@@ -3654,6 +3656,14 @@ function Battle:applyHealBonuses(base_heal, healer)
         end
     end
     return current_heal
+end
+
+--- Whether the battle should decrease the invulnerability timer.
+---
+--- By default, this redirects to [`Encounter:shouldDecreaseInvuln()`](lua://Encounter.shouldDecreaseInvuln).
+---@return boolean? decrease_invuln # `true` if the invulnerability timer should decrease.
+function Battle:shouldDecreaseInvuln()
+    return self.encounter:shouldDecreaseInvuln()
 end
 
 function Battle:canDeepCopy()

@@ -287,6 +287,14 @@ function Player:isCameraAttachable()
     return true
 end
 
+--- Whether the player should decrease the invulnerability timer.
+---
+--- This returns `true` if the state's `shouldDecreaseInvuln` callback returns `true`, or if [`World:shouldBulletsHurt()`](lua://World.shouldBulletsHurt) returns `true`.
+---@return boolean? decrease_invuln # `true` if the invulnerability timer should decrease.
+function Player:shouldDecreaseInvuln()
+    return Game.world:shouldBulletsHurt() or self.state_manager:call("shouldDecreaseInvuln")
+end
+
 function Player:isMovementEnabled()
     return not OVERLAY_OPEN
         and not Game.lock_movement
@@ -781,7 +789,7 @@ function Player:draw()
     local r, g, b, a = self:getColor()
     local use_alpha = a
 
-    if self.state == "CLIMB" and Game.world.soul and Game.world.soul.inv_timer > 0 then
+    if self.state == "CLIMB" and Game.inv_frames > 0 then
         use_alpha = a * 0.5
     end
 

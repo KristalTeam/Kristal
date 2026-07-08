@@ -573,7 +573,7 @@ end
 --- This should not be called by user code.
 ---@private
 function PlayerClimbState:checkClimbBullets()
-    if Game.world.soul ~= nil and Game.world.soul.inv_timer <= 0 and self.player:isMovementEnabled() then
+    if Game.world.soul ~= nil and Game.inv_frames <= 0 and self.player:isMovementEnabled() then
         Object.startCache()
         for _, bullet in ipairs(Game.stage:getObjects(WorldBullet)) do
             if bullet:collidesWith(self.hurtbox) then

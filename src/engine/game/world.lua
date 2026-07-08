@@ -1327,6 +1327,14 @@ function World:shouldBulletsHurt()
     return self:inBattle()
 end
 
+--- Whether the world should decrease the invulnerability timer.
+---
+--- By default, this redirects to [`Player:shouldDecreaseInvuln()`](lua://Player.shouldDecreaseInvuln) if the player exists.
+---@return boolean? decrease_invuln # `true` if the invulnerability timer should decrease.
+function World:shouldDecreaseInvuln()
+    return self.player ~= nil and self.player:shouldDecreaseInvuln()
+end
+
 function World:shouldCharacterCollide(char)
     if char.is_player and char:isClimbing() then
         return false

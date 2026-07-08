@@ -15,6 +15,7 @@
 ---@field key_repeat        boolean
 ---@field started           boolean
 ---@field border            string|Border
+---@field inv_frames        number
 ---
 ---@field previous_state    string
 ---@field state             string
@@ -74,6 +75,7 @@ function Game:clear()
     self.key_repeat = false
     self.started = false
     self.border = "simple"
+    self.inv_frames = 0
 end
 
 ---@overload fun(self: Game, previous_state: string, save_data: SaveData, save_id: number)
@@ -447,8 +449,7 @@ function Game:load(data, index, fade)
 
     self.light = false
 
-    -- Used to carry the soul invulnerability frames between waves
-    self.old_soul_inv_timer = 0
+    self.inv_frames = 0
 
     -- BEGIN SAVE FILE VARIABLES --
 
@@ -1182,6 +1183,45 @@ function Game:isWorldHidden()
     return false
 end
 
+--- Gets whether the player is currently invulnerable to damage.
+---@return boolean invulnerable # Whether the player is currently invulnerable to damage.
+function Game:hasInvulnerability()
+    return self.inv_frames > -1
+end
+
+--- Resets the invulnerability timer to `-1`, making the player vulnerable to damage again.
+function Game:resetInvuln()
+    self.inv_frames = -1
+end
+
+--- Sets the number of frames the player is invulnerable to damage for.
+---
+--- The player will be invulnerable for as long as this number is **greater than** `-1`, causing one extra frame of invulnerability.
+--- If you would like to disable invulnerability, set this to `-1`.
+---@param frames number
+function Game:setInvulnFrames(frames)
+    self.inv_frames = frames
+end
+
+--- Gets the default number of frames the player should be invulnerable to damage for.
+---@return number frames # The default number of frames the player should be invulnerable to damage for.
+function Game:getDefaultInvulnFrames()
+    return Game:getConfig("defaultInvulnTime")
+end
+
+--- Whether the invulnerability timer should decrease each frame.
+---
+--- This redirects to either [`Battle:shouldDecreaseInvuln()`](lua://Battle.shouldDecreaseInvuln) or [`World:shouldDecreaseInvuln()`](lua://World.shouldDecreaseInvuln),
+--- depending on the current state.
+---@return boolean? decrease_invuln # `true` if the invulnerability timer should decrease.
+function Game:shouldDecreaseInvuln()
+    if self.state == "BATTLE" and self.battle ~= nil then
+        return self.battle:shouldDecreaseInvuln()
+    elseif self.state == "OVERWORLD" and self.world ~= nil then
+        return self.world:shouldDecreaseInvuln()
+    end
+end
+
 function Game:update()
     if self.state == "EXIT" then
         self.fader:update()
@@ -1214,6 +1254,10 @@ function Game:update()
     end
 
     self.playtime = self.playtime + DT
+
+    if self:shouldDecreaseInvuln() then
+        self.inv_frames = self.inv_frames - DTMULT
+    end
 
     self.stage:update()
 

@@ -380,6 +380,14 @@ function Encounter:canSwoon(target)
     return true
 end
 
+--- *(Override)* Whether the encounter should decrease the invulnerability timer.
+---
+--- By default, this redirects to [`Soul:shouldDecreaseInvuln()`](lua://Soul.shouldDecreaseInvuln) if the soul exists.
+---@return boolean decrease_invuln # `true` if the invulnerability timer should decrease.
+function Encounter:shouldDecreaseInvuln()
+    return Game.battle.soul ~= nil and Game.battle.soul:shouldDecreaseInvuln()
+end
+
 --- *(Override)* Creates the battle background for this encounter. \
 --- *By default, returns a new instance of [`BattleBackground`](lua://BattleBackground) if the encounter's [background](lua://Encounter.background) property is `true`.
 ---@return BattleBackground? background

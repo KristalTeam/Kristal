@@ -10,7 +10,7 @@
 ---@field collider          Collider?
 ---
 ---@field damage            number
----@field inv_timer         number
+---@field inv_frames        number
 ---@field destroy_on_hit    boolean
 ---
 ---@field battle_fade       boolean
@@ -40,8 +40,8 @@ function WorldBullet:init(x, y, texture)
 
     -- Damage given to the player when hit by this bullet (Defaults to `10`)
     self.damage = 10
-    -- Invulnerability timer to apply to the player when hit by this bullet (Defaults to 4/3 seconds)
-    self.inv_timer = (4/3)
+    -- Invulnerability frames to apply to the player when hit by this bullet
+    self.inv_frames = Game:getDefaultInvulnFrames()
     -- Whether this bullet gets removed on collision with the player (Defaults to `false`)
     self.destroy_on_hit = false
 
@@ -66,6 +66,20 @@ function WorldBullet:getDamage()
     return self.damage
 end
 
+--- Get the invulnerability frames that will be applied to the soul upon this bullet hitting it.
+---@return number frames # The length of invulnerability frames from this bullet.
+function WorldBullet:getInvulnFrames()
+    -- DEPRECATED in 0.11.0
+    ---@diagnostic disable-next-line: undefined-field
+    local deprecated_time = self.inv_timer
+
+    if deprecated_time ~= nil then
+        Kristal.Console:warn("Deprecated use of \"inv_time\". Use \"inv_frames\" instead.")
+        return deprecated_time * 30
+    end
+
+    return self.inv_frames
+end
 
 --- *(Override)* Called when the bullet hits the player's soul without invulnerability frames. \
 --- Not calling `super.onDamage()` here will stop the normal damage logic from occurring.
@@ -74,7 +88,10 @@ function WorldBullet:onDamage(soul)
     local damage = self:getDamage()
     if damage > 0 then
         self.world:hurtParty(damage)
-        soul.inv_timer = self.inv_timer
+
+        local inv_frames = self:getInvulnFrames()
+        Game:setInvulnFrames(inv_frames)
+
         soul:onDamage(self, damage)
     end
 end
@@ -86,7 +103,20 @@ function WorldBullet:onCollide(soul)
         return
     end
 
-    if soul.inv_timer == 0 then
+    -- TODO: Please dont mix the "collides with Player" and "collides with OverworldSoul" function
+    -- Temporarily avoids a bug old behaviour didn't have because it checked a field that was only set on the OverworldSoul
+    if not (isClass(soul) and soul:includes(OverworldSoul)) then
+        return
+    end
+
+    local invulnerable = Game:hasInvulnerability()
+
+    -- Accuracy: Climbing invulnerability check assumes `0` is vulnerable (normally `-1` is vulnerable)
+    if Game.world.player ~= nil and Game.world.player:isClimbing() then
+        invulnerable = Game.inv_frames > 0
+    end
+
+    if not invulnerable then
         self:onDamage(soul)
     end
 

@@ -15,7 +15,7 @@
 ---@field time_bonus        number
 ---
 ---@field damage            number
----@field inv_timer         number
+---@field inv_frames        number
 ---@field destroy_on_hit    boolean
 ---
 ---@field grazed            boolean
@@ -55,8 +55,8 @@ function Bullet:init(x, y, texture)
 
     -- Damage given to the player when hit by this bullet (Defaults to 5x the attacker's attack stat)
     self.damage = nil
-    -- Invulnerability timer to apply to the player when hit by this bullet
-    self.inv_timer = Game:getConfig("defaultInvulnTime") / 30
+    -- Invulnerability frames to apply to the player when hit by this bullet
+    self.inv_frames = Game:getDefaultInvulnFrames()
     -- Whether this bullet gets removed on collision with the player (Defaults to `true`)
     self.destroy_on_hit = true
 
@@ -96,10 +96,28 @@ function Bullet:shouldSwoon(damage, target, soul)
     return false
 end
 
---- Get the invulnerability time that will be applied to the soul upon this bullet hitting it.
----@return number
+--- Get the invulnerability time (in seconds) that will be applied to the soul upon this bullet hitting it.
+---@return number?
+---@deprecated Override `Bullet:getInvulnFrames()` instead, as invulnerability time is now calculated in frames rather than seconds.
 function Bullet:getInvulnTime()
+    -- DEPRECATED in 0.11.0
+    ---@diagnostic disable-next-line: undefined-field
     return self.inv_timer
+end
+
+--- Get the invulnerability frames that will be applied to the soul upon this bullet hitting it.
+---@return number frames # The length of invulnerability frames from this bullet.
+function Bullet:getInvulnFrames()
+    -- DEPRECATED in 0.11.0
+    ---@diagnostic disable-next-line: deprecated
+    local deprecated_time = self:getInvulnTime()
+
+    if deprecated_time ~= nil then
+        Kristal.Console:warn("Deprecated use of \"inv_time\" or \"getInvulnTime\". Use \"inv_frames\" or \"getInvulnFrames\" instead.")
+        return deprecated_time * 30
+    end
+
+    return self.inv_frames
 end
 
 --- *(Override)* Called when the bullet hits the player's soul without invulnerability frames. \
@@ -111,8 +129,12 @@ function Bullet:onDamage(soul)
     if damage > 0 then
         local target = self:getTarget()
         local battlers = Game.battle:hurt(damage, false, target, self:shouldSwoon(damage, target, soul))
-        soul.inv_timer = self:getInvulnTime()
+
+        local inv_frames = self:getInvulnFrames()
+        Game:setInvulnFrames(inv_frames)
+
         soul:onDamage(self, damage)
+
         return battlers
     end
     return {}
@@ -121,7 +143,7 @@ end
 --- *(Override)* Called when the bullet collides with the player's soul, before invulnerability checks.
 ---@param soul Soul
 function Bullet:onCollide(soul)
-    if soul.inv_timer == 0 then
+    if not Game:hasInvulnerability() then
         self:onDamage(soul)
     end
 

@@ -26,7 +26,6 @@ function OverworldSoul:init(x, y)
 
     self.collider = CircleCollider(self, 0, 0, 8)
 
-    self.inv_timer = 0
     self.inv_flash_timer = 0
 end
 
@@ -51,13 +50,9 @@ function OverworldSoul:onDamage(bullet, amount)
 end
 
 function OverworldSoul:update()
-    -- Bullet collision !!! Yay
-    if self.inv_timer > 0 then
-        self.inv_timer = MathUtils.approach(self.inv_timer, 0, DT)
-    end
-
     self.sprite.alpha = 1 -- ??????
 
+    -- Bullet collision !!! Yay
     if not Game.world.player or Game.world.player.state ~= "CLIMB" then
         Object.startCache()
         for _, bullet in ipairs(Game.stage:getObjects(WorldBullet)) do
@@ -68,7 +63,7 @@ function OverworldSoul:update()
         Object.endCache()
     end
 
-    if self.inv_timer > 0 then
+    if Game.inv_frames > 0 then
         self.inv_flash_timer = self.inv_flash_timer + DT
         local amt = math.floor(self.inv_flash_timer / (4 / 30))
         if (amt % 2) == 1 then

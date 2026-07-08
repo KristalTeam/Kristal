@@ -107,9 +107,11 @@ end
 --- By default, this function is responsible for dealing damage to the soul if the solid deals squish damage.
 ---@param soul Soul
 function Solid:onSquished(soul)
-    if soul.inv_timer == 0 and self.squish_damage and self.squish_damage ~= 0 then
+    if not Game:hasInvulnerability() and self.squish_damage and self.squish_damage ~= 0 then
         Game.battle:hurt(self.squish_damage, false, "ANY")
-        soul.inv_timer = Game:getConfig("defaultInvulnTime") / 30
+
+        local inv_frames = Game:getDefaultInvulnFrames()
+        Game:setInvulnFrames(inv_frames)
     end
 end
 
