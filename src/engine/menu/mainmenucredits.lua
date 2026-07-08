@@ -90,7 +90,8 @@ function MainMenuCredits:init(menu)
                 { "GitHub Contributors", COLORS.silver },
                 "WIL-TZY",
                 "YeetusSnoopy",
-                "Maks7594"
+                "Maks7594",
+                "NakuAutumn/GoldofLeaves/GoldenLeaf"
             }
         }
     }
