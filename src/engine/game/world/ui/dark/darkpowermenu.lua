@@ -185,6 +185,7 @@ end
 
 function DarkPowerMenu:canCast(spell)
     if not Game:getConfig("overworldSpells") then return false end
+    if type(spell:getTPCost(self.party:getSelected())) ~= "number" then return false end
     if Game:getTension() < spell:getTPCost(self.party:getSelected()) then return false end
 
     return (spell:hasWorldUsage(self.party:getSelected()))
