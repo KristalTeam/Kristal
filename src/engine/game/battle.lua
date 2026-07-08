@@ -3647,78 +3647,48 @@ end
 ---@param target PartyMember? # The party member targeted by the heal, if applicable.
 ---@return number new_heal # The modified heal amount.
 function Battle:applyHealBonuses(heal, caster, target)
-    local base_heal = heal
-
-    ---@type Item[]
-    local item_list = {}
-    ---@type table<string, number>
-    local num_equipped = {}
-
-    for _, battler in ipairs(self.party) do
-        for _, equipment in ipairs(battler.chara:getEquipment()) do
-            local current_count = num_equipped[equipment.id]
-
-            if current_count == nil then
-                num_equipped[equipment.id] = 1
-                table.insert(item_list, equipment)
-            else
-                num_equipped[equipment.id] = current_count + 1
-            end
-
+    return Game:callEquipmentBonusCalculations(
+        -- Current value, Base value
+        heal, heal,
+        -- Group calculation
+        function(item, current_heal, base_heal, num_equipped)
+            return item:calculateBattleHeal(current_heal, base_heal, caster, target)
+        end,
+        -- Priority getter
+        function(item)
+            return item:calculateBattleHealPriority()
+        end,
+        -- Direct calculation (for deprecated method)
+        function(item, current_heal, base_heal)
             -- DEPRECATED in 0.11.0
             ---@diagnostic disable-next-line: deprecated
-            heal = equipment:applyHealBonus(heal, base_heal, caster)
+            return item:applyHealBonus(current_heal, base_heal, caster)
         end
-    end
-
-    table.sort(item_list, function(a, b)
-        return a:calculateBattleHealPriority() < b:calculateBattleHealPriority()
-    end)
-
-    for _, equipment in ipairs(item_list) do
-        heal = equipment:calculateBattleHeal(heal, base_heal, caster, target)
-    end
-
-    return heal
+    )
 end
 
 --- Returns the equipment-modified money amount from a battle victory payout.
 ---@param money number # The base amount of money to apply bonuses to.
 ---@return number new_money # The modified amount of money.
 function Battle:applyMoneyBonuses(money)
-    local base_money = money
-
-    ---@type Item[]
-    local item_list = {}
-    ---@type table<string, number>
-    local num_equipped = {}
-
-    for _, battler in ipairs(self.party) do
-        for _, equipment in ipairs(battler.chara:getEquipment()) do
-            local current_count = num_equipped[equipment.id]
-
-            if current_count == nil then
-                num_equipped[equipment.id] = 1
-                table.insert(item_list, equipment)
-            else
-                num_equipped[equipment.id] = current_count + 1
-            end
-
+    return Game:callEquipmentBonusCalculations(
+        -- Current value, Base value
+        money, money,
+        -- Group calculation
+        function(item, current_money, base_money, num_equipped)
+            return item:calculateBattleMoney(current_money, base_money, num_equipped)
+        end,
+        -- Priority getter
+        function(item)
+            return item:calculateBattleMoneyPriority()
+        end,
+        -- Direct calculation (for deprecated method)
+        function(item, current_money, base_money)
             -- DEPRECATED in 0.11.0
             ---@diagnostic disable-next-line: deprecated
-            money = equipment:applyMoneyBonus(money)
+            return item:applyMoneyBonus(current_money)
         end
-    end
-
-    table.sort(item_list, function(a, b)
-        return a:calculateBattleMoneyPriority() < b:calculateBattleMoneyPriority()
-    end)
-
-    for _, equipment in ipairs(item_list) do
-        money = equipment:calculateBattleMoney(money, base_money, num_equipped[equipment.id])
-    end
-
-    return money
+    )
 end
 
 --- Whether the battle should decrease the invulnerability timer.

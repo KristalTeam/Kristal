@@ -359,12 +359,10 @@ end
 
 --- *(Override)* Returns the priority of this item when calculating battle money bonuses.
 ---
---- By default, this is `0`. Higher priority items are applied later, lower priority items are applied first, and items with the same priority
---- are applied in an arbitrary order. For example, an item with a "gain no money" effect (multiplies by 0) should have a higher priority than
---- any effects which add a flat amount of money, ensuring the multiplication is applied after the addition.
+--- Higher priority items are applied later, lower priority items are applied first, and items with the same priority are applied in an arbitrary order.
+--- Recommended use is to use a negative priority for flat bonuses (e.g. `+ 100`) and a positive priority for multiplicative bonuses (e.g. `* 2`).
 ---
---- Recommended use is to use a negative priority for additive bonuses (e.g. `+ 100`) and a positive priority for multiplicative bonuses (e.g. `* 2`).
---- Built-in DELTARUNE items will use decimal priorities between `0` and `1`.
+--- By default, this is `0`. Built-in DELTARUNE items will use decimal priorities between `0` and `1`.
 ---@return number priority # The priority of this item when calculating battle money bonuses.
 function Item:calculateBattleMoneyPriority()
     return 0
@@ -385,14 +383,34 @@ end
 
 --- *(Override)* Returns the priority of this item when calculating battle heal bonuses.
 ---
---- By default, this is `0`. Higher priority items are applied later, lower priority items are applied first, and items with the same priority
---- are applied in an arbitrary order. For example, an item with a "double healing" effect (multiplies by 2) should have a higher priority than
---- any effects which add a flat amount of healing, ensuring the multiplication is applied after the addition.
+--- Higher priority items are applied later, lower priority items are applied first, and items with the same priority are applied in an arbitrary order.
+--- Recommended use is to use a negative priority for flat bonuses (e.g. `+ 100`) and a positive priority for multiplicative bonuses (e.g. `* 2`).
 ---
---- Recommended use is to use a negative priority for additive bonuses (e.g. `+ 100`) and a positive priority for multiplicative bonuses (e.g. `* 2`).
---- Built-in DELTARUNE items will use decimal priorities between `0` and `1`.
+--- By default, this is `0`. Built-in DELTARUNE items will use decimal priorities between `0` and `1`.
 ---@return number priority # The priority of this item when calculating battle heal bonuses.
 function Item:calculateBattleHealPriority()
+    return 0
+end
+
+--- *(Override)* Takes in the current amount of invulnerability frames, returning the new amount modified by this item.
+---
+--- This function is only called once per unique item id, and it is given the amount of that same item equipped.
+--- @param frames number # The current amount of invulnerability frames.
+--- @param base_frames number # The base amount of invulnerability frames before any bonuses.
+--- @param num_equipped number # The number of the same item id equipped by the party.
+--- @return number new_frames # The new amount of invulnerability frames after applying this item's bonus.
+function Item:calculateInvulnFrames(frames, base_frames, num_equipped)
+    return frames
+end
+
+--- *(Override)* Returns the priority of this item when calculating invulnerability frame bonuses.
+---
+--- Higher priority items are applied later, lower priority items are applied first, and items with the same priority are applied in an arbitrary order.
+--- Recommended use is to use a negative priority for flat bonuses (e.g. `+ 100`) and a positive priority for multiplicative bonuses (e.g. `* 2`).
+---
+--- By default, this is `0`. Built-in DELTARUNE items will use decimal priorities between `0` and `1`.
+---@return number priority # The priority of this item when calculating invulnerability frame bonuses.
+function Item:calculateInvulnFramesPriority()
     return 0
 end
 

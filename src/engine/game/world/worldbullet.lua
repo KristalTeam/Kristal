@@ -90,6 +90,12 @@ function WorldBullet:onDamage(soul)
         self.world:hurtParty(damage)
 
         local inv_frames = self:getInvulnFrames()
+
+        -- TODO: Option to disable Invuln Bonus accuracy?
+        -- Equipment invulnerability bonuses are only applied for single-target damage as of Chapter 5
+
+        -- inv_frames = Game:applyInvulnBonuses(inv_frames)
+
         Game:setInvulnFrames(inv_frames)
 
         soul:onDamage(self, damage)

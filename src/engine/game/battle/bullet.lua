@@ -131,6 +131,13 @@ function Bullet:onDamage(soul)
         local battlers = Game.battle:hurt(damage, false, target, self:shouldSwoon(damage, target, soul))
 
         local inv_frames = self:getInvulnFrames()
+
+        -- TODO: Option to disable Invuln Bonus accuracy?
+        -- Equipment invulnerability bonuses are only applied for single-target damage as of Chapter 5
+        if target ~= "ALL" then
+            inv_frames = Game:applyInvulnBonuses(inv_frames)
+        end
+
         Game:setInvulnFrames(inv_frames)
 
         soul:onDamage(self, damage)

@@ -110,7 +110,7 @@ function Solid:onSquished(soul)
     if not Game:hasInvulnerability() and self.squish_damage and self.squish_damage ~= 0 then
         Game.battle:hurt(self.squish_damage, false, "ANY")
 
-        local inv_frames = Game:getDefaultInvulnFrames()
+        local inv_frames = Game:applyInvulnBonuses(Game:getDefaultInvulnFrames())
         Game:setInvulnFrames(inv_frames)
     end
 end

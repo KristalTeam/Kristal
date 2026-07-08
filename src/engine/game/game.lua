@@ -1209,6 +1209,23 @@ function Game:getDefaultInvulnFrames()
     return Game:getConfig("defaultInvulnTime")
 end
 
+---@param inv_frames number
+---@return number
+function Game:applyInvulnBonuses(inv_frames)
+    return Game:callEquipmentBonusCalculations(
+        -- Current value, Base value
+        inv_frames, inv_frames,
+        -- Group calculation
+        function(item, current_frames, base_frames, num_equipped)
+            return item:calculateInvulnFrames(current_frames, base_frames, num_equipped)
+        end,
+        -- Priority getter
+        function(item)
+            return item:calculateInvulnFramesPriority()
+        end
+    )
+end
+
 --- Whether the invulnerability timer should decrease each frame.
 ---
 --- This redirects to either [`Battle:shouldDecreaseInvuln()`](lua://Battle.shouldDecreaseInvuln) or [`World:shouldDecreaseInvuln()`](lua://World.shouldDecreaseInvuln),
@@ -1220,6 +1237,62 @@ function Game:shouldDecreaseInvuln()
     elseif self.state == "OVERWORLD" and self.world ~= nil then
         return self.world:shouldDecreaseInvuln()
     end
+end
+
+--- Calculates a value based on the equipped items of all party members.
+---
+--- This function will search through the party members' equipped items, grouping items of the same ID and calling the `group_callback` function once
+--- for each unique equipped item, optionally sorted with a priority getter.
+---
+--- The `group_callback` function is given a reference to the first item of the group, the current value (which should be modified and returned),
+--- the base value before modification, and how many of that item are equipped across the party.
+---
+--- If a `priority_getter` function is provided, it will be called for each unique equipped item to determine the order in which they are processed.
+--- Items with lower priority values will be processed first.
+---
+--- If a `direct_callback` function is provided, it will be called for each individual equipped item before priority sorting. In the base engine, this is
+--- only used to temporarily support deprecated equipment callbacks.
+---@generic T
+---@param value T # The value which will be modified by the callback function for each equipped item.
+---@param base_value T # The base value which will be passed to the callback function for each equipped item.
+---@param group_callback fun(item: Item, value: T, base_value: T, num_equipped: integer): T # The callback function which will be called for each unique equipped item. It should return the modified value.
+---@param priority_getter? fun(item: Item): number # An optional function which will be called for each unique equipped item to determine the order in which they are processed. Items with lower priority values will be processed first.
+---@param direct_callback? fun(item: Item, value: T, base_value: T): T # An optional function which will be called for each individual equipped item, before priority sorting. It should return the modified value.
+---@return T # The final modified value after all equipped items have been processed.
+function Game:callEquipmentBonusCalculations(value, base_value, group_callback, priority_getter, direct_callback)
+    ---@type Item[]
+    local item_list = {}
+    ---@type table<string, number>
+    local num_equipped = {}
+
+    for _, party_member in ipairs(self.party) do
+        for _, item in ipairs(party_member:getEquipment()) do
+            local current_count = num_equipped[item.id]
+
+            if current_count == nil then
+                num_equipped[item.id] = 1
+                table.insert(item_list, item)
+            else
+                num_equipped[item.id] = current_count + 1
+            end
+
+            if direct_callback ~= nil then
+                value = direct_callback(item, value, base_value)
+            end
+        end
+    end
+
+    if priority_getter ~= nil then
+        table.sort(item_list, function(a, b)
+            return priority_getter(a) < priority_getter(b)
+        end)
+    end
+
+    for _, item in ipairs(item_list) do
+        value = group_callback(item, value, base_value, num_equipped[item.id])
+    end
+
+    return value
 end
 
 function Game:update()
