@@ -13,6 +13,8 @@
     "susieStyle": 1,                 // Susie chapter style
     "ralseiStyle": 1,                // Ralsei chapter style
 
+    "partyStats": 1,                 // Chapter to base party stats off of
+
     "oldTensionBar": true,           // Style of TP bar
     "oldUIPositions": true,          // Old positions of various UI elements
     "oldGameOver": true,             // The game over screen used in chapter 1
