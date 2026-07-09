@@ -122,7 +122,7 @@ function DarkEquipMenu:getStatsPreview()
         local equipment = self:getEquipPreview()
         for i = 1, 3 do
             if equipment[i] then
-                for stat, amount in pairs(equipment[i].bonuses) do
+                for stat, amount in pairs(equipment[i]:getStatBonuses()) do
                     if preview_stats[stat] then
                         preview_stats[stat] = preview_stats[stat] + amount
                     end

@@ -23,6 +23,14 @@ function spell:init()
     self.tags = {"spare_tired"}
 end
 
+function spell:getTPCost(chara)
+    if chara:checkWeapon("blueshoes") then
+        return 0
+    end
+
+    return super.getTPCost(self, chara)
+end
+
 function spell:getCastMessage(user, target)
     local message = super.getCastMessage(self, user, target)
     if target.tired then
