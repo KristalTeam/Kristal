@@ -42,9 +42,9 @@
 ---
 ---@field flags table<string, any>
 ---
----@field dark_item Item
+---@field dark_item Item|string?
 ---@field dark_location {storage: string, index: integer}
----@field light_item Item
+---@field light_item Item|string?
 ---@field light_location {storage: string, index: integer}
 ---
 ---@overload fun(...) : Item
@@ -271,11 +271,11 @@ end
 
 --- *(Override)* Converts an equipped item to its light counterpart
 ---@param chara PartyMember
----@return boolean|Item
+---@return string|Item?
 function Item:convertToLightEquip(chara) return self:convertToLight() end
 --- *(Override)* Converts an equipped item to its dark counterpart
 ---@param chara PartyMember
----@return boolean|Item
+---@return string|Item?
 function Item:convertToDarkEquip(chara) return self:convertToDark() end
 
 --[[ Getters ]]--
@@ -312,9 +312,19 @@ function Item:getAttackSprite(battler, enemy, points) return battler.chara:getAt
 function Item:getAttackSound(battler, enemy, points) return battler.chara:getAttackSound() end
 function Item:getAttackPitch(battler, enemy, points) return battler.chara:getAttackPitch() end
 
+--- *(Override)* Gets the size of the critical hit box for the battler this weapon is equipped to. **Only affects weapons**.
+---
+--- The size is both visual and equivalent to the frame leniency of the attack (at 30fps). The default is `1`, meaning you only have 1 frame to crit.
+---@param battler PartyBattler # The attacker's battler.
+---@return number size # The size of the critical hit box.
+function Item:getAttackCritBoxSize(battler)
+    return 1
+end
+
 function Item:getReactions() return self.reactions end
 
 function Item:hasResultItem() return self.result_item ~= nil end
+
 --- *(Override)* Creates an instance of this Item's specified [`result_item`](lua://Item.result_item)
 ---@return Item result_item
 function Item:createResultItem()

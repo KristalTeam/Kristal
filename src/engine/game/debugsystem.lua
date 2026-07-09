@@ -2002,7 +2002,11 @@ function DebugSystem:draw()
             if type(color) == "function" then
                 color = color()
             end
-            self:printShadow(name, text_offset + 19, y_off + menu_y + (index - 1) * 32 + 16 + (is_search and 64 or 0) + self.menu_y, color)
+            local x = text_offset + 19
+            local y = y_off + menu_y + (index - 1) * 32 + 16 + (is_search and 64 or 0) + self.menu_y
+            if y > 0 and y < SCREEN_HEIGHT then
+                self:printShadow(name, x, y, color)
+            end
         end
         Draw.popScissor()
 
@@ -2063,7 +2067,11 @@ function DebugSystem:draw()
             local x = (i - 1) % faces_per_row
             local y = math.floor((i - 1) / faces_per_row)
             local texture = Assets.getTexture("face/" .. texture_id)
-            Draw.draw(texture, x_offset + (x * gap), y_offset + (self.faces_y + (y * gap)), 0, 2, 2)
+            local draw_x = x_offset + (x * gap)
+            local draw_y = y_offset + (self.faces_y + (y * gap))
+            if draw_y > 0 and draw_y < SCREEN_HEIGHT then
+                Draw.draw(texture, draw_x, draw_y, 0, 2, 2)
+            end
 
             local width = texture:getWidth() * 2
             local height = texture:getHeight() * 2
