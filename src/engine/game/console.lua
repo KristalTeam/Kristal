@@ -6,7 +6,7 @@ function Console:init()
     super.init(self, 0, 0)
     self.layer = 10000000 - 1
 
-    self.height = 12
+    self.height = 16
 
     self.font_size = 16
     self.font_name = "main_mono"
@@ -219,15 +219,17 @@ end
 
 function Console:draw()
     if not self.is_open then return end
+
+    local line_height = 18
     love.graphics.setFont(self.font)
 
     Draw.setColor(0, 0, 0, 0.4)
     love.graphics.rectangle("fill", 0, 0, 640, 480)
 
-    local input_pos = (self.height + 1) * 18
+    local input_pos = (self.height + 2) * line_height
 
     Draw.setColor(0, 0, 0, 0.6)
-    love.graphics.rectangle("fill", 0, 0, 640, self.height * 18 * 0.975)
+    love.graphics.rectangle("fill", 0, 0, 640, (self.height+1) * line_height)
 
     Draw.setColor(1, 1, 1, 1)
 
@@ -241,17 +243,17 @@ function Console:draw()
     end
 
     for line = #self.history - self.height, #self.history do
-        self:print(self.history[line + self.read_offset] or {COLORS.gray, "~" }, 8, y_offset * 16)
+        self:print(self.history[line + self.read_offset] or {COLORS.gray, "~" }, 8, y_offset * line_height)
         y_offset = y_offset + 1
     end
     self.color = {1, 1, 1, 1}
-    self:print({(": Line %d of %d"):format(# self.history + self.read_offset, #self.history)}, 8, y_offset * 16)
+    self:print({(": Line %d of %d"):format(# self.history + self.read_offset, #self.history)}, 8, y_offset * line_height)
     y_offset = y_offset + 1
 
     self.color = { 1, 1, 1, 1 }
 
     Draw.setColor(0, 0, 0, 0.6)
-    love.graphics.rectangle("fill", 0, input_pos, 640, #self.input * 16)
+    love.graphics.rectangle("fill", 0, input_pos, 640, #self.input * line_height)
 
     TextInput.draw({
         prefix_width = self.font:getWidth("> "),
