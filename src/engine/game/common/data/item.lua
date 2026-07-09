@@ -42,9 +42,9 @@
 ---
 ---@field flags table<string, any>
 ---
----@field dark_item Item
+---@field dark_item Item|string?
 ---@field dark_location {storage: string, index: integer}
----@field light_item Item
+---@field light_item Item|string?
 ---@field light_location {storage: string, index: integer}
 ---
 ---@overload fun(...) : Item
@@ -271,11 +271,11 @@ end
 
 --- *(Override)* Converts an equipped item to its light counterpart
 ---@param chara PartyMember
----@return boolean|Item
+---@return string|Item?
 function Item:convertToLightEquip(chara) return self:convertToLight() end
 --- *(Override)* Converts an equipped item to its dark counterpart
 ---@param chara PartyMember
----@return boolean|Item
+---@return string|Item?
 function Item:convertToDarkEquip(chara) return self:convertToDark() end
 
 --[[ Getters ]]--

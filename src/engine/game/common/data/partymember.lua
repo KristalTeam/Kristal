@@ -744,7 +744,7 @@ function PartyMember:convertToLight()
 
     if last_weapon then
         local result = last_weapon:convertToLightEquip(self)
-        if result then
+        if result ~= nil then
             if type(result) == "string" then
                 result = Registry.createItem(result)
             end
@@ -756,7 +756,7 @@ function PartyMember:convertToLight()
     for i = 1, 2 do
         if last_armors[i] then
             local result = last_armors[i]:convertToLightEquip(self)
-            if result then
+            if result ~= nil then
                 if type(result) == "string" then
                     result = Registry.createItem(result)
                 end
