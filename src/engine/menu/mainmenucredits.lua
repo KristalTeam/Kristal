@@ -53,46 +53,46 @@ function MainMenuCredits:init(menu)
                 "Elioze",
                 "Eribetra",
                 "FireRainV",
+                "Gabrielcito",
                 "HmmNoPls",
                 "HUECYCLES",
                 "Hyperboid",
-                "isakube",
-                "J.A.R.U."
+                "isakube"
             },
             {
                 { "GitHub Contributors", COLORS.silver },
+                "J.A.R.U.",
                 "Lionmeow",
                 "Luna",
+                "Maks7594",
                 "MaybeSamo",
                 "MCdeDaxia",
                 "MrOinky",
-                "NelleMonelle",
-                "Nextop",
-                "nightpool",
-                "prokube"
+                "NakuAutumn",
+                "NelleMonelle"
             }
         },
         {
             "Kristal Engine",
             {
                 { "GitHub Contributors", COLORS.silver },
+                "Nextop",
+                "nightpool",
+                "prokube",
                 "rfrx",
                 "Simbel",
                 "sjl057",
                 "skarph",
                 "SuperOfSrb2",
-                "SweetSylveon",
-                "TFLTV",
-                "TheSkerch",
-                "Verozity"
+                "SweetSylveon"
             },
             {
                 { "GitHub Contributors", COLORS.silver },
+                "TFLTV",
+                "TheSkerch",
+                "Verozity",
                 "WIL-TZY",
-                "YeetusSnoopy",
-                "Maks7594",
-                "NakuAutumn",
-                "Gabrielcito"
+                "YeetusSnoopy"
             }
         }
     }
