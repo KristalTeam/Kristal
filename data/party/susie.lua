@@ -281,7 +281,7 @@ function character:drawPowerStat(index, x, y, menu)
             love.graphics.print("Yes", x+130, y)
         elseif Game.chapter >= 4 then
             love.graphics.print("* Healing", x-24, y)
-            love.graphics.print(15 + (self:getFlag("healing_used") or 0), x+130, y)
+            love.graphics.print(15 + (self:getFlag("healing_used", 0)), x+130, y)
         end
         return true
     elseif index == 3 then
