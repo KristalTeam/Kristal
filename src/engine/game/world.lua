@@ -452,7 +452,7 @@ function World:onKeyPressed(key)
         end
         if key == "k" then
             Game:setTension(Game:getMaxTension())
-            Assets.playSound("cardrive")
+            Assets.playSound("cardrive", 0.8, 1.4)
         end
         if key == "n" then
             NOCLIP = not NOCLIP

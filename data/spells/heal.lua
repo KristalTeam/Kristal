@@ -24,13 +24,14 @@ function spell:init()
     self.tags = { "heal" }
 end
 
-function spell:getTPCost(chara)
-    local cost = super.getTPCost(self, chara)
-    if not Game.battle then
-        return "??"
+function spell:getPowerMenuTPDisplay(chara)
+    if Game.battle == nil then
+        return "??%"
     end
-    return cost
+
+    return super.getPowerMenuTPDisplay(self, chara)
 end
+
 
 function spell:onCast(user, target)
     local healing_used = user.chara:getFlag("healing_used", 0)
