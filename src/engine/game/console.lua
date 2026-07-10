@@ -245,7 +245,7 @@ function Console:draw()
     local input_pos = (self.height + 2) * line_height
 
     Draw.setColor(0, 0, 0, 0.6)
-    love.graphics.rectangle("fill", 0, 0, 640, (self.height+1) * line_height)
+    love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, (self.height+1) * line_height)
 
     Draw.setColor(1, 1, 1, 1)
 
@@ -269,7 +269,7 @@ function Console:draw()
     self.color = { 1, 1, 1, 1 }
 
     Draw.setColor(0, 0, 0, 0.6)
-    love.graphics.rectangle("fill", 0, input_pos, 640, #self.input * line_height)
+    love.graphics.rectangle("fill", 0, input_pos, SCREEN_WIDTH, #self.input * line_height)
 
     TextInput.draw({
         prefix_width = self.font:getWidth("> "),
