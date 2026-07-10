@@ -57,7 +57,7 @@ function Spell:getBattleDescription() return self.effect end
 function Spell:getTPCost(chara) return self.cost end
 
 --- Gets the displayed TP cost of this spell.
----@param chara PartyMember The `PartyMember` that is casting the spell
+---@param chara PartyMember The `PartyMember` who has this spell
 ---@return string
 function Spell:getPowerMenuTPDisplay(chara)
     return tostring(self:getTPCost(chara)) .. "%"
