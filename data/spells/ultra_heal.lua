@@ -25,16 +25,19 @@ end
 
 function spell:getTPCost(chara)
     local cost = super.getTPCost(self, chara)
-    return cost - (chara:getFlag("healing_used") or 0)
+    return cost - (chara:getFlag("healing_used", 0))
 end
 
 function spell:onCast(user, target)
-    user.chara:addFlag("healing_used", 1)
-    if user.chara:getFlag("healing_used") > 5 then
-        user.chara:addFlag("healing_used", -1)
+    local healing_used = user.chara:getFlag("healing_used", 0)
+
+    if healing_used < 5 then
+        healing_used = healing_used + 1
+        user.chara:setFlag("healing_used", healing_used)
     end
-    local base_heal = math.ceil((user.chara:getStat("magic") * 1.5) + 5 + (1 * (user.chara:getFlag("healing_used") or 0)))
-    local heal_amount = Game.battle:applyHealBonuses(base_heal, user.chara)
+
+    local base_heal = math.ceil((user.chara:getStat("magic") * 1.5) + 5 + healing_used)
+    local heal_amount = Game.battle:applyHealBonuses(base_heal, user.chara, target.chara)
 
     target:heal(heal_amount)
 end
