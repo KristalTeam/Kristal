@@ -6,7 +6,7 @@ function Console:init()
     super.init(self, 0, 0)
     self.layer = 10000000 - 1
 
-    self.height = 16
+    self.height = 12
 
     self.font_size = 16
     self.font_name = "main_mono"
@@ -173,6 +173,7 @@ end
 
 function Console:onSubmit()
     self:run(self.input)
+    self.env.resetPos()
 end
 
 function Console:close()
@@ -181,25 +182,40 @@ function Console:close()
     TextInput.endInput()
 end
 
-function Console:print(text, x, y)
+function Console:print(text, x, y, align)
     if text == nil then
         return
     end
+    align = align or 'left'
 
     local x_offset = 0
+
+    if align == 'right' then
+        love.graphics.setColor(1, 0, 1, 1)
+        x = SCREEN_WIDTH - x
+        for _, line in ipairs(text) do
+            x_offset = x_offset + self.font:getWidth(line)
+            x = x - self.font:getWidth(line)
+        end
+    end
 
     for _, line in ipairs(text) do
         Draw.setColor(self.color)
         if type(line) == "table" then
             self.color = line
         else
+            if align == 'right' then
+                x_offset = x_offset - self.font:getWidth(line)
+            end
             self:printOutlined(line, x + x_offset, y)
-            x_offset = x_offset + self.font:getWidth(line)
+            if align == 'left' then
+                x_offset = x_offset + self.font:getWidth(line)
+            end
         end
     end
 end
 
-function Console:printOutlined(text, x, y)
+function Console:printOutlined(text, x, y )
     if y < 0 then
         return
     end
@@ -224,7 +240,7 @@ function Console:draw()
     love.graphics.setFont(self.font)
 
     Draw.setColor(0, 0, 0, 0.4)
-    love.graphics.rectangle("fill", 0, 0, 640, 480)
+    love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, 480)
 
     local input_pos = (self.height + 2) * line_height
 
@@ -247,7 +263,7 @@ function Console:draw()
         y_offset = y_offset + 1
     end
     self.color = {1, 1, 1, 1}
-    self:print({(": Line %d of %d"):format(# self.history + self.read_offset, #self.history)}, 8, y_offset * line_height)
+    self:print({("Line %d of %d"):format(# self.history + self.read_offset, #self.history)}, 8, y_offset * line_height, 'right')
     y_offset = y_offset + 1
 
     self.color = { 1, 1, 1, 1 }
