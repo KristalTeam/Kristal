@@ -28,6 +28,7 @@ function spell:getTPCost(chara)
 
     local healing_used = chara:getFlag("healing_used", 0)
     cost = cost - math.floor(healing_used / 3)
+
     return cost
 end
 
@@ -39,8 +40,17 @@ function spell:onCast(user, target)
         user.chara:setFlag("healing_used", healing_used)
     end
 
-    local base_heal = math.ceil((user.chara:getStat("magic") * 5) + 15 + healing_used)
-    local heal_amount = Game.battle:applyHealBonuses(base_heal, user.chara, target.chara)
+    local _, yellowhat_count = user.chara:checkArmor("yellowhat")
+
+    -- Base heal amount
+    local base_heal = (user.chara:getStat("magic") * 5) + 15
+    -- Apply YellowHat bonus
+    -- DIFFERENCE: In DELTARUNE, this does not stack, as you cannot have multiple equipped.
+    base_heal = base_heal + ((base_heal * 0.2) * yellowhat_count)
+    -- Scale heal based on times used
+    base_heal = base_heal + (2 * healing_used)
+
+    local heal_amount = math.ceil(Game.battle:applyHealBonuses(base_heal, user.chara, target.chara))
 
     target:heal(heal_amount)
 end
