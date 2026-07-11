@@ -6,7 +6,12 @@ function spell:init()
     -- Display name
     self.name = "BetterHeal"
     -- Name displayed when cast (optional)
-    self.cast_name = "BETTERHEAL"
+
+    if Game.chapter == 4 then
+        self.cast_name = "BetterHeal"
+    else
+        self.cast_name = "BETTERHEAL"
+    end
 
     -- Battle description
     self.effect = "Heal\nally"
