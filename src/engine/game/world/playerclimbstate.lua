@@ -505,7 +505,7 @@ function PlayerClimbState:chargeClimbCharge()
         self.player:setColor(ColorUtils.mergeColor(COLORS.white, COLORS.teal, 0.4 + (math.floor(math.sin(self.charge_timer)) * 0.4)))
 
         if self.charge_afterimage_timer >= 8 then
-            local afterimage = self.player.parent:addChild(Sprite(self.player.sprite:getTexture(), self.player.x, self.player.y))
+            local afterimage = Sprite(self.player.sprite:getTexture(), self.player.x, self.player.y)
             afterimage.alpha = 0.3
             afterimage:setScale(2)
             afterimage:fadeOutSpeedAndRemove(0.1)
@@ -515,6 +515,7 @@ function PlayerClimbState:chargeClimbCharge()
             local scale_x, scale_y = self.player:getScale()
             afterimage.graphics.grow_x = 0.2 / scale_x
             afterimage.graphics.grow_y = 0.2 / scale_y
+            self.player.parent:addChild(afterimage)
         end
     end
 
@@ -1247,7 +1248,7 @@ function PlayerClimbState:updateClimbMove()
         end
 
         if self.afterimage_timer >= 1 then
-            local afterimage = self.player.parent:addChild(Sprite(self.player.sprite:getTexture(), self.player.x, self.player.y + self.player.sprite.y * 2))
+            local afterimage = Sprite(self.player.sprite:getTexture(), self.player.x, self.player.y + self.player.sprite.y * 2)
             afterimage:setScale(2)
             afterimage:setOrigin(0.5)
             afterimage.alpha = 0.2
