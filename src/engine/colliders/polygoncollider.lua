@@ -1,7 +1,11 @@
 ---@class PolygonCollider : Collider
+---@field protected points number[][]
 ---@overload fun(...) : PolygonCollider
 local PolygonCollider, super = Class(Collider)
 
+---@param parent Object?
+---@param points number[][]
+---@param mode Collider.Mode?
 function PolygonCollider:init(parent, points, mode)
     super.init(self, parent, 0, 0, mode)
 
@@ -17,7 +21,12 @@ function PolygonCollider:collidesWith(other)
         return other:collidesWith(self)
     elseif self.inside then
         if other:includes(Hitbox) then
-            return self:applyInvert(other, CollisionUtil.polygonPolygonInside(self.points, other:getShapeFor(self)))
+            local aabb, shape = other:getShapeFor(self)
+            if aabb then
+                return self:applyInvert(other, CollisionUtil.polygonRectInside(self.points, unpack(shape)))
+            else
+                return self:applyInvert(other, CollisionUtil.polygonPolygonInside(self.points, shape))
+            end
         elseif other:includes(LineCollider) then
             return self:applyInvert(other, CollisionUtil.polygonLineInside(self.points, other:getShapeFor(self)))
         elseif other:includes(CircleCollider) then
@@ -49,7 +58,17 @@ function PolygonCollider:collidesWith(other)
 end
 
 function PolygonCollider:getShapeFor(other)
-    return other:getLocalPointsWith(self, self.points)
+    local tf1, tf2 = other:getTransformsWith(self)
+
+    local local_points = {}
+
+    for i, point in ipairs(self.points) do
+        local x, y = other:getLocalPoint(tf1, tf2, point[1], point[2])
+
+        local_points[i] = {x, y}
+    end
+
+    return local_points
 end
 
 function PolygonCollider:draw(r,g,b,a)

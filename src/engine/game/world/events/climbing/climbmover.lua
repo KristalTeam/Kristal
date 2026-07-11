@@ -93,7 +93,7 @@ end
 
 function ClimbMover:onCollide(char)
     if self.state == "IDLE" then
-        if char.is_player and char:isMovementEnabled() and char.climb_state:isOverlappingInstance(self) then
+        if char.is_player and char:isMovementEnabled() then
             if char:isClimbing() then
                 if char.climb_state:isIdle() then
                     Game.lock_movement = true
@@ -200,7 +200,7 @@ function ClimbMover:update()
 
     if self.state == "WAITING_FOR_DISMOUNT" then
         -- We gotta wait for the player to dismount...
-        if not Game.world.player.climb_state:isOverlappingInstance(self) then
+        if not Game.world.player:collidesWith(self) then
             self.state = "RESETTING"
             self.timer = 0
             self:setClimbable(false)
