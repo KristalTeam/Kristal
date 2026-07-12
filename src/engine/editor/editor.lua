@@ -915,6 +915,7 @@ function Editor:leave()
     self.active_tool = nil
     self.selected_event_id = nil
     self.placement_event_id = nil
+    self.placement_tile = nil
     self.diagnostics_browser = nil
     self.diagnostics_panel = nil
     self.console_browser = nil
@@ -1370,7 +1371,8 @@ function Editor:setActiveTool(id)
     if id ~= "object" then self:cancelEventRegionDrags() end
     if id ~= "link" then self:cancelObjectLink(true) end
     self.active_tool = id
-    self.placement_event_id = id == "object" and self.selected_event_id or nil
+    if id ~= "object" then self.placement_tile = nil end
+    self.placement_event_id = id == "object" and not self.placement_tile and self.selected_event_id or nil
     return true
 end
 
@@ -1531,7 +1533,22 @@ function Editor:setPlacementEvent(id)
     self:cancelEventRegionDrags()
     self.selected_event_id = id
     self.placement_event_id = id
+    self.placement_tile = nil
     self.active_tool = "object"
+    return true
+end
+
+function Editor:setPlacementTile(tileset_id, tile_id)
+    if not Registry.getTileset(tileset_id) or tile_id == nil then return false end
+    self:cancelPolygonBuilds()
+    self:cancelEventRegionDrags()
+    self.placement_event_id = nil
+    self.placement_tile = { tileset = tileset_id, tile_id = tile_id }
+    self.active_tool = "object"
+    if self.message_bar then
+        self.message_bar:setStatus("Tile Object: click an object layer to place tile "
+            .. tostring(tile_id) .. " (Ctrl for free placement)", 3600)
+    end
     return true
 end
 
@@ -1702,6 +1719,24 @@ function Editor:placeEvent(view, event_id, world_x, world_y)
     return true
 end
 
+function Editor:placeTileObject(view, tileset_id, tile_id, world_x, world_y)
+    self:beginHistoryTransaction("Place Tile Object", view.document)
+    local object, layer_or_reason, map_id = view.document:addTileObject(
+        tileset_id, tile_id, nil, world_x, world_y)
+    if not object then
+        self:cancelHistoryTransaction()
+        self:addWarning(layer_or_reason, nil, "tile_object_placement")
+        return false
+    end
+    self:clearDiagnostics("tile_object_placement")
+    local selection = view.document:getObjectSelection(map_id, layer_or_reason, object)
+    selection.view = view
+    self:selectMapObject(selection)
+    self:markHistoryChanged()
+    self:commitHistoryTransaction()
+    return true
+end
+
 function Editor:getMapObjectPropertiesTarget(selection)
     local data = selection.data
     data.properties = data.properties or {}
@@ -1752,41 +1787,70 @@ function Editor:getMapObjectPropertiesTarget(selection)
             on_set = function() selection.document:invalidatePreview(selection.map_id) end
         })
     end
-    return {
-        title = event_id and (StringUtils.titleCase(tostring(event_id):gsub("[/_]", " "))) or "Map Object",
-        history_owner = selection.document,
-        fields = {
-            valueField("Name", "name"),
-            numberField("X", "x"), numberField("Y", "y"),
-            {
-                label = "Shape",
-                get = function() return selection.document:getObjectShape(selection) end,
-                set = function(shape) return selection.document:setObjectShape(selection, shape) end,
-                choices = {
-                    { value = "point", label = "Point" },
-                    { value = "rectangle", label = "Rectangle" },
-                    { value = "ellipse", label = "Ellipse" },
-                    { value = "line", label = "Line" },
-                    { value = "polygon", label = "Polygon" },
-                    { value = "polyline", label = "Polyline" }
-                },
-                rebuild = true
+    local tile_object = data.gid or data.tileset and data.tile_id ~= nil
+    local fields = {
+        valueField("Name", "name"),
+        numberField("X", "x"), numberField("Y", "y")
+    }
+    if tile_object then
+        local tileset_choices = {}
+        for id in pairs(Registry.tilesets or {}) do table.insert(tileset_choices, id) end
+        table.sort(tileset_choices)
+        table.insert(fields, {
+            label = "Tileset", compact = true,
+            get = function() return data.tileset or "" end,
+            set = function(value) data.tileset = value ~= "" and value or nil return true end,
+            choices = tileset_choices
+        })
+        table.insert(fields, numberField("Tile ID", "tile_id"))
+        table.insert(fields, {
+            label = "Flip X", compact = true,
+            get = function() return data.flip_x == true end,
+            set = function(value) data.flip_x = value == true return true end,
+            choices = { { value = false, label = "No" }, { value = true, label = "Yes" } }
+        })
+        table.insert(fields, {
+            label = "Flip Y", compact = true,
+            get = function() return data.flip_y == true end,
+            set = function(value) data.flip_y = value == true return true end,
+            choices = { { value = false, label = "No" }, { value = true, label = "Yes" } }
+        })
+    else
+        table.insert(fields, {
+            label = "Shape",
+            get = function() return selection.document:getObjectShape(selection) end,
+            set = function(shape) return selection.document:setObjectShape(selection, shape) end,
+            choices = {
+                { value = "point", label = "Point" },
+                { value = "rectangle", label = "Rectangle" },
+                { value = "ellipse", label = "Ellipse" },
+                { value = "line", label = "Line" },
+                { value = "polygon", label = "Polygon" },
+                { value = "polyline", label = "Polyline" }
             },
-            numberField("Width", "width"), numberField("Height", "height"),
-            numberField("Rotation", "rotation"),
-            {
-                label = "DrawFX",
-                get = function()
-                    local ids = {}
-                    for _, assignment in ipairs(data.__editor_fx or {}) do
-                        table.insert(ids, type(assignment) == "table" and assignment.id or assignment)
-                    end
-                    return table.concat(ids, ", ")
-                end,
-                set = function() return false end,
-                readonly = true
-            }
-        },
+            rebuild = true
+        })
+    end
+    table.insert(fields, numberField("Width", "width"))
+    table.insert(fields, numberField("Height", "height"))
+    table.insert(fields, numberField("Rotation", "rotation"))
+    table.insert(fields, {
+        label = "DrawFX",
+        get = function()
+            local ids = {}
+            for _, assignment in ipairs(data.__editor_fx or {}) do
+                table.insert(ids, type(assignment) == "table" and assignment.id or assignment)
+            end
+            return table.concat(ids, ", ")
+        end,
+        set = function() return false end,
+        readonly = true
+    })
+    return {
+        title = tile_object and "Tile Object"
+            or event_id and (StringUtils.titleCase(tostring(event_id):gsub("[/_]", " "))) or "Map Object",
+        history_owner = selection.document,
+        fields = fields,
         properties = data.properties,
         property_types = data.__editor_property_types,
         property_set = editor_event.property_set,
@@ -3079,7 +3143,7 @@ function Editor:onKeyPressed(key, is_repeat)
         if not cancelled_link and self.message_bar then self.message_bar:setStatus("Drag cancelled") end
         return true
     end
-    if key == "escape" and self.placement_event_id
+    if key == "escape" and (self.placement_event_id or self.placement_tile)
         and not editing_text then
         self:setActiveTool("select")
         return true

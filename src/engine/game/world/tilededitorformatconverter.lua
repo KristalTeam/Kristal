@@ -140,6 +140,23 @@ function TiledEditorFormatConverter.convertMap(data, options)
     end
     converted.tilewidth, converted.tileheight, converted.backgroundcolor = nil, nil, nil
     local references = getTiledTilesetReferences(data)
+    local function convertTileObject(object)
+        if not object.gid then return true end
+        local reference, packed = resolveTiledGid(object.gid, references)
+        if not reference then return false, packed end
+        local tile_id, flip_x, flip_y, rotated = EditorFormat.unpackTile(packed)
+        if rotated then
+            if flip_x == flip_y then flip_x = not flip_x else flip_y = not flip_y end
+            object.rotation = (object.rotation or 0) - 90
+        end
+        object.tileset = reference.id
+        object.tile_id = tile_id
+        object.type = object.type or object.class or ""
+        object.flip_x = flip_x or nil
+        object.flip_y = flip_y or nil
+        object.gid = nil
+        return true
+    end
     local function convertLayers(layers)
         local result = {}
         for _, layer in ipairs(layers or {}) do
@@ -149,7 +166,9 @@ function TiledEditorFormatConverter.convertMap(data, options)
                 layer.kind = "group"
                 layer.x = layer.offsetx or 0
                 layer.y = layer.offsety or 0
-                layer.layers = convertLayers(layer.layers)
+                local children, child_reason = convertLayers(layer.layers)
+                if not children then return nil, child_reason end
+                layer.layers = children
                 table.insert(result, layer)
             elseif layer.type == "tilelayer" then
                 local split_layers, reason = convertTiledTileLayer(layer, references)
@@ -162,6 +181,10 @@ function TiledEditorFormatConverter.convertMap(data, options)
                 layer.kind = layer_type.kind
                 layer.x = layer.offsetx or 0
                 layer.y = layer.offsety or 0
+                for _, object in ipairs(layer.objects or {}) do
+                    local success, object_reason = convertTileObject(object)
+                    if not success then return nil, object_reason end
+                end
                 table.insert(result, layer)
             end
         end

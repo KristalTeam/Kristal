@@ -212,10 +212,23 @@ function EditorTilePalette:rotateStamp()
     self.stamp = result
 end
 
-function EditorTilePalette:onMousePressed(x, y, button)
-    if button ~= 1 then return false end
+function EditorTilePalette:onMousePressed(x, y, button, presses)
     local id = self:getTileAt(x, y)
     if id == nil then return false end
+    if button == 2 then
+        self:setSelection(id, id)
+        local global_x, global_y = self:getGlobalPosition()
+        return self.editor.dockspace:openContextMenu({
+            { label = "Place as Tile Object", action = function()
+                self.editor:setPlacementTile(self.document.id, id)
+            end }
+        }, global_x + x, global_y + y, self)
+    end
+    if button ~= 1 then return false end
+    if presses and presses >= 2 then
+        self:setSelection(id, id)
+        return self.editor:setPlacementTile(self.document.id, id)
+    end
     self.drag_selecting = true
     self:setSelection(id, id)
     return true

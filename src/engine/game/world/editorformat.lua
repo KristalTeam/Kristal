@@ -205,6 +205,8 @@ EditorFormat.ORDERING = {
         "fx",
         "tileset", --- For tile objects
         "tile_id", --- --^
+        "flip_x",
+        "flip_y",
         "properties"
     },
     shape = {
@@ -580,8 +582,8 @@ encodeLayer = function(source, context)
     result.depth = source._editor_depth_override or source.depth
     result.alpha = source.alpha or source.opacity
     result.visible = source._editor_visible == nil and source.visible or source._editor_visible
-    result.parallax_x = source.parallax_x or source.parallaxx
-    result.parallax_y = source.parallax_y or source.parallaxy
+    result.parallax_x = source.parallaxx ~= nil and source.parallaxx or source.parallax_x
+    result.parallax_y = source.parallaxy ~= nil and source.parallaxy or source.parallax_y
     result.draw_order = source.draw_order or source.draworder
     result.repeat_x = source.repeat_x == nil and source.repeatx or source.repeat_x
     result.repeat_y = source.repeat_y == nil and source.repeaty or source.repeat_y

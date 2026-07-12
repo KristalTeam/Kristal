@@ -533,7 +533,8 @@ function Registry.getEditorEvent(id)
 end
 
 function Registry.createEditorEvent(id, data, options)
-    local event_class = self.getEditorEvent(id) or EditorEvent
+    local tile_object = data and (data.gid or data.tileset and data.tile_id ~= nil)
+    local event_class = tile_object and EditorTileObject or self.getEditorEvent(id) or EditorEvent
     options = options or {}
     options.event_id = id
     local event = event_class(data, options)

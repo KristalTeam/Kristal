@@ -30,6 +30,12 @@ function EditorMapReader:initialize(data)
             added[layer.tileset] = true
         end
     end)
+    MapUtils.walkObjects(data.layers, function(object)
+        if object.tileset and not added[object.tileset] then
+            map:addTileset(object.tileset)
+            added[object.tileset] = true
+        end
+    end)
     return true
 end
 
