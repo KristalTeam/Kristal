@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "kristal_version": "0.11.0-dev",
+  "id": "castle",
+  "name": "castle",
+  "image": "../../../assets/sprites/tilesets/castle.png",
+  "image_width": 120,
+  "image_height": 200,
+  "tile_width": 20,
+  "tile_height": 20,
+  "tile_count": 60,
+  "tile_rows": 10,
+  "tile_columns": 6,
+  "spacing": 0,
+  "margin": 0,
+  "alignment": "unspecified",
+  "render_size": "grid",
+  "fill_mode": "stretch",
+  "tile_offset_x": 0,
+  "tile_offset_y": 0,
+  "tiles": [
+    {
+      "id": 0,
+      "properties": []
+    }
+  ],
+  "terrains": [],
+  "properties": [],
+  "luaversion": "5.1"
+}

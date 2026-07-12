@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "kristal_version": "0.11.0-dev",
+  "id": "new_world",
+  "name": "ExampleWorld",
+  "maps": [
+    {
+      "map": "room1",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "map": "room2",
+      "x": 800,
+      "y": -120
+    },
+    {
+      "map": "postclimb",
+      "x": 2360,
+      "y": 360
+    },
+    {
+      "map": "voidclimb",
+      "x": 1280,
+      "y": 280
+    },
+    {
+      "map": "climbing",
+      "x": 1600,
+      "y": -720
+    }
+  ],
+  "properties": []
+}

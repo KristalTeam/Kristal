@@ -1,0 +1,389 @@
+{
+  "version": 1,
+  "kristal_version": "0.11.0-dev",
+  "id": "room2",
+  "name": "Test Map - Room 2",
+  "width": 20,
+  "height": 12,
+  "grid_width": 40,
+  "grid_height": 40,
+  "layers": [
+    {
+      "id": "tiles",
+      "name": "tiles",
+      "x": 0,
+      "y": 0,
+      "type": "tile",
+      "kind": "tile",
+      "alpha": 1,
+      "visible": true,
+      "parallax_x": 1,
+      "parallax_y": 1,
+      "properties": [],
+      "tileset": "castle",
+      "tileset_columns": 6,
+      "tileset_rows": 10,
+      "chunks": [
+        {
+          "x": 0,
+          "y": 0,
+          "tile_data": [
+            0, 0, 0, 0, 32, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33,
+            0, 0, 0, 0, 32, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33,
+            0, 0, 0, 0, 38, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39,
+            0, 0, 0, 0, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,
+            0, 0, 0, 0, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
+            0, 0, 0, 0, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
+            0, 0, 0, 0, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
+            0, 0, 0, 0, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
+            9, 9, 9, 9, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
+            21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+          ]
+        },
+        {
+          "x": 16,
+          "y": 0,
+          "tile_data": [
+            33, 33, 34, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            33, 33, 34, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            39, 39, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            9, 9, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            15, 15, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            15, 15, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            15, 15, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            15, 15, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            15, 15, 15, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            21, 21, 21, 21, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "decal",
+      "name": "decal",
+      "x": 0,
+      "y": 0,
+      "type": "tile",
+      "kind": "tile",
+      "alpha": 1,
+      "visible": true,
+      "parallax_x": 1,
+      "parallax_y": 1,
+      "properties": [],
+      "tileset": "castle",
+      "tileset_columns": 6,
+      "tileset_rows": 10,
+      "chunks": [
+        {
+          "x": 0,
+          "y": 0,
+          "tile_data": [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 44, 45, 46, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 50, 51, 52, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 56, 57, 58, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "collision",
+      "name": "collision",
+      "x": 0,
+      "y": 0,
+      "type": "collision",
+      "kind": "object",
+      "alpha": 0.5,
+      "visible": true,
+      "parallax_x": 1,
+      "parallax_y": 1,
+      "properties": [],
+      "draw_order": "topdown",
+      "objects": [
+        {
+          "id": 1,
+          "name": "",
+          "type": "",
+          "x": 120,
+          "y": 120,
+          "width": 40,
+          "height": 200,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 2,
+          "name": "",
+          "type": "",
+          "x": 0,
+          "y": 400,
+          "width": 800,
+          "height": 40,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 3,
+          "name": "",
+          "type": "",
+          "x": 760,
+          "y": 120,
+          "width": 40,
+          "height": 200,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 4,
+          "name": "",
+          "type": "",
+          "x": 160,
+          "y": 80,
+          "width": 600,
+          "height": 40,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 7,
+          "name": "",
+          "type": "",
+          "x": 0,
+          "y": 280,
+          "width": 120,
+          "height": 40,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        }
+      ]
+    },
+    {
+      "id": "markers",
+      "name": "markers",
+      "x": 0,
+      "y": 0,
+      "type": "markers",
+      "kind": "object",
+      "alpha": 1,
+      "visible": true,
+      "parallax_x": 1,
+      "parallax_y": 1,
+      "properties": [],
+      "draw_order": "topdown",
+      "objects": [
+        {
+          "id": 5,
+          "name": "spawn",
+          "type": "",
+          "x": 360,
+          "y": 240,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "shape": {
+            "type": "point",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 8,
+          "name": "entry_left",
+          "type": "",
+          "x": 40,
+          "y": 360,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "shape": {
+            "type": "point",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 13,
+          "name": "entry_right",
+          "type": "",
+          "x": 720,
+          "y": 360,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "shape": {
+            "type": "point",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        }
+      ]
+    },
+    {
+      "id": "objects",
+      "name": "objects",
+      "x": 0,
+      "y": 0,
+      "type": "objects",
+      "kind": "object",
+      "alpha": 1,
+      "visible": true,
+      "parallax_x": 1,
+      "parallax_y": 1,
+      "properties": [],
+      "draw_order": "topdown",
+      "objects": [
+        {
+          "id": 6,
+          "name": "enemy",
+          "type": "",
+          "x": 530,
+          "y": 220,
+          "width": 40,
+          "height": 40,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [
+            {
+              "name": "actor",
+              "type": "chooser",
+              "value": "dummy"
+            },
+            {
+              "name": "encounter",
+              "type": "chooser",
+              "value": "dummy"
+            }
+          ],
+          "opacity": 1
+        },
+        {
+          "id": 9,
+          "name": "transition",
+          "type": "",
+          "x": -40,
+          "y": 320,
+          "width": 40,
+          "height": 80,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [
+            {
+              "name": "map",
+              "type": "chooser",
+              "value": "room1"
+            },
+            {
+              "name": "marker",
+              "type": "object_reference",
+              "value": {
+                "map": "room1",
+                "object": 30
+              }
+            }
+          ],
+          "opacity": 1
+        },
+        {
+          "id": 12,
+          "name": "transition",
+          "type": "",
+          "x": 800,
+          "y": 320,
+          "width": 40,
+          "height": 80,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [
+            {
+              "name": "map",
+              "type": "chooser",
+              "value": "climbing"
+            },
+            {
+              "name": "marker",
+              "type": "object_reference",
+              "value": {
+                "map": "climbing",
+                "object": 8
+              }
+            }
+          ],
+          "opacity": 1
+        }
+      ]
+    }
+  ],
+  "properties": []
+}

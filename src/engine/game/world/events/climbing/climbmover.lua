@@ -77,17 +77,17 @@ end
 function ClimbMover:onLoad()
     super.onLoad(self)
 
-    local target_x, target_y, _ = TiledUtils.parseMarkerProperty(self, self.target, "target")
+    local target_x, target_y, _ = MapUtils.parseMarkerProperty(self, self.target, "target")
     self.target_x = target_x - TILE_WIDTH / 2
     self.target_y = target_y - TILE_HEIGHT / 2
     self:calculateTravelTime()
 
     if self.exit ~= nil then
-        self.exit_x, self.exit_y, _ = TiledUtils.parseMarkerProperty(self, self.exit, "exit")
+        self.exit_x, self.exit_y, _ = MapUtils.parseMarkerProperty(self, self.exit, "exit")
     end
 
     if self.start_exit ~= nil then
-        self.start_exit_x, self.start_exit_y, _ = TiledUtils.parseMarkerProperty(self, self.start_exit, "start_exit")
+        self.start_exit_x, self.start_exit_y, _ = MapUtils.parseMarkerProperty(self, self.start_exit, "start_exit")
     end
 end
 

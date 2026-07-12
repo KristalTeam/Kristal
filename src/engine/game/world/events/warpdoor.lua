@@ -54,8 +54,10 @@ function WarpDoor:init(x, y, properties)
         if properties["flag"..i] then
             self.flags[i] = properties["flag"..i]
         end
-        self.maps[self.names[i]] = properties["map"..i]
-        self.markers[self.names[i]] = properties["marker"..i]
+        local marker = properties["marker"..i]
+        local marker_map = type(marker) == "table" and (marker.map_id or marker.map) or nil
+        self.maps[self.names[i]] = marker_map or properties["map"..i]
+        self.markers[self.names[i]] = marker
         i = i + 1
     end
 end

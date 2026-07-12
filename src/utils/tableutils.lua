@@ -308,6 +308,39 @@ function TableUtils.isArray(tbl)
     return true
 end
 
+--- Returns whether a table is a contiguous, one-indexed array.
+---@param tbl table
+---@return boolean
+function TableUtils.isContiguousArray(tbl)
+    local count, maximum = 0, 0
+    for key in pairs(tbl) do
+        if type(key) ~= "number" or key < 1 or key % 1 ~= 0 then return false end
+        count, maximum = count + 1, math.max(maximum, key)
+    end
+    return count == maximum
+end
+
+--- Returns table keys in a stable order, including tables with mixed key types.
+---@param tbl table
+---@return any[]
+function TableUtils.getSortedKeys(tbl)
+    local keys = {}
+    for key in pairs(tbl) do table.insert(keys, key) end
+    table.sort(keys, function(a, b)
+        if type(a) == type(b) then
+            if type(a) == "number" or type(a) == "string" then return a < b end
+            return tostring(a) < tostring(b)
+        end
+        return type(a) < type(b)
+    end)
+    return keys
+end
+
+function TableUtils.clearFields(tbl, fields)
+    for _, field in ipairs(fields) do tbl[field] = nil end
+    return tbl
+end
+
 ---
 --- Removes the specified value from the table.
 ---

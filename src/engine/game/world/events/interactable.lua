@@ -39,7 +39,7 @@ function Interactable:init(x, y, shape, properties)
 
     self.cutscene = properties["cutscene"]
     self.script = properties["script"]
-    self.text = TiledUtils.parsePropertyMultiList("text", properties)
+    self.text = MapUtils.parsePropertyMultiList("text", properties)
 
     self.set_flag = properties["setflag"]
     self.set_value = properties["setvalue"]
