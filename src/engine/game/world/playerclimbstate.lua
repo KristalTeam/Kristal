@@ -219,7 +219,7 @@ function PlayerClimbState:getOverlappingObjects(object, x, y)
     Object.startCache()
     for _, obj in ipairs(Game.stage:getObjects(object)) do
         if obj.parent == Game.world then
-            if obj:collidesWith(self.player) then
+            if obj:meetsObject(self.player) then
                 table.insert(objects, obj)
             end
         end
@@ -254,7 +254,7 @@ function PlayerClimbState:isOverlappingObject(object, x, y)
     Object.startCache()
     for _, obj in ipairs(Game.stage:getObjects(object)) do
         if obj.parent == Game.world then
-            if obj:collidesWith(self.player) then
+            if obj:meetsObject(self.player) then
                 found_obj = obj
                 break
             end
@@ -290,7 +290,7 @@ function PlayerClimbState:isOverlappingClimbable(object, x, y)
     Object.startCache()
     for _, obj in ipairs(Game.stage:getObjects(object)) do
         if obj.parent == Game.world then
-            if obj:isClimbable() and obj:collidesWith(self.player) then
+            if obj:isClimbable() and obj:meetsObject(self.player) then
                 found_obj = obj
                 break
             end
@@ -593,7 +593,7 @@ function PlayerClimbState:checkClimbBullets()
     if Game.world.soul ~= nil and Game.inv_frames <= 0 and self.player:isMovementEnabled() then
         Object.startCache()
         for _, bullet in ipairs(Game.stage:getObjects(WorldBullet)) do
-            if bullet:collidesWith(self.hurtbox) then
+            if bullet:meetsCollider(self.hurtbox) then
                 if bullet:includes(ClimbEnemy) then
                     ---@cast bullet ClimbEnemy
                     if bullet:isActive() and not self.player:isClimbJumping() then
@@ -621,7 +621,7 @@ function PlayerClimbState:checkClimbCollisions()
 
         Object.startCache()
         for _, obj in ipairs(Game.world.children) do
-            if obj:collidesWith(self.player) then
+            if obj:meetsObject(self.player) then
                 if obj:includes(ClimbEnemy) then
                     ---@cast obj ClimbEnemy
                     if obj:isActive() and self.player:isClimbJumping() then
@@ -692,7 +692,7 @@ end
 function PlayerClimbState:checkClimbLandings()
     Object.startCache()
     for _, obj in ipairs(Game.world.children) do
-        if obj:includes(ClimbLanding) and self.player:collidesWith(obj) then
+        if obj:includes(ClimbLanding) and self.player:meetsObject(obj) then
             self:queueExit({ landing = true, obj = obj })
             break
         end

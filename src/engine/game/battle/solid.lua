@@ -85,7 +85,7 @@ function Solid:doMoveAmount(amount, x_mult, y_mult)
         Object.uncache(self)
 
         for _, soul in ipairs(Game.stage:getObjects(Soul)) do
-            if self:collidesWith(soul) then
+            if self:meetsObject(soul) then
                 soul_collided = true
 
                 self.collidable = false

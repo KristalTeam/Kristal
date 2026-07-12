@@ -1,77 +1,65 @@
+--- A rectangular hitbox used for collision detection.
 ---@class Hitbox : Collider
----@overload fun(...) : Hitbox
+---@field x number # The X coordinate of the hitbox.
+---@field y number # The Y coordinate of the hitbox.
+---@field width number # The width of the hitbox.
+---@field height number # The height of the hitbox.
+---@overload fun(owner: Object?, x: number?, y: number?, width: number?, height: number?, mode: Collider.Mode?) : Hitbox
 local Hitbox, super = Class(Collider)
 
+---@param owner Object?
+---@param x number?
+---@param y number?
 ---@param width number?
 ---@param height number?
-function Hitbox:init(parent, x, y, width, height, mode)
-    super.init(self, parent, x, y, mode)
+---@param mode Collider.Mode?
+function Hitbox:init(owner, x, y, width, height, mode)
+    super.init(self, owner, mode)
 
+    self.x = x or 0
+    self.y = y or 0
     self.width = width or 0
     self.height = height or 0
 end
 
-function Hitbox:collidesWith(other)
-    other = self:getOtherCollider(other)
-    if not self:collidableCheck(other) then return false end
-    if not self:insideCheck(other) then return false end
+function Hitbox:getColliderType()
+    return CollisionRegistry.RECTANGLE
+end
 
-    if other.inside then
-        return other:collidesWith(self)
-    elseif self.inside then
-        if other:includes(Hitbox) then
-            local aabb, shape = other:getShapeFor(self)
-            if aabb then
-                return self:applyInvert(other, CollisionUtil.rectRectInside(self.x,self.y,self.width,self.height, unpack(shape)))
-            else
-                return self:applyInvert(other, CollisionUtil.rectPolygonInside(self.x,self.y,self.width,self.height, shape))
-            end
-        elseif other:includes(LineCollider) then
-            return self:applyInvert(other, CollisionUtil.rectLineInside(self.x,self.y,self.width,self.height, other:getShapeFor(self)))
-        elseif other:includes(CircleCollider) then
-            return self:applyInvert(other, CollisionUtil.rectCircleInside(self.x,self.y,self.width,self.height, other:getShapeFor(self)))
-        elseif other:includes(PointCollider) then
-            return self:applyInvert(other, CollisionUtil.rectPointInside(self.x,self.y,self.width,self.height, other:getShapeFor(self)))
-        elseif other:includes(PolygonCollider) then
-            return self:applyInvert(other, CollisionUtil.rectPolygonInside(self.x,self.y,self.width,self.height, other:getShapeFor(self)))
-        elseif other:includes(ColliderGroup) then
-            return other:collidesWith(self)
-        end
-    else
-        if other:includes(Hitbox) then
-            local aabb, shape = other:getShapeFor(self)
-            if aabb then
-                return self:applyInvert(other, CollisionUtil.rectRect(self.x,self.y,self.width,self.height, unpack(shape)))
-            else
-                return self:applyInvert(other, CollisionUtil.rectPolygon(self.x,self.y,self.width,self.height, shape))
-            end
-        elseif other:includes(LineCollider) then
-            return self:applyInvert(other, CollisionUtil.rectLine(self.x,self.y,self.width,self.height, other:getShapeFor(self)))
-        elseif other:includes(CircleCollider) then
-            return self:applyInvert(other, CollisionUtil.rectCircle(self.x,self.y,self.width,self.height, other:getShapeFor(self)))
-        elseif other:includes(PointCollider) then
-            return self:applyInvert(other, CollisionUtil.rectPoint(self.x,self.y,self.width,self.height, other:getShapeFor(self)))
-        elseif other:includes(PolygonCollider) then
-            return self:applyInvert(other, CollisionUtil.rectPolygon(self.x,self.y,self.width,self.height, other:getShapeFor(self)))
-        elseif other:includes(ColliderGroup) then
-            return other:collidesWith(self)
-        end
-    end
+--- Gets the axis-aligned bounding box of the hitbox.
+---@return number x # The X coordinate of the bounding box.
+---@return number y # The Y coordinate of the bounding box.
+---@return number width # The width of the bounding box.
+---@return number height # The height of the bounding box.
+function Hitbox:getRect()
+    return self.x, self.y, self.width, self.height
+end
 
-    return super.collidesWith(self, other)
+--- Sets the axis-aligned bounding box of the hitbox.
+---@param x number # The X coordinate of the bounding box.
+---@param y number # The Y coordinate of the bounding box.
+---@param width number # The width of the bounding box.
+---@param height number # The height of the bounding box.
+function Hitbox:setRect(x, y, width, height)
+    self.x = x
+    self.y = y
+    self.width = width
+    self.height = height
 end
 
 --- Gets this collider's shape as a rectangle or polygon (depending on transformation) for the given other collider.
 ---@param other Collider # The other collider to get the shape for.
 ---@return boolean aabb # `true` if the shape is a rectangle, `false` if it is a polygon.
----@return [number, number, number, number]|number[][] shape # The shape of the collider as a list of points or vertices.
-function Hitbox:getShapeFor(other)
+---@return [number, number, number, number]|number[][] shape # The shape of the collider as a rectangle or polygon.
+function Hitbox:getRectOrPolyFor(other)
     local tf1, tf2 = other:getTransformsWith(self)
 
-    local ul_x, ul_y = other:getLocalPoint(tf1, tf2, self.x, self.y)
-    local ur_x, ur_y = other:getLocalPoint(tf1, tf2, self.x + self.width, self.y)
-    local dr_x, dr_y = other:getLocalPoint(tf1, tf2, self.x + self.width, self.y + self.height)
-    local dl_x, dl_y = other:getLocalPoint(tf1, tf2, self.x, self.y + self.height)
+    local x, y, width, height = self:getRect()
+
+    local ul_x, ul_y = other:getLocalPoint(tf1, tf2, x, y)
+    local ur_x, ur_y = other:getLocalPoint(tf1, tf2, x + width, y)
+    local dr_x, dr_y = other:getLocalPoint(tf1, tf2, x + width, y + height)
+    local dl_x, dl_y = other:getLocalPoint(tf1, tf2, x, y + height)
 
     if ul_y == ur_y and ul_x == dl_x then
         local min_x, min_y = math.min(ul_x, dr_x), math.min(ul_y, dr_y)
@@ -88,15 +76,25 @@ function Hitbox:getShapeFor(other)
     }
 end
 
-function Hitbox:draw(r,g,b,a)
-    Draw.setColor(r,g,b,a)
+--- Draws the hitbox outlined with the given color.
+---@param r number? # The red component of the color.
+---@param g number? # The green component of the color.
+---@param b number? # The blue component of the color.
+---@param a number? # The alpha component of the color.
+function Hitbox:draw(r, g, b, a)
+    Draw.setColor(r, g, b, a)
     love.graphics.setLineWidth(1)
     love.graphics.rectangle("line", self.x, self.y, MathUtils.absClamp(self.width, 1, math.huge), MathUtils.absClamp(self.height, 1, math.huge))
     Draw.setColor(1, 1, 1, 1)
 end
 
-function Hitbox:drawFill(r,g,b,a)
-    Draw.setColor(r,g,b,a)
+--- Draws the hitbox filled with the given color.
+---@param r number? # The red component of the color.
+---@param g number? # The green component of the color.
+---@param b number? # The blue component of the color.
+---@param a number? # The alpha component of the color.
+function Hitbox:drawFill(r, g, b, a)
+    Draw.setColor(r, g, b, a)
     love.graphics.rectangle("fill", self.x, self.y, MathUtils.absClamp(self.width, 1, math.huge), MathUtils.absClamp(self.height, 1, math.huge))
     Draw.setColor(1, 1, 1, 1)
 end

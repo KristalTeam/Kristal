@@ -56,7 +56,7 @@ function OverworldSoul:update()
     if not Game.world.player or Game.world.player.state ~= "CLIMB" then
         Object.startCache()
         for _, bullet in ipairs(Game.stage:getObjects(WorldBullet)) do
-            if bullet:collidesWith(self.collider) then
+            if bullet:meetsCollider(self.collider) then
                 self:onCollide(bullet)
             end
         end

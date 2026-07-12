@@ -200,7 +200,7 @@ function ClimbMover:update()
 
     if self.state == "WAITING_FOR_DISMOUNT" then
         -- We gotta wait for the player to dismount...
-        if not Game.world.player:collidesWith(self) then
+        if not Game.world.player:meetsObject(self) then
             self.state = "RESETTING"
             self.timer = 0
             self:setClimbable(false)
