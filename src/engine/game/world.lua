@@ -525,9 +525,9 @@ end
 function World:checkCollision(collider, enemy_check)
     Object.startCache()
     for _,other in ipairs(self:getCollision(enemy_check)) do
-        if collider:collidesWith(other) and collider ~= other then
+        if collider:meetsCollider(other) and collider ~= other then
             Object.endCache()
-            return true, other.parent
+            return true, other:getOwner()
         end
     end
     Object.endCache()
@@ -543,8 +543,8 @@ function World:checkCollisions(collider, enemy_check)
     local collided_with = {}
     Object.startCache()
     for _, other in ipairs(self:getCollision(enemy_check)) do
-        if collider:collidesWith(other) and collider ~= other then
-            table.insert(collided_with, other.parent)
+        if collider:meetsCollider(other) and collider ~= other then
+            table.insert(collided_with, other:getOwner())
         end
     end
     Object.endCache()
@@ -1350,7 +1350,7 @@ function World:update()
         for _, obj in ipairs(self.children) do
             if not obj.solid and (obj.onCollide or obj.onEnter or obj.onExit) then
                 for _, char in ipairs(self.stage:getObjects(Character)) do
-                    if obj:collidesWith(char) and self:shouldCharacterCollide(char) then
+                    if obj:meetsObject(char) and self:shouldCharacterCollide(char) then
                         if not obj:includes(OverworldSoul) then
                             table.insert(collided, { obj, char })
                         end

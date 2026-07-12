@@ -65,7 +65,7 @@ function MagicGlass:update()
     local valid_objs = {}
 
     for _, obj in ipairs(self:getGlassRevealingObjects()) do
-        if obj:collidesWith(self.collider) then
+        if obj:meetsCollider(self.collider) then
             table.insert(valid_objs, obj)
         end
     end
@@ -74,7 +74,7 @@ function MagicGlass:update()
 
     for i, collider in ipairs(self.glass_colliders) do
         for _, obj in ipairs(valid_objs) do
-            if collider:collidesWith(obj) then
+            if obj:meetsCollider(collider) then
                 table.insert(collided, obj)
             end
         end

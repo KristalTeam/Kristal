@@ -70,7 +70,7 @@ function PlayerSlideBaseState:checkSlideEnd()
 
     Object.startCache()
     for _, obj in ipairs(Game.world.children) do
-        if obj:includes(SlideArea) and obj:collidesWith(self.player) then
+        if obj:includes(SlideArea) and obj:meetsObject(self.player) then
             is_colliding = true
             self.was_colliding = true
             break
