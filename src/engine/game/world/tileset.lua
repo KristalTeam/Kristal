@@ -77,7 +77,7 @@ function Tileset:drawTile(id, x, y, ...)
         else
             Draw.draw(info.texture, info.quad, x or 0, y or 0, ...)
         end
-    else
+    elseif self.texture and self.quads[draw_id] then
         Draw.draw(self.texture, self.quads[draw_id], x or 0, y or 0, ...)
     end
 end
@@ -133,7 +133,7 @@ function Tileset:drawGridTile(id, x, y, gw, gh, flip_x, flip_y, flip_diag)
         else
             Draw.draw(info.texture, info.quad, draw_x, draw_y, rot, scale_x, scale_y, ox, oy)
         end
-    else
+    elseif self.texture and quad then
         Draw.draw(self.texture, quad, draw_x, draw_y, rot, scale_x, scale_y, ox, oy)
     end
 end

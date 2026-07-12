@@ -935,6 +935,13 @@ function EditorFormat.validateTileset(data, options)
     if data.image ~= nil and type(data.image) ~= "string" and type(data.image) ~= "table" then
         table.insert(diagnostics, "Tileset image must be a path or an array of paths")
     end
+    if type(data.image) == "table" then
+        for index, image in ipairs(data.image) do
+            if type(image) ~= "string" then
+                table.insert(diagnostics, string.format("Tileset image[%d] must be a path or an empty sparse slot", index))
+            end
+        end
+    end
     if data.tiles ~= nil and type(data.tiles) ~= "table" then table.insert(diagnostics, "Tileset tiles must be an array") end
     for tile_index, tile in ipairs(data.tiles or {}) do
         local object_ids = {}
