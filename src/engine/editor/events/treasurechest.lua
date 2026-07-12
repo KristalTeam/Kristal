@@ -1,5 +1,6 @@
 local EditorTreasureChest, super = Class(EditorEvent)
 EditorTreasureChest.editor_sprite = "world/events/treasure_chest"
+EditorTreasureChest.scaling_mode = "scale"
 function EditorTreasureChest:init(data, options)
     super.init(self, data, options)
     self:registerProperty("item", "chooser", {

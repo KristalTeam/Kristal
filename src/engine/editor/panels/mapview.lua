@@ -85,6 +85,7 @@ function EditorMapView:focusMap(map_id)
     local entry = self.document and self.document.map_lookup[map_id]
     local primary = self:getPrimaryEntry()
     if not entry or not primary then return false end
+    self.active_map_id = map_id
     self:setCanvasPosition(
         self.width / 2 - (entry.x + (entry.width or 0) / 2 - primary.x) * self.view_zoom,
         self.height / 2 - (entry.y + (entry.height or 0) / 2 - primary.y) * self.view_zoom)
@@ -93,6 +94,7 @@ end
 
 function EditorMapView:selectWorldMap(entry)
     self.selected_world_map_id = entry and entry.id or nil
+    self.active_map_id = entry and entry.id or self.active_map_id
     self.editor:selectMapObjects({})
     local world = self.document and self.document.world
     if entry and world and Registry.getEditorWorld(world.id) and self.editor.world_browser then
@@ -124,10 +126,23 @@ function EditorMapView:drawDocument()
     love.graphics.translate(self.canvas_x, self.canvas_y)
     love.graphics.scale(self.view_zoom, self.view_zoom)
     love.graphics.translate(-primary.x, -primary.y)
+    local selected_object = self.editor and self.editor.selected_map_object
+    local active_map_id = selected_object and selected_object.document == document and selected_object.map_id
+        or self.active_map_id
+        or document.primary_map_id
     for _, entry in ipairs(document.maps) do
+        if entry.id ~= active_map_id then
+            love.graphics.push()
+            love.graphics.translate(entry.x, entry.y)
+            document:drawPreview(entry, 1 / self.view_zoom)
+            love.graphics.pop()
+        end
+    end
+    local active_entry = document.map_lookup[active_map_id]
+    if active_entry then
         love.graphics.push()
-        love.graphics.translate(entry.x, entry.y)
-        document:drawPreview(entry)
+        love.graphics.translate(active_entry.x, active_entry.y)
+        document:drawPreview(active_entry, 1 / self.view_zoom)
         love.graphics.pop()
     end
     love.graphics.setLineWidth(2 / self.view_zoom)
@@ -211,7 +226,7 @@ function EditorMapView:getRotationHandle(selections)
     if #selections == 1 then
         local selection = selections[1]
         local origin_x, origin_y = self.document:getObjectWorldPosition(selection)
-        local width = selection.data.width or 0
+        local _, _, width = self.document:getObjectLocalRect(selection)
         local rotation = math.rad(selection.data.rotation or 0)
         local anchor_x = origin_x + width / 2 * math.cos(rotation)
         local anchor_y = origin_y + width / 2 * math.sin(rotation)
@@ -451,7 +466,7 @@ end
 function EditorMapView:getResizeCornerAt(selection, world_x, world_y)
     if not selection or selection.data.polygon or selection.data.shape == "line"
         or selection.data.shape == "polyline" then return nil end
-    local width, height = selection.data.width or 0, selection.data.height or 0
+    local _, _, width, height = self.document:getObjectLocalRect(selection)
     if width == 0 and height == 0 then return nil end
     local object_x, object_y = self.document:getObjectWorldPosition(selection)
     local rotation = -math.rad(selection.data.rotation or 0)
@@ -477,7 +492,7 @@ function EditorMapView:getSelectedResizeCornerAt(world_x, world_y)
 end
 
 function EditorMapView:getResizeCursor(selection, corner)
-    local width, height = selection.data.width or 0, selection.data.height or 0
+    local _, _, width, height = self.document:getObjectLocalRect(selection)
     local corner_x = (corner == "ne" or corner == "se") and width or 0
     local corner_y = (corner == "sw" or corner == "se") and height or 0
     local angle = math.atan2(corner_y - height / 2, corner_x - width / 2)
@@ -521,7 +536,7 @@ function EditorMapView:drawSelectedObject()
     Draw.setColor(1, 0.86, 0.2, 1)
     for _, selection in ipairs(selections) do
         local x, y = self.document:getObjectWorldPosition(selection)
-        local width, height = selection.data.width or 0, selection.data.height or 0
+        local _, _, width, height = self.document:getObjectLocalRect(selection)
         love.graphics.push()
         love.graphics.translate(x, y)
         love.graphics.rotate(math.rad(selection.data.rotation or 0))
@@ -840,7 +855,7 @@ function EditorMapView:onMousePressed(x, y, button, presses)
             local resize_selection, resize_corner = self:getSelectedResizeCornerAt(world_x, world_y)
             if resize_selection then
                 local object_x, object_y = self.document:getObjectWorldPosition(resize_selection)
-                local width, height = resize_selection.data.width or 0, resize_selection.data.height or 0
+                local _, _, width, height = self.document:getObjectLocalRect(resize_selection)
                 local rotation = math.rad(resize_selection.data.rotation or 0)
                 local opposite_x = (resize_corner == "nw" or resize_corner == "sw") and width or 0
                 local opposite_y = (resize_corner == "nw" or resize_corner == "ne") and height or 0
@@ -850,6 +865,9 @@ function EditorMapView:onMousePressed(x, y, button, presses)
                     resize = true,
                     resize_corner = resize_corner,
                     resize_cursor = self:getResizeCursor(resize_selection, resize_corner),
+                    scaling_mode = self.document:getObjectScalingMode(resize_selection),
+                    base_width = resize_selection.data.width or 0,
+                    base_height = resize_selection.data.height or 0,
                     fixed_x = object_x + opposite_x * math.cos(rotation) - opposite_y * math.sin(rotation),
                     fixed_y = object_y + opposite_x * math.sin(rotation) + opposite_y * math.cos(rotation)
                 }
@@ -1055,7 +1073,8 @@ function EditorMapView:onMouseMoved(x, y, dx, dy)
             local center_y = drag.center_y + relative_x * math.sin(radians) + relative_y * math.cos(radians)
             local rotation = snapshot.rotation + delta
             local object_rotation = math.rad(rotation)
-            local half_width, half_height = (selection.data.width or 0) / 2, (selection.data.height or 0) / 2
+            local _, _, width, height = self.document:getObjectLocalRect(selection)
+            local half_width, half_height = width / 2, height / 2
             local top_left_x = center_x - half_width * math.cos(object_rotation) + half_height * math.sin(object_rotation)
             local top_left_y = center_y - half_width * math.sin(object_rotation) - half_height * math.cos(object_rotation)
             selection.data.x = top_left_x - selection.entry.x - (selection.layer.offsetx or 0)
@@ -1083,10 +1102,16 @@ function EditorMapView:onMouseMoved(x, y, dx, dy)
             local local_y = relative_x * math.sin(inverse) + relative_y * math.cos(inverse)
             local right = drag.resize_corner == "ne" or drag.resize_corner == "se"
             local bottom = drag.resize_corner == "sw" or drag.resize_corner == "se"
-            data.width = math.max(0, snap(right and local_x or -local_x, tile_width))
-            data.height = math.max(0, snap(bottom and local_y or -local_y, tile_height))
-            local opposite_x = right and 0 or data.width
-            local opposite_y = bottom and 0 or data.height
+            local width = math.max(0, snap(right and local_x or -local_x, tile_width))
+            local height = math.max(0, snap(bottom and local_y or -local_y, tile_height))
+            if drag.scaling_mode == "scale" and drag.base_width > 0 and drag.base_height > 0 then
+                data.scale_x = width / drag.base_width
+                data.scale_y = height / drag.base_height
+            else
+                data.width, data.height = width, height
+            end
+            local opposite_x = right and 0 or width
+            local opposite_y = bottom and 0 or height
             local origin_x = drag.fixed_x - opposite_x * math.cos(rotation) + opposite_y * math.sin(rotation)
             local origin_y = drag.fixed_y - opposite_x * math.sin(rotation) - opposite_y * math.cos(rotation)
             data.x = origin_x - drag.selection.entry.x - (drag.selection.layer.offsetx or 0)

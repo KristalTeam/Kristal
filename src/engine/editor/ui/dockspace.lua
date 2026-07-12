@@ -49,6 +49,7 @@ function EditorDockSpace:init()
     self.captured_control = nil
     self.pending_drag = nil
     self.dragging_panel = nil
+    self.drag_source_stack = nil
     self.drag_offset_x = 0
     self.drag_offset_y = 0
     self.dock_preview = nil
@@ -812,6 +813,7 @@ function EditorDockSpace:onMouseMoved(x, y, dx, dy)
                 panel_rect = copyRect(panel.floating)
             else
                 local stack = panel.stack
+                self.drag_source_stack = stack
                 panel_rect = { x = stack.x, y = stack.y, width = math.max(panel.preferred_width, stack.width),
                     height = math.max(panel.preferred_height, stack.height) }
             end
@@ -862,6 +864,7 @@ function EditorDockSpace:onMouseReleased(x, y, button, presses)
             end
         end
         self.dragging_panel = nil
+        self.drag_source_stack = nil
         self.pending_drag = nil
         self.dock_preview = nil
         return true
@@ -892,7 +895,8 @@ function EditorDockSpace:getDockTarget(x, y, moving_panel)
     if y > self.y + self.height - EDGE_TARGET_SIZE then return { stack = self.stacks.bottom, rect = targets.bottom } end
     for _, stack in ipairs(self:getStacks()) do
         local rect = { x = stack.x, y = stack.y, width = stack.width, height = stack.height }
-        if not stack:isEmpty() and not (stack:getActivePanel() == moving_panel and #stack.panels == 1)
+        if stack ~= self.drag_source_stack and not stack:isEmpty()
+            and not (stack:getActivePanel() == moving_panel and #stack.panels == 1)
             and pointInRect(x, y, rect) then
             local horizontal = stack.region == "top" or stack.region == "bottom"
             local extent = horizontal and rect.width or rect.height
@@ -923,7 +927,9 @@ function EditorDockSpace:getDockTarget(x, y, moving_panel)
     end
     local center = self.stacks.center
     local center_rect = { x = center.x, y = center.y, width = center.width, height = center.height }
-    if pointInRect(x, y, center_rect) then return { stack = center, rect = center_rect } end
+    if center ~= self.drag_source_stack and pointInRect(x, y, center_rect) then
+        return { stack = center, rect = center_rect }
+    end
 end
 
 function EditorDockSpace:getMapPanelDropTarget(x, y)
@@ -943,11 +949,15 @@ end
 function EditorDockSpace:onWheelMoved(x, y)
     local mouse_x, mouse_y = love.mouse.getPosition()
     local target = self:getControlAt(mouse_x, mouse_y)
-    if target then
+    while target do
         local handled = target:onWheelMoved(x, y)
-        if handled and target.focus_on_wheel then self:setFocus(target) end
-        return handled
+        if handled then
+            if target.focus_on_wheel then self:setFocus(target) end
+            return true
+        end
+        target = target.parent
     end
+    return false
 end
 
 function EditorDockSpace:onKeyPressed(key, is_repeat)

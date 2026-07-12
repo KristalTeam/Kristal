@@ -1,11 +1,16 @@
 ---@class EditorEvent : Class
 ---@field placement_shape "rectangle"|"point"|"region"
+---@field scaling_mode "resize"|"scale"
 ---@overload fun(data?: table, options?: table): EditorEvent
 local EditorEvent = Class()
 
 -- Event classes may override this with "point" when their position has no
 -- bounded area, or "region" when placement should be defined by dragging.
 EditorEvent.placement_shape = "rectangle"
+
+-- "resize" changes the object's actual bounds. "scale" preserves those bounds
+-- and records a visual scale when the resize handles are dragged.
+EditorEvent.scaling_mode = "resize"
 
 function EditorEvent:registerProperty(id, property_type, options)
     options = TableUtils.copy(options or {}, true)
@@ -40,9 +45,18 @@ function EditorEvent:init(data, options)
     self.y = (data.y or 0) + (options.offset_y or 0)
     self.width = data.width or 0
     self.height = data.height or 0
+    self.scale_x = data.scale_x or 1
+    self.scale_y = data.scale_y or 1
     self.rotation = math.rad(data.rotation or 0)
     self.visible = data.visible ~= false
     self.sprite = self:getPreviewSprite(options.sprite)
+end
+
+function EditorEvent:getBoundsSize()
+    if self.scaling_mode == "scale" then
+        return self.width * math.abs(self.scale_x), self.height * math.abs(self.scale_y)
+    end
+    return self.width, self.height
 end
 
 function EditorEvent:getPreviewSprite(sprite)
@@ -89,10 +103,13 @@ function EditorEvent:draw(alpha)
     else
         Draw.setColor(1, 1, 1, alpha)
     end
+    local width, height = self:getBoundsSize()
     if marker then
         Draw.draw(texture, 0, 0, 0, 2, 2, texture:getWidth() / 2, texture:getHeight())
     elseif self.width ~= 0 or self.height ~= 0 then
-        Draw.draw(texture, self.width / 2, self.height / 2, 0, 2, 2,
+        local scale_x = self.scaling_mode == "scale" and self.scale_x or 1
+        local scale_y = self.scaling_mode == "scale" and self.scale_y or 1
+        Draw.draw(texture, width / 2, height / 2, 0, 2 * scale_x, 2 * scale_y,
             texture:getWidth() / 2, texture:getHeight() / 2)
     else
         Draw.draw(texture, 0, 0, 0, 2, 2)
@@ -115,7 +132,7 @@ function EditorEvent:drawPreviewIcon(x, y, width, height, alpha)
     return true
 end
 
-function EditorEvent:drawBounds(alpha)
+function EditorEvent:drawBounds(alpha, line_width)
     if self.width == 0 and self.height == 0
         and not self.data.polygon and not self.data.polyline then return end
     alpha = alpha or 1
@@ -125,11 +142,12 @@ function EditorEvent:drawBounds(alpha)
     love.graphics.translate(self.x, self.y)
     love.graphics.rotate(self.rotation)
     local thickness = self.data.shape_data and tonumber(self.data.shape_data.thickness)
-    love.graphics.setLineWidth(math.max(1, thickness or 1))
+    local width, height = self:getBoundsSize()
+    love.graphics.setLineWidth(math.max(line_width or 1, (thickness or 1) * (line_width or 1)))
     Draw.setColor(color[1] or 1, color[2] or 1, color[3] or 1,
         math.min(color[4] or 1, 0.9) * alpha)
     if self.data.shape == "ellipse" then
-        love.graphics.ellipse("line", self.width / 2, self.height / 2, self.width / 2, self.height / 2)
+        love.graphics.ellipse("line", width / 2, height / 2, width / 2, height / 2)
     elseif self.data.polygon and #self.data.polygon >= 3 then
         local points = {}
         for _, point in ipairs(self.data.polygon) do
@@ -144,7 +162,7 @@ function EditorEvent:drawBounds(alpha)
                 second.x or second[1] or 0, second.y or second[2] or 0)
         end
     else
-        love.graphics.rectangle("line", 0, 0, self.width, self.height)
+        love.graphics.rectangle("line", 0, 0, width, height)
     end
     love.graphics.pop()
     love.graphics.setLineWidth(previous_width)

@@ -51,7 +51,7 @@ function EditorLayersPanel:setDocument(document, map_id)
     self.map_id = map_id
     self.new_button.enabled = document ~= nil
     self.selected_layer = nil
-    self:refreshList()
+    self:refreshList(document and document:getSelectedLayer(map_id))
 end
 
 function EditorLayersPanel:focusLayer(document, map_id, layer)
@@ -146,7 +146,8 @@ function EditorLayersPanel:refreshList(selected_uid)
     selected_uid = selected_uid or (self.selected_layer and self.selected_layer._editor_uid)
     self.list.root.children = {}
     local function append(layers, parent)
-        for _, layer in ipairs(layers or {}) do
+        for index = #(layers or {}), 1, -1 do
+            local layer = layers[index]
             local layer_type = self:getLayerType(layer)
             local node = self.list:newNode(layer._editor_kind_id == "group" and "layer_group" or "layer",
                 layer.name or "Unnamed Layer", {
@@ -320,7 +321,8 @@ function EditorLayersPanel:applyLayerTreeMove(node)
     if not self.document or not node or not node.data then return false end
     local function build(parent)
         local layers = {}
-        for _, child in ipairs(parent.children or {}) do
+        for index = #(parent.children or {}), 1, -1 do
+            local child = parent.children[index]
             local layer = child.data
             if child.children then layer.layers = build(child) end
             table.insert(layers, layer)

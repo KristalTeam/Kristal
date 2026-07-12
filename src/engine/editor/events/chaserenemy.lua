@@ -1,4 +1,5 @@
 local EditorChaserEnemy, super = Class(EditorEvent)
+EditorChaserEnemy.scaling_mode = "scale"
 
 EditorChaserEnemy.getEditorSprite = EditorNPC.getEditorSprite
 function EditorChaserEnemy:init(data, options)
