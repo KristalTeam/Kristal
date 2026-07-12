@@ -11,6 +11,7 @@ function EditorEventBrowser:init(editor)
     }))
     self.list = self:addChild(EditorItemList({
         row_height = 48,
+        on_select = function(item) if item then self.editor:setPlacementEvent(item.id) end end,
         on_activate = function(item) if item then self.editor:setPlacementEvent(item.id) end end,
         on_drag_start = function(item) self.editor:beginAssetDrag("event", item.id, item.label) end,
         on_drag_move = function(_, list, x, y)

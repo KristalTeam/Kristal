@@ -92,6 +92,7 @@ end
 
 function EditorMapDocument:restoreHistoryState(state)
     if not state then return false end
+    local selected_layers = self.selected_layers
     self.previous_world_id = self.world and self.world.id
     local world = EditorWorld(state.world_id)
     world.name = state.world_name or state.world_id
@@ -116,7 +117,7 @@ function EditorMapDocument:restoreHistoryState(state)
     for _, layers in pairs(self.editable_layers) do
         MapUtils.walkLayers(layers, setupLayerProperties)
     end
-    self.selected_layers = TableUtils.copy(state.selected_layers or {}, true)
+    self.selected_layers = selected_layers or {}
     self.next_layer_uid = state.next_layer_uid or 1
     self.next_object_uid = state.next_object_uid or 1
     for _, entry in ipairs(self.maps) do
@@ -1058,7 +1059,21 @@ function EditorMapDocument:getObjectLocalRect(selection)
                 (data.y or 0) - origin[2] * height, width, height
         end
     end
-    return data.x or 0, data.y or 0, data.width or 0, data.height or 0
+    local width, height = data.width or 0, data.height or 0
+    if self:getObjectScalingMode(selection) == "scale" then
+        width = width * math.abs(data.scale_x or 1)
+        height = height * math.abs(data.scale_y or 1)
+    end
+    return data.x or 0, data.y or 0, width, height
+end
+
+function EditorMapDocument:getObjectScalingMode(selection)
+    local data = selection and selection.data
+    if not data or data.gid or data.tileset and data.tile_id ~= nil then return "resize" end
+    local event_id = data.type or data.class
+    if event_id == nil or event_id == "" then event_id = data.name end
+    local event_class = event_id and Registry.getEditorEvent(event_id)
+    return event_class and event_class.scaling_mode or EditorEvent.scaling_mode
 end
 
 function EditorMapDocument:getObjectWorldCorners(selection)
@@ -1377,7 +1392,7 @@ function EditorMapDocument:getPreview(entry)
     return entry.preview
 end
 
-function EditorMapDocument:drawPreview(entry)
+function EditorMapDocument:drawPreview(entry, outline_width)
     local preview = self:getPreview(entry)
     if not preview then return false end
     local map = preview.map
@@ -1434,12 +1449,12 @@ function EditorMapDocument:drawPreview(entry)
             drawable.value:fullDraw()
             drawable.value.alpha = old_alpha
         else
-            drawable.value:draw(drawable.alpha)
+            drawable.value:draw(drawable.alpha, outline_width)
         end
     end
     for _, event in ipairs(preview.editor_events or {}) do
         local layer_visible, alpha = layerState(event.layer_uid)
-        if event.visible and layer_visible then event:drawBounds(alpha) end
+        if event.visible and layer_visible then event:drawBounds(alpha, outline_width) end
     end
     Draw.setColor(1, 1, 1, 1)
     return true

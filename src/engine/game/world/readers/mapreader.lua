@@ -306,6 +306,8 @@ function operations.loadObjects(self, layer, depth, layer_type)
                 end
                 if obj then
                     obj.rotation = rotation
+                    obj:setScale((obj.scale_x or 1) * (v.scale_x or 1),
+                        (obj.scale_y or 1) * (v.scale_y or 1))
                     obj.x = obj.x + (layer.offsetx or 0)
                     obj.y = obj.y + (layer.offsety or 0)
                     obj:setParallax((obj.parallax_x or 1) * layer.parallaxx, (obj.parallax_y or 1) * layer.parallaxy)

@@ -1,4 +1,5 @@
 local EditorWarpDoor, super = Class(EditorEvent)
+EditorWarpDoor.scaling_mode = "scale"
 
 function EditorWarpDoor:getEditorSprite(data)
     return data.properties.open == false and "world/events/shortcut_door_off"

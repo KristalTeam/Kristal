@@ -1,6 +1,7 @@
 local EditorSpriteEvent, super = Class(EditorEvent)
 
 EditorSpriteEvent.sprite_property = "texture"
+EditorSpriteEvent.scaling_mode = "scale"
 function EditorSpriteEvent:init(data, options)
     super.init(self, data, options)
     self:registerProperty("texture", "string")

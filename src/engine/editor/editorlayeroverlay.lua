@@ -25,7 +25,7 @@ local function collectPoints(points)
     return result
 end
 
-function EditorLayerOverlay:drawObject(object, alpha)
+function EditorLayerOverlay:drawObject(object, alpha, line_width)
     local width, height = object.width or 0, object.height or 0
     local points = object.polygon or object.polyline
     love.graphics.push()
@@ -34,7 +34,10 @@ function EditorLayerOverlay:drawObject(object, alpha)
     love.graphics.rotate(math.rad(object.rotation or 0))
     local previous_width = love.graphics.getLineWidth()
     if object.polyline and object.shape_data and tonumber(object.shape_data.thickness) then
-        love.graphics.setLineWidth(math.max(1, tonumber(object.shape_data.thickness)))
+        love.graphics.setLineWidth(math.max(line_width or 1,
+            tonumber(object.shape_data.thickness) * (line_width or 1)))
+    else
+        love.graphics.setLineWidth(line_width or 1)
     end
 
     local color = self.color
@@ -75,13 +78,13 @@ function EditorLayerOverlay:drawObject(object, alpha)
     love.graphics.pop()
 end
 
-function EditorLayerOverlay:draw(alpha)
+function EditorLayerOverlay:draw(alpha, line_width)
     if not self.visible then return end
     alpha = alpha or 1
     local previous_width = love.graphics.getLineWidth()
-    love.graphics.setLineWidth(1)
+    love.graphics.setLineWidth(line_width or 1)
     for _, object in ipairs(self.source_layer.objects or {}) do
-        if object.visible ~= false then self:drawObject(object, alpha) end
+        if object.visible ~= false then self:drawObject(object, alpha, line_width) end
     end
     love.graphics.setLineWidth(previous_width)
     Draw.setColor(1, 1, 1, 1)

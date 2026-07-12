@@ -1,5 +1,6 @@
 local EditorCyberTrashCan, super = Class(EditorEvent)
 EditorCyberTrashCan.editor_sprite = "world/events/cyber_trash"
+EditorCyberTrashCan.scaling_mode = "scale"
 function EditorCyberTrashCan:init(data, options)
     super.init(self, data, options)
     self:registerProperty("item", "chooser", {

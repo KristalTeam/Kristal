@@ -524,6 +524,25 @@ function Registry.createEditorDrawFX(id, data)
     return class(id, definition, data)
 end
 
+--- Creates the game-side DrawFX represented by an editor/native-map assignment.
+--- Custom editor DrawFX that can be saved to maps must provide create_runtime.
+function Registry.createRuntimeDrawFX(data, context)
+    local id = type(data) == "table" and (data.id or data.type) or data
+    local definition = self.getEditorDrawFX(id)
+    if not definition then return nil, "Unknown DrawFX '" .. tostring(id) .. "'" end
+    if not definition.create_runtime then
+        return nil, "DrawFX '" .. tostring(id) .. "' does not define create_runtime"
+    end
+    local properties = type(data) == "table" and data.properties or {}
+    local success, fx, reason = pcall(definition.create_runtime, properties or {}, context or {})
+    if not success then return nil, fx end
+    if not fx then
+        return nil, reason or "DrawFX '" .. tostring(id) .. "' could not be created"
+    end
+    if properties.priority ~= nil then fx.priority = properties.priority end
+    return fx, id
+end
+
 function Registry.getLayerTypes()
     return self.layer_types and self.layer_types:getAll() or {}
 end
@@ -1009,57 +1028,109 @@ end
 
 function Registry.initEditorDrawFX()
     self.editor_draw_fx = {}
-    local function register(id, name, initializer, priority)
-        self.registerEditorDrawFX(id, { name = name, init = initializer, priority = priority })
+    local function color(value, fallback)
+        if type(value) == "table" then return TableUtils.copy(value, true) end
+        return ColorUtils.tryHexToRGB(value) or TableUtils.copy(fallback, true)
+    end
+    local function register(id, name, initializer, priority, create_runtime)
+        self.registerEditorDrawFX(id, {
+            name = name, init = initializer, priority = priority,
+            create_runtime = create_runtime
+        })
     end
     register("alpha", "Alpha", function(fx)
         fx:registerProperty("alpha", "number", { default = 1 })
-    end, 100)
+    end, 100, function(properties)
+        return AlphaFX(properties.alpha, properties.priority)
+    end)
     register("color_mask", "Color Mask", function(fx)
         fx:registerProperty("color", "color", { default = "#FFFFFFFF" })
         fx:registerProperty("amount", "number", { default = 1 })
+    end, nil, function(properties)
+        return ColorMaskFX(color(properties.color, { 1, 1, 1, 1 }), properties.amount, properties.priority)
     end)
     register("recolor", "Recolor", function(fx)
         fx:registerProperty("color", "color", { default = "#FFFFFFFF" })
-    end, -1)
+    end, -1, function(properties)
+        local value = color(properties.color, { 1, 1, 1, 1 })
+        return RecolorFX(value[1], value[2], value[3], value[4], properties.priority)
+    end)
     register("outline", "Outline", function(fx)
         fx:registerProperty("color", "color", { default = "#FFFFFFFF" })
         fx:registerProperty("thickness", "number", { default = 1 })
         fx:registerProperty("amount", "number", { default = 1 })
         fx:registerProperty("cutout", "boolean")
+    end, nil, function(properties)
+        return OutlineFX(color(properties.color, { 1, 1, 1, 1 }), {
+            thickness = properties.thickness,
+            amount = properties.amount,
+            cutout = properties.cutout
+        }, properties.priority)
     end)
     register("battle_outline", "Battle Outline", function(fx)
-        fx:registerProperty("color", "color", { default = "#FFFFFFFF" })
-        fx:registerProperty("thickness", "number", { default = 1 })
+        fx:registerProperty("amount", "number", { default = 1 })
+    end, nil, function(properties)
+        local fx = BattleOutlineFX(properties.priority)
+        fx.amount = properties.amount or 1
+        return fx
     end)
     register("shadow", "Shadow", function(fx)
         fx:registerProperty("alpha", "number", { default = 0.75 })
         fx:registerProperty("highlight", "color", { default = "#00000000" })
         fx:registerProperty("scale", "number", { default = 1 })
+    end, nil, function(properties)
+        return ShadowFX(properties.alpha,
+            color(properties.highlight, { 0, 0, 0, 0 }), properties.scale, properties.priority)
     end)
     register("fountain_shadow", "Fountain Shadow", function(fx)
         fx:registerProperty("alpha", "number", { default = 0.75 })
         fx:registerProperty("scale", "number", { default = 1 })
+    end, nil, function(properties)
+        local fx = FountainShadowFX(properties.priority)
+        fx.alpha = properties.alpha or fx.alpha
+        fx.scale = properties.scale or fx.scale
+        return fx
     end)
     register("gradient", "Gradient", function(fx)
         fx:registerProperty("from", "color", { default = "#FFFFFFFF" })
         fx:registerProperty("to", "color", { default = "#000000FF" })
         fx:registerProperty("alpha", "number", { default = 1 })
         fx:registerProperty("direction", "number")
-    end, 200)
+    end, 200, function(properties)
+        local fx = GradientFX(color(properties.from, { 1, 1, 1, 1 }),
+            color(properties.to, { 0, 0, 0, 1 }), properties.alpha,
+            properties.direction, properties.bounds)
+        if properties.priority ~= nil then fx.priority = properties.priority end
+        return fx
+    end)
     register("scissor", "Scissor", function(fx)
         fx:registerProperty("x", "number")
         fx:registerProperty("y", "number")
         fx:registerProperty("width", "number")
         fx:registerProperty("height", "number")
+    end, nil, function(properties)
+        return ScissorFX(properties.x or 0, properties.y or 0,
+            properties.width or 0, properties.height or 0, properties.priority)
     end)
     register("mask", "Mask", function(fx)
         fx:registerProperty("mask", "object_reference")
         fx:registerProperty("draw_children", "boolean", { name = "Draw Children", default = true })
         fx:registerProperty("inverted", "boolean")
-    end, 1000)
+    end, 1000, function(properties, context)
+        local mask = properties.mask and context.resolveObjectReference
+            and context.resolveObjectReference(properties.mask) or nil
+        local fx = MaskFX(mask, properties.draw_children, properties.priority)
+        fx.inverted = properties.inverted == true
+        return fx
+    end)
     register("shader", "Shader", function(fx)
         fx:registerProperty("shader", "string")
+    end, nil, function(properties)
+        if not properties.shader or properties.shader == "" then
+            return nil, "Shader DrawFX requires a shader asset"
+        end
+        return ShaderFX(properties.shader, properties.vars,
+            properties.transformed, properties.priority)
     end)
     for id in pairs(self.draw_fx or {}) do
         if not self.editor_draw_fx[id] then self.registerEditorDrawFX(id, {}) end

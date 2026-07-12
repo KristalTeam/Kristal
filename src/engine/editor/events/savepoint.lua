@@ -1,5 +1,6 @@
 local EditorSavepoint, super = Class(EditorEvent)
 EditorSavepoint.editor_sprite = "world/events/savepoint"
+EditorSavepoint.scaling_mode = "scale"
 
 function EditorSavepoint:init(data, options)
     super.init(self, data, options)

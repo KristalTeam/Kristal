@@ -1,4 +1,5 @@
 local EditorNPC, super = Class(EditorEvent)
+EditorNPC.scaling_mode = "scale"
 
 function EditorNPC:getEditorSprite(data)
     local properties = data.properties or {}

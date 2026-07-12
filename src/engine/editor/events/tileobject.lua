@@ -43,17 +43,20 @@ function EditorTileObject:draw(alpha)
     Draw.setColor(1, 1, 1, 1)
 end
 
-function EditorTileObject:drawBounds(alpha)
+function EditorTileObject:drawBounds(alpha, line_width)
     if not self.visible then return end
     local color = self.layer_color
+    local previous_width = love.graphics.getLineWidth()
     love.graphics.push()
     love.graphics.translate(self.x, self.y)
     love.graphics.rotate(self.rotation)
+    love.graphics.setLineWidth(line_width or 1)
     Draw.setColor(color[1] or 1, color[2] or 1, color[3] or 1,
         math.min(color[4] or 1, 0.9) * (alpha or 1))
     love.graphics.rectangle("line", -self.origin[1] * self.width, -self.origin[2] * self.height,
         self.width, self.height)
     love.graphics.pop()
+    love.graphics.setLineWidth(previous_width)
     Draw.setColor(1, 1, 1, 1)
 end
 

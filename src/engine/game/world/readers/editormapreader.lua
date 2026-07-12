@@ -54,6 +54,25 @@ function EditorMapReader:read(data)
             if not (layer.properties and layer.properties.thin) then depth = depth + map.depth_per_layer end
         end
     end)
+    for _, object in ipairs(map.events) do
+        local assignments = object.data and (object.data.__editor_fx or object.data.fx) or {}
+        for _, assignment in ipairs(assignments) do
+            local fx, id_or_reason = Registry.createRuntimeDrawFX(assignment, {
+                map = map,
+                object = object,
+                resolveObjectReference = function(value)
+                    local reference = EditorObjectReference.from(value, map.id)
+                    if reference.map_id and reference.map_id ~= map.id then return nil end
+                    return map:getEvent(reference.object_id)
+                end
+            })
+            if not fx then
+                error(string.format("Could not load DrawFX on map object %s: %s",
+                    tostring(object.object_id or object.data.id), tostring(id_or_reason)), 2)
+            end
+            object:addFX(fx, id_or_reason)
+        end
+    end
     map.next_layer = depth
     return true
 end

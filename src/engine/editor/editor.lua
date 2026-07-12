@@ -61,7 +61,7 @@ end
 
 function Editor:syncEditingMusic()
     if self.editor_music_enabled == false then
-        self:pauseEditingMusic()
+        self:stopEditingMusic()
         return
     end
     local preview_running = self.live_document ~= nil
@@ -781,7 +781,7 @@ function Editor:enter(previous, options)
     self.show_tile_grid = false
     self.game_faulted = false
     self.game_fault_trace = nil
-    self.game_preview_paused = false
+    self.game_preview_paused = true
     self.forwarded_mouse_buttons = {}
     self.object_selection_mouse_buttons = {}
     self.consumed_editor_keys = {}
@@ -1833,6 +1833,10 @@ function Editor:getMapObjectPropertiesTarget(selection)
     end
     table.insert(fields, numberField("Width", "width"))
     table.insert(fields, numberField("Height", "height"))
+    if not tile_object and editor_event.scaling_mode == "scale" then
+        table.insert(fields, numberField("Scale X", "scale_x"))
+        table.insert(fields, numberField("Scale Y", "scale_y"))
+    end
     table.insert(fields, numberField("Rotation", "rotation"))
     table.insert(fields, {
         label = "DrawFX",
@@ -2307,6 +2311,12 @@ function Editor:centerWindow(display, desktop_width, desktop_height)
 end
 
 function Editor:update()
+    local preview_owner = self:getGamePreviewOwnerPanel()
+    if self.live_document and preview_owner
+        and not self.dockspace:isPanelDisplayed(preview_owner)
+        and not self.game_preview_paused then
+        self:setGamePreviewPaused(true)
+    end
     if self.live_document and not self.game_preview_paused and not self.exit_transition
         and self.source_state and self.source_state.update and not self.game_faulted then
         self:runGameCallback("update", function() self.source_state:update() end)
@@ -2427,7 +2437,7 @@ function Editor:detachGamePreview()
     self.game_preview_lock_before_pause = nil
     self:clearGameObjectSelection()
     document.game_view_state = self:captureGameViewState(document)
-    self:suspendGamePreviewAudio()
+    self:suspendGamePreviewAudio(true)
     if document.panel and document.panel.content == self.game_preview then
         document.panel:setContent(document.map_view)
     end
@@ -2451,6 +2461,8 @@ end
 function Editor:setGamePreviewPaused(paused)
     if not self.live_document then return false end
     paused = paused == true
+    local owner = self:getGamePreviewOwnerPanel()
+    if not paused and owner and not self.dockspace:isPanelDisplayed(owner) then return false end
     if paused == self.game_preview_paused then return true end
     if paused then
         self.game_preview_lock_before_pause = Game.lock_movement
@@ -2459,7 +2471,7 @@ function Editor:setGamePreviewPaused(paused)
     self.game_preview_paused = paused
     self:clearForwardedGameMouse()
     if self.game_preview_paused then
-        self:suspendGamePreviewAudio()
+        self:suspendGamePreviewAudio(true)
     else
         self:resumeGamePreviewAudio()
     end
@@ -2523,7 +2535,6 @@ function Editor:setStandaloneGamePreviewEnabled(enabled)
         return self:setStandaloneGamePreviewMap(id)
     end
     if self.game_panel == self.game_preview_panel then self:detachGamePreview() end
-    self.game_preview_paused = false
     if not self.tile_editing_mode and self.active_document then
         return self:showGamePreview({ document = self.active_document, ignore_standalone = true })
     end
@@ -2569,7 +2580,8 @@ function Editor:getGamePreviewMusic()
     if success then return music end
 end
 
-function Editor:suspendGamePreviewAudio()
+function Editor:suspendGamePreviewAudio(stop_sounds)
+    if stop_sounds then Assets.stopAllSounds() end
     local music = self:getGamePreviewMusic()
     if music and music:isPlaying() then
         music:pause()
@@ -2723,6 +2735,7 @@ function Editor:showGamePreview(options)
     end
     local document = options.document or self.active_document
     if not document then return false end
+    local was_paused = self.game_preview_paused ~= false
     if self.live_document ~= document then
         self:detachGamePreview()
         if not self:restoreGamePreviewSnapshot() then return false end
@@ -2737,9 +2750,9 @@ function Editor:showGamePreview(options)
     end
     if not self:captureGamePreviewSnapshot(document) then return false end
     self.tile_editing_mode = false
-    self.game_preview_paused = false
-    self:resumeGamePreviewAudio()
-    Game.lock_movement = self.game_preview_movement_lock
+    self.game_preview_paused = was_paused
+    if was_paused then self:suspendGamePreviewAudio() else self:resumeGamePreviewAudio() end
+    Game.lock_movement = was_paused and true or self.game_preview_movement_lock
     local panel = document.panel
     if not panel.visible then
         self.dockspace:setPanelVisible(panel, true, panel.last_region or "center")
@@ -2869,7 +2882,9 @@ end
 
 
 function Editor:isGamePreviewInputActive()
+    local owner = self:getGamePreviewOwnerPanel()
     return not self.game_preview_paused and self:isGamePreviewMounted()
+        and self.dockspace:isPanelDisplayed(owner)
 end
 
 function Editor:canForwardGameKeyboardInput()
@@ -3197,7 +3212,7 @@ function Editor:beginExitTransition()
         end
     end
     self:stopEditingMusic()
-    self:suspendGamePreviewAudio()
+    self:suspendGamePreviewAudio(true)
     Game.lock_movement = true
     self.exit_transition = EditorModeTransition("exit", function(transition)
         self:finishExitTransition(transition)
