@@ -277,6 +277,9 @@ function Game:setBorder(border, time)
 end
 
 function Game:returnToMenu()
+    local state = Kristal.getState()
+    if state and state.closeGamePreviewFromGameMenu
+        and state:closeGamePreviewFromGameMenu() then return end
     self.fader:fadeOut(Kristal.returnToMenu, { speed = 0.5, music = 10 / 30 })
     Kristal.hideBorder(0.5)
     self.state = "EXIT"

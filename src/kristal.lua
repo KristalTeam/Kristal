@@ -1379,6 +1379,10 @@ end
 
 --- Exits the current project and returns to the Kristal menu.
 function Kristal.returnToMenu()
+    local state = Kristal.getState()
+    if state and state.closeGamePreviewFromGameMenu
+        and state:closeGamePreviewFromGameMenu() then return end
+
     -- Go to empty state
     Kristal.setState("Empty")
 

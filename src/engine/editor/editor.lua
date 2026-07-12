@@ -2541,6 +2541,30 @@ function Editor:setStandaloneGamePreviewEnabled(enabled)
     return true
 end
 
+function Editor:closeGamePreviewFromGameMenu()
+    if not self:isGamePreviewMounted() then return false end
+    local owner = self:getGamePreviewOwnerPanel()
+    local standalone = owner == self.game_preview_panel
+
+    self:setGamePreviewPaused(true)
+    self.tile_editing_mode = true
+    self:detachGamePreview()
+    self:suspendGamePreviewAudio(true)
+
+    if standalone and self.game_preview_panel.visible then
+        self.dockspace:setPanelVisible(self.game_preview_panel, false)
+    end
+    if self.active_document and self.active_document.panel then
+        local panel = self.active_document.panel
+        panel:setContent(self.active_document.map_view)
+        if panel.stack then panel.stack:setActivePanel(panel) end
+        self.dockspace:setFocus(self.active_document.map_view)
+    end
+
+    self:syncEditingMusic()
+    return true
+end
+
 function Editor:captureGamePreviewSnapshot(document)
     if self.game_preview_snapshot and self.game_preview_snapshot_document == document then return true end
     local success, snapshot = self:runGameCallback("snapshot", function()
