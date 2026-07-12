@@ -68,10 +68,12 @@ function EditorTilesetReader:initialize(data, path, base_dir)
     elseif type(data.image) == "table" then
         for index, filename in ipairs(data.image) do
             local id = index - 1
-            local info = tileset.tile_info[id] or { properties = {} }
-            local success, reason = loadTileTexture(info, filename, id)
-            if not success then error(reason, 2) end
-            tileset.tile_info[id] = info
+            if filename ~= "" then
+                local info = tileset.tile_info[id] or { properties = {} }
+                local success, reason = loadTileTexture(info, filename, id)
+                if not success then error(reason, 2) end
+                tileset.tile_info[id] = info
+            end
             tileset.id_count = math.max(tileset.id_count, id + 1)
         end
     end

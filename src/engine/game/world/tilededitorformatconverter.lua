@@ -184,13 +184,17 @@ end
 ---@return string? error
 function TiledEditorFormatConverter.convertTileset(data, options)
     local converted = TableUtils.copy(data, true)
+    local id_count = data.tilecount or 0
+    for _, tile in ipairs(data.tiles or {}) do
+        id_count = math.max(id_count, (tonumber(tile.id) or -1) + 1)
+    end
     converted.version = EditorFormat.TILED_TILESET_CONVERSION_VERSION
     converted.kristal_version = tostring(Kristal.Version)
     converted.tile_width = data.tilewidth
     converted.tile_height = data.tileheight
-    converted.tile_count = data.tilecount
+    converted.tile_count = id_count
     converted.tile_columns = data.columns
-    converted.tile_rows = data.columns and data.columns > 0 and math.ceil((data.tilecount or 0) / data.columns) or 0
+    converted.tile_rows = data.columns and data.columns > 0 and math.ceil(id_count / data.columns) or 0
     converted.alignment = data.objectalignment
     converted.render_size = data.tilerendersize
     converted.fill_mode = data.fillmode
@@ -204,19 +208,17 @@ function TiledEditorFormatConverter.convertTileset(data, options)
             prefer_untransformed = data.transformations.preferuntransformed
         }
     end
-    if not data.image and (data.tilecount or 0) > 0 then
+    if not data.image and id_count > 0 then
         local images = {}
+        for index = 1, id_count do images[index] = "" end
+        local has_images = false
         for _, tile in ipairs(data.tiles or {}) do
-            if tile.image then images[tile.id + 1] = tile.image end
-        end
-        if next(images) then
-            for index = 1, data.tilecount do
-                if images[index] == nil then
-                    return nil, "Multi-image legacy tilesets require one image for every tile id"
-                end
+            if tile.image then
+                images[tile.id + 1] = tile.image
+                has_images = true
             end
-            converted.image = images
         end
+        if has_images then converted.image = images end
     end
     converted.terrains = {}
     for terrain_index, wangset in ipairs(data.wangsets or {}) do
