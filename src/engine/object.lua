@@ -1112,7 +1112,8 @@ function Object:getDebugOptions(context)
             local clone = self:clone() ---@type Object
             clone:removeFX("debug_flash")
             self.parent:addChild(clone)
-            clone:setScreenPos(Input.getMousePosition())
+            clone:setScreenPos(Kristal.DebugSystem and Kristal.DebugSystem:getCursorPosition()
+                or Input.getMousePosition())
             Kristal.DebugSystem:selectObject(clone)
         end)
     end

@@ -24,6 +24,11 @@
 ---@field battle_cutscenes table<string, function|table<string, function>>
 ---@field legend_cutscenes table<string, function|table<string, function>>
 ---@field event_scripts table<string, function|table<string, function>>
+---@field layer_types LayerTypeRegistry
+---@field editor_events table<string, EditorEvent>
+---@field editor_properties EditorPropertyRegistry
+---@field editor_worlds table<string, EditorWorld>
+---@field editor_draw_fx table<string, table>
 ---@field tilesets table<string, Tileset>
 ---@field maps table<string, Map>
 ---@field map_data table<string, table> -- TODO: Document map data
@@ -58,6 +63,7 @@ Registry.paths = {
     ["battle_cutscenes"] = "battle/cutscenes",
     ["legend_cutscenes"] = "legends/",
     ["event_scripts"]    = "world/scripts",
+    ["editor_events"]    = "editor/events",
     ["tilesets"]         = "world/tilesets",
     ["maps"]             = "world/maps",
     ["events"]           = "world/events",
@@ -95,9 +101,14 @@ function Registry.initialize(preload)
         Registry.initBullets()
         Registry.initCutscenes()
         Registry.initEventScripts()
+        Registry.initEditorProperties()
+        Registry.initEditorDrawFX()
+        Registry.initEditorWorlds()
+        Registry.initLayerTypes()
         Registry.initTilesets()
         Registry.initMaps()
         Registry.initLegacyEvents()
+        Registry.initEditorEvents()
         Registry.initControllers()
         Registry.initShops()
         Registry.initBorders()
@@ -115,6 +126,10 @@ function Registry.saveData()
     for registry, path in pairs(self.paths) do
         self.saved_data[registry] = self[registry]
     end
+    self.saved_data.map_readers = self.map_readers
+    self.saved_data.layer_types = self.layer_types
+    self.saved_data.editor_worlds = self.editor_worlds
+    self.saved_data.editor_draw_fx = self.editor_draw_fx
 end
 
 ---@return boolean
@@ -123,6 +138,10 @@ function Registry.restoreData()
         for registry, path in pairs(self.paths) do
             self[registry] = self.saved_data[registry]
         end
+        self.map_readers = self.saved_data.map_readers
+        self.layer_types = self.saved_data.layer_types
+        self.editor_worlds = self.saved_data.editor_worlds or {}
+        self.editor_draw_fx = self.saved_data.editor_draw_fx or {}
         return true
     else
         return false
@@ -437,6 +456,93 @@ function Registry.getMapData(id)
 end
 
 ---@param id string
+---@return MapReader?
+function Registry.getMapReader(id)
+    local map_class = self.maps[id]
+    local data = self.map_data[id]
+    return (self.map_readers and self.map_readers[id])
+        or (map_class and map_class.reader_class)
+        or (data and data.__map_reader)
+end
+
+function Registry.getLayerType(id)
+    return self.layer_types and self.layer_types:get(id)
+end
+
+function Registry.getEditorPropertyType(id)
+    return self.editor_properties and self.editor_properties:getType(id)
+end
+
+function Registry.getEditorPropertyTypes()
+    return self.editor_properties and self.editor_properties:getTypes() or {}
+end
+
+function Registry.registerEditorPropertyType(id, definition)
+    assert(self.editor_properties, "Editor property registry is not initialized")
+    return self.editor_properties:registerType(id, definition)
+end
+
+function Registry.getEditorWorld(id)
+    return self.editor_worlds and self.editor_worlds[id]
+end
+
+function Registry.registerEditorWorld(id, world)
+    assert(type(id) == "string" and id ~= "", "Editor worlds require an id")
+    assert(isClass(world) and world:includes(EditorWorld), "Editor worlds must be EditorWorld instances")
+    self.editor_worlds = self.editor_worlds or {}
+    self.editor_worlds[id] = world
+    world.id = id
+    return world
+end
+
+function Registry.getEditorDrawFX(id)
+    return self.editor_draw_fx and self.editor_draw_fx[id]
+end
+
+function Registry.getEditorDrawFXAll()
+    local result = {}
+    for _, definition in pairs(self.editor_draw_fx or {}) do table.insert(result, definition) end
+    table.sort(result, function(a, b) return a.name:lower() < b.name:lower() end)
+    return result
+end
+
+function Registry.registerEditorDrawFX(id, definition)
+    assert(type(id) == "string" and id ~= "", "Editor DrawFX require an id")
+    local editor_class = definition and definition.class
+    definition = TableUtils.copy(definition or {}, true)
+    definition.class = editor_class
+    definition.id = id
+    definition.name = definition.name or StringUtils.titleCase(id:gsub("[/_]", " "))
+    self.editor_draw_fx = self.editor_draw_fx or {}
+    self.editor_draw_fx[id] = definition
+    return definition
+end
+
+function Registry.createEditorDrawFX(id, data)
+    local definition = assert(self.getEditorDrawFX(id), "Unknown editor DrawFX: " .. tostring(id))
+    local class = definition.class or EditorDrawFX
+    return class(id, definition, data)
+end
+
+function Registry.getLayerTypes()
+    return self.layer_types and self.layer_types:getAll() or {}
+end
+
+function Registry.getEditorEvent(id)
+    return self.editor_events and self.editor_events[id]
+end
+
+function Registry.createEditorEvent(id, data, options)
+    local event_class = self.getEditorEvent(id) or EditorEvent
+    options = options or {}
+    options.event_id = id
+    local event = event_class(data, options)
+    if EditorPlugins then EditorPlugins:initializeEditorEvent(event) end
+    event.property_set:normalizeObjectReferences(options.map_id)
+    return event
+end
+
+---@param id string
 ---@return Event|Object?
 function Registry.getLegacyEvent(id)
     return self.events[id]
@@ -610,6 +716,37 @@ function Registry.registerEventScript(id, script)
 end
 
 ---@param id string
+---@param definition table
+function Registry.registerLayerType(id, definition)
+    assert(self.layer_types, "Layer type registry is not initialized")
+    return self.layer_types:register(id, definition)
+end
+
+---@param id string
+---@param class EditorEvent
+function Registry.registerEditorEvent(id, class)
+    assert(type(id) == "string" and id ~= "", "Editor event requires a non-empty id")
+    assert(isClass(class) and class:includes(EditorEvent), "Editor event must extend EditorEvent")
+    class.id = id
+    self.editor_events[id] = class
+end
+
+---@param id string
+---@param definition table
+function Registry.registerLayerKind(id, definition)
+    assert(self.layer_types, "Layer type registry is not initialized")
+    return self.layer_types:registerKind(id, definition)
+end
+
+function Registry.getLayerKind(id)
+    return self.layer_types and self.layer_types:getKind(id)
+end
+
+function Registry.getLayerKinds()
+    return self.layer_types and self.layer_types:getKinds() or {}
+end
+
+---@param id string
 ---@param class Tileset
 function Registry.registerTileset(id, class)
     self.tilesets[id] = class
@@ -617,14 +754,27 @@ end
 
 ---@param id string
 ---@param data table
-function Registry.registerMapData(id, data)
+---@param reader_class? MapReader
+function Registry.registerMapData(id, data, reader_class)
+    self.map_readers = self.map_readers or {}
+    reader_class = reader_class or data.__map_reader or self.map_readers[id] or TiledMapReader
+    assert(isClass(reader_class) and reader_class:includes(MapReader),
+        "Registered map reader must be a MapReader class")
+    data.__map_reader = reader_class
     self.map_data[id] = data
+    self.map_readers[id] = reader_class
 end
 
 ---@param id string
 ---@param class Map
-function Registry.registerMap(id, class)
+---@param reader_class? MapReader
+function Registry.registerMap(id, class, reader_class)
+    self.map_readers = self.map_readers or {}
     self.maps[id] = class
+    reader_class = reader_class or class.reader_class or self.map_readers[id] or TiledMapReader
+    assert(isClass(reader_class) and reader_class:includes(MapReader),
+        "Registered map reader must be a MapReader class")
+    self.map_readers[id] = reader_class
 end
 
 ---@param id string
@@ -846,14 +996,91 @@ function Registry.initEventScripts()
     Kristal.callEvent(KRISTAL_EVENT.onRegisterEventScripts)
 end
 
+function Registry.initLayerTypes()
+    self.layer_types = LayerTypeRegistry()
+    Kristal.callEvent(KRISTAL_EVENT.onRegisterLayerTypes, self.layer_types)
+end
+
+function Registry.initEditorProperties()
+    self.editor_properties = EditorPropertyRegistry()
+    Kristal.callEvent(KRISTAL_EVENT.onRegisterEditorPropertyTypes, self.editor_properties)
+end
+
+function Registry.initEditorDrawFX()
+    self.editor_draw_fx = {}
+    local function register(id, name, initializer, priority)
+        self.registerEditorDrawFX(id, { name = name, init = initializer, priority = priority })
+    end
+    register("alpha", "Alpha", function(fx)
+        fx:registerProperty("alpha", "number", { default = 1 })
+    end, 100)
+    register("color_mask", "Color Mask", function(fx)
+        fx:registerProperty("color", "color", { default = "#FFFFFFFF" })
+        fx:registerProperty("amount", "number", { default = 1 })
+    end)
+    register("recolor", "Recolor", function(fx)
+        fx:registerProperty("color", "color", { default = "#FFFFFFFF" })
+    end, -1)
+    register("outline", "Outline", function(fx)
+        fx:registerProperty("color", "color", { default = "#FFFFFFFF" })
+        fx:registerProperty("thickness", "number", { default = 1 })
+        fx:registerProperty("amount", "number", { default = 1 })
+        fx:registerProperty("cutout", "boolean")
+    end)
+    register("battle_outline", "Battle Outline", function(fx)
+        fx:registerProperty("color", "color", { default = "#FFFFFFFF" })
+        fx:registerProperty("thickness", "number", { default = 1 })
+    end)
+    register("shadow", "Shadow", function(fx)
+        fx:registerProperty("alpha", "number", { default = 0.75 })
+        fx:registerProperty("highlight", "color", { default = "#00000000" })
+        fx:registerProperty("scale", "number", { default = 1 })
+    end)
+    register("fountain_shadow", "Fountain Shadow", function(fx)
+        fx:registerProperty("alpha", "number", { default = 0.75 })
+        fx:registerProperty("scale", "number", { default = 1 })
+    end)
+    register("gradient", "Gradient", function(fx)
+        fx:registerProperty("from", "color", { default = "#FFFFFFFF" })
+        fx:registerProperty("to", "color", { default = "#000000FF" })
+        fx:registerProperty("alpha", "number", { default = 1 })
+        fx:registerProperty("direction", "number")
+    end, 200)
+    register("scissor", "Scissor", function(fx)
+        fx:registerProperty("x", "number")
+        fx:registerProperty("y", "number")
+        fx:registerProperty("width", "number")
+        fx:registerProperty("height", "number")
+    end)
+    register("mask", "Mask", function(fx)
+        fx:registerProperty("mask", "object_reference")
+        fx:registerProperty("draw_children", "boolean", { name = "Draw Children", default = true })
+        fx:registerProperty("inverted", "boolean")
+    end, 1000)
+    register("shader", "Shader", function(fx)
+        fx:registerProperty("shader", "string")
+    end)
+    for id in pairs(self.draw_fx or {}) do
+        if not self.editor_draw_fx[id] then self.registerEditorDrawFX(id, {}) end
+    end
+    Kristal.callEvent(KRISTAL_EVENT.onRegisterEditorDrawFX, self.editor_draw_fx)
+end
+
+function Registry.initEditorWorlds()
+    self.editor_worlds = {}
+end
+
 function Registry.initTilesets()
     self.tilesets = {}
 
     for full_path, path, data in self.iterScripts(Registry.paths["tilesets"]) do
         data.full_path = full_path
         data.id = path
+        data.__tileset_reader = TiledTilesetReader
         self.registerTileset(path, Tileset(data, full_path, FileSystemUtils.getDirname(full_path)))
     end
+
+    EditorFormatDiscovery.registerTilesets(self)
 
     Kristal.callEvent(KRISTAL_EVENT.onRegisterTilesets)
 end
@@ -861,6 +1088,7 @@ end
 function Registry.initMaps()
     self.maps = {}
     self.map_data = {}
+    self.map_readers = {}
 
     for full_path, path, data in self.iterScripts(Registry.paths["maps"]) do
         local split_path = StringUtils.split(path, "/", true)
@@ -882,6 +1110,10 @@ function Registry.initMaps()
         end
     end
 
+
+    EditorFormatDiscovery.registerMaps(self)
+    EditorFormatDiscovery.registerWorlds(self)
+
     Kristal.callEvent(KRISTAL_EVENT.onRegisterMaps)
 end
 
@@ -895,6 +1127,36 @@ function Registry.initLegacyEvents()
     end
 
     Kristal.callEvent(KRISTAL_EVENT.onRegisterEvents)
+end
+
+function Registry.initEditorEvents()
+    self.editor_events = {}
+
+    local builtins = {
+        savepoint = EditorSavepoint, interactable = EditorInteractable, script = EditorScriptEvent,
+        transition = EditorTransition, npc = EditorNPC, enemy = EditorChaserEnemy,
+        outline = EditorOutline, silhouette = EditorSilhouette, slidearea = EditorSlideArea,
+        mirror = EditorMirrorArea, chest = EditorTreasureChest, cameratarget = EditorCameraTarget,
+        hideparty = EditorHideParty, setflag = EditorSetFlagEvent, cybertrash = EditorCyberTrashCan,
+        forcefield = EditorForcefield, pushblock = EditorPushBlock, tilebutton = EditorTileButton,
+        magicglass = EditorMagicGlass, warpdoor = EditorWarpDoor, darkfountain = EditorDarkFountain,
+        fountainfloor = EditorFountainFloor, quicksave = EditorQuicksave, sprite = EditorSpriteEvent,
+        climbentry = EditorClimbEntry, climbexit = EditorClimbExit, climblanding = EditorClimbLanding,
+        climbarea = EditorClimbArea, fallingclimbarea = EditorFallingClimbArea,
+        climbunsafe = EditorClimbUnsafe, climbmover = EditorClimbMover,
+        toggle = EditorToggleController, fountainshadow = EditorFountainShadowController
+    }
+    for id, event in pairs(builtins) do self.registerEditorEvent(id, event) end
+
+    for _, path, event in self.iterScripts(Registry.paths["editor_events"], false, true) do
+        assert(event ~= nil, '"editor/events/' .. path .. '.lua" does not return value')
+        assert(isClass(event) and event:includes(EditorEvent),
+            '"editor/events/' .. path .. '.lua" must return an EditorEvent class')
+        event.id = event.id or path
+        self.registerEditorEvent(event.id, event)
+    end
+
+    Kristal.callEvent(KRISTAL_EVENT.onRegisterEditorEvents)
 end
 
 function Registry.initControllers()
@@ -935,8 +1197,9 @@ end
 
 ---@param base_path string
 ---@param exclude_folder boolean?
+---@param project_root boolean? Load mod/library files from their root instead of `scripts/`.
 ---@return fun() : string?, string?, ...
-function Registry.iterScripts(base_path, exclude_folder)
+function Registry.iterScripts(base_path, exclude_folder, project_root)
     local result = {}
 
     CLASS_NAME_GETTER = function(k)
@@ -1017,10 +1280,11 @@ function Registry.iterScripts(base_path, exclude_folder)
 
     parse(base_path, self.base_scripts)
     if Mod then
+        local project_path = project_root and base_path or ("scripts/" .. base_path)
         for _, library in Kristal.iterLibraries() do
-            parse("scripts/" .. base_path, library.info.script_chunks)
+            parse(project_path, library.info.script_chunks)
         end
-        parse("scripts/" .. base_path, Mod.info.script_chunks)
+        parse(project_path, Mod.info.script_chunks)
     end
 
     CLASS_NAME_GETTER = DEFAULT_CLASS_NAME_GETTER

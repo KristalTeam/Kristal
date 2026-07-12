@@ -1,6 +1,11 @@
 ---@class MathUtils
 local MathUtils = {}
 
+function MathUtils.pointInRect(x, y, rect)
+    return rect and x >= rect.x and y >= rect.y
+        and x < rect.x + rect.width and y < rect.y + rect.height
+end
+
 ---
 --- Checks if a number is an integer.
 ---

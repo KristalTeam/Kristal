@@ -1,0 +1,564 @@
+{
+  "version": 1,
+  "kristal_version": "0.11.0-dev",
+  "id": "postclimb",
+  "name": "Test Map - Climbing",
+  "width": 20,
+  "height": 12,
+  "grid_width": 40,
+  "grid_height": 40,
+  "layers": [
+    {
+      "id": "tiles",
+      "name": "tiles",
+      "x": 0,
+      "y": 0,
+      "type": "tile",
+      "kind": "tile",
+      "alpha": 1,
+      "visible": true,
+      "parallax_x": 1,
+      "parallax_y": 1,
+      "properties": [],
+      "tileset": "castle",
+      "tileset_columns": 6,
+      "tileset_rows": 10,
+      "chunks": [
+        {
+          "x": 0,
+          "y": 0,
+          "tile_data": [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 29, 34,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 29, 34,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 29, 34,
+            12, 12, 12, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 32, 29, 34,
+            0, 0, 0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 32, 29, 34,
+            0, 0, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 0, 32, 29, 34,
+            0, 0, 0, 0, 0, 0, 0, 0, 8, 9, 10, 0, 0, 32, 29, 34,
+            0, 0, 0, 0, 0, 0, 0, 0, 14, 15, 16, 0, 0, 38, 35, 40,
+            0, 0, 8, 9, 9, 9, 9, 9, 15, 15, 15, 9, 9, 9, 41, 9,
+            0, 0, 20, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+          ]
+        },
+        {
+          "x": 16,
+          "y": 0,
+          "tile_data": [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "collision",
+      "name": "collision",
+      "x": 0,
+      "y": 0,
+      "type": "collision",
+      "kind": "object",
+      "alpha": 0.5,
+      "visible": true,
+      "parallax_x": 1,
+      "parallax_y": 1,
+      "properties": [],
+      "draw_order": "topdown",
+      "objects": [
+        {
+          "id": 77,
+          "name": "",
+          "type": "",
+          "x": 600,
+          "y": 280,
+          "width": 80,
+          "height": 40,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 79,
+          "name": "",
+          "type": "",
+          "x": 680,
+          "y": 320,
+          "width": 40,
+          "height": 80,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 80,
+          "name": "",
+          "type": "",
+          "x": 80,
+          "y": 400,
+          "width": 600,
+          "height": 40,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 82,
+          "name": "",
+          "type": "",
+          "x": 440,
+          "y": 240,
+          "width": 40,
+          "height": 80,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 83,
+          "name": "",
+          "type": "",
+          "x": 320,
+          "y": 200,
+          "width": 120,
+          "height": 40,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 84,
+          "name": "",
+          "type": "",
+          "x": 200,
+          "y": 280,
+          "width": 80,
+          "height": 40,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 85,
+          "name": "",
+          "type": "",
+          "x": 480,
+          "y": 280,
+          "width": 80,
+          "height": 40,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 86,
+          "name": "",
+          "type": "",
+          "x": 280,
+          "y": 240,
+          "width": 40,
+          "height": 80,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 89,
+          "name": "",
+          "type": "",
+          "x": 40,
+          "y": 320,
+          "width": 40,
+          "height": 80,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 92,
+          "name": "",
+          "type": "",
+          "x": 80,
+          "y": 280,
+          "width": 80,
+          "height": 40,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        }
+      ]
+    },
+    {
+      "id": "climbing",
+      "name": "climbing",
+      "x": 0,
+      "y": 0,
+      "type": "objects",
+      "kind": "object",
+      "alpha": 1,
+      "visible": true,
+      "parallax_x": 1,
+      "parallax_y": 1,
+      "properties": [],
+      "draw_order": "topdown",
+      "objects": [
+        {
+          "id": 97,
+          "name": "",
+          "type": "climbarea",
+          "x": 160,
+          "y": 120,
+          "width": 40,
+          "height": 120,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 98,
+          "name": "",
+          "type": "climbarea",
+          "x": -80,
+          "y": 120,
+          "width": 200,
+          "height": 40,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        }
+      ]
+    },
+    {
+      "id": "markers",
+      "name": "markers",
+      "x": 0,
+      "y": 0,
+      "type": "markers",
+      "kind": "object",
+      "alpha": 1,
+      "visible": true,
+      "parallax_x": 1,
+      "parallax_y": 1,
+      "properties": [],
+      "draw_order": "topdown",
+      "objects": [
+        {
+          "id": 73,
+          "name": "slide",
+          "type": "",
+          "x": 580,
+          "y": -50,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "shape": {
+            "type": "point",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [
+            {
+              "name": "player_state",
+              "type": "string",
+              "value": "SLIDE_LOCK"
+            }
+          ],
+          "opacity": 1
+        },
+        {
+          "id": 74,
+          "name": "spawn",
+          "type": "",
+          "x": 380,
+          "y": 380,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "shape": {
+            "type": "point",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 95,
+          "name": "",
+          "type": "",
+          "x": 180,
+          "y": 380,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "shape": {
+            "type": "point",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 101,
+          "name": "entry_left",
+          "type": "",
+          "x": 60,
+          "y": 140,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "shape": {
+            "type": "point",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [
+            {
+              "name": "player_state",
+              "type": "string",
+              "value": "CLIMB"
+            }
+          ],
+          "opacity": 1
+        }
+      ]
+    },
+    {
+      "id": "objects",
+      "name": "objects",
+      "x": 0,
+      "y": 0,
+      "type": "objects",
+      "kind": "object",
+      "alpha": 1,
+      "visible": true,
+      "parallax_x": 1,
+      "parallax_y": 1,
+      "properties": [],
+      "draw_order": "topdown",
+      "objects": [
+        {
+          "id": 72,
+          "name": "slidearea",
+          "type": "",
+          "x": 560,
+          "y": -80,
+          "width": 40,
+          "height": 400,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [
+            {
+              "name": "lock",
+              "type": "boolean",
+              "value": true
+            }
+          ],
+          "opacity": 1
+        },
+        {
+          "id": 90,
+          "name": "chest",
+          "type": "",
+          "x": 355.50510257217,
+          "y": 255.85786437627,
+          "width": 40,
+          "height": 40,
+          "rotation": 345,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "fx": [
+            {
+              "type": "outline",
+              "properties": [
+                {
+                  "name": "cutout",
+                  "type": "boolean",
+                  "value": true
+                }
+              ]
+            }
+          ],
+          "properties": [
+            {
+              "name": "item",
+              "type": "chooser",
+              "value": "cheesekey"
+            }
+          ],
+          "opacity": 1
+        },
+        {
+          "id": 93,
+          "name": "climbentry",
+          "type": "",
+          "x": 160,
+          "y": 280,
+          "width": 40,
+          "height": 40,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [
+            {
+              "name": "target",
+              "type": "object_reference",
+              "value": {
+                "map": "postclimb",
+                "object": 94
+              }
+            }
+          ],
+          "opacity": 1
+        },
+        {
+          "id": 94,
+          "name": "climbexit",
+          "type": "",
+          "x": 160,
+          "y": 200,
+          "width": 40,
+          "height": 40,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [
+            {
+              "name": "target",
+              "type": "object_reference",
+              "value": {
+                "map": "postclimb",
+                "object": 95
+              }
+            }
+          ],
+          "opacity": 1
+        },
+        {
+          "id": 100,
+          "name": "transition",
+          "type": "",
+          "x": 0,
+          "y": 120,
+          "width": 20,
+          "height": 40,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [
+            {
+              "name": "map",
+              "type": "chooser",
+              "value": "voidclimb"
+            },
+            {
+              "name": "marker",
+              "type": "object_reference",
+              "value": {
+                "map": "voidclimb",
+                "object": 73
+              }
+            }
+          ],
+          "opacity": 1
+        }
+      ]
+    }
+  ],
+  "properties": []
+}

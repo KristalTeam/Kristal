@@ -76,6 +76,9 @@ function DebugSystem:init()
 
     self.context = nil
     self.last_context = nil
+    self.selection_environment_owner = nil
+    self.selection_stage_provider = nil
+    self.selection_cursor_provider = nil
 
     self.search = { "" }
 
@@ -106,9 +109,33 @@ function DebugSystem:init()
 end
 
 function DebugSystem:getStage()
+    if self.selection_stage_provider then
+        return self.selection_stage_provider()
+    end
     if Kristal.getState() then
         return Kristal.getState().stage
     end
+end
+
+function DebugSystem:getCursorPosition()
+    if self.selection_cursor_provider then
+        return self.selection_cursor_provider()
+    end
+    return Input.getCurrentCursorPosition()
+end
+
+function DebugSystem:setSelectionEnvironment(owner, stage_provider, cursor_provider)
+    self.selection_environment_owner = owner
+    self.selection_stage_provider = stage_provider
+    self.selection_cursor_provider = cursor_provider
+end
+
+function DebugSystem:clearSelectionEnvironment(owner)
+    if owner and self.selection_environment_owner ~= owner then return false end
+    self.selection_environment_owner = nil
+    self.selection_stage_provider = nil
+    self.selection_cursor_provider = nil
+    return true
 end
 
 function DebugSystem:selectionOpen()
@@ -145,7 +172,7 @@ function DebugSystem:onMousePressed(x, y, button, istouch, presses)
 
     if self:selectionOpen() then
         if button == 1 or button == 2 then
-            local object = self:detectObject(Input.getCurrentCursorPosition())
+            local object = self:detectObject(self:getCursorPosition())
 
             if object then
                 self:selectObject(object)
@@ -168,7 +195,7 @@ function DebugSystem:onMousePressed(x, y, button, istouch, presses)
                                 "Teleport",
                                 "Teleport the player to\nthe current position.",
                                 function()
-                                    Game.world.player:setScreenPos(Input.getCurrentCursorPosition())
+                                    Game.world.player:setScreenPos(self:getCursorPosition())
                                     Game.world.player:interpolateFollowers()
                                     self:selectObject(Game.world.player)
                                 end)
@@ -178,7 +205,7 @@ function DebugSystem:onMousePressed(x, y, button, istouch, presses)
                                 "Spawn the player at the\ncurrent position.",
                                 function()
                                     Game.world:spawnPlayer(0, 0, Game.party[1]:getActor())
-                                    Game.world.player:setScreenPos(Input.getCurrentCursorPosition())
+                                    Game.world.player:setScreenPos(self:getCursorPosition())
                                     Game.world.player:interpolateFollowers()
                                     self:selectObject(Game.world.player)
                                 end)
@@ -209,11 +236,11 @@ function DebugSystem:onMousePressed(x, y, button, istouch, presses)
                                     Object.endCache()
                                 end
                             end)
-                        self.window:setPosition(Input.getCurrentCursorPosition())
+                        self.window:setPosition(self:getCursorPosition())
                         self:addChild(self.window)
                     end)
                     Kristal.callEvent(KRISTAL_EVENT.registerDebugContext, self.context, nil)
-                    self.context:setPosition(Input.getCurrentCursorPosition())
+                    self.context:setPosition(self:getCursorPosition())
                     self:addChild(self.context)
                 end
             end
@@ -228,7 +255,7 @@ function DebugSystem:openObjectContext(object)
     self.last_context = self.context
 
     Kristal.callEvent(KRISTAL_EVENT.registerDebugContext, self.context, self.object)
-    self.context:setPosition(Input.getCurrentCursorPosition())
+    self.context:setPosition(self:getCursorPosition())
     self:addChild(self.context)
 end
 
@@ -266,7 +293,7 @@ function DebugSystem:pasteObject(object)
         end
     end
 
-    new_object:setScreenPos(Input.getCurrentCursorPosition())
+    new_object:setScreenPos(self:getCursorPosition())
     self:selectObject(new_object)
     if self.copied_object_temp ~= nil then
         self.copied_object = nil
@@ -599,7 +626,7 @@ function DebugSystem:registerSubMenus()
                 FRAMERATE = fps
             end
         end)
-        self.window:setPosition(Input.getCurrentCursorPosition())
+        self.window:setPosition(self:getCursorPosition())
         self:addChild(self.window)
     end)
 
@@ -1239,7 +1266,7 @@ function DebugSystem:registerDefaults()
                 end
             )
 
-            self.window:setPosition(Input.getCurrentCursorPosition())
+            self.window:setPosition(self:getCursorPosition())
             self:addChild(self.window)
         end,
         in_game
@@ -1689,13 +1716,13 @@ function DebugSystem:onKeyPressed(key, is_repeat)
     elseif self.state == "SELECTION" and not is_repeat then
         -- Gamepad
         if (key == "gamepad:a") and Input.usingGamepad() then
-            local object = self:detectObject(Input.getCurrentCursorPosition())
+            local object = self:detectObject(self:getCursorPosition())
 
             if object then
                 self:selectObject(object)
                 self.grabbing = true
                 local screen_x, screen_y = object:getScreenPos()
-                local x, y = Input.getCurrentCursorPosition()
+                local x, y = self:getCursorPosition()
                 self.grab_offset_x = x - screen_x
                 self.grab_offset_y = y - screen_y
             else
@@ -1760,7 +1787,7 @@ function DebugSystem:onKeyPressed(key, is_repeat)
                             end
                         end
                     )
-                    self.window:setPosition(Input.getCurrentCursorPosition())
+                    self.window:setPosition(self:getCursorPosition())
                     self:addChild(self.window)
                     self.window.input_lines[1] = Game:getFlag(flag_name)
                     TextInput.cursor_x = string.len(Game:getFlag(flag_name))
@@ -1775,7 +1802,7 @@ function DebugSystem:onKeyPressed(key, is_repeat)
                             Assets.playSound("ui_select")
                         end
                     )
-                    self.window:setPosition(Input.getCurrentCursorPosition())
+                    self.window:setPosition(self:getCursorPosition())
                     self.window.input_lines[1] = Game:getFlag(flag_name)
                     TextInput.cursor_x = string.len(Game:getFlag(flag_name))
                     self:addChild(self.window)
@@ -1891,7 +1918,7 @@ function DebugSystem:update()
     -- Update grabbed object
     if self.grabbing then
         if self.object then
-            local x, y = Input.getCurrentCursorPosition()
+            local x, y = self:getCursorPosition()
             self.object:setScreenPos(x - self.grab_offset_x, y - self.grab_offset_y)
             self.object.debug_x, self.object.debug_y = self.object.x, self.object.y
         end
@@ -1950,6 +1977,7 @@ end
 
 function DebugSystem:draw()
     if self.state == "IDLE" and self.menu_anim_timer >= 1 then
+        self:drawChildren()
         return
     end
 
@@ -2104,7 +2132,7 @@ function DebugSystem:draw()
             local width = texture:getWidth() * 2
             local height = texture:getHeight() * 2
 
-            local mx, my = Input.getCurrentCursorPosition()
+            local mx, my = self:getCursorPosition()
 
             if mx > x_offset + (x * gap) and
             mx < x_offset + (x * gap) + width and
@@ -2263,7 +2291,7 @@ function DebugSystem:draw()
     elseif self.state == "SELECTION" or (self.old_state == "SELECTION" and self.state == "IDLE" and (menu_alpha > 0)) then
         header_name = "~ OBJECT SELECTION ~"
 
-        local mx, my = Input.getCurrentCursorPosition()
+        local mx, my = self:getCursorPosition()
 
         for i = 1, 2 do
             local prog = circle_progress - (i - 1) * 0.4

@@ -1,0 +1,1091 @@
+{
+  "version": 1,
+  "kristal_version": "0.11.0-dev",
+  "id": "room1",
+  "name": "Test Map - Room 1",
+  "width": 20,
+  "height": 33,
+  "grid_width": 40,
+  "grid_height": 40,
+  "layers": [
+    {
+      "id": "tiles",
+      "name": "tiles",
+      "x": 0,
+      "y": 0,
+      "type": "tile",
+      "kind": "tile",
+      "alpha": 1,
+      "visible": true,
+      "parallax_x": 1,
+      "parallax_y": 1,
+      "properties": [],
+      "tileset": "castle",
+      "tileset_columns": 6,
+      "tileset_rows": 10,
+      "chunks": [
+        {
+          "x": 0,
+          "y": 0,
+          "tile_data": [
+            0, 32, 19, 33, 33, 19, 33, 33, 33, 19, 33, 33, 19, 34, 0, 0,
+            0, 32, 33, 33, 33, 33, 33, 31, 33, 33, 33, 33, 33, 34, 0, 0,
+            0, 38, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 40, 0, 0,
+            0, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 10, 0, 0,
+            0, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 16, 0, 0,
+            0, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 9, 9,
+            0, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 21, 21,
+            0, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 16, 0, 0,
+            0, 20, 21, 21, 15, 15, 15, 15, 15, 15, 15, 21, 21, 22, 0, 0,
+            0, 0, 0, 0, 20, 21, 15, 15, 15, 21, 22, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0
+          ]
+        },
+        {
+          "x": 16,
+          "y": 0,
+          "tile_data": [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            9, 9, 9, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            21, 21, 21, 21, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            26, 27, 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            32, 33, 34, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            32, 13, 34, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+          ]
+        },
+        {
+          "x": 0,
+          "y": 16,
+          "tile_data": [
+            0, 0, 0, 0, 0, 0, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0,
+            0, 8, 9, 9, 9, 9, 15, 15, 15, 9, 9, 9, 9, 9, 9, 9,
+            0, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 21, 21,
+            0, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 16, 0, 0,
+            0, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 16, 0, 0,
+            0, 20, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 22, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0
+          ]
+        },
+        {
+          "x": 16,
+          "y": 16,
+          "tile_data": [
+            14, 15, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            14, 15, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            15, 15, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            21, 21, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            18, 18, 12, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "decal",
+      "name": "decal",
+      "x": 0,
+      "y": 0,
+      "type": "tile",
+      "kind": "tile",
+      "alpha": 1,
+      "visible": true,
+      "parallax_x": 1,
+      "parallax_y": 1,
+      "properties": [],
+      "tileset": "castle",
+      "tileset_columns": 6,
+      "tileset_rows": 10,
+      "chunks": [
+        {
+          "x": 0,
+          "y": 0,
+          "tile_data": [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 44, 45, 46, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 50, 51, 52, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 56, 57, 58, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "collision",
+      "name": "collision",
+      "x": 0,
+      "y": 0,
+      "type": "collision",
+      "kind": "object",
+      "alpha": 0.5,
+      "visible": true,
+      "parallax_x": 1,
+      "parallax_y": 1,
+      "properties": [],
+      "draw_order": "topdown",
+      "objects": [
+        {
+          "id": 1,
+          "name": "",
+          "type": "",
+          "x": 40,
+          "y": 80,
+          "width": 520,
+          "height": 40,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 2,
+          "name": "",
+          "type": "",
+          "x": 560,
+          "y": 120,
+          "width": 40,
+          "height": 80,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 3,
+          "name": "",
+          "type": "",
+          "x": 600,
+          "y": 160,
+          "width": 200,
+          "height": 40,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 4,
+          "name": "",
+          "type": "",
+          "x": 560,
+          "y": 280,
+          "width": 40,
+          "height": 80,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 5,
+          "name": "",
+          "type": "",
+          "x": 600,
+          "y": 280,
+          "width": 200,
+          "height": 40,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 6,
+          "name": "",
+          "type": "",
+          "x": 440,
+          "y": 360,
+          "width": 120,
+          "height": 40,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 7,
+          "name": "",
+          "type": "",
+          "x": 360,
+          "y": 400,
+          "width": 80,
+          "height": 40,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 8,
+          "name": "",
+          "type": "",
+          "x": 360,
+          "y": 680,
+          "width": 280,
+          "height": 40,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 9,
+          "name": "",
+          "type": "",
+          "x": 560,
+          "y": 800,
+          "width": 40,
+          "height": 120,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 10,
+          "name": "",
+          "type": "",
+          "x": 40,
+          "y": 920,
+          "width": 520,
+          "height": 40,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 11,
+          "name": "",
+          "type": "",
+          "x": 0,
+          "y": 720,
+          "width": 40,
+          "height": 200,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 12,
+          "name": "",
+          "type": "",
+          "x": 40,
+          "y": 680,
+          "width": 200,
+          "height": 40,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 14,
+          "name": "",
+          "type": "",
+          "x": 160,
+          "y": 400,
+          "width": 80,
+          "height": 40,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 15,
+          "name": "",
+          "type": "",
+          "x": 40,
+          "y": 360,
+          "width": 120,
+          "height": 40,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 16,
+          "name": "",
+          "type": "",
+          "x": 0,
+          "y": 120,
+          "width": 40,
+          "height": 240,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 17,
+          "name": "",
+          "type": "",
+          "x": 200,
+          "y": 440,
+          "width": 40,
+          "height": 240,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 18,
+          "name": "",
+          "type": "",
+          "x": 360,
+          "y": 440,
+          "width": 40,
+          "height": 240,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 23,
+          "name": "",
+          "type": "",
+          "x": 600,
+          "y": 640,
+          "width": 40,
+          "height": 40,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 24,
+          "name": "",
+          "type": "",
+          "x": 640,
+          "y": 600,
+          "width": 20,
+          "height": 40,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 25,
+          "name": "",
+          "type": "",
+          "x": 760,
+          "y": 640,
+          "width": 40,
+          "height": 160,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 26,
+          "name": "",
+          "type": "",
+          "x": 600,
+          "y": 800,
+          "width": 160,
+          "height": 40,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        },
+        {
+          "id": 52,
+          "name": "",
+          "type": "",
+          "x": 740,
+          "y": 600,
+          "width": 20,
+          "height": 40,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "opacity": 1
+        }
+      ]
+    },
+    {
+      "id": "lower_objects",
+      "name": "lower_objects",
+      "x": 0,
+      "y": 0,
+      "type": "objects",
+      "kind": "object",
+      "alpha": 1,
+      "visible": true,
+      "parallax_x": 1,
+      "parallax_y": 1,
+      "properties": [],
+      "draw_order": "topdown",
+      "objects": [
+        {
+          "id": 56,
+          "name": "mouseholeentry",
+          "type": "",
+          "x": 660,
+          "y": 560,
+          "width": 80,
+          "height": 80,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "center_x": 700,
+          "center_y": 600,
+          "opacity": 1
+        }
+      ]
+    },
+    {
+      "id": "climbing",
+      "name": "climbing",
+      "x": 0,
+      "y": 0,
+      "type": "objects",
+      "kind": "object",
+      "alpha": 1,
+      "visible": true,
+      "parallax_x": 1,
+      "parallax_y": 1,
+      "properties": [],
+      "draw_order": "topdown",
+      "objects": [
+        {
+          "id": 42,
+          "name": "",
+          "type": "climbarea",
+          "x": 640,
+          "y": 1240,
+          "width": 240,
+          "height": 40,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "center_x": 760,
+          "center_y": 1260,
+          "opacity": 1
+        },
+        {
+          "id": 43,
+          "name": "",
+          "type": "climbarea",
+          "x": 560,
+          "y": 1240,
+          "width": 40,
+          "height": 40,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "center_x": 580,
+          "center_y": 1260,
+          "opacity": 1
+        },
+        {
+          "id": 58,
+          "name": "climbmover",
+          "type": "",
+          "x": 480,
+          "y": 1240,
+          "width": 40,
+          "height": 40,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [
+            {
+              "name": "exit",
+              "type": "object_reference",
+              "value": {
+                "map": "room1",
+                "object": 49
+              }
+            },
+            {
+              "name": "one_way",
+              "type": "boolean",
+              "value": true
+            },
+            {
+              "name": "target",
+              "type": "object_reference",
+              "value": {
+                "map": "room1",
+                "object": 47
+              }
+            }
+          ],
+          "center_x": 500,
+          "center_y": 1260,
+          "opacity": 1
+        }
+      ]
+    },
+    {
+      "id": "markers",
+      "name": "markers",
+      "x": 0,
+      "y": 0,
+      "type": "markers",
+      "kind": "object",
+      "alpha": 1,
+      "visible": true,
+      "parallax_x": 1,
+      "parallax_y": 1,
+      "properties": [],
+      "draw_order": "topdown",
+      "objects": [
+        {
+          "id": 20,
+          "name": "spawn",
+          "type": "",
+          "x": 300,
+          "y": 250,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "shape": {
+            "type": "point",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "center_x": 300,
+          "center_y": 250,
+          "opacity": 1,
+          "player_state": "WALK"
+        },
+        {
+          "id": 30,
+          "name": "entry",
+          "type": "",
+          "x": 760,
+          "y": 240,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "shape": {
+            "type": "point",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "center_x": 760,
+          "center_y": 240,
+          "opacity": 1,
+          "player_state": "WALK"
+        },
+        {
+          "id": 38,
+          "name": "entry_climb",
+          "type": "",
+          "x": 740,
+          "y": 1260,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "shape": {
+            "type": "point",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [
+            {
+              "name": "player_state",
+              "type": "string",
+              "value": "CLIMB"
+            }
+          ],
+          "center_x": 740,
+          "center_y": 1260,
+          "opacity": 1,
+          "player_state": "CLIMB"
+        },
+        {
+          "id": 47,
+          "name": "",
+          "type": "",
+          "x": 300,
+          "y": 980,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "shape": {
+            "type": "point",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "center_x": 300,
+          "center_y": 980,
+          "opacity": 1,
+          "player_state": "WALK"
+        },
+        {
+          "id": 49,
+          "name": "",
+          "type": "",
+          "x": 300,
+          "y": 850,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "shape": {
+            "type": "point",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "center_x": 300,
+          "center_y": 850,
+          "opacity": 1,
+          "player_state": "WALK"
+        },
+        {
+          "id": 55,
+          "name": "",
+          "type": "",
+          "x": 700,
+          "y": 710,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "shape": {
+            "type": "point",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "center_x": 700,
+          "center_y": 710,
+          "opacity": 1,
+          "player_state": "WALK"
+        }
+      ]
+    },
+    {
+      "id": "objects",
+      "name": "objects",
+      "x": 0,
+      "y": 0,
+      "type": "objects",
+      "kind": "object",
+      "alpha": 1,
+      "visible": true,
+      "parallax_x": 1,
+      "parallax_y": 1,
+      "properties": [],
+      "draw_order": "topdown",
+      "objects": [
+        {
+          "id": 19,
+          "name": "npc",
+          "type": "",
+          "x": 480,
+          "y": 840,
+          "width": 40,
+          "height": 40,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [
+            {
+              "name": "actor",
+              "type": "chooser",
+              "value": "starwalker"
+            },
+            {
+              "name": "text",
+              "type": "table",
+              "value": {
+                "kind": "array",
+                "values": [
+                  "* These [color:yellow]stairs[color:reset] are [color:yellow]Pissing[color:reset] me off...",
+                  "* I'm the original   [color:yellow]Starwalker[color:reset]",
+                  ""
+                ]
+              }
+            }
+          ],
+          "center_x": 500,
+          "center_y": 860,
+          "opacity": 1
+        },
+        {
+          "id": 27,
+          "name": "savepoint",
+          "type": "",
+          "x": 80,
+          "y": 210,
+          "width": 40,
+          "height": 40,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [
+            {
+              "name": "text",
+              "type": "table",
+              "value": {
+                "kind": "array",
+                "values": [
+                  "* (Silence echoes in the darkness of this familiar-yet-different scenery.)",
+                  "* (The power of avoiding copying official music shines within you.)"
+                ]
+              }
+            }
+          ],
+          "center_x": 100,
+          "center_y": 230,
+          "opacity": 1
+        },
+        {
+          "id": 29,
+          "name": "transition",
+          "type": "",
+          "x": 800,
+          "y": 200,
+          "width": 40,
+          "height": 80,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [
+            {
+              "name": "map",
+              "type": "chooser",
+              "value": "room2"
+            },
+            {
+              "name": "marker",
+              "type": "object_reference",
+              "value": {
+                "map": "room2",
+                "object": 8
+              }
+            }
+          ],
+          "center_x": 820,
+          "center_y": 240,
+          "opacity": 1
+        },
+        {
+          "id": 33,
+          "name": "interactable",
+          "type": "",
+          "x": 280,
+          "y": 80,
+          "width": 40,
+          "height": 40,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [
+            {
+              "name": "cutscene",
+              "type": "string",
+              "value": "room1.wall"
+            },
+            {
+              "name": "once",
+              "type": "boolean",
+              "value": true
+            }
+          ],
+          "center_x": 300,
+          "center_y": 100,
+          "opacity": 1
+        },
+        {
+          "id": 35,
+          "name": "npc",
+          "type": "",
+          "x": 300,
+          "y": 160,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "shape": {
+            "type": "point",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [
+            {
+              "name": "actor",
+              "type": "chooser",
+              "value": "wall"
+            },
+            {
+              "name": "flagcheck",
+              "type": "string",
+              "value": "wall_hit"
+            },
+            {
+              "name": "text1",
+              "type": "string",
+              "value": "* I Am the Wall Guardian.[wait:5]\n* This Wall is Off Limits for you\nno-good wall slammers."
+            }
+          ],
+          "center_x": 300,
+          "center_y": 160,
+          "opacity": 1
+        },
+        {
+          "id": 51,
+          "name": "transition",
+          "type": "",
+          "x": 780,
+          "y": 1240,
+          "width": 20,
+          "height": 40,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [
+            {
+              "name": "map",
+              "type": "chooser",
+              "value": "voidclimb"
+            },
+            {
+              "name": "marker",
+              "type": "object_reference",
+              "value": {
+                "map": "voidclimb",
+                "object": 142
+              }
+            }
+          ],
+          "center_x": 790,
+          "center_y": 1260,
+          "opacity": 1
+        },
+        {
+          "id": 53,
+          "name": "transition",
+          "type": "",
+          "x": 660,
+          "y": 590,
+          "width": 80,
+          "height": 40,
+          "rotation": 0,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [
+            {
+              "name": "facing",
+              "type": "choice",
+              "value": "down"
+            },
+            {
+              "name": "marker",
+              "type": "object_reference",
+              "value": {
+                "map": "room1",
+                "object": 55
+              }
+            },
+            {
+              "name": "shop",
+              "type": "string",
+              "value": "mousehole"
+            }
+          ],
+          "center_x": 700,
+          "center_y": 610,
+          "opacity": 1
+        },
+        {
+          "id": 59,
+          "name": "chest",
+          "type": "chest",
+          "x": 120,
+          "y": 720,
+          "width": 40,
+          "height": 40,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [],
+          "center_x": 140,
+          "center_y": 740
+        }
+      ]
+    }
+  ],
+  "properties": []
+}

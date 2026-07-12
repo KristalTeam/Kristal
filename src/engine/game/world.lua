@@ -1184,7 +1184,8 @@ local function parseTransitionTargetArgs(...)
             if type(args[4]) == "string" then
                 target.facing = args[4]
             end
-        elseif type(args[2]) == "string" then
+        elseif type(args[2]) == "string"
+            or type(args[2]) == "table" and (args[2].object_id ~= nil or args[2].object ~= nil) then
             target.marker = args[2]
             if type(args[3]) == "string" then
                 target.facing = args[3]

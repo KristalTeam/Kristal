@@ -16,94 +16,24 @@ Tileset.ORIGINS = {
     ["bottomright"] = { 1, 1 },
 }
 
+---@param data table
+---@param path string
+---@param base_dir? string
 function Tileset:init(data, path, base_dir)
-    self.path = path
-    self.base_dir = base_dir or FileSystemUtils.getDirname(self.path)
+    local reader_class = self.reader_class or data.__tileset_reader or TiledTilesetReader
+    assert(isClass(reader_class) and reader_class:includes(TilesetReader),
+        "Tileset reader must be a TilesetReader class")
 
-    self.id = data.id
-    self.name = data.name
-    self.tile_count = data.tilecount or 0
-    self.tile_width = data.tilewidth or 40
-    self.tile_height = data.tileheight or 40
-    self.margin = data.margin or 0
-    self.spacing = data.spacing or 0
-    self.columns = data.columns or 0
-    self.object_alignment = data.objectalignment or "unspecified"
-    self.fill_grid = data.tilerendersize == "grid"
-    self.preserve_aspect_fit = data.fillmode == "preserve-aspect-fit"
-
-    self.id_count = self.tile_count
-
-    self.tile_info = {}
-    for _, tile in ipairs(data.tiles or {}) do
-        local info = {}
-        if tile.animation then
-            info.animation = { duration = 0, frames = {} }
-            for _, anim in ipairs(tile.animation) do
-                table.insert(info.animation.frames, { id = anim.tileid, duration = anim.duration / 1000 })
-                info.animation.duration = info.animation.duration + (anim.duration / 1000)
-            end
-        end
-        if tile.image then
-            local success, image_path_result = self:loadTextureFromImagePath(tile.image)
-            if not success then
-                error("Tileset \"" .. self.id .. "\" failed to load texture for tile " .. tostring(tile.id) .. "\"\n" .. image_path_result)
-            end
-            info.path = image_path_result
-            info.texture = Assets.getTexture(image_path_result)
-            info.x = tile.x or 0
-            info.y = tile.y or 0
-            info.width = tile.width or info.texture:getWidth()
-            info.height = tile.height or info.texture:getHeight()
-
-            if info.x ~= 0 or info.y ~= 0 or info.width ~= info.texture:getWidth() or info.height ~= info.texture:getHeight() then
-                info.quad = love.graphics.newQuad(info.x, info.y, info.width, info.height, info.texture:getWidth(), info.texture:getHeight())
-            end
-        end
-        self.tile_info[tile.id] = info
-        self.id_count = math.max(self.id_count, tile.id + 1)
-    end
-
-    if data.image then
-        local success, image_path_result = self:loadTextureFromImagePath(data.image)
-        if not success then
-            error("Tileset \"" .. self.id .. "\" failed to load texture\n" .. image_path_result)
-        end
-        self.texture = Assets.getTexture(image_path_result)
-    end
-
-    self.quads = {}
-    if self.texture then
-        local tw, th = self.texture:getWidth(), self.texture:getHeight()
-        for i = 0, self.tile_count - 1 do
-            local tx = self.margin + (i % self.columns) * (self.tile_width + self.spacing)
-            local ty = self.margin + math.floor(i / self.columns) * (self.tile_height + self.spacing)
-            self.quads[i] = love.graphics.newQuad(tx, ty, self.tile_width, self.tile_height, tw, th)
-        end
-    end
+    self.reader = reader_class(self)
+    self.reader:initialize(data, path, base_dir)
 end
 
 function Tileset:loadTextureFromImagePath(filename)
-    local image_dir = "assets/sprites"
-    local success, result, final_path = TiledUtils.relativePathToAssetId(image_dir, filename, self.base_dir)
+    return self.reader:call("loadTextureFromImagePath", filename)
+end
 
-    if not success then
-        if result == "not under prefix" then
-            return false, "Image not found in \"" .. image_dir .. "\" (Got path \"" .. final_path .. "\")"
-        elseif result == "path outside root" then
-            return false, "Image path located outside Kristal (Got path \"<kristal>/" .. final_path .. "\")"
-        else
-            return false, "Unknown reason"
-        end
-    end
-
-    local texture = Assets.getTexture(result)
-
-    if not texture then
-        return false, "No texture found with id \"" .. result .. "\""
-    end
-
-    return true, result
+function Tileset:save(path, options)
+    return self.reader:save(path, options)
 end
 
 function Tileset:getAnimation(id)

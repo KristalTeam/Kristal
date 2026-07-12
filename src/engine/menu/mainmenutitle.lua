@@ -35,19 +35,21 @@ function MainMenuTitle:onEnter(old_state)
     if TARGET_MOD then
         self.options = {
             { "play", self.has_target_saves and "Load game" or "Start game" },
-            { "options", "Options" },
-            { "credits", "Credits" },
-            { "quit", "Quit" },
         }
+        if not RELEASE_MODE then table.insert(self.options, { "editor", "Editor" }) end
+        table.insert(self.options, { "options", "Options" })
+        table.insert(self.options, { "credits", "Credits" })
+        table.insert(self.options, { "quit", "Quit" })
     else
         self.options = {
             { "play", "Play" },
-            { "modfolder", "Open folder" },
-            { "options", "Options" },
-            { "credits", "Credits" },
-            { "wiki", "Open wiki" },
-            { "quit", "Quit" },
         }
+        if not RELEASE_MODE then table.insert(self.options, { "editor", "Editor" }) end
+        table.insert(self.options, { "modfolder", "Open folder" })
+        table.insert(self.options, { "options", "Options" })
+        table.insert(self.options, { "credits", "Credits" })
+        table.insert(self.options, { "wiki", "Open wiki" })
+        table.insert(self.options, { "quit", "Quit" })
     end
 
     if not TARGET_MOD then
@@ -71,6 +73,7 @@ function MainMenuTitle:onKeyPressed(key, is_repeat)
         local option = self.options[self.selected_option][1]
 
         if option == "play" then
+            self.menu.editor_project_selection = false
             if not TARGET_MOD then
                 self.menu:setState("MODSELECT")
             else
@@ -83,6 +86,16 @@ function MainMenuTitle:onKeyPressed(key, is_repeat)
                         error("Failed to load mod: " .. TARGET_MOD)
                     end
                 end
+            end
+
+        elseif option == "editor" and not RELEASE_MODE then
+            if TARGET_MOD then
+                if not Kristal.loadModIntoEditor(TARGET_MOD) then
+                    error("Failed to load mod for editor: " .. TARGET_MOD)
+                end
+            else
+                self.menu.editor_project_selection = true
+                self.menu:setState("MODSELECT")
             end
 
         elseif option == "modfolder" then

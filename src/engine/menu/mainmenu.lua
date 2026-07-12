@@ -93,6 +93,7 @@ function MainMenu:enter()
     self.small_font = Assets.getFont("main", 16)
 
     self.background_fade = 1
+    self.editor_project_selection = false
 
     self.mod_list:buildModList()
 

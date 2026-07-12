@@ -379,7 +379,14 @@ function Game:save(x, y)
         if type(x) == "string" then
             data.spawn_marker = x
         elseif type(x) == "table" then
-            data.spawn_position = x
+            local object_id = x.object_id or x.object or x.id
+            if object_id ~= nil then
+                local map_id = x.map_id or x.map
+                data.spawn_marker = { map = map_id, object = object_id }
+                if map_id then data.room_id = map_id end
+            else
+                data.spawn_position = x
+            end
         elseif x and y then
             data.spawn_position = { x, y }
         end
