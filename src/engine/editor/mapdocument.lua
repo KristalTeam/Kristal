@@ -975,8 +975,9 @@ function EditorMapDocument:findObjectAt(world_x, world_y, options)
                 local y = world_y - entry.y - (layer.offsety or 0)
                 for object_index = #(layer.objects or {}), 1, -1 do
                     local object = layer.objects[object_index]
-                    local width, height = object.width or 0, object.height or 0
-                    local dx, dy = x - (object.x or 0), y - (object.y or 0)
+                    local selection = self:getObjectSelection(entry.id, layer, object)
+                    local object_x, object_y, width, height = self:getObjectLocalRect(selection)
+                    local dx, dy = x - object_x, y - object_y
                     local rotation = -math.rad(object.rotation or 0)
                     local local_x = dx * math.cos(rotation) - dy * math.sin(rotation)
                     local local_y = dx * math.sin(rotation) + dy * math.cos(rotation)
@@ -1003,16 +1004,66 @@ function EditorMapDocument:findObjectAt(world_x, world_y, options)
                             end
                         end
                     end
-                    if hit then return self:getObjectSelection(entry.id, layer, object) end
+                    if hit then return selection end
                 end
             end
         end
     end
 end
 
+function EditorMapDocument:addTileObject(tileset_id, tile_id, map_id, world_x, world_y)
+    local positioned_entry = self:getMapAt(world_x, world_y)
+    map_id = map_id or (positioned_entry and positioned_entry.id) or self.primary_map_id
+    local entry = self.map_lookup[map_id]
+    local layer = self:getSelectedObjectLayer(map_id)
+    local tileset = Registry.getTileset(tileset_id)
+    if not entry or not layer then return nil, "Select an object layer before placing a tile object" end
+    if not tileset then return nil, "Unknown tileset '" .. tostring(tileset_id) .. "'" end
+    local width, height = tileset:getTileSize(tile_id)
+    local local_x = world_x - entry.x - (layer.offsetx or 0)
+    local local_y = world_y - entry.y - (layer.offsety or 0)
+    if not Input.ctrl() then
+        local grid_width, grid_height = entry.tile_width or 40, entry.tile_height or 40
+        local_x = math.floor(local_x / grid_width) * grid_width
+        local_y = math.floor(local_y / grid_height) * grid_height
+    else
+        local_x, local_y = local_x - width / 2, local_y - height / 2
+    end
+    local origin = Tileset.ORIGINS[tileset.object_alignment] or Tileset.ORIGINS.unspecified
+    local object = {
+        name = "", type = "", tileset = tileset_id, tile_id = tile_id,
+        x = local_x + origin[1] * width, y = local_y + origin[2] * height,
+        width = width, height = height, rotation = 0, visible = true,
+        properties = {}, __editor_property_types = {}
+    }
+    self:getObjectId(object)
+    layer.objects = layer.objects or {}
+    table.insert(layer.objects, object)
+    self:invalidatePreview(map_id)
+    return object, layer, map_id
+end
+
+function EditorMapDocument:getObjectLocalRect(selection)
+    local data = selection.data
+    if data.gid then
+        local preview = self:getPreview(selection.entry)
+        if preview and preview.map then return preview.map:getTileObjectRect(data) end
+    elseif data.tileset and data.tile_id ~= nil then
+        local tileset = Registry.getTileset(data.tileset)
+        if tileset then
+            local tile_width, tile_height = tileset:getTileSize(data.tile_id)
+            local width, height = data.width or tile_width, data.height or tile_height
+            local origin = Tileset.ORIGINS[tileset.object_alignment] or Tileset.ORIGINS.unspecified
+            return (data.x or 0) - origin[1] * width,
+                (data.y or 0) - origin[2] * height, width, height
+        end
+    end
+    return data.x or 0, data.y or 0, data.width or 0, data.height or 0
+end
+
 function EditorMapDocument:getObjectWorldCorners(selection)
     local x, y = self:getObjectWorldPosition(selection)
-    local width, height = selection.data.width or 0, selection.data.height or 0
+    local _, _, width, height = self:getObjectLocalRect(selection)
     local rotation = math.rad(selection.data.rotation or 0)
     local cosine, sine = math.cos(rotation), math.sin(rotation)
     local result = {}
@@ -1063,13 +1114,15 @@ end
 
 function EditorMapDocument:getObjectWorldPosition(selection)
     local data, layer, entry = selection.data, selection.layer, selection.entry
-    return entry.x + (layer.offsetx or 0) + (data.x or 0),
-        entry.y + (layer.offsety or 0) + (data.y or 0)
+    local x, y = self:getObjectLocalRect(selection)
+    return entry.x + (layer.offsetx or 0) + x,
+        entry.y + (layer.offsety or 0) + y
 end
 
 function EditorMapDocument:getObjectWorldCenter(selection)
     local x, y = self:getObjectWorldPosition(selection)
-    local half_width, half_height = (selection.data.width or 0) / 2, (selection.data.height or 0) / 2
+    local _, _, width, height = self:getObjectLocalRect(selection)
+    local half_width, half_height = width / 2, height / 2
     local rotation = math.rad(selection.data.rotation or 0)
     return x + half_width * math.cos(rotation) - half_height * math.sin(rotation),
         y + half_width * math.sin(rotation) + half_height * math.cos(rotation)
@@ -1275,7 +1328,8 @@ function EditorMapDocument:createPreview(entry)
                         offset_x = layer.offsetx or 0,
                         offset_y = layer.offsety or 0,
                         map_id = entry.id,
-                        map_data = data
+                        map_data = data,
+                        map = map
                     }))
                 end
             elseif layer_type then

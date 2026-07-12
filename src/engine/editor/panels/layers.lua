@@ -218,7 +218,9 @@ function EditorLayersPanel:getPropertiesTarget(layer)
                 placeholder = "Automatic",
                 get = function() return layer._editor_depth_override or "" end,
                 set = function(value, submitted) return self:setLayerDepth(layer, value, submitted) end
-            }
+            },
+            EditorPropertyFields.number(layer, "Parallax X", "parallaxx", { default = 1 }),
+            EditorPropertyFields.number(layer, "Parallax Y", "parallaxy", { default = 1 })
         },
         on_changed = function() self:changed(false) end
     }

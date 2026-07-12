@@ -866,7 +866,10 @@ function EditorMapView:onMousePressed(x, y, button, presses)
             end
             return false
         end
-        if tool == "object" and self.editor.placement_event_id then
+        if tool == "object" and self.editor.placement_tile then
+            local tile = self.editor.placement_tile
+            return self.editor:placeTileObject(self, tile.tileset, tile.tile_id, world_x, world_y)
+        elseif tool == "object" and self.editor.placement_event_id then
             local event_class = Registry.getEditorEvent(self.editor.placement_event_id)
             if event_class and event_class.placement_shape == "region" then
                 local entry = self.document:getMapAt(world_x, world_y) or self.document:getPrimaryMap()
