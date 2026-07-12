@@ -74,7 +74,7 @@ function TileButton:update()
         Object.startCache()
         local collided = nil
         for _,block in ipairs(Game.stage:getObjects(PushBlock)) do
-            if block.press_buttons ~= false and block:collidesWith(self) then
+            if block.press_buttons ~= false and block:meetsObject(self) then
                 collided = block
                 break
             end

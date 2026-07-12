@@ -278,6 +278,10 @@ KRISTAL_EVENT = {
     registerDebugContext = "registerDebugContext", -- new debug ContextMenu created / at: DebugSystem:onMousePressed(x, y, button, istouch, presses), DebugSystem:openObjectContext(object) / passes: ContextMenu:context, Object:selected_object / return: NONE
     registerDebugOptions = "registerDebugOptions", -- DebugSystem is ready to recieve custom debug options / passes: DebugSystem:self / returns: NONE
 
+    --collider events--
+    registerColliderTypes = "registerColliderTypes", -- called when collider types are registered / passes: NONE / returns: NONE
+    registerCollisions = "registerCollisions", -- called when collider collisions are registered / passes: NONE / returns: NONE
+
     --asset registration events-- (sorted by execution order)
     onRegisterActors = "onRegisterActors", -- actor scripts finished registering / in: Registry.initActors() / passes: NONE / returns: NONE
     onRegisterGlobals = "onRegisterGlobals", -- global scripts finished registering / in: Registry.initGlobals() / passes: NONE / returns: NONE

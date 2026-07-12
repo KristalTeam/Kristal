@@ -662,15 +662,49 @@ end
 --- Whether the object is colliding with another object or collider.
 ---@param other Object|Collider The object or collider to check collision with.
 ---@return boolean collided Whether the collision occurred or not.
+---@deprecated Use `Object:meetsCollider` or `Object:meetsObject` instead.
 function Object:collidesWith(other)
-    if other and self.collidable and self.collider then
-        if isClass(other) and other:includes(Object) then
-            return other.collidable and other.collider and self.collider:collidesWith(other.collider) or false
-        else
-            return self.collider:collidesWith(other)
+    local collider = self:getCollider()
+
+    if collider == nil then
+        return false
+    end
+
+    if isClass(other) then
+        if other:includes(Object) then
+            return collider:meetsObject(other)
+        elseif other:includes(Collider) then
+            return collider:meetsCollider(other)
         end
     end
+
     return false
+end
+
+--- Checks if the object is colliding with the specified collider.
+---@param collider Collider The collider to check collision with.
+---@return boolean collided Whether the collision occurred or not.
+function Object:meetsCollider(collider)
+    local self_collider = self:getCollider()
+
+    if self_collider == nil then
+        return false
+    end
+
+    return self_collider:meetsCollider(collider)
+end
+
+--- Checks if the object is colliding with the specified object.
+---@param object Object The object to check collision with.
+---@return boolean collided Whether the collision occurred or not.
+function Object:meetsObject(object)
+    local self_collider = self:getCollider()
+
+    if self_collider == nil then
+        return false
+    end
+
+    return self_collider:meetsObject(object)
 end
 
 --- Sets the object's `x` and `y` values to the specified position.
@@ -1040,16 +1074,34 @@ function Object:getDirection()
     return (self.physics.match_rotation and self.rotation) or self.physics.direction or 0
 end
 
+--- Returns the object's current collider.
+---@return Collider? collider The object's current collider, or `nil` if it has none.
+function Object:getCollider()
+    return self.collider
+end
+
+--- Sets the object's current collider.
+---@param collider Collider? The object's new collider, or `nil` for none.
+function Object:setCollider(collider)
+    self.collider = collider
+end
+
+--- Returns whether the object should be able to collide with other objects.
+---@return boolean collidable Whether the object should be able to collide with other objects.
+function Object:isCollidable()
+    return self.collidable
+end
+
 --- Returns the dimensions of the object's `collider` if that collider is a Hitbox.
 ---@return number? x The `x` position of the collider, relative to the object.
 ---@return number? y The `y` position of the collider, relative to the object.
 ---@return number? width The `width` of the collider, in pixels.
 ---@return number? height The `height` of the collider, in pixels.
 function Object:getHitbox()
-    local collider = self.collider
+    local collider = self:getCollider()
     if collider and collider:includes(Hitbox) then
         ---@cast collider Hitbox
-        return collider.x, collider.y, collider.width, collider.height
+        return collider:getRect()
     end
 end
 
@@ -1059,7 +1111,7 @@ end
 ---@param w number The `width` of the collider, in pixels.
 ---@param h number The `height` of the collider, in pixels.
 function Object:setHitbox(x, y, w, h)
-    self.collider = Hitbox(self, x, y, w, h)
+    self:setCollider(Hitbox(self, x, y, w, h))
 end
 
 --- *(Override)* Used by World to determine what position should be used when sorting its layer. \
@@ -1459,7 +1511,7 @@ function Object:clicked(button)
     end
     if self.collider then
         local point = PointCollider(nil, x, y)
-        return self.collider:collidesWith(point), button
+        return self.collider:meetsCollider(point), button
     else
         -- roughly same code as DebugSystem:detectObject(x, y)
         local mx, my = self:getFullTransform():inverseTransformPoint(x, y)

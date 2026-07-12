@@ -216,12 +216,12 @@ function Character:doMoveAmount(type, amount, other_amount)
 
         if (not self.noclip) and (not NOCLIP) then
             Object.startCache()
-            local collided, target = self.world:checkCollision(self.collider, self.enemy_collision)
+            local collided, target = self.world:checkCollision(self:getCollider(), self.enemy_collision)
             if collided and not (other_amount > 0) then
                 for j = 1, 2 do
                     Object.uncache(self)
                     self[other] = self[other] - j
-                    collided, target = self.world:checkCollision(self.collider, self.enemy_collision)
+                    collided, target = self.world:checkCollision(self:getCollider(), self.enemy_collision)
                     if not collided then break end
                 end
             end
@@ -230,7 +230,7 @@ function Character:doMoveAmount(type, amount, other_amount)
                 for j = 1, 2 do
                     Object.uncache(self)
                     self[other] = self[other] + j
-                    collided, target = self.world:checkCollision(self.collider, self.enemy_collision)
+                    collided, target = self.world:checkCollision(self:getCollider(), self.enemy_collision)
                     if not collided then break end
                 end
             end

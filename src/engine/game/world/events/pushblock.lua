@@ -95,7 +95,7 @@ function PushBlock:checkCollision(facing)
 
     Object.startCache()
     for _, collider in ipairs(Game.world.map.block_collision) do
-        if collider:collidesWith(bound_check) then
+        if collider:meetsCollider(bound_check) then
             collided = true
             break
         end

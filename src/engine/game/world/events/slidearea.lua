@@ -45,7 +45,7 @@ function SlideArea:update()
 
     Object.startCache()
 
-    if Game.world.player.y > self.y + self.height and not Game.world.player:collidesWith(self.collider) then
+    if Game.world.player.y > self.y + self.height and not Game.world.player:meetsCollider(self.collider) then
         self.solid = true
     else
         self.solid = false

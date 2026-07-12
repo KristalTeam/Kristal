@@ -2065,6 +2065,7 @@ end
 ---@param collider Collider|Object
 ---@return boolean          collided
 ---@return Arena|Solid?     colliding_with
+---@deprecated Use `Battle:solidMeetsCollider` or `Battle:solidMeetsObject` instead
 function Battle:checkSolidCollision(collider)
     if NOCLIP then return false end
     Object.startCache()
@@ -2076,6 +2077,52 @@ function Battle:checkSolidCollision(collider)
     end
     for _, solid in ipairs(Game.stage:getObjects(Solid)) do
         if solid:collidesWith(collider) then
+            Object.endCache()
+            return true, solid
+        end
+    end
+    Object.endCache()
+    return false
+end
+
+--- Returns whether a Collider collides with a Solid or the arena
+---@param collider Collider
+---@return boolean          collided
+---@return Arena|Solid?     colliding_with
+function Battle:solidMeetsCollider(collider)
+    if NOCLIP then return false end
+    Object.startCache()
+    if self.arena then
+        if self.arena:meetsCollider(collider) then
+            Object.endCache()
+            return true, self.arena
+        end
+    end
+    for _, solid in ipairs(Game.stage:getObjects(Solid)) do
+        if solid:meetsCollider(collider) then
+            Object.endCache()
+            return true, solid
+        end
+    end
+    Object.endCache()
+    return false
+end
+
+--- Returns whether an Object collides with a Solid or the arena
+---@param object Object
+---@return boolean          collided
+---@return Arena|Solid?     colliding_with
+function Battle:solidMeetsObject(object)
+    if NOCLIP then return false end
+    Object.startCache()
+    if self.arena then
+        if self.arena:meetsObject(object) then
+            Object.endCache()
+            return true, self.arena
+        end
+    end
+    for _, solid in ipairs(Game.stage:getObjects(Solid)) do
+        if solid:meetsObject(object) then
             Object.endCache()
             return true, solid
         end
