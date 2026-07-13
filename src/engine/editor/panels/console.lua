@@ -15,6 +15,7 @@ function EditorConsolePanel:init(editor)
     self.history_index = 0
     self.input = self:addChild(EditorTextInput({
         placeholder = "Enter Lua...",
+        submit_feedback = false,
         on_submit = function(value) self:submit(value) end
     }))
     self.input.onKeyPressed = function(input, key)

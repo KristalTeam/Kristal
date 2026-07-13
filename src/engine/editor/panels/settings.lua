@@ -115,14 +115,16 @@ function EditorSettingsPanel:createControl(setting)
                 })
             end
             local x, y = button:getGlobalPosition()
-            self.editor.dockspace:openContextMenu(items, x, y + button.height, button)
+            self.editor.dockspace:openContextMenu(items, x, y + button.height, button, {
+                searchable = #items > 12
+            })
         end)
         control = button
     elseif setting.type == "keybind" then
         control = self:createKeybindControl(setting)
     else
         control = EditorTextInput({
-            on_submit = function(input) self.registry:setValue(setting.id, input) end
+            on_submit = function(input) return self.registry:setValue(setting.id, input) end
         })
         control:setValue(tostring(value or ""), true)
     end

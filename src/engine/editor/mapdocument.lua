@@ -550,13 +550,15 @@ function EditorMapDocument:getMapAt(world_x, world_y)
     end
 end
 
-function EditorMapDocument:addEditorObject(event_id, map_id, world_x, world_y)
+function EditorMapDocument:addEditorObject(event_id, map_id, world_x, world_y, options)
+    options = options or {}
     local positioned_entry = self:getMapAt(world_x, world_y)
     map_id = map_id or (positioned_entry and positioned_entry.id) or self.primary_map_id
     local entry = self.map_lookup[map_id]
     local layer = self:getSelectedObjectLayer(map_id)
     if not entry or not layer then return nil, "Select an object layer before placing an event" end
-    local free = Input.ctrl()
+    local free = options.free
+    if free == nil then free = Input.ctrl() end
     local tile_width, tile_height = entry.tile_width or 40, entry.tile_height or 40
     local local_x = world_x - entry.x - (layer.offsetx or 0)
     local local_y = world_y - entry.y - (layer.offsety or 0)

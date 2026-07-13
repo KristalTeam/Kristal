@@ -431,7 +431,7 @@ function Editor:registerEditorSettings(session)
         name = "Editor Music", type = "boolean", default = true,
         set = function(value, editor)
             editor.editor_music_enabled = value
-            if editor.editing_music then editor:syncEditingMusic() end
+            if editor.music then editor:syncEditingMusic() end
         end
     })
 
@@ -1392,6 +1392,10 @@ function Editor:cancelEventRegionDrags()
     for _, document in ipairs(self.map_documents or {}) do
         if document.map_view and document.map_view.event_region_drag then
             document.map_view:cancelEventRegion()
+            cancelled = true
+        end
+        if document.map_view and document.map_view.event_paint_stroke then
+            document.map_view:cancelEventPaint()
             cancelled = true
         end
     end
@@ -3146,6 +3150,9 @@ end
 
 function Editor:onKeyPressed(key, is_repeat)
     if self.entry_transition or self.exit_transition then return true end
+    if self.dockspace.context_menu and self.dockspace.context_menu.searchable then
+        return self.dockspace:onKeyPressed(key, is_repeat) ~= false
+    end
     if self.settings_browser and self.settings_browser:isCapturingKeybind() then
         return self.dockspace:onKeyPressed(key, is_repeat) ~= false
     end
