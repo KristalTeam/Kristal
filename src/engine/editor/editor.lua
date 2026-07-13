@@ -1,6 +1,6 @@
 local EDITOR_DEFAULT_WIDTH = 1280
 local EDITOR_DEFAULT_HEIGHT = 800
-local EDITOR_SESSION_VERSION = 2
+local EDITOR_SESSION_VERSION = 4
 local EDITOR_SESSION_DIRECTORY = "editor"
 local EDITOR_MUSIC = "edit"
 local EDITOR_MUSIC_VOLUME = 0.5
@@ -187,6 +187,7 @@ function Editor:captureSession()
             darken_unselected_layers = self.darken_unselected_layers
         },
         settings = self.settings and self.settings:getStoredValues() or {},
+        document_providers = self.document_providers and self.document_providers:captureSession() or {},
         documents = {},
         layout = self:captureLayout(),
         window = { width = love.graphics.getWidth(), height = love.graphics.getHeight() }
@@ -280,7 +281,11 @@ end
 
 function Editor:registerMenuBar()
     self.menu_bar:registerItem("file", "save_active", "Save Active Document (Ctrl+S)", {
-        is_enabled = function() return self.active_document ~= nil or self.active_tileset_document ~= nil end,
+        is_enabled = function()
+            local provider = self.document_providers:getFocused()
+            if provider then return not provider.can_save or provider.can_save() end
+            return self.active_document ~= nil or self.active_tileset_document ~= nil
+        end,
         on_activate = function() self:saveActiveDocument() end
     })
     self.menu_bar:registerItem("file", "save_tileset", "Save Active Tileset", {
@@ -300,11 +305,11 @@ function Editor:registerMenuBar()
             on_activate = function() Kristal.exitEditor() end
         })
     self.menu_bar:registerItem("edit", "undo", "Undo", {
-        is_enabled = function() return self.history:canUndo() end,
+        is_enabled = function() return self:canUndo() end,
         on_activate = function() self:undo() end
     })
     self.menu_bar:registerItem("edit", "redo", "Redo", {
-        is_enabled = function() return self.history:canRedo() end,
+        is_enabled = function() return self:canRedo() end,
         on_activate = function() self:redo() end
     })
     self.menu_bar:registerItem("edit", "settings", "Editor Settings...", {
@@ -325,6 +330,9 @@ function Editor:registerMenuBar()
     self.menu_bar:registerToggle("view", "tile_grid", "Tile Grid (G)",
         function() return self.show_tile_grid end,
         function(enabled) self.show_tile_grid = enabled == true end)
+    self.menu_bar:registerItem("view", "command_palette", "Command Palette (Ctrl+Shift+P)", {
+        on_activate = function() self:openCommandPalette() end
+    })
     self.menu_bar:registerItem("view", "reset_layout", "Reset to Default", {
         on_activate = function() self:resetPanelLayout() end
     })
@@ -381,6 +389,17 @@ function Editor:registerEditorTools()
     self.active_tool = "select"
     self.selected_event_id = nil
     self.shape_mode = "rectangle"
+    for _, registered in ipairs(self.tool_registry:getAll()) do
+        local tool = registered
+        self.command_registry:register("tool:" .. tool.id, {
+            name = tool.name .. " Tool",
+            category = "Tools",
+            keywords = { tool.id, tool.short_name or "" },
+            is_enabled = function() return self.tile_editing_mode and self.active_document ~= nil end,
+            get_checked = function() return self.active_tool == tool.id end,
+            action = function() self:setActiveTool(tool.id) end
+        })
+    end
 end
 
 function Editor:registerEditorSettings(session)
@@ -458,6 +477,7 @@ function Editor:registerEditorSettings(session)
     end
     keybind("keybinds.toggle_editor", "Toggle Editor", "editor")
     keybind("keybinds.toggle_map_view", "Toggle Map/Game View", "editor_view")
+    keybind("keybinds.command_palette", "Command Palette", "editor_command_palette")
     keybind("keybinds.delete_selection", "Delete Selection", "editor_delete")
     for _, tool in ipairs(self.tool_registry:getAll()) do
         if tool.keybind then
@@ -590,6 +610,10 @@ function Editor:setupMapDocuments(session)
     return context_document, restored_by_panel
 end
 
+function Editor:setupCodeDocuments(session)
+    self.document_providers:restoreSession(session and session.document_providers or {})
+end
+
 function Editor:setupPanels(session)
     self.maps_panel = self.dockspace:registerPanel(EditorPanel("maps", "Maps", self.map_browser, {
         minimum_width = 180,
@@ -603,6 +627,10 @@ function Editor:setupPanels(session)
     self.tilesets_browser_panel = self.dockspace:registerPanel(EditorPanel(
         "tilesets_browser", "Tilesets", self.tileset_browser, {
             minimum_width = 180, preferred_width = 260, recoverable = true
+        }), self.maps_panel.stack)
+    self.files_panel = self.dockspace:registerPanel(EditorPanel(
+        "project_files", "Files", self.file_browser, {
+            minimum_width = 200, preferred_width = 280, recoverable = true
         }), self.maps_panel.stack)
     self.maps_panel.stack:setActivePanel(self.maps_panel)
     self.events_panel = self.dockspace:registerPanel(EditorPanel("events", "Events", self.event_browser, {
@@ -663,6 +691,15 @@ function Editor:setupPanels(session)
             minimum_height = 300,
             preferred_width = 760,
             preferred_height = 520,
+            recoverable = true
+        }), "center")
+    self.source_viewer_panel = self.dockspace:registerPanel(EditorPanel(
+        "source_viewer", "Source Viewer", self.source_viewer, {
+            visible = false,
+            minimum_width = 480,
+            minimum_height = 320,
+            preferred_width = 800,
+            preferred_height = 560,
             recoverable = true
         }), "center")
     self.diagnostics_panel = self.dockspace:registerPanel(EditorPanel(
@@ -785,6 +822,7 @@ function Editor:enter(previous, options)
     self.forwarded_mouse_buttons = {}
     self.object_selection_mouse_buttons = {}
     self.consumed_editor_keys = {}
+    self.creation_dialog = nil
     self.game_preview_snapshot = nil
     self.game_preview_snapshot_document = nil
     self.game_preview_snapshot_save_id = nil
@@ -794,6 +832,8 @@ function Editor:enter(previous, options)
     self.map_id = options.map_id or (Game.world and Game.world.map and Game.world.map.id)
     self.message_bar = EditorMessageBar()
     self.history = EditorHistory(self)
+    self.command_registry = EditorCommandRegistry()
+    self.document_providers = EditorDocumentProviders(self)
     self:registerEditorTools()
     local session = self:loadSession()
     self:registerEditorSettings(session)
@@ -814,6 +854,36 @@ function Editor:enter(previous, options)
     self.selected_map_object = nil
     self.selected_map_objects = {}
     self.map_browser = EditorMapBrowser(self)
+    self.file_type_registry = EditorFileTypeRegistry()
+    self.project_workspace = EditorProjectWorkspace(self, self.file_type_registry)
+    self.file_browser = EditorFileBrowser(self, self.project_workspace)
+    self.source_viewer = EditorSourceViewer(self, self.project_workspace)
+    self.document_providers:register("core_source_viewer", {
+        priority = -100,
+        supports = function(document)
+            return document.file_type == "text" or document.file_type == "image"
+        end,
+        open = function(document, open_options)
+            self.source_viewer:openDocument(document, open_options)
+            return self:showDocumentProviderPanel(self.source_viewer_panel, self.source_viewer,
+                document.file_type == "text" and self.source_viewer.input or self.source_viewer)
+        end,
+        close = function(document) return self.source_viewer:closeDocument(document) end,
+        is_focused = function() return self.source_viewer:isFocused() end,
+        can_save = function() return false end,
+        save_active = function()
+            if self.message_bar then self.message_bar:setStatus("The built-in source viewer is read-only", 4) end
+            return false
+        end,
+        undo = function() return false end,
+        redo = function() return false end,
+        can_undo = function() return false end,
+        can_redo = function() return false end,
+        get_undo_label = function() return false end,
+        get_redo_label = function() return false end,
+        capture_session = function() return self.source_viewer:captureSession() end,
+        restore_session = function(state) self.source_viewer:restoreSession(state) end
+    })
     self.world_browser = EditorWorldBrowser(self)
     self.active_world_id = session and session.active_world_id or nil
     self.active_editor_world = self.active_world_id and Registry.getEditorWorld(self.active_world_id) or nil
@@ -841,8 +911,10 @@ function Editor:enter(previous, options)
     self.event_browser:refresh()
     self.fx_browser:refresh()
     self:registerMenuBar()
+    EditorPlugins:applyCommands(self)
     EditorPlugins:applyMenuBar(self)
     self:setupPanels(session)
+    self:setupCodeDocuments(session)
     self:restoreEntryState(session, options, context_document, restored_by_panel,
         game_center_x, game_center_y)
     self:syncEditingMusic()
@@ -852,8 +924,10 @@ function Editor:leave()
     self:stopEditingMusic()
     self.music:remove()
     self:clearGameObjectSelection()
-    EditorPlugins:shutdown(self)
     if not self.session_saved_for_exit then self:saveSession() end
+    if self.project_workspace then self.project_workspace:shutdown() end
+    EditorPlugins:shutdown(self)
+    if self.document_providers then self.document_providers:shutdown() end
     self.dockspace:setFocus(nil)
     local game_center_x, game_center_y = self:getGameCanvasScreenCenter()
     local window = self.previous_window
@@ -923,6 +997,14 @@ function Editor:leave()
     self.settings_browser = nil
     self.settings_panel = nil
     self.settings = nil
+    self.command_registry = nil
+    self.file_browser = nil
+    self.files_panel = nil
+    self.source_viewer = nil
+    self.source_viewer_panel = nil
+    self.project_workspace = nil
+    self.file_type_registry = nil
+    self.document_providers = nil
     self.asset_drag = nil
     self.drag_preview = nil
     self.object_reference_drag = nil
@@ -1288,10 +1370,15 @@ function Editor:saveAllDocuments()
     for _, document in ipairs(self.tileset_documents or {}) do
         if document:isDirty() and not self:saveTilesetDocumentToProject(document) then return false end
     end
+    for _, provider in ipairs(self.document_providers:getAll()) do
+        if provider.save_all and provider.save_all() == false then return false end
+    end
     return true
 end
 
 function Editor:saveActiveDocument()
+    local provider_result = self.document_providers:invokeFocused("save_active")
+    if provider_result ~= nil then return provider_result end
     local focused = self.dockspace and self.dockspace.focused_control
     while focused do
         if focused == self.world_browser then
@@ -1308,7 +1395,8 @@ function Editor:saveActiveDocument()
     return self:saveMapDocumentToProject(self.active_document)
 end
 
-function Editor:createNewMap(id, name)
+function Editor:createNewMap(id, name, options)
+    options = options or {}
     if not validContentId(id) then return nil, "Invalid map id" end
     if hasMap(id) then return nil, "A map with that id already exists" end
     local data = {
@@ -1316,11 +1404,11 @@ function Editor:createNewMap(id, name)
         kristal_version = tostring(Kristal.Version),
         id = id,
         name = name or StringUtils.titleCase(id:gsub("[/_]", " ")),
-        width = 16,
-        height = 12,
-        grid_width = 40,
-        grid_height = 40,
-        background_color = { 0, 0, 0, 0 },
+        width = options.width or 16,
+        height = options.height or 12,
+        grid_width = options.grid_width or 40,
+        grid_height = options.grid_height or 40,
+        background_color = TableUtils.copy(options.background_color or { 0, 0, 0, 0 }, true),
         layers = {},
         properties = {},
         __editor_property_types = {},
@@ -1427,11 +1515,54 @@ function Editor:performHistoryEdit(label, owners, callback)
     return self.history:perform(label, owners, callback)
 end
 
+function Editor:pushHistoryCommand(label, command)
+    return self.history and self.history:pushCommand(label, command) or false
+end
+
+function Editor:performHistoryCommand(label, command)
+    if not self.history then return command.execute() end
+    return self.history:performCommand(label, command)
+end
+
+function Editor:openCommandPalette()
+    local items = {}
+    for _, registered in ipairs(self.command_registry:getAll()) do
+        local command = registered
+        local category = tostring(command.category or "Command")
+        local name = tostring(command.name or command.id)
+        local keywords = command.keywords
+        if type(keywords) == "table" then keywords = table.concat(keywords, " ") end
+        table.insert(items, {
+            label = category .. ": " .. name,
+            search_text = table.concat({ name, category, tostring(command.id or ""), tostring(keywords or "") }, " "),
+            is_enabled = command.is_enabled,
+            get_checked = command.get_checked,
+            action = function()
+                if not command.is_enabled or command.is_enabled() ~= false then command.action() end
+            end
+        })
+    end
+    if #items == 0 then return false end
+    self.menu_bar.open_menu = nil
+    local width = math.min(620, math.max(320, self.dockspace.width - 24))
+    local x = self.dockspace.x + math.floor((self.dockspace.width - width) / 2)
+    return self.dockspace:openContextMenu(items, x, self.dockspace.y + 18, self, {
+        searchable = true,
+        maximum_rows = 14,
+        width = width,
+        placeholder = "Type a command..."
+    })
+end
+
 function Editor:undo()
+    local provider_result = self.document_providers:invokeFocused("undo")
+    if provider_result ~= nil then return provider_result end
     return self.history and self.history:undo() or false
 end
 
 function Editor:redo()
+    local provider_result = self.document_providers:invokeFocused("redo")
+    if provider_result ~= nil then return provider_result end
     return self.history and self.history:redo() or false
 end
 
@@ -1528,7 +1659,47 @@ function Editor:hasUnsavedChanges()
     for _, document in ipairs(self.tileset_documents or {}) do
         if document:isDirty() then return true end
     end
+    if self.document_providers:any("has_unsaved_changes") then return true end
     return false
+end
+
+function Editor:canUndo()
+    local provider_result = self.document_providers:invokeFocused("can_undo")
+    if provider_result ~= nil then return provider_result end
+    return self.history and self.history:canUndo() or false
+end
+
+function Editor:canRedo()
+    local provider_result = self.document_providers:invokeFocused("can_redo")
+    if provider_result ~= nil then return provider_result end
+    return self.history and self.history:canRedo() or false
+end
+
+function Editor:getUndoLabel()
+    local provider_result = self.document_providers:invokeFocused("get_undo_label")
+    if provider_result ~= nil then return provider_result end
+    return self.history and self.history:getUndoLabel() or nil
+end
+
+function Editor:getRedoLabel()
+    local provider_result = self.document_providers:invokeFocused("get_redo_label")
+    if provider_result ~= nil then return provider_result end
+    return self.history and self.history:getRedoLabel() or nil
+end
+
+function Editor:showDocumentProviderPanel(panel, control, focus)
+    if not panel then return false end
+    if not panel.visible then self.dockspace:setPanelVisible(panel, true, "center") end
+    if panel.stack then panel.stack:setActivePanel(panel) end
+    self.dockspace:setFocus(focus or control)
+    return true
+end
+
+function Editor:openDocument(document, options)
+    if not document then return false end
+    local opened, reason = self.document_providers:open(document, options)
+    if opened == false and reason then self:addError("Could not open " .. document.name, reason, "filesystem") end
+    return opened
 end
 
 function Editor:setPlacementEvent(id)
@@ -2289,6 +2460,11 @@ function Editor:runGameDraw(phase, callback)
 end
 
 function Editor:getGameCanvasScreenCenter()
+    if not self.game_preview then
+        local window_x, window_y = love.window.getPosition()
+        local width, height = love.graphics.getDimensions()
+        return window_x + fromPixels(width / 2), window_y + fromPixels(height / 2)
+    end
     local window_x, window_y = love.window.getPosition()
     local game_x, game_y = self.game_preview:getGlobalPosition()
     local canvas_center_x, canvas_center_y = self.game_preview:getCanvasDisplayCenter()
@@ -2316,6 +2492,7 @@ function Editor:centerWindow(display, desktop_width, desktop_height)
 end
 
 function Editor:update()
+    if self.document_providers then self.document_providers:broadcast("update") end
     local preview_owner = self:getGamePreviewOwnerPanel()
     if self.live_document and preview_owner
         and not self.dockspace:isPanelDisplayed(preview_owner)
@@ -2331,6 +2508,7 @@ function Editor:update()
     self.dockspace:setBounds(0, EditorMenuBar.HEIGHT, love.graphics.getWidth(),
         love.graphics.getHeight() - EditorMenuBar.HEIGHT - EditorMessageBar.HEIGHT)
     self.dockspace:update(DT)
+    if self.creation_dialog then self.creation_dialog:update(DT) end
 
     if self.entry_transition then
         self.entry_transition:update(DT)
@@ -2391,16 +2569,36 @@ function Editor:drawEditor(canvas)
     end
     self.message_bar:draw()
     self.menu_bar:draw()
+    if self.creation_dialog then self.creation_dialog:draw() end
     local mouse_x, mouse_y = love.mouse.getPosition()
     self.editor_cursor:setType(self:getCursorType(mouse_x, mouse_y))
 end
 
 function Editor:getCursorType(x, y)
     if self.entry_transition or self.exit_transition then return "cannot" end
+    if self.creation_dialog then return self.creation_dialog:getCursorType(x, y) end
     if self.message_bar:containsPoint(x, y) then return "select" end
     local menu_cursor = self.menu_bar:getCursorType(x, y)
     if menu_cursor ~= "default" then return menu_cursor end
     return self.dockspace:getCursorType(x, y)
+end
+
+function Editor:openCreationDialog(options)
+    if self.creation_dialog then self:closeCreationDialog(false) end
+    self.dockspace.context_menu = nil
+    self.dockspace:setFocus(nil)
+    self.creation_dialog = EditorCreationDialog(self, options or {})
+    self.creation_dialog:update(0)
+    return self.creation_dialog
+end
+
+function Editor:closeCreationDialog(created)
+    local dialog = self.creation_dialog
+    if not dialog then return false end
+    dialog:setFocus(nil)
+    self.creation_dialog = nil
+    if self.message_bar and created then self.message_bar:setStatus("Created " .. (dialog.template.name or "item"), 4) end
+    return true
 end
 
 function Editor:setTileEditingMode(enabled)
@@ -3150,11 +3348,17 @@ end
 
 function Editor:onKeyPressed(key, is_repeat)
     if self.entry_transition or self.exit_transition then return true end
+    if self.creation_dialog then return self.creation_dialog:onKeyPressed(key, is_repeat) end
     if self.dockspace.context_menu and self.dockspace.context_menu.searchable then
         return self.dockspace:onKeyPressed(key, is_repeat) ~= false
     end
     if self.settings_browser and self.settings_browser:isCapturingKeybind() then
         return self.dockspace:onKeyPressed(key, is_repeat) ~= false
+    end
+    if not is_repeat and Input.is("editor_command_palette", key) then
+        self.consumed_editor_keys[key] = true
+        Input.clear("editor_command_palette")
+        return self:openCommandPalette()
     end
     if self.menu_bar:onKeyPressed(key) then return true end
     local focused = self.dockspace.focused_control
@@ -3277,6 +3481,7 @@ end
 
 function Editor:onKeyReleased(key)
     if self.entry_transition or self.exit_transition then return true end
+    if self.creation_dialog then return self.creation_dialog:onKeyReleased(key) end
     if self.consumed_editor_keys[key] then
         self.consumed_editor_keys[key] = nil
         return true
@@ -3287,12 +3492,14 @@ end
 
 function Editor:onTextInput(text)
     if self.entry_transition or self.exit_transition then return true end
+    if self.creation_dialog then return self.creation_dialog:onTextInput(text) end
     if self.dockspace:onTextInput(text) then return true end
     return self:forwardGameTextInput(text)
 end
 
 function Editor:onMousePressed(x, y, button, istouch, presses)
     if self.entry_transition or self.exit_transition then return true end
+    if self.creation_dialog then return self.creation_dialog:onMousePressed(x, y, button, istouch, presses) end
     if self.message_bar:containsPoint(x, y) then
         if button == 1 then self:toggleDiagnosticsPanel() end
         return true
@@ -3305,6 +3512,7 @@ end
 
 function Editor:onMouseMoved(x, y, dx, dy, istouch)
     if self.entry_transition or self.exit_transition then return true end
+    if self.creation_dialog then return self.creation_dialog:onMouseMoved(x, y, dx, dy, istouch) end
     self:updateGameObjectSelectionCursor(x, y)
     if self.dockspace:onMouseMoved(x, y, dx, dy) then return true end
     local debug_system = Kristal.DebugSystem
@@ -3317,6 +3525,7 @@ end
 
 function Editor:onMouseReleased(x, y, button, istouch, presses)
     if self.entry_transition or self.exit_transition then return true end
+    if self.creation_dialog then return self.creation_dialog:onMouseReleased(x, y, button, istouch, presses) end
     if self.dockspace:onMouseReleased(x, y, button, presses) then return true end
     if self:handleGameObjectSelectionMouseReleased(x, y, button, istouch, presses) then return true end
     return self:forwardGameMouseReleased(x, y, button, istouch, presses)
@@ -3324,6 +3533,7 @@ end
 
 function Editor:onWheelMoved(x, y)
     if self.entry_transition or self.exit_transition then return true end
+    if self.creation_dialog then return self.creation_dialog:onWheelMoved(x, y) end
     local mouse_x, mouse_y = love.mouse.getPosition()
     if self.message_bar:containsPoint(mouse_x, mouse_y) then return true end
     return self.dockspace:onWheelMoved(x, y)

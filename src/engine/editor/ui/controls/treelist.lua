@@ -56,6 +56,7 @@ function EditorTreeList:init(options)
     self.drop_node = nil
     self.root = { type = "folder", name = "", children = {}, expanded = true, root = true }
     self.folder_icon = Assets.getTexture("editor/ui/folder")
+    self.icon_scale = options.icon_scale or 2
 
     self.scrollbar = self:addChild(EditorScrollbar({
         width = options.scrollbar_width or 12,
@@ -91,6 +92,8 @@ function EditorTreeList:newNode(node_type, name, options)
         right_icon = options.right_icon,
         right_color = options.right_color,
         right_action = options.right_action,
+        renameable = options.renameable ~= false,
+        draggable = options.draggable ~= false,
         uid = self.next_uid
     }
     self.next_uid = self.next_uid + 1
@@ -253,6 +256,7 @@ end
 
 function EditorTreeList:beginRename(node)
     node = node or self.selected_node
+    if not node or node.renameable == false then return false end
     local index = node and self:getVisibleIndex(node)
     if not index then return false end
     self.rename_node = node
@@ -311,6 +315,7 @@ end
 
 function EditorTreeList:moveNode(node, parent, after)
     if not node or not node.parent or not isContainer(parent) then return false end
+    if node.draggable == false then return false end
     if node == parent or (isContainer(node) and containsNode(node, parent)) then return false end
     local old_parent = node.parent
     removeFromParent(node)
@@ -385,7 +390,7 @@ function EditorTreeList:onMousePressed(x, y, button, presses)
     end
     if node.right_icon and node.right_action then
         local texture = Assets.getTexture(node.right_icon)
-        local icon_width = texture and (texture:getWidth()*2) or self.row_height
+        local icon_width = texture and (texture:getWidth()*self.icon_scale) or self.row_height
         local icon_right = self.width - self.scrollbar.width - 6
         if x >= icon_right - icon_width and x <= icon_right then
             node.right_action(node, self)
@@ -400,7 +405,7 @@ function EditorTreeList:onMousePressed(x, y, button, presses)
         end
         return true
     end
-    self.pending_drag = { node = node, x = x, y = y }
+    if node.draggable ~= false then self.pending_drag = { node = node, x = x, y = y } end
     return true
 end
 
@@ -514,17 +519,18 @@ function EditorTreeList:drawSelf()
             end
             local icon = node.icon and Assets.getTexture(node.icon) or self.folder_icon
             if icon then
-                local scale = 2
+                local scale = self.icon_scale
                 Draw.setColor(node.color or { 1, 1, 1, 1 })
                 Draw.draw(icon, disclosure_x + 13,
                     math.floor(y + (self.row_height - icon:getHeight() * scale) / 2), 0, scale, scale)
             end
         elseif node.icon then
             local icon = Assets.getTexture(node.icon)
+            local scale = self.icon_scale
             if icon then
                 Draw.setColor(node.color or { 1, 1, 1, 1 })
                 Draw.draw(icon, disclosure_x + 13,
-                    math.floor(y + (self.row_height - icon:getHeight() * 2) / 2), 0, 2, 2)
+                    math.floor(y + (self.row_height - icon:getHeight() * scale) / 2), 0, scale, scale)
             end
         end
 
@@ -541,11 +547,12 @@ function EditorTreeList:drawSelf()
         end
         if node.right_icon then
             local texture = Assets.getTexture(node.right_icon)
+            local scale = self.icon_scale
             if texture then
-                local icon_x = self.width - self.scrollbar.width - texture:getWidth()*2 - 6
-                local icon_y = math.floor(y + (self.row_height - texture:getHeight()*2) / 2)
+                local icon_x = self.width - self.scrollbar.width - texture:getWidth()*scale - 6
+                local icon_y = math.floor(y + (self.row_height - texture:getHeight()*scale) / 2)
                 Draw.setColor(node.right_color or { 0.82, 0.82, 0.85, 1 })
-                Draw.draw(texture, icon_x, icon_y, 0, 2, 2)
+                Draw.draw(texture, icon_x, icon_y, 0, scale, scale)
             end
         end
     end

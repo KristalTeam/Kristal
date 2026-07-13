@@ -13,6 +13,22 @@ local BUTTONS = {
     { id = "help", label = "Help" }
 }
 
+local BUTTON_LABELS = {}
+for _, button in ipairs(BUTTONS) do BUTTON_LABELS[button.id] = button.label end
+
+local function commandFromMenuItem(menu_id, item)
+    if type(item.on_activate) ~= "function" then return nil end
+    return {
+        id = "menu:" .. menu_id .. ":" .. tostring(item.id),
+        name = item.label,
+        category = BUTTON_LABELS[menu_id] or StringUtils.titleCase(menu_id),
+        keywords = item.keywords,
+        is_enabled = item.is_enabled,
+        get_checked = item.get_checked,
+        action = item.on_activate
+    }
+end
+
 function EditorMenuBar:init(editor)
     self.editor = editor
     self.x, self.y = 0, 0
@@ -36,9 +52,14 @@ function EditorMenuBar:registerItem(menu_id, id, label, options)
         label = label,
         get_checked = options.get_checked,
         on_activate = options.on_activate,
-        is_enabled = options.is_enabled
+        is_enabled = options.is_enabled,
+        keywords = options.keywords
     }
     table.insert(self.items[menu_id], item)
+    local command = commandFromMenuItem(menu_id, item)
+    if command and self.editor.command_registry then
+        self.editor.command_registry:register(command.id, command)
+    end
     return item
 end
 
@@ -54,6 +75,16 @@ end
 function EditorMenuBar:registerProvider(menu_id, id, provider)
     assert(self.providers[menu_id], "Unknown editor menu: " .. tostring(menu_id))
     table.insert(self.providers[menu_id], { id = id, provider = provider })
+    if self.editor.command_registry then
+        self.editor.command_registry:registerProvider("menu:" .. menu_id .. ":" .. id, function()
+            local commands = {}
+            for _, item in ipairs(provider() or {}) do
+                local command = commandFromMenuItem(menu_id, item)
+                if command then table.insert(commands, command) end
+            end
+            return commands
+        end)
+    end
 end
 
 function EditorMenuBar:getItems(menu_id)

@@ -40,7 +40,11 @@ function EditorDiagnosticsPanel:onMousePressed(_, y, button)
     for index, rect in pairs(self.row_rects) do
         if y >= rect.y and y < rect.y + rect.height then
             local entry = self:getEntries()[index]
-            if entry and entry.detail then self.expanded[index] = not self.expanded[index] end
+            if entry and entry.action then
+                entry.action(entry)
+            elseif entry and entry.detail then
+                self.expanded[index] = not self.expanded[index]
+            end
             return true
         end
     end
