@@ -306,8 +306,17 @@ function operations.loadObjects(self, layer, depth, layer_type)
                 end
                 if obj then
                     obj.rotation = rotation
-                    obj:setScale((obj.scale_x or 1) * (v.scale_x or 1),
-                        (obj.scale_y or 1) * (v.scale_y or 1))
+                    local old_scale_x, old_scale_y = obj.scale_x or 1, obj.scale_y or 1
+                    local scale_x = old_scale_x * (v.scale_x or 1)
+                    local scale_y = old_scale_y * (v.scale_y or 1)
+                    if scale_x ~= old_scale_x or scale_y ~= old_scale_y then
+                        local origin_x, origin_y = obj:getScaleOriginExact()
+                        local offset_x = origin_x * (scale_x - old_scale_x)
+                        local offset_y = origin_y * (scale_y - old_scale_y)
+                        obj.x = obj.x + offset_x * math.cos(rotation) - offset_y * math.sin(rotation)
+                        obj.y = obj.y + offset_x * math.sin(rotation) + offset_y * math.cos(rotation)
+                    end
+                    obj:setScale(scale_x, scale_y)
                     obj.x = obj.x + (layer.offsetx or 0)
                     obj.y = obj.y + (layer.offsety or 0)
                     obj:setParallax((obj.parallax_x or 1) * layer.parallaxx, (obj.parallax_y or 1) * layer.parallaxy)
