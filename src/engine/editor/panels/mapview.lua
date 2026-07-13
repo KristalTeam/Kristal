@@ -713,6 +713,94 @@ function EditorMapView:cancelEventRegion()
     return true
 end
 
+function EditorMapView:cancelEventPaint()
+    if not self.event_paint_stroke then return false end
+    self.event_paint_stroke = nil
+    self.editor:cancelHistoryTransaction()
+    return true
+end
+
+function EditorMapView:getEventPaintCell(event_id, world_x, world_y)
+    local entry = self.document:getMapAt(world_x, world_y)
+    if not entry then return nil, "Paint events within a map's bounds" end
+    local layer = self.document:getSelectedObjectLayer(entry.id)
+    if not layer then return nil, "Select an object layer before placing an event" end
+    local tile_width, tile_height = entry.tile_width or 40, entry.tile_height or 40
+    local base_x = entry.x + (layer.offsetx or 0)
+    local base_y = entry.y + (layer.offsety or 0)
+    local event_class = Registry.getEditorEvent(event_id)
+    local point = event_class and event_class.placement_shape == "point"
+    local local_x, local_y = world_x - base_x, world_y - base_y
+    local cell_x = point and MathUtils.round(local_x / tile_width) or math.floor(local_x / tile_width)
+    local cell_y = point and MathUtils.round(local_y / tile_height) or math.floor(local_y / tile_height)
+    return {
+        entry = entry, layer = layer, x = cell_x, y = cell_y,
+        tile_width = tile_width, tile_height = tile_height, point = point,
+        base_x = base_x, base_y = base_y,
+        key = table.concat({ entry.id, layer._editor_uid or layer.id or layer.name, cell_x, cell_y }, ":")
+    }
+end
+
+function EditorMapView:placeEventPaintCell(stroke, cell)
+    if stroke.visited[cell.key] then return false end
+    stroke.visited[cell.key] = true
+    local world_x = cell.base_x + (cell.x + (cell.point and 0 or 0.5)) * cell.tile_width
+    local world_y = cell.base_y + (cell.y + (cell.point and 0 or 0.5)) * cell.tile_height
+    local object, layer_or_reason, map_id = self.document:addEditorObject(
+        stroke.event_id, cell.entry.id, world_x, world_y, { free = false })
+    if not object then
+        stroke.error = layer_or_reason
+        return false
+    end
+    stroke.changed = true
+    stroke.selection = self.document:getObjectSelection(map_id, layer_or_reason, object)
+    stroke.selection.view = self
+    self.editor:markHistoryChanged()
+    return true
+end
+
+function EditorMapView:beginEventPaint(event_id, world_x, world_y)
+    local cell, reason = self:getEventPaintCell(event_id, world_x, world_y)
+    if not cell then
+        self.editor:addWarning(reason, nil, "event_placement")
+        return true
+    end
+    self.editor:beginHistoryTransaction("Paint Events", self.document)
+    local stroke = { event_id = event_id, visited = {}, changed = false, last_cell = cell }
+    self.event_paint_stroke = stroke
+    self:placeEventPaintCell(stroke, cell)
+    return true
+end
+
+function EditorMapView:continueEventPaint(world_x, world_y)
+    local stroke = self.event_paint_stroke
+    if not stroke then return false end
+    local cell = self:getEventPaintCell(stroke.event_id, world_x, world_y)
+    if not cell then return true end
+    local last = stroke.last_cell
+    if last and last.entry == cell.entry and last.layer == cell.layer then
+        local x0, y0, x1, y1 = last.x, last.y, cell.x, cell.y
+        local dx, sx = math.abs(x1 - x0), x0 < x1 and 1 or -1
+        local dy, sy = -math.abs(y1 - y0), y0 < y1 and 1 or -1
+        local error_value = dx + dy
+        while true do
+            local step = TableUtils.copy(cell)
+            step.x, step.y = x0, y0
+            step.key = table.concat({ cell.entry.id,
+                cell.layer._editor_uid or cell.layer.id or cell.layer.name, x0, y0 }, ":")
+            self:placeEventPaintCell(stroke, step)
+            if x0 == x1 and y0 == y1 then break end
+            local doubled = 2 * error_value
+            if doubled >= dy then error_value, x0 = error_value + dy, x0 + sx end
+            if doubled <= dx then error_value, y0 = error_value + dx, y0 + sy end
+        end
+    else
+        self:placeEventPaintCell(stroke, cell)
+    end
+    stroke.last_cell = cell
+    return true
+end
+
 function EditorMapView:drawExplosions()
     local frames = Assets.getFrames("misc/realistic_explosion")
     if not frames or #frames == 0 then return end
@@ -875,7 +963,8 @@ function EditorMapView:onMousePressed(x, y, button, presses)
                 return true
             end
         end
-        local selection = self.document:findObjectAt(world_x, world_y)
+        local selection = (button == 2 or tool ~= "object")
+            and self.document:findObjectAt(world_x, world_y) or nil
         if selection then selection.view = self end
         if button == 2 then
             if selection then
@@ -905,6 +994,9 @@ function EditorMapView:onMousePressed(x, y, button, presses)
                 }
                 self.editor:beginHistoryTransaction("Place Event Region", self.document)
                 return true
+            end
+            if Input.alt() then
+                return self:beginEventPaint(self.editor.placement_event_id, world_x, world_y)
             end
             return self.editor:placeEvent(self, self.editor.placement_event_id, world_x, world_y)
         elseif tool == "shape" and self.editor.shape_mode ~= "point"
@@ -1031,6 +1123,7 @@ function EditorMapView:onMouseMoved(x, y, dx, dy)
     end
     local world_x, world_y = self:getMapCoordinates(x, y)
     if self.tile_stroke then return self:continueTileEdit(world_x, world_y) end
+    if self.event_paint_stroke then return self:continueEventPaint(world_x, world_y) end
     if self.polygon_build then
         local entry = self.document.map_lookup[self.polygon_build.map_id]
         if entry then world_x, world_y = self:snapPointShapeToMapGrid(entry, world_x, world_y) end
@@ -1161,6 +1254,19 @@ function EditorMapView:onMouseReleased(x, y, button, presses)
             self.editor:commitHistoryTransaction()
         else
             self.editor:cancelHistoryTransaction()
+        end
+        return true
+    end
+    if button == 1 and self.event_paint_stroke then
+        local stroke = self.event_paint_stroke
+        self.event_paint_stroke = nil
+        if stroke.changed then
+            self.editor:commitHistoryTransaction()
+            if stroke.selection then self.editor:selectMapObject(stroke.selection) end
+            self.editor:clearDiagnostics("event_placement")
+        else
+            self.editor:cancelHistoryTransaction()
+            if stroke.error then self.editor:addWarning(stroke.error, nil, "event_placement") end
         end
         return true
     end

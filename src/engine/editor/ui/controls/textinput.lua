@@ -40,6 +40,8 @@ function EditorTextInput:init(options)
     self.on_changed = options.on_changed
     self.on_submit = options.on_submit
     self.on_cancel = options.on_cancel
+    self.editor = options.editor
+    self.submit_feedback = options.submit_feedback ~= false and self.on_submit ~= nil
     self.font = options.font
     self.cursor = #self.value + 1
     self.selection_anchor = nil
@@ -51,6 +53,43 @@ function EditorTextInput:init(options)
     self.focused = false
     self.padding = options.padding or 6
     self.clip = true
+    self.submitted_value = self.value
+    self.pending_submit = false
+end
+
+function EditorTextInput:getFeedbackEditor()
+    if self.editor then return self.editor end
+    local state = Kristal.getState()
+    if state and state.message_bar then return state end
+end
+
+function EditorTextInput:getSubmitHint()
+    return self.multiline and "Editing text — press Ctrl+Enter to apply"
+        or "Editing text — press Enter to apply"
+end
+
+function EditorTextInput:showSubmitStatus(message, duration)
+    local editor = self:getFeedbackEditor()
+    if editor and editor.message_bar then editor.message_bar:setStatus(message, duration or 4) end
+end
+
+function EditorTextInput:submitValue()
+    if not self.on_submit then return false end
+    local submitted_value = self.value
+    local previous_value = self.submitted_value
+    self.submitted_value = submitted_value
+    self.pending_submit = false
+    local applied = self.on_submit(submitted_value, self) ~= false
+    if self.submit_feedback then
+        if applied then
+            self:showSubmitStatus("Text field applied")
+        else
+            self.submitted_value = previous_value
+            self.pending_submit = submitted_value ~= previous_value
+            self:showSubmitStatus("Text field could not be applied")
+        end
+    end
+    return applied
 end
 
 function EditorTextInput:hasSelection()
@@ -79,11 +118,26 @@ end
 
 function EditorTextInput:setValue(value, silent)
     value = tostring(value or "")
-    if self.value == value then return end
+    if self.value == value then
+        if silent then
+            self.submitted_value = value
+            self.pending_submit = false
+        end
+        return
+    end
     self.value = value
     self.cursor = #value + 1
     self:clearSelection()
-    if not silent and self.on_changed then self.on_changed(value, self) end
+    if silent then
+        self.submitted_value = value
+        self.pending_submit = false
+    else
+        if self.submit_feedback then
+            self.pending_submit = value ~= self.submitted_value
+            if self.pending_submit then self:showSubmitStatus(self:getSubmitHint()) end
+        end
+        if self.on_changed then self.on_changed(value, self) end
+    end
 end
 
 function EditorTextInput:replaceSelection(text)
@@ -106,12 +160,14 @@ end
 function EditorTextInput:onFocus()
     self.focused = true
     love.keyboard.setTextInput(true)
+    if self.submit_feedback then self:showSubmitStatus(self:getSubmitHint()) end
 end
 
 function EditorTextInput:onBlur()
     self.focused = false
     self.mouse_selecting = false
     love.keyboard.setTextInput(false)
+    if self.submit_feedback and self.pending_submit then self:submitValue() end
 end
 
 function EditorTextInput:getCursorLine(cursor)
@@ -292,7 +348,7 @@ function EditorTextInput:onKeyPressed(key)
         if self.multiline and not ctrl then
             self:replaceSelection("\n")
         elseif self.on_submit then
-            self.on_submit(self.value, self)
+            self:submitValue()
         end
         return true
     elseif key == "tab" and self.multiline then
@@ -317,7 +373,8 @@ function EditorTextInput:drawSelf()
     love.graphics.setFont(font)
     Draw.setColor(0.10, 0.10, 0.12, 1)
     love.graphics.rectangle("fill", 0, 0, self.width, self.height)
-    Draw.setColor(self.focused and { 0.55, 0.65, 0.85, 1 } or { 0.30, 0.30, 0.34, 1 })
+    Draw.setColor(self.pending_submit and { 0.95, 0.70, 0.20, 1 }
+        or self.focused and { 0.55, 0.65, 0.85, 1 } or { 0.30, 0.30, 0.34, 1 })
     love.graphics.rectangle("line", 0.5, 0.5, self.width - 1, self.height - 1)
 
     local lines = getLines(self.value)

@@ -141,7 +141,9 @@ function EditorPropertiesPanel:createChoiceControl(name, definition, value)
             })
         end
         local x, y = button:getGlobalPosition()
-        self.editor.dockspace:openContextMenu(items, x, y + button.height, button)
+        self.editor.dockspace:openContextMenu(items, x, y + button.height, button, {
+            searchable = definition.type == "chooser" or #items > 12
+        })
     end)
     return button
 end
@@ -174,7 +176,7 @@ function EditorPropertiesPanel:createValueControl(name, definition, value)
         or type(value) == "string" and value:find("\n", 1, true) ~= nil
     local input = self:addGeneratedControl(EditorTextInput({
         multiline = multiline,
-        on_submit = function(input_value) self:setPropertyValue(name, input_value, definition) end
+        on_submit = function(input_value) return self:setPropertyValue(name, input_value, definition) end
     }))
     input:setValue(displayPropertyValue(property_type, value), true)
     return input
@@ -221,14 +223,16 @@ function EditorPropertiesPanel:createSectionValueControl(section, definition)
                     end })
             end
             local x, y = button:getGlobalPosition()
-            self.editor.dockspace:openContextMenu(items, x, y + button.height, button)
+            self.editor.dockspace:openContextMenu(items, x, y + button.height, button, {
+                searchable = definition.type == "chooser" or #items > 12
+            })
         end)
         return self:addGeneratedControl(button)
     end
     local multiline = property_type.control == "multiline_value" or definition.multiline == true
     local input = self:addGeneratedControl(EditorTextInput({
         multiline = multiline,
-        on_submit = function(input_value) changed(input_value) end
+        on_submit = function(input_value) return changed(input_value) end
     }))
     input:setValue(displayPropertyValue(definition.type, value), true)
     return input
@@ -266,7 +270,9 @@ function EditorPropertiesPanel:rebuild()
                     })
                 end
                 local x, y = button:getGlobalPosition()
-                self.editor.dockspace:openContextMenu(items, x, y + button.height, button)
+                self.editor.dockspace:openContextMenu(items, x, y + button.height, button, {
+                    searchable = #items > 12
+                })
             end))
             button.enabled = field.readonly ~= true
             value_control = button
@@ -274,11 +280,12 @@ function EditorPropertiesPanel:rebuild()
             local input = self:addGeneratedControl(EditorTextInput({
                 placeholder = field.placeholder,
                 multiline = field.multiline == true,
+                submit_feedback = not field.live,
                 on_changed = field.live and function(value)
                     setField(value, false)
                 end or nil,
                 on_submit = function(value)
-                    setField(value, true)
+                    return setField(value, true)
                 end
             }))
             input:setValue(displayValue(field.get()), true)

@@ -62,7 +62,7 @@ function EditorTreeList:init(options)
         on_changed = function(value) self:setScrollValue(value) end
     }))
     self.rename_input = self:addChild(EditorTextInput({
-        on_submit = function() self:finishRename(true) end,
+        on_submit = function() return self:finishRename(true) end,
         on_cancel = function() self:finishRename(false) end
     }))
     self.rename_input.visible = false

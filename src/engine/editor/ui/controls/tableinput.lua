@@ -60,12 +60,12 @@ function EditorTableInput:rebuildRows()
     for _, key in ipairs(TableUtils.getSortedKeys(self.value)) do
         local entry_key = key
         local key_input = self:addChild(EditorTextInput({
-            on_submit = function(input) self:renameEntry(entry_key, input) end
+            on_submit = function(input) return self:renameEntry(entry_key, input) end
         }))
         key_input:setValue(tostring(key), true)
         local value_input = self:addChild(EditorTextInput({
             multiline = type(self.value[key]) == "table" or type(self.value[key]) == "function",
-            on_submit = function(input) self:setEntry(entry_key, input) end
+            on_submit = function(input) return self:setEntry(entry_key, input) end
         }))
         value_input:setValue(displayEntry(self.value[key]), true)
         local remove_button = self:addChild(EditorButton("-", function() self:removeEntry(entry_key) end))
