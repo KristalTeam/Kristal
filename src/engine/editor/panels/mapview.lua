@@ -963,7 +963,9 @@ function EditorMapView:onMousePressed(x, y, button, presses)
                 return true
             end
         end
-        local selection = (button == 2 or tool ~= "object")
+        local selecting_existing_event = tool == "object"
+            and self.editor.placement_event_id and not Input.alt()
+        local selection = (button == 2 or tool ~= "object" or selecting_existing_event)
             and self.document:findObjectAt(world_x, world_y) or nil
         if selection then selection.view = self end
         if button == 2 then
@@ -972,6 +974,11 @@ function EditorMapView:onMousePressed(x, y, button, presses)
                 return self.editor:openMapObjectContext(selection, global_x + x, global_y + y)
             end
             return false
+        end
+        if button == 1 and selecting_existing_event and selection then
+            self.editor:selectMapObject(selection)
+            self.editor:setActiveTool("select")
+            return true
         end
         if tool == "object" and self.editor.placement_tile then
             local tile = self.editor.placement_tile
