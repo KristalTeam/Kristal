@@ -1,4 +1,10 @@
-function Plugin:init(editor)
+local ExamplePlugin, super = Class(EditorPlugin)
+
+function ExamplePlugin:init(info)
+    super.init(self, info)
+end
+
+function ExamplePlugin:onInit(editor)
     local HelpDirectory = self:require("scripts.controls.helpdirectory")
 
     local panel = self:registerPanel("help_directory", "Help Directory", function()
@@ -20,3 +26,5 @@ function Plugin:init(editor)
         end
     })
 end
+
+return ExamplePlugin

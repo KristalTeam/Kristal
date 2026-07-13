@@ -430,6 +430,7 @@ EditorModeTransition = require("src.engine.editor.editormodetransition")
 EditorMenuBar = require("src.engine.editor.ui.menubar")
 EditorCursor = require("src.engine.editor.editorcursor")
 EditorMessageBar = require("src.engine.editor.ui.messagebar")
+EditorPlugin = require("src.engine.editor.editorplugin")
 EditorPlugins = require("src.engine.editor.plugins")
 
 Layout = require("src.engine.ui.layout")
