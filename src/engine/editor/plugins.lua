@@ -11,8 +11,6 @@ local EditorPlugins = {
 }
 
 local NIL_RESULT = {}
-local PluginMethods = {}
-
 local function normalizeScriptPath(path)
     path = tostring(path or ""):gsub("\\", "/"):gsub("%.lua$", "")
     return path:gsub("%.", "/"):gsub("^/+", "")
@@ -22,11 +20,11 @@ local function namespaced(plugin, kind, id)
     return string.format("plugin:%s:%s:%s", plugin.id, kind, id)
 end
 
-function PluginMethods:trackRegistration(cleanup)
+function EditorPlugin:trackRegistration(cleanup)
     table.insert(self.registration_cleanups, cleanup)
 end
 
-function PluginMethods:require(path, ...)
+function EditorPlugin:require(path, ...)
     path = normalizeScriptPath(path)
     local cached = self.loaded_scripts[path]
     if cached ~= nil then return cached ~= NIL_RESULT and cached or nil end
@@ -37,21 +35,18 @@ function PluginMethods:require(path, ...)
     end
 
     self.loading_scripts[path] = true
-    local previous_plugin = rawget(_G, "Plugin")
-    _G.Plugin = self
     local arguments = { ... }
     local success, result
     HookSystem.withOwner(self, function()
         success, result = xpcall(function() return chunk(unpack(arguments)) end, ErrorUtils.traceback)
     end)
-    _G.Plugin = previous_plugin
     self.loading_scripts[path] = nil
     if not success then error(result, 2) end
     self.loaded_scripts[path] = result == nil and NIL_RESULT or result
     return result
 end
 
-function PluginMethods:loadHooks()
+function EditorPlugin:loadHooks()
     local paths = {}
     for path in pairs(self.info.script_chunks) do
         if StringUtils.startsWith(path, "scripts/hooks/") then table.insert(paths, path) end
@@ -60,7 +55,7 @@ function PluginMethods:loadHooks()
     for _, path in ipairs(paths) do self:require(path) end
 end
 
-function PluginMethods:registerSettingsPage(id, title, options)
+function EditorPlugin:registerSettingsPage(id, title, options)
     assert(type(id) == "string" and id ~= "", "Plugin settings pages require an id")
     assert(not self.settings_pages[id], "Duplicate plugin settings page id: " .. id)
     local page_id = namespaced(self, "settings_page", id)
@@ -71,7 +66,7 @@ function PluginMethods:registerSettingsPage(id, title, options)
     return page
 end
 
-function PluginMethods:registerSetting(page, id, definition)
+function EditorPlugin:registerSetting(page, id, definition)
     if type(id) == "table" and definition == nil then
         definition, id, page = id, page, nil
     end
@@ -88,7 +83,7 @@ function PluginMethods:registerSetting(page, id, definition)
     return EditorPlugins.editor.settings:registerSetting(page.id, setting_id, definition)
 end
 
-function PluginMethods:registerPropertyType(id, definition)
+function EditorPlugin:registerPropertyType(id, definition)
     local type_id = namespaced(self, "property_type", id)
     local registered = Registry.registerEditorPropertyType(type_id, definition)
     self:trackRegistration(function()
@@ -100,7 +95,7 @@ function PluginMethods:registerPropertyType(id, definition)
     return type_id
 end
 
-function PluginMethods:registerLayerKind(id, definition)
+function EditorPlugin:registerLayerKind(id, definition)
     local kind_id = namespaced(self, "layer_kind", id)
     local registered = Registry.registerLayerKind(kind_id, definition)
     self:trackRegistration(function()
@@ -112,7 +107,7 @@ function PluginMethods:registerLayerKind(id, definition)
     return kind_id
 end
 
-function PluginMethods:registerLayerType(id, definition)
+function EditorPlugin:registerLayerType(id, definition)
     local type_id = namespaced(self, "layer_type", id)
     definition = TableUtils.copy(definition or {}, true)
     if definition.kind and not Registry.getLayerKind(definition.kind) then
@@ -129,13 +124,13 @@ function PluginMethods:registerLayerType(id, definition)
     return type_id
 end
 
-function PluginMethods:registerEditorEventProperty(event_id, id, property_type, options)
+function EditorPlugin:registerEditorEventProperty(event_id, id, property_type, options)
     return self:registerEditorEventInitializer(event_id, function(event)
         event:registerProperty(id, property_type, options)
     end)
 end
 
-function PluginMethods:registerEditorEventInitializer(event_id, initializer)
+function EditorPlugin:registerEditorEventInitializer(event_id, initializer)
     assert(type(initializer) == "function", "EditorEvent initializers must be functions")
     EditorPlugins.event_initializers[event_id] = EditorPlugins.event_initializers[event_id] or {}
     table.insert(EditorPlugins.event_initializers[event_id], initializer)
@@ -148,7 +143,7 @@ function PluginMethods:registerEditorEventInitializer(event_id, initializer)
     return initializer
 end
 
-function PluginMethods:registerEditorEvent(id, event, options)
+function EditorPlugin:registerEditorEvent(id, event, options)
     if type(event) == "string" then event = self:require(event) end
     options = options or {}
     local event_id = id
@@ -164,7 +159,7 @@ function PluginMethods:registerEditorEvent(id, event, options)
     return event_id
 end
 
-function PluginMethods:registerEditorDrawFX(id, definition)
+function EditorPlugin:registerEditorDrawFX(id, definition)
     local fx_id = namespaced(self, "draw_fx", id)
     local registered = Registry.registerEditorDrawFX(fx_id, definition)
     self:trackRegistration(function()
@@ -173,7 +168,7 @@ function PluginMethods:registerEditorDrawFX(id, definition)
     return fx_id
 end
 
-function PluginMethods:registerPanel(id, title, content_factory, options)
+function EditorPlugin:registerPanel(id, title, content_factory, options)
     assert(type(id) == "string" and id ~= "", "Plugin panels require an id")
     assert(not self.panels[id], "Duplicate plugin panel id: " .. id)
     assert(type(content_factory) == "function", "Plugin panels require a content factory")
@@ -196,7 +191,7 @@ function PluginMethods:registerPanel(id, title, content_factory, options)
     return definition
 end
 
-function PluginMethods:registerMenuItem(menu_id, id, label, options)
+function EditorPlugin:registerMenuItem(menu_id, id, label, options)
     assert(type(menu_id) == "string" and menu_id ~= "", "Plugin menu items require a menu id")
     assert(type(id) == "string" and id ~= "", "Plugin menu items require an id")
     local definition = {
@@ -208,7 +203,7 @@ function PluginMethods:registerMenuItem(menu_id, id, label, options)
     return definition
 end
 
-function PluginMethods:registerMenuToggle(menu_id, id, label, get_checked, set_checked)
+function EditorPlugin:registerMenuToggle(menu_id, id, label, get_checked, set_checked)
     assert(type(get_checked) == "function" and type(set_checked) == "function",
         "Plugin menu toggles require getter and setter callbacks")
     local definition = {
@@ -221,7 +216,7 @@ function PluginMethods:registerMenuToggle(menu_id, id, label, get_checked, set_c
     return definition
 end
 
-function PluginMethods:registerMenuProvider(menu_id, id, provider)
+function EditorPlugin:registerMenuProvider(menu_id, id, provider)
     assert(type(provider) == "function", "Plugin menu providers require a callback")
     local definition = {
         kind = "provider", plugin = self, menu_id = menu_id,
@@ -324,12 +319,7 @@ function EditorPlugins:loadPlugin(editor, directory, folder, source)
         info.script_chunks[script_path] = chunk
     end
 
-    local plugin = setmetatable({
-        id = info.id, info = info, panels = {},
-        settings_pages = {},
-        loaded_scripts = {}, loading_scripts = {}, registration_cleanups = {},
-        __editor_plugin = true
-    }, { __index = PluginMethods })
+    local plugin = EditorPlugin(info)
     self.plugins[plugin.id] = plugin
     table.insert(self.plugin_order, plugin)
 
@@ -379,13 +369,22 @@ function EditorPlugins:sortPlugins(editor)
 end
 
 function EditorPlugins:initializePluginScript(plugin)
-    if not plugin.info.script_chunks.plugin then return true end
-    local loaded, result = xpcall(function() return plugin:require("plugin") end, ErrorUtils.traceback)
-    if not loaded then return false, result end
-    if type(result) == "table" and result ~= plugin then
-        for key, value in pairs(result) do plugin[key] = value end
+    if not plugin.info.script_chunks.plugin then
+        return false, "plugin.lua must return an EditorPlugin class"
     end
-    return true
+    local loaded, result = xpcall(function()
+        local plugin_class = plugin:require("plugin")
+        assert(isClass(plugin_class) and plugin_class:includes(EditorPlugin),
+            "plugin.lua must return a class extending EditorPlugin")
+        local instance = plugin_class(plugin.info)
+        assert(instance.id == plugin.id, "EditorPlugin constructor changed the plugin id")
+        instance.loaded_scripts = plugin.loaded_scripts
+        instance.loading_scripts = plugin.loading_scripts
+        return instance
+    end, ErrorUtils.traceback)
+    if not loaded then return false, result end
+    self:clearPluginHooks(plugin)
+    return true, result
 end
 
 function EditorPlugins:scanDirectory(editor, directory, source)
@@ -408,12 +407,16 @@ function EditorPlugins:initialize(editor)
     self:scanDirectory(editor, self.directory, "user")
     self.plugin_order = self:sortPlugins(editor)
 
-    for _, plugin in ipairs(self.plugin_order) do
+    for index, plugin in ipairs(self.plugin_order) do
         if not plugin.disabled then
-            local script_loaded, script_message = self:initializePluginScript(plugin)
+            local script_loaded, instance_or_message = self:initializePluginScript(plugin)
             if not script_loaded then
                 self:disablePlugin(plugin)
-                self:report(editor, "Could not initialize editor plugin script: " .. plugin.id, script_message)
+                self:report(editor, "Could not initialize editor plugin script: " .. plugin.id, instance_or_message)
+            else
+                plugin = instance_or_message
+                self.plugin_order[index] = plugin
+                self.plugins[plugin.id] = plugin
             end
         end
         local hooks_loaded, hooks_message = true
@@ -424,7 +427,7 @@ function EditorPlugins:initialize(editor)
             self:disablePlugin(plugin)
             self:report(editor, "Editor plugin hooks failed: " .. plugin.id, hooks_message)
         end
-        local init = plugin.init or plugin.onInit
+        local init = plugin.onInit
         if init and not plugin.disabled then
             local success, message = xpcall(function()
                 HookSystem.withOwner(plugin, function() init(plugin, editor) end)
