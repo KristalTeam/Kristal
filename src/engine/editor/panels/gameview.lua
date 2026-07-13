@@ -365,7 +365,12 @@ function EditorGameView:onMouseReleased(_, _, button)
     return true
 end
 
-function EditorGameView:onWheelMoved(_, y)
+function EditorGameView:onWheelMoved(x, y)
+    if Input.shift() then
+        local speed = 40
+        self:setCanvasPosition(self.canvas_x - (x * speed), self.canvas_y + (y * speed))
+        return
+    end
     if y == 0 then return false end
     local mouse_x, mouse_y = love.mouse.getPosition()
     local global_x, global_y = self:getGlobalPosition()
