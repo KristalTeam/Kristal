@@ -1182,6 +1182,7 @@ function EditorMapView:onMouseReleased(x, y, button, presses)
         self.editor:clearDiagnostics("event_placement")
         self.editor:markHistoryChanged()
         self.editor:commitHistoryTransaction()
+        self.editor:setActiveTool("select")
         return true
     end
     if button == 1 and self.shape_drag then
