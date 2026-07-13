@@ -1716,6 +1716,7 @@ function Editor:placeEvent(view, event_id, world_x, world_y)
     self:selectMapObject(selection)
     self:markHistoryChanged()
     self:commitHistoryTransaction()
+    self:setActiveTool("select")
     return true
 end
 
