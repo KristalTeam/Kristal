@@ -475,7 +475,7 @@ function EditorDockSpace:getCursorType(x, y)
     if self.splitter_drag then return self:getSplitterCursor(self.splitter_drag.region) end
     if self.dragging_panel or self.pending_drag then return "resize_all" end
     if self.context_menu then
-        self:updateContextMenuHover(x, y)
+        self:updateContextMenuHover(x, y, false)
         if pointInRect(x, y, self.context_menu.rect)
             or (self.context_menu.submenu_rect and pointInRect(x, y, self.context_menu.submenu_rect)) then
             return "select"
@@ -560,13 +560,34 @@ function EditorDockSpace:layoutContextMenu(menu)
     local query = (menu.query or ""):lower()
     local filtered = {}
     for _, item in ipairs(menu.all_items) do
-        if query == "" or tostring(item.label or ""):lower():find(query, 1, true) then
+        item.enabled = not item.is_enabled or item.is_enabled() ~= false
+        if item.get_checked then item.checked = item.get_checked() == true end
+        local search_text = tostring(item.search_text or item.label or ""):lower()
+        if query == "" or search_text:find(query, 1, true) then
             table.insert(filtered, item)
         end
     end
     menu.filtered_items = filtered
+    local selected
+    if menu.searchable then
+        selected = MathUtils.clamp(menu.selected_index or 1, 1, math.max(1, #filtered))
+        if filtered[selected] and not filtered[selected].enabled then
+            local found
+            for index, item in ipairs(filtered) do
+                if item.enabled then found = index break end
+            end
+            selected = found
+        elseif #filtered == 0 then
+            selected = nil
+        end
+    end
+    menu.selected_index = selected
     local maximum_scroll = math.max(0, #filtered - menu.maximum_rows)
     menu.scroll = MathUtils.clamp(menu.scroll or 0, 0, maximum_scroll)
+    if selected then
+        if selected <= menu.scroll then menu.scroll = selected - 1 end
+        if selected > menu.scroll + menu.maximum_rows then menu.scroll = selected - menu.maximum_rows end
+    end
     menu.items = {}
     local first = menu.scroll + 1
     local last = math.min(#filtered, first + menu.maximum_rows - 1)
@@ -590,6 +611,7 @@ function EditorDockSpace:layoutContextMenu(menu)
         and { x = menu_x, y = menu_y, width = menu.width, height = search_height } or nil
     menu.empty_rect = #menu.items == 0
         and { x = menu_x, y = menu_y + search_height, width = menu.width, height = 28 } or nil
+    menu.selected_item = selected and filtered[selected] or nil
     menu.submenu, menu.submenu_rect = nil, nil
 end
 
@@ -597,7 +619,7 @@ function EditorDockSpace:openContextMenu(items, x, y, owner, options)
     if not items or #items == 0 then return false end
     options = options or {}
     local font = EditorFont.get(16)
-    local width = 140
+    local width = options.width or 140
     for _, item in ipairs(items) do width = math.max(width, font:getWidth(item.label) + (item.checked and 38 or 24)) end
     self.context_menu = {
         owner = owner,
@@ -606,8 +628,10 @@ function EditorDockSpace:openContextMenu(items, x, y, owner, options)
         request_x = x, request_y = y,
         width = width,
         searchable = options.searchable == true,
+        placeholder = options.placeholder or "Search...",
         query = "",
         scroll = 0,
+        selected_index = options.searchable == true and 1 or nil,
         maximum_rows = options.maximum_rows or 12,
         submenu = nil,
         submenu_rect = nil
@@ -634,11 +658,17 @@ function EditorDockSpace:openContextSubmenu(menu, item)
     menu.submenu_rect = { x = x, y = y, width = width, height = height }
 end
 
-function EditorDockSpace:updateContextMenuHover(x, y)
+function EditorDockSpace:updateContextMenuHover(x, y, update_selection)
     local menu = self.context_menu
     if not menu then return end
     for _, item in ipairs(menu.items) do
         if pointInRect(x, y, item.rect) then
+            if menu.searchable and update_selection ~= false then
+                for index, candidate in ipairs(menu.filtered_items) do
+                    if candidate == item then menu.selected_index = index break end
+                end
+                menu.selected_item = item
+            end
             if item.children then
                 self:openContextSubmenu(menu, item)
             elseif not (menu.submenu_rect and pointInRect(x, y, menu.submenu_rect)) then
@@ -656,7 +686,7 @@ end
 function EditorDockSpace:getContextMenuItemAt(x, y)
     local menu = self.context_menu
     if not menu then return nil end
-    self:updateContextMenuHover(x, y)
+    self:updateContextMenuHover(x, y, true)
     if menu.submenu then
         for _, item in ipairs(menu.submenu.children) do
             if pointInRect(x, y, item.rect) then return item end
@@ -684,13 +714,13 @@ function EditorDockSpace:drawContextMenu()
     local font = EditorFont.get(16)
     love.graphics.setFont(font)
     local mouse_x, mouse_y = love.mouse.getPosition()
-    self:updateContextMenuHover(mouse_x, mouse_y)
+    self:updateContextMenuHover(mouse_x, mouse_y, false)
     if menu.searchable then
         local search = menu.search_rect
         love.graphics.setColor(self.theme.tab_inactive)
         love.graphics.rectangle("fill", search.x, search.y, search.width, search.height)
         love.graphics.setColor(self.theme.text)
-        local label = menu.query ~= "" and menu.query or "Search..."
+        local label = menu.query ~= "" and menu.query or menu.placeholder
         love.graphics.print(label, search.x + 8,
             search.y + math.floor((search.height - font:getHeight()) / 2))
         love.graphics.setColor(self.theme.border)
@@ -707,10 +737,10 @@ function EditorDockSpace:drawContextMenu()
     end
     for _, item in ipairs(menu.items) do
         local rect = item.rect
-        love.graphics.setColor(pointInRect(mouse_x, mouse_y, rect)
+        love.graphics.setColor((item == menu.selected_item or pointInRect(mouse_x, mouse_y, rect))
             and self.theme.tab_active or self.theme.tab_inactive)
         love.graphics.rectangle("fill", rect.x, rect.y, rect.width, rect.height)
-        love.graphics.setColor(self.theme.text)
+        love.graphics.setColor(item.enabled and self.theme.text or { 0.48, 0.48, 0.52, 1 })
         if item.checked then love.graphics.print("*", rect.x + 8,
             rect.y + math.floor((rect.height - font:getHeight()) / 2)) end
         love.graphics.print(item.label, rect.x + (item.checked and 24 or 12),
@@ -778,9 +808,11 @@ function EditorDockSpace:onMousePressed(x, y, button, presses)
             if item and item.children then
                 self:openContextSubmenu(menu, item)
                 return true
-            elseif item and item.action then
+            elseif item and item.enabled and item.action then
                 self.context_menu = nil
                 item.action()
+                return true
+            elseif item then
                 return true
             end
         end
@@ -840,6 +872,13 @@ function EditorDockSpace:onMousePressed(x, y, button, presses)
 end
 
 function EditorDockSpace:onMouseMoved(x, y, dx, dy)
+    if self.context_menu then
+        self:updateContextMenuHover(x, y, true)
+        if pointInRect(x, y, self.context_menu.rect)
+            or (self.context_menu.submenu_rect and pointInRect(x, y, self.context_menu.submenu_rect)) then
+            return true
+        end
+    end
     if self.floating_resize then
         local resize = self.floating_resize
         local panel = resize.panel
@@ -1024,6 +1063,7 @@ function EditorDockSpace:onWheelMoved(x, y)
         local scroll = MathUtils.clamp(menu.scroll - y, 0, maximum)
         if scroll ~= menu.scroll then
             menu.scroll = scroll
+            menu.selected_index = math.min(#menu.filtered_items, scroll + 1)
             self:layoutContextMenu(menu)
         end
         return true
@@ -1050,11 +1090,26 @@ function EditorDockSpace:onKeyPressed(key, is_repeat)
             local offset = utf8.offset(menu.query, -1)
             menu.query = offset and menu.query:sub(1, offset - 1) or ""
             menu.scroll = 0
+            menu.selected_index = 1
             self:layoutContextMenu(menu)
-        elseif (key == "return" or key == "kpenter") and menu.items[1] then
-            local item = menu.items[1]
+        elseif key == "up" or key == "down" then
+            local count = #menu.filtered_items
+            if count > 0 then
+                local direction = key == "up" and -1 or 1
+                local index = menu.selected_index or (direction > 0 and 0 or 1)
+                for _ = 1, count do
+                    index = ((index - 1 + direction) % count) + 1
+                    if menu.filtered_items[index].enabled then
+                        menu.selected_index = index
+                        break
+                    end
+                end
+                self:layoutContextMenu(menu)
+            end
+        elseif (key == "return" or key == "kpenter") and menu.selected_item then
+            local item = menu.selected_item
             self.context_menu = nil
-            if item.action then item.action() end
+            if item.enabled and item.action then item.action() end
         else
             return false
         end
@@ -1081,6 +1136,7 @@ function EditorDockSpace:onTextInput(text)
         local menu = self.context_menu
         menu.query = menu.query .. tostring(text or "")
         menu.scroll = 0
+        menu.selected_index = 1
         self:layoutContextMenu(menu)
         return true
     end

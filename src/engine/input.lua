@@ -102,7 +102,7 @@ Input.scroll_delta_y = 0
 
 Input.order = {
     "down", "right", "up", "left", "confirm", "cancel", "menu", "console", "debug_menu", "object_selector",
-    "fast_forward", "editor", "editor_view", "editor_delete", "editor_tool_select", "editor_tool_world_select", "editor_tool_object",
+    "fast_forward", "editor", "editor_view", "editor_command_palette", "editor_delete", "editor_tool_select", "editor_tool_world_select", "editor_tool_object",
     "editor_tool_shape", "editor_tool_tile_brush", "editor_tool_tile_fill", "editor_tool_eraser",
     "editor_tool_link", "mod_rebind"
 }
@@ -232,6 +232,7 @@ function Input.resetBinds(gamepad, mod_id)
             ["fast_forward"] = { { "ctrl", "g" } },
             ["editor"] = { "f10" },
             ["editor_view"] = { "tab" },
+            ["editor_command_palette"] = { { "ctrl", "shift", "p" } },
             ["editor_delete"] = { "delete" },
             ["editor_tool_select"] = { "v" },
             ["editor_tool_world_select"] = { "w" },
@@ -257,6 +258,7 @@ function Input.resetBinds(gamepad, mod_id)
             ["fast_forward"] = {},
             ["editor"] = {},
             ["editor_view"] = {},
+            ["editor_command_palette"] = {},
             ["editor_delete"] = {},
             ["editor_tool_select"] = {},
             ["editor_tool_world_select"] = {},
@@ -319,6 +321,7 @@ function Input.resetBinds(gamepad, mod_id)
             ["fast_forward"] = { { "ctrl", "g" } },
             ["editor"] = { "f10" },
             ["editor_view"] = { "tab" },
+            ["editor_command_palette"] = { { "ctrl", "shift", "p" } },
             ["editor_delete"] = { "delete" },
             ["editor_tool_select"] = { "v" },
             ["editor_tool_world_select"] = { "w" },
@@ -376,6 +379,7 @@ function Input.resetBinds(gamepad, mod_id)
             ["fast_forward"] = {},
             ["editor"] = {},
             ["editor_view"] = {},
+            ["editor_command_palette"] = {},
             ["editor_delete"] = {},
             ["editor_tool_select"] = {},
             ["editor_tool_world_select"] = {},

@@ -161,25 +161,32 @@ function EditorWorldBrowser:createWorld()
         index = index + 1
         id = "new_world_" .. index
     end
-    local world = EditorWorld(id)
-    world.name = "New World"
-    world.virtual = true
-    local document = self.editor.active_document
-    if document and document.primary_map_id then
-        world:addMap(document.primary_map_id, 0, 0, { explicit_companion = true })
-    end
-    Registry.registerEditorWorld(id, world)
-    self:refresh(id)
-    self:selectWorld(world)
-    if self.editor:openWorld(world) then
-        local opened = self.editor:findWorldDocument(id)
-        if opened then
-            self.editor.history.serial = self.editor.history.serial + 1
-            opened.history_revision = self.editor.history.serial
-            self.editor:onHistoryChanged({ opened }, false)
+    return self.editor:openCreationDialog({
+        title = "Create World", templates = { Registry.getEditorTemplate("core:world") },
+        context = { defaults = { id = id } },
+        on_create = function(values)
+            if Registry.getEditorWorld(values.id) then return false, "A world with that id already exists" end
+            local world = EditorWorld(values.id)
+            world.name = values.name
+            world.virtual = true
+            local document = self.editor.active_document
+            if values.include_active_map and document and document.primary_map_id then
+                world:addMap(document.primary_map_id, 0, 0, { explicit_companion = true })
+            end
+            Registry.registerEditorWorld(values.id, world)
+            self:refresh(values.id)
+            self:selectWorld(world)
+            if #world.maps > 0 and self.editor:openWorld(world) then
+                local opened = self.editor:findWorldDocument(values.id)
+                if opened then
+                    self.editor.history.serial = self.editor.history.serial + 1
+                    opened.history_revision = self.editor.history.serial
+                    self.editor:onHistoryChanged({ opened }, false)
+                end
+            end
+            return true
         end
-    end
-    return world
+    })
 end
 
 function EditorWorldBrowser:editSelectedWorld()

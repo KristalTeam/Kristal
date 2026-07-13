@@ -187,9 +187,32 @@ end
 
 function EditorMapBrowser:createMap(parent)
     parent = parent or self.tree:getInsertionParent()
-    local node = self.tree:createMap(parent, uniqueName(parent, "New Map"), { virtual = true })
-    self.tree:beginRename(node)
-    return node
+    local prefix = parent and not parent.root and nodeRegistryId(parent) or ""
+    local id = prefix ~= "" and (prefix .. "/new_map") or "new_map"
+    local index, candidate = 1, id
+    while Registry.getMap(candidate) or Registry.getMapData(candidate) do
+        index = index + 1
+        candidate = id .. "_" .. index
+    end
+    local template = Registry.getEditorTemplate("core:map")
+    return self.editor:openCreationDialog({
+        title = "Create Map", templates = { template },
+        context = { parent = parent, defaults = { id = candidate,
+            name = StringUtils.titleCase((candidate:match("([^/]+)$") or candidate):gsub("[_%-]", " ")) } },
+        on_create = function(values)
+            if prefix ~= "" and not values.id:find("/", 1, true) then values.id = prefix .. "/" .. values.id end
+            local color = ColorUtils.tryHexToRGB(values.background_color)
+            if not color then return false, "Background must be a hex RGB or RGBA color" end
+            local document, reason = self.editor:createNewMap(values.id, values.name, {
+                width = values.width, height = values.height,
+                grid_width = values.grid_width, grid_height = values.grid_height,
+                background_color = color
+            })
+            if not document then return false, reason end
+            self:refresh()
+            return true
+        end
+    })
 end
 
 function EditorMapBrowser:openNodeContextMenu(node, tree, x, y)

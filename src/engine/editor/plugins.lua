@@ -6,6 +6,7 @@ local EditorPlugins = {
     plugin_order = {},
     panel_definitions = {},
     menu_definitions = {},
+    command_definitions = {},
     event_initializers = {},
     editor = nil
 }
@@ -227,11 +228,60 @@ function EditorPlugin:registerMenuProvider(menu_id, id, provider)
     return definition
 end
 
+function EditorPlugin:registerTemplate(id, definition)
+    assert(type(id) == "string" and id ~= "", "Plugin templates require an id")
+    local template_id = namespaced(self, "template", id)
+    local registered = Registry.registerEditorTemplate(template_id, definition)
+    registered.owner = self
+    self:trackRegistration(function()
+        if Registry.editor_templates[template_id] == registered then
+            Registry.editor_templates[template_id] = nil
+            TableUtils.removeValue(Registry.editor_template_order, registered)
+        end
+    end)
+    return template_id
+end
+
+function EditorPlugin:registerCommand(id, label, options)
+    assert(type(id) == "string" and id ~= "", "Plugin commands require an id")
+    options = options or {}
+    assert(type(options.action) == "function", "Plugin commands require an action")
+    local definition = {
+        plugin = self,
+        id = namespaced(self, "command", id),
+        name = label or id,
+        category = options.category or self.info.name or self.id,
+        keywords = options.keywords,
+        is_enabled = options.is_enabled,
+        get_checked = options.get_checked,
+        action = options.action
+    }
+    table.insert(EditorPlugins.command_definitions, definition)
+    self:trackRegistration(function()
+        TableUtils.removeValue(EditorPlugins.command_definitions, definition)
+        local editor = EditorPlugins.editor
+        if editor and editor.command_registry then editor.command_registry:unregister(definition.id) end
+    end)
+    return definition
+end
+
+function EditorPlugin:registerDocumentProvider(id, definition)
+    assert(type(id) == "string" and id ~= "", "Plugin document providers require an id")
+    local provider_id = namespaced(self, "document_provider", id)
+    local provider = EditorPlugins.editor.document_providers:register(provider_id, definition)
+    self:trackRegistration(function()
+        local editor = EditorPlugins.editor
+        if editor and editor.document_providers then editor.document_providers:unregister(provider_id) end
+    end)
+    return provider
+end
+
 function EditorPlugins:reset()
     self.plugins = {}
     self.plugin_order = {}
     self.panel_definitions = {}
     self.menu_definitions = {}
+    self.command_definitions = {}
     self.event_initializers = {}
 end
 
@@ -456,6 +506,19 @@ function EditorPlugins:applyMenuBar(editor)
             end, ErrorUtils.traceback)
             if not success then
                 self:report(editor, "Could not register menu extension from plugin: " .. definition.plugin.id, message)
+            end
+        end
+    end
+end
+
+function EditorPlugins:applyCommands(editor)
+    for _, definition in ipairs(self.command_definitions) do
+        if not definition.plugin.disabled then
+            local success, message = xpcall(function()
+                editor.command_registry:register(definition.id, definition)
+            end, ErrorUtils.traceback)
+            if not success then
+                self:report(editor, "Could not register command from plugin: " .. definition.plugin.id, message)
             end
         end
     end

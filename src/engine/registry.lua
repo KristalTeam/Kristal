@@ -29,6 +29,8 @@
 ---@field editor_properties EditorPropertyRegistry
 ---@field editor_worlds table<string, EditorWorld>
 ---@field editor_draw_fx table<string, table>
+---@field editor_templates table<string, table>
+---@field editor_template_order table[]
 ---@field tilesets table<string, Tileset>
 ---@field maps table<string, Map>
 ---@field map_data table<string, table> -- TODO: Document map data
@@ -102,6 +104,7 @@ function Registry.initialize(preload)
         Registry.initCutscenes()
         Registry.initEventScripts()
         Registry.initEditorProperties()
+        Registry.initEditorTemplates()
         Registry.initEditorDrawFX()
         Registry.initEditorWorlds()
         Registry.initLayerTypes()
@@ -130,6 +133,8 @@ function Registry.saveData()
     self.saved_data.layer_types = self.layer_types
     self.saved_data.editor_worlds = self.editor_worlds
     self.saved_data.editor_draw_fx = self.editor_draw_fx
+    self.saved_data.editor_templates = self.editor_templates
+    self.saved_data.editor_template_order = self.editor_template_order
 end
 
 ---@return boolean
@@ -142,6 +147,8 @@ function Registry.restoreData()
         self.layer_types = self.saved_data.layer_types
         self.editor_worlds = self.saved_data.editor_worlds or {}
         self.editor_draw_fx = self.saved_data.editor_draw_fx or {}
+        self.editor_templates = self.saved_data.editor_templates or {}
+        self.editor_template_order = self.saved_data.editor_template_order or {}
         return true
     else
         return false
@@ -515,6 +522,39 @@ function Registry.registerEditorDrawFX(id, definition)
     definition.name = definition.name or StringUtils.titleCase(id:gsub("[/_]", " "))
     self.editor_draw_fx = self.editor_draw_fx or {}
     self.editor_draw_fx[id] = definition
+    return definition
+end
+
+function Registry.getEditorTemplate(id)
+    return self.editor_templates and self.editor_templates[id]
+end
+
+function Registry.getEditorTemplates(kind)
+    local result = {}
+    for _, definition in ipairs(self.editor_template_order or {}) do
+        if not kind or definition.kind == kind then table.insert(result, definition) end
+    end
+    return result
+end
+
+function Registry.registerEditorTemplate(id, definition)
+    assert(type(id) == "string" and id ~= "", "Editor templates require an id")
+    assert(type(definition) == "table", "Editor templates require a definition")
+    local render = definition.render
+    definition = TableUtils.copy(definition, true)
+    definition.render = render
+    definition.id = id
+    definition.name = definition.name or StringUtils.titleCase(id:gsub("[:/_]", " "))
+    definition.kind = definition.kind or "file"
+    definition.category = definition.category or "Other"
+    definition.variables = definition.variables or {}
+    definition.methods = definition.methods or {}
+    self.editor_templates = self.editor_templates or {}
+    self.editor_template_order = self.editor_template_order or {}
+    local previous = self.editor_templates[id]
+    if previous then TableUtils.removeValue(self.editor_template_order, previous) end
+    self.editor_templates[id] = definition
+    table.insert(self.editor_template_order, definition)
     return definition
 end
 
@@ -1024,6 +1064,13 @@ end
 function Registry.initEditorProperties()
     self.editor_properties = EditorPropertyRegistry()
     Kristal.callEvent(KRISTAL_EVENT.onRegisterEditorPropertyTypes, self.editor_properties)
+end
+
+function Registry.initEditorTemplates()
+    self.editor_templates = {}
+    self.editor_template_order = {}
+    EditorTemplateRegistry.registerBuiltins(self)
+    Kristal.callEvent(KRISTAL_EVENT.onRegisterEditorTemplates, self)
 end
 
 function Registry.initEditorDrawFX()

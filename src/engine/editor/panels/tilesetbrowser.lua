@@ -51,14 +51,35 @@ function EditorTilesetBrowser:createTileset()
     for _, document in ipairs(self.editor.tileset_documents) do used[document.id] = true end
     local id = "new_tileset"
     while used[id] do index = index + 1 id = "new_tileset_" .. index end
-    local document = EditorTilesetDocument(self.editor, id)
-    table.insert(self.editor.tileset_documents, document)
-    self.editor.history.serial = self.editor.history.serial + 1
-    document.history_revision = self.editor.history.serial
-    self:refresh(id)
-    self.editor:setActiveTileset(document)
-    self.editor:showTilesetEditor(document)
-    self.editor:onHistoryChanged({ document }, false)
+    return self.editor:openCreationDialog({
+        title = "Create Tileset", templates = { Registry.getEditorTemplate("core:tileset") },
+        context = { defaults = { id = id } },
+        on_create = function(values)
+            for _, existing in ipairs(self.editor.tileset_documents) do
+                if existing.id == values.id then return false, "A tileset with that id already exists" end
+            end
+            local data = {
+                name = values.name,
+                image = values.image ~= "" and values.image or nil,
+                tile_width = values.tile_width,
+                tile_height = values.tile_height,
+                tile_count = values.tile_count,
+                tile_columns = values.tile_columns,
+                margin = values.margin,
+                spacing = values.spacing,
+                properties = {}, tiles = {}, terrains = {}
+            }
+            local document = EditorTilesetDocument(self.editor, values.id, nil, data)
+            table.insert(self.editor.tileset_documents, document)
+            self.editor.history.serial = self.editor.history.serial + 1
+            document.history_revision = self.editor.history.serial
+            self:refresh(values.id)
+            self.editor:setActiveTileset(document)
+            self.editor:showTilesetEditor(document)
+            self.editor:onHistoryChanged({ document }, false)
+            return true
+        end
+    })
 end
 
 function EditorTilesetBrowser:openContextMenu(item, list, x, y)

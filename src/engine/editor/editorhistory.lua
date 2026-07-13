@@ -2,6 +2,13 @@
 ---@overload fun(editor: table): EditorHistory
 local EditorHistory = Class()
 
+---@class EditorHistoryCallbackCommand
+---@field owners? table|table[] Owners whose dirty revisions and editor UI should be updated.
+---@field metadata? table
+---@field execute? fun(): any Called when the command is initially performed.
+---@field undo fun()
+---@field redo? fun() Defaults to execute when the command is initially performed by history.
+
 EditorHistory.DEFAULT_LIMIT = 500
 
 function EditorHistory:init(editor, limit)
@@ -44,40 +51,122 @@ local function normalizeOwners(owners)
     return result
 end
 
+local function normalizeCommandOwners(owners)
+    if owners == nil then return {} end
+    assert(type(owners) == "table", "History command owners must be a table or list of tables")
+    if next(owners) == nil then return {} end
+    if owners and owners[1] == nil then owners = { owners } end
+    local result, seen = {}, {}
+    for _, owner in ipairs(owners or {}) do
+        if owner and not seen[owner] then
+            seen[owner] = true
+            table.insert(result, owner)
+        end
+    end
+    return result
+end
+
+local function removeAddedOwners(transaction, scope)
+    for _, owner in ipairs(scope.added_owners) do
+        transaction.owner_set[owner] = nil
+        transaction.before[owner] = nil
+        transaction.before_revisions[owner] = nil
+        for index = #transaction.owners, 1, -1 do
+            if transaction.owners[index] == owner then
+                table.remove(transaction.owners, index)
+                break
+            end
+        end
+    end
+end
+
+local function addOwners(transaction, owners)
+    local scope = transaction.scopes[#transaction.scopes]
+    for _, owner in ipairs(owners) do
+        if not transaction.owner_set[owner] then
+            transaction.owner_set[owner] = true
+            table.insert(transaction.owners, owner)
+            table.insert(scope.added_owners, owner)
+            transaction.before[owner] = owner:captureHistoryState()
+            transaction.before_revisions[owner] = owner.history_revision or 0
+        end
+    end
+end
+
 function EditorHistory:begin(label, owners)
-    if self.transaction then return false end
     owners = normalizeOwners(owners)
     if #owners == 0 then return false end
-    local transaction = { label = label or "Edit", owners = owners, before = {}, before_revisions = {}, changed = false }
-    for _, owner in ipairs(owners) do
-        transaction.before[owner] = owner:captureHistoryState()
-        transaction.before_revisions[owner] = owner.history_revision or 0
+    if not self.transaction then
+        self.transaction = {
+            kind = "snapshot",
+            label = label or "Edit",
+            owners = {},
+            owner_set = {},
+            before = {},
+            before_revisions = {},
+            scopes = {}
+        }
     end
-    self.transaction = transaction
+    local transaction = self.transaction
+    table.insert(transaction.scopes, {
+        added_owners = {},
+        changed = false,
+        metadata = nil
+    })
+    addOwners(transaction, owners)
     return true
 end
 
 function EditorHistory:markChanged()
     if not self.transaction then return false end
-    self.transaction.changed = true
+    local scopes = self.transaction.scopes
+    scopes[#scopes].changed = true
     return true
 end
 
 function EditorHistory:setTransactionMetadata(key, value)
     if not self.transaction then return false end
-    self.transaction.metadata = self.transaction.metadata or {}
-    self.transaction.metadata[key] = value
+    local scopes = self.transaction.scopes
+    local scope = scopes[#scopes]
+    scope.metadata = scope.metadata or {}
+    scope.metadata[key] = value
     return true
 end
 
 function EditorHistory:cancel()
-    self.transaction = nil
+    local transaction = self.transaction
+    if not transaction then return false end
+    local scope = table.remove(transaction.scopes)
+    removeAddedOwners(transaction, scope)
+    if #transaction.scopes == 0 then self.transaction = nil end
+    return true
 end
 
 function EditorHistory:commit()
     local transaction = self.transaction
+    if not transaction then return false end
+    local scope = table.remove(transaction.scopes)
+    if #transaction.scopes > 0 then
+        if scope.changed then
+            local parent = transaction.scopes[#transaction.scopes]
+            parent.changed = true
+            for _, owner in ipairs(scope.added_owners) do
+                table.insert(parent.added_owners, owner)
+            end
+            if scope.metadata then
+                parent.metadata = parent.metadata or {}
+                for key, value in pairs(scope.metadata) do parent.metadata[key] = value end
+            end
+        else
+            removeAddedOwners(transaction, scope)
+        end
+        return scope.changed
+    end
     self.transaction = nil
-    if not transaction or not transaction.changed then return false end
+    if not scope.changed then return false end
+    transaction.metadata = scope.metadata
+    transaction.scopes = nil
+    transaction.owner_set = nil
     while #self.commands > self.index do table.remove(self.commands) end
     transaction.after, transaction.after_revisions = {}, {}
     for _, owner in ipairs(transaction.owners) do
@@ -95,7 +184,7 @@ function EditorHistory:commit()
 end
 
 function EditorHistory:perform(label, owners, callback)
-    if not self:begin(label, owners) then return callback() end
+    if not self:begin(label, owners) then return false end
     local results = { callback() }
     if results[1] == false or results[1] == nil then
         self:cancel()
@@ -103,6 +192,58 @@ function EditorHistory:perform(label, owners, callback)
         self:markChanged()
         self:commit()
     end
+    return unpack(results)
+end
+
+local function appendCommand(history, command)
+    while #history.commands > history.index do table.remove(history.commands) end
+    command.before_revisions, command.after_revisions = {}, {}
+    for _, owner in ipairs(command.owners) do
+        command.before_revisions[owner] = owner.history_revision or 0
+        history.serial = history.serial + 1
+        command.after_revisions[owner] = history.serial
+        owner.history_revision = history.serial
+        if owner.saved_history_revision == nil then owner.saved_history_revision = 0 end
+    end
+    table.insert(history.commands, command)
+    history.index = #history.commands
+    history:trimToLimit()
+    history.editor:onHistoryChanged(command.owners, false)
+    return true
+end
+
+---@param label? string
+---@param command EditorHistoryCallbackCommand
+function EditorHistory:pushCommand(label, command)
+    assert(type(command) == "table", "History commands must be tables")
+    assert(type(command.undo) == "function", "History commands require an undo callback")
+    assert(type(command.redo) == "function", "History commands require a redo callback")
+    if self.transaction then return false end
+    return appendCommand(self, {
+        kind = "callbacks",
+        label = label or command.label or "Edit",
+        owners = normalizeCommandOwners(command.owners),
+        metadata = command.metadata,
+        undo = command.undo,
+        redo = command.redo
+    })
+end
+
+---@param label? string
+---@param command EditorHistoryCallbackCommand
+function EditorHistory:performCommand(label, command)
+    assert(type(command) == "table", "History commands must be tables")
+    assert(type(command.execute) == "function", "History commands require an execute callback")
+    assert(type(command.undo) == "function", "History commands require an undo callback")
+    if self.transaction then return false end
+    local results = { command.execute() }
+    if results[1] == false then return unpack(results) end
+    self:pushCommand(label, {
+        owners = command.owners,
+        metadata = command.metadata,
+        undo = command.undo,
+        redo = command.redo or command.execute
+    })
     return unpack(results)
 end
 
@@ -131,10 +272,19 @@ local function restore(command, states, revisions)
     end
 end
 
+local function setRevisions(command, revisions)
+    for _, owner in ipairs(command.owners) do owner.history_revision = revisions[owner] end
+end
+
 function EditorHistory:undo()
     if not self:canUndo() then return false end
     local command = self.commands[self.index]
-    restore(command, command.before, command.before_revisions)
+    if command.kind == "callbacks" then
+        command.undo()
+        setRevisions(command, command.before_revisions)
+    else
+        restore(command, command.before, command.before_revisions)
+    end
     self.index = self.index - 1
     self.editor:onHistoryChanged(command.owners, true, command, "undo")
     return true
@@ -143,7 +293,12 @@ end
 function EditorHistory:redo()
     if not self:canRedo() then return false end
     local command = self.commands[self.index + 1]
-    restore(command, command.after, command.after_revisions)
+    if command.kind == "callbacks" then
+        command.redo()
+        setRevisions(command, command.after_revisions)
+    else
+        restore(command, command.after, command.after_revisions)
+    end
     self.index = self.index + 1
     self.editor:onHistoryChanged(command.owners, true, command, "redo")
     return true

@@ -1,3 +1,4 @@
+---@class TemplateCharacter : PartyMember
 local character, super = Class(PartyMember, "test_character")
 
 function character:init()
@@ -10,11 +11,16 @@ function character:init()
     self:setActor("kris")
     -- Light World Actor (handles overworld/battle sprites in light world maps) (optional)
     self:setLightActor("kris_lw")
+    -- Actor used during the Dark World transition (optional)
+    self:setDarkTransitionActor(nil)
 
     -- Display level (saved to the save file)
     self.level = Game.chapter
     -- Default title / class (saved to the save file)
     self.title = "Player"
+
+    self.lw_lv = 1
+    self.lw_exp = 0
 
     -- Determines which character the soul comes from (higher number = higher priority)
     self.soul_priority = 2
@@ -35,6 +41,7 @@ function character:init()
 
     -- Current health (saved to the save file)
     self.health = 100
+    self.lw_health = 20
 
     -- Base stats (saved to the save file)
     self.stats = {
@@ -42,6 +49,13 @@ function character:init()
         attack = 10,
         defense = 2,
         magic = 0
+    }
+    self.max_stats = {}
+    self.stronger_absent = {}
+    self.lw_stats = {
+        health = 20,
+        attack = 10,
+        defense = 10
     }
 
     -- Weapon icon in equip menu
@@ -90,6 +104,30 @@ function character:init()
 
     -- Message shown on gameover (optional)
     self.gameover_message = nil
+
+    -- Light World EXP requirements by LV
+    self.lw_exp_needed = {
+        [1] = 0,
+        [2] = 10,
+        [3] = 30,
+        [4] = 70,
+        [5] = 120,
+        [6] = 200,
+        [7] = 300,
+        [8] = 500,
+        [9] = 800,
+        [10] = 1200,
+        [11] = 1700,
+        [12] = 2500,
+        [13] = 3500,
+        [14] = 5000,
+        [15] = 7000,
+        [16] = 10000,
+        [17] = 15000,
+        [18] = 25000,
+        [19] = 50000,
+        [20] = 99999
+    }
 end
 
 -- Function overrides go here

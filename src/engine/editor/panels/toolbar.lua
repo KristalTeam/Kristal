@@ -61,10 +61,10 @@ function EditorToolbar:update(dt)
     local history_width, gap = 28, 5
     self.redo_button:setBounds(math.max(x, self.width - history_width - 6), 4, history_width, height)
     self.undo_button:setBounds(math.max(x, self.redo_button.x - history_width - gap), 4, history_width, height)
-    self.undo_button.enabled = self.editor.history:canUndo()
-    self.redo_button.enabled = self.editor.history:canRedo()
-    local undo_label = self.editor.history:getUndoLabel()
-    local redo_label = self.editor.history:getRedoLabel()
+    self.undo_button.enabled = self.editor:canUndo()
+    self.redo_button.enabled = self.editor:canRedo()
+    local undo_label = self.editor:getUndoLabel()
+    local redo_label = self.editor:getRedoLabel()
     self.undo_button.tool.name = undo_label and ("Undo " .. undo_label) or "Undo"
     self.redo_button.tool.name = redo_label and ("Redo " .. redo_label) or "Redo"
     if self.undo_button:containsPoint(mouse_x, mouse_y) then

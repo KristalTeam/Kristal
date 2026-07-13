@@ -19,6 +19,7 @@ function EditorTableInput:init(editor, value, options)
     self.editor = editor
     self.value = type(value) == "table" and value or {}
     self.on_changed = options.on_changed
+    self.on_request_focus = options.on_request_focus
     self.row_height = 30
     self.maximum_visible_rows = options.maximum_visible_rows or 6
     self.scroll_row = 0
@@ -125,7 +126,10 @@ function EditorTableInput:addEntry()
     if not self:submit(candidate) then return false end
     self.scroll_row = self:getMaxScroll()
     for _, row in ipairs(self.rows) do
-        if row.key == key and self.editor.dockspace then
+        if row.key == key and self.on_request_focus then
+            self.on_request_focus(row.value_input, self)
+            break
+        elseif row.key == key and self.editor.dockspace then
             self.editor.dockspace:setFocus(row.value_input)
             break
         end

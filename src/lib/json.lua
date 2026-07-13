@@ -23,6 +23,11 @@
 --
 
 local json = { _version = "0.1.2" }
+json.null = setmetatable({}, { __tostring = function() return "null" end })
+
+function json.object(value)
+  return setmetatable(value or {}, { __json_object = true })
+end
 
 -------------------------------------------------------------------------------
 -- Encode
@@ -57,6 +62,7 @@ end
 
 
 local function encode_table(val, stack)
+  if val == json.null then return "null" end
   local res = {}
   stack = stack or {}
 
@@ -65,7 +71,8 @@ local function encode_table(val, stack)
 
   stack[val] = true
 
-  if rawget(val, 1) ~= nil or next(val) == nil then
+  if not (getmetatable(val) and getmetatable(val).__json_object)
+      and (rawget(val, 1) ~= nil or next(val) == nil) then
     -- Treat as array -- check keys are valid and it is not sparse
     local n = 0
     for k in pairs(val) do
