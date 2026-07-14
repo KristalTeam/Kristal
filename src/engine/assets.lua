@@ -48,6 +48,7 @@ local self = Assets
 --- Settings for a sound asset, paired with the actual sound data as a .json file.
 ---@class Assets.sound_settings
 ---@field volume number? # Default volume to play the sound at.
+---@field pitch number? # Default pitch to play the sound at.
 
 Assets.saved_data = nil
 
