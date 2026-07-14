@@ -92,7 +92,8 @@ function MainMenuCredits:init(menu)
                 "TheSkerch",
                 "Verozity",
                 "WIL-TZY",
-                "YeetusSnoopy"
+                "YeetusSnoopy",
+                "dignitysr"
             }
         }
     }
