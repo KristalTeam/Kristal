@@ -265,10 +265,12 @@ function EditorPlugin:registerCommand(id, label, options)
     return definition
 end
 
-function EditorPlugin:registerDocumentProvider(id, definition)
+---@param id string
+---@param provider EditorDocumentProvider
+function EditorPlugin:registerDocumentProvider(id, provider)
     assert(type(id) == "string" and id ~= "", "Plugin document providers require an id")
     local provider_id = namespaced(self, "document_provider", id)
-    local provider = EditorPlugins.editor.document_providers:register(provider_id, definition)
+    provider = EditorPlugins.editor.document_providers:register(provider_id, provider)
     self:trackRegistration(function()
         local editor = EditorPlugins.editor
         if editor and editor.document_providers then editor.document_providers:unregister(provider_id) end

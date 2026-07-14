@@ -1,6 +1,6 @@
----@class EditorTilesetDocument : Class
+---@class EditorTilesetDocument : EditorDocument
 ---@overload fun(editor: table, id: string, tileset?: Tileset, data?: table): EditorTilesetDocument
-local EditorTilesetDocument = Class()
+local EditorTilesetDocument, super = Class(EditorDocument)
 
 local function findTileData(data, id)
     for _, tile in ipairs(data.tiles or {}) do if tile.id == id then return tile end end
@@ -11,7 +11,7 @@ local function findTileData(data, id)
 end
 
 function EditorTilesetDocument:init(editor, id, tileset, data)
-    self.editor = editor
+    super.init(self, editor)
     self.id = id
     self.tileset = tileset
     self.data = data or tileset and tileset.data
@@ -29,8 +29,6 @@ function EditorTilesetDocument:init(editor, id, tileset, data)
     self.property_set = EditorPropertySet(self.data.properties, self.data.__editor_property_types)
     self.virtual = tileset == nil
     self.tile_documents = {}
-    self.history_revision = 0
-    self.saved_history_revision = 0
 end
 
 function EditorTilesetDocument:captureHistoryState()
@@ -46,10 +44,6 @@ function EditorTilesetDocument:restoreHistoryState(state)
     self.tile_documents = {}
     if self.tileset then self.tileset.data = self.data end
     return true
-end
-
-function EditorTilesetDocument:isDirty()
-    return (self.history_revision or 0) ~= (self.saved_history_revision or 0)
 end
 
 function EditorTilesetDocument:getFormatContext()

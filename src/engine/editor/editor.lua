@@ -1,6 +1,6 @@
 local EDITOR_DEFAULT_WIDTH = 1280
 local EDITOR_DEFAULT_HEIGHT = 800
-local EDITOR_SESSION_VERSION = 4
+local EDITOR_SESSION_VERSION = 5
 local EDITOR_SESSION_DIRECTORY = "editor"
 local EDITOR_MUSIC = "edit"
 local EDITOR_MUSIC_VOLUME = 0.5
@@ -159,6 +159,36 @@ function Editor:createMapDocument(id, panel_id)
     return document
 end
 
+function Editor:configureWorldDocument(document, source, primary_map_id)
+    if not document or not source then return false end
+    local world = EditorWorld(source.id)
+    world.name = source.name or source.id
+    world.data = TableUtils.copy(source.data or {}, true)
+    world.properties = TableUtils.copy(source.properties or {}, true)
+    world.__editor_property_types = TableUtils.copy(source.__editor_property_types or {}, true)
+    world.virtual = source.virtual
+    for _, entry in ipairs(source.maps or {}) do
+        world:addMap(entry.id, entry.x, entry.y, {
+            explicit_companion = entry.explicit_companion ~= false
+        })
+    end
+    local primary = primary_map_id or source.primary_map_id
+        or (world.maps[1] and world.maps[1].id)
+    if not primary or not world.map_lookup[primary] then return false end
+    world.primary_map_id = primary
+    for _, entry in ipairs(world.maps) do entry.primary = entry.id == primary end
+    document.world = world
+    document.editor_world = true
+    document.primary_map_id = primary
+    document.maps = world.maps
+    document.map_lookup = world.map_lookup
+    if document.map_view then document.map_view.active_map_id = primary end
+    if document.panel then
+        document.panel.title = (world.name or world.id) .. (document:isDirty() and " *" or "")
+    end
+    return true
+end
+
 function Editor:restoreDocumentView(document, state)
     if type(state) ~= "table" then return end
     local view = document.game_view
@@ -219,6 +249,7 @@ function Editor:captureSession()
         local saved_document = {
             panel_id = document.panel.id,
             primary_map_id = document.primary_map_id,
+            editor_world = document.editor_world == true,
             world_id = document.world and document.world.id,
             primary_position = document:getPrimaryMap() and {
                 x = document:getPrimaryMap().x,
@@ -308,7 +339,7 @@ function Editor:registerMenuBar()
     self.menu_bar:registerItem("file", "save_active", "Save Active Document (Ctrl+S)", {
         is_enabled = function()
             local provider = self.document_providers:getFocused()
-            if provider then return not provider.can_save or provider.can_save() end
+            if provider then return provider:canSave() ~= false end
             return self.active_document ~= nil or self.active_tileset_document ~= nil
         end,
         on_activate = function() self:saveActiveDocument() end
@@ -595,11 +626,27 @@ function Editor:setupMapDocuments(session)
     local restored_by_panel = {}
     local saved_documents = session and type(session.documents) == "table" and session.documents or {}
     for _, saved_document in ipairs(saved_documents) do
-        if type(saved_document) == "table" and hasMap(saved_document.primary_map_id)
-            and not self:findMapDocument(saved_document.primary_map_id) then
+        local registered_world = type(saved_document) == "table"
+            and type(saved_document.world_id) == "string"
+            and Registry.getEditorWorld(saved_document.world_id) or nil
+        local is_world = type(saved_document) == "table"
+            and (saved_document.editor_world == true
+                or (saved_document.editor_world == nil and registered_world ~= nil))
+        local existing
+        if is_world then
+            existing = self:findWorldDocument(saved_document.world_id)
+        elseif type(saved_document) == "table" then
+            existing = self:findMapDocument(saved_document.primary_map_id)
+        end
+        if type(saved_document) == "table" and hasMap(saved_document.primary_map_id) and not existing then
             local document = self:createMapDocument(saved_document.primary_map_id, saved_document.panel_id)
             if document then
-                if type(saved_document.world_id) == "string" then document.world.id = saved_document.world_id end
+                if is_world and registered_world then
+                    self:configureWorldDocument(document, registered_world)
+                elseif type(saved_document.world_id) == "string" then
+                    document.world.id = saved_document.world_id
+                    document.editor_world = is_world
+                end
                 if type(saved_document.primary_position) == "table" then
                     document:setMapPosition(saved_document.primary_map_id,
                         saved_document.primary_position.x, saved_document.primary_position.y)
@@ -613,6 +660,10 @@ function Editor:setupMapDocuments(session)
                             type(saved_map.x) == "number" and saved_map.x or 0,
                             type(saved_map.y) == "number" and saved_map.y or 0)
                     end
+                end
+                if is_world and not registered_world then
+                    document.editor_world = true
+                    document.panel.title = saved_document.world_id or document.panel.title
                 end
                 self:restoreDocumentView(document, saved_document.view)
                 self:restoreGameViewState(document, saved_document.game_view)
@@ -644,11 +695,15 @@ function Editor:setupCodeDocuments(session)
 end
 
 function Editor:setupPanels(session)
+    self.files_panel = self.dockspace:registerPanel(EditorPanel(
+        "project_files", "Files", self.file_browser, {
+            minimum_width = 200, preferred_width = 280, recoverable = true
+        }), "left")
     self.maps_panel = self.dockspace:registerPanel(EditorPanel("maps", "Maps", self.map_browser, {
         minimum_width = 180,
         preferred_width = 260,
         recoverable = true
-    }), "left")
+    }), self.files_panel.stack)
     self.worlds_panel = self.dockspace:registerPanel(EditorPanel(
         "worlds", "Worlds", self.world_browser, {
             minimum_width = 180, preferred_width = 260, recoverable = true
@@ -656,10 +711,6 @@ function Editor:setupPanels(session)
     self.tilesets_browser_panel = self.dockspace:registerPanel(EditorPanel(
         "tilesets_browser", "Tilesets", self.tileset_browser, {
             minimum_width = 180, preferred_width = 260, recoverable = true
-        }), self.maps_panel.stack)
-    self.files_panel = self.dockspace:registerPanel(EditorPanel(
-        "project_files", "Files", self.file_browser, {
-            minimum_width = 200, preferred_width = 280, recoverable = true
         }), self.maps_panel.stack)
     self.maps_panel.stack:setActivePanel(self.maps_panel)
     self.events_panel = self.dockspace:registerPanel(EditorPanel("events", "Events", self.event_browser, {
@@ -888,32 +939,8 @@ function Editor:enter(previous, options)
     self.project_workspace = EditorProjectWorkspace(self, self.file_type_registry)
     self.file_browser = EditorFileBrowser(self, self.project_workspace)
     self.source_viewer = EditorSourceViewer(self, self.project_workspace)
-    self.document_providers:register("core_source_viewer", {
-        priority = -100,
-        supports = function(document)
-            return document.file_type == "text" or document.file_type == "image"
-        end,
-        open = function(document, open_options)
-            self.source_viewer:openDocument(document, open_options)
-            return self:showDocumentProviderPanel(self.source_viewer_panel, self.source_viewer,
-                document.file_type == "text" and self.source_viewer.input or self.source_viewer)
-        end,
-        close = function(document) return self.source_viewer:closeDocument(document) end,
-        is_focused = function() return self.source_viewer:isFocused() end,
-        can_save = function() return false end,
-        save_active = function()
-            if self.message_bar then self.message_bar:setStatus("The built-in source viewer is read-only", 4) end
-            return false
-        end,
-        undo = function() return false end,
-        redo = function() return false end,
-        can_undo = function() return false end,
-        can_redo = function() return false end,
-        get_undo_label = function() return false end,
-        get_redo_label = function() return false end,
-        capture_session = function() return self.source_viewer:captureSession() end,
-        restore_session = function(state) self.source_viewer:restoreSession(state) end
-    })
+    self.document_providers:register("core_source_viewer",
+        EditorSourceDocumentProvider(self, self.source_viewer))
     self.world_browser = EditorWorldBrowser(self)
     self.active_world_id = session and session.active_world_id or nil
     self.active_editor_world = self.active_world_id and Registry.getEditorWorld(self.active_world_id) or nil
@@ -1401,13 +1428,13 @@ function Editor:saveAllDocuments()
         if document:isDirty() and not self:saveTilesetDocumentToProject(document) then return false end
     end
     for _, provider in ipairs(self.document_providers:getAll()) do
-        if provider.save_all and provider.save_all() == false then return false end
+        if provider:saveAll() == false then return false end
     end
     return true
 end
 
 function Editor:saveActiveDocument()
-    local provider_result = self.document_providers:invokeFocused("save_active")
+    local provider_result = self.document_providers:invokeFocused("saveActive")
     if provider_result ~= nil then return provider_result end
     local focused = self.dockspace and self.dockspace.focused_control
     while focused do
@@ -1689,30 +1716,30 @@ function Editor:hasUnsavedChanges()
     for _, document in ipairs(self.tileset_documents or {}) do
         if document:isDirty() then return true end
     end
-    if self.document_providers:any("has_unsaved_changes") then return true end
+    if self.document_providers:any("hasUnsavedChanges") then return true end
     return false
 end
 
 function Editor:canUndo()
-    local provider_result = self.document_providers:invokeFocused("can_undo")
+    local provider_result = self.document_providers:invokeFocused("canUndo")
     if provider_result ~= nil then return provider_result end
     return self.history and self.history:canUndo() or false
 end
 
 function Editor:canRedo()
-    local provider_result = self.document_providers:invokeFocused("can_redo")
+    local provider_result = self.document_providers:invokeFocused("canRedo")
     if provider_result ~= nil then return provider_result end
     return self.history and self.history:canRedo() or false
 end
 
 function Editor:getUndoLabel()
-    local provider_result = self.document_providers:invokeFocused("get_undo_label")
+    local provider_result = self.document_providers:invokeFocused("getUndoLabel")
     if provider_result ~= nil then return provider_result end
     return self.history and self.history:getUndoLabel() or nil
 end
 
 function Editor:getRedoLabel()
-    local provider_result = self.document_providers:invokeFocused("get_redo_label")
+    local provider_result = self.document_providers:invokeFocused("getRedoLabel")
     if provider_result ~= nil then return provider_result end
     return self.history and self.history:getRedoLabel() or nil
 end
@@ -2899,30 +2926,21 @@ function Editor:loadRuntimeMap(id)
 end
 
 function Editor:openMap(id)
-    local existing_document = self:findMapDocument(id)
-    if existing_document and existing_document ~= self.active_document then
-        return self:activateMapDocument(existing_document)
-    end
     if not hasMap(id) then return false end
-    if self.active_document then
-        self.active_document:setPrimaryMap(id)
-        if self.active_document.panel then
-            self.active_document.panel.title = id .. (self.active_document:isDirty() and " *" or "")
-        end
-        return self:activateMapDocument(self.active_document)
-    end
-    return false
+    local document = self:findMapDocument(id)
+    if not document then document = self:createMapDocument(id) end
+    return document and self:activateMapDocument(document) or false
 end
 
 function Editor:findMapDocument(id)
-    for _, document in ipairs(self.map_documents) do
-        if document.primary_map_id == id then return document end
+    for _, document in ipairs(self.map_documents or {}) do
+        if not document.editor_world and document.primary_map_id == id then return document end
     end
 end
 
 function Editor:findWorldDocument(id)
     for _, document in ipairs(self.map_documents or {}) do
-        if document.world and document.world.id == id then return document end
+        if document.editor_world and document.world and document.world.id == id then return document end
     end
 end
 
@@ -2943,23 +2961,16 @@ function Editor:openWorld(world)
             "Its first map '" .. tostring(first.id) .. "' is unavailable.", "world_open")
         return false
     end
-    local opened_world = EditorWorld(world.id)
-    opened_world.name = world.name or world.id
-    opened_world.data = TableUtils.copy(world.data or {}, true)
-    opened_world.properties = TableUtils.copy(world.properties or {}, true)
-    opened_world.__editor_property_types = TableUtils.copy(world.__editor_property_types or {}, true)
-    opened_world.virtual = world.virtual
-    for _, entry in ipairs(world.maps) do
-        opened_world:addMap(entry.id, entry.x, entry.y, { explicit_companion = true })
+    if not self:configureWorldDocument(document, world, first.id) then
+        self.dockspace:unregisterPanel(document.panel)
+        for index, candidate in ipairs(self.map_documents) do
+            if candidate == document then table.remove(self.map_documents, index) break end
+        end
+        self:addError("Could not open world '" .. tostring(world.name or world.id) .. "'",
+            "Its view origin map is unavailable.", "world_open")
+        return false
     end
-    opened_world.primary_map_id = first.id
-    if opened_world.map_lookup[first.id] then opened_world.map_lookup[first.id].primary = true end
-    document.world = opened_world
-    document.editor_world = true
-    document.primary_map_id = first.id
-    document.maps = opened_world.maps
-    document.map_lookup = opened_world.map_lookup
-    document.panel.title = opened_world.name
+    local opened_world = document.world
     Registry.registerEditorWorld(opened_world.id, opened_world)
     if self.world_browser then
         self.world_browser:refresh(opened_world.id)

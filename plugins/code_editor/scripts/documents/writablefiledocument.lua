@@ -1,5 +1,5 @@
----@class EditorWritableFileDocument : Class
-local EditorWritableFileDocument = Class()
+---@class EditorWritableFileDocument : EditorFileDocument
+local EditorWritableFileDocument, super = Class(EditorFileDocument)
 
 local DEFAULT_HISTORY_LIMIT = 1000
 
@@ -21,23 +21,14 @@ end
 
 function EditorWritableFileDocument:init(workspace, path, contents, options)
     options = options or {}
-    self.workspace = workspace
-    self.path = path
-    self.real_path = options.real_path or assert(ProjectFileSystem.getRealPath(path))
-    self.relative_path = options.relative_path or path:sub(#workspace.virtual_root + 2)
-    self.name = self.relative_path:match("([^/]+)$") or self.relative_path
-    self.language_id = self.name:lower():match("%.lua$") and "lua" or "plaintext"
-    self.file_type = "text"
+    super.init(self, workspace, path, contents, options)
     self.read_only = options.read_only == true
     self.writable_code_document = not self.read_only
-    self.persistent = options.persistent ~= false
-    self.buffer = EditorCodeBuffer(contents or "")
     self.saved_hash = contentHash(self.buffer:getText())
     self.version = 1
     self.state_id = 1
     self.saved_state_id = 1
     self.next_state_id = 2
-    self.diagnostics = {}
     self.undo_stack = {}
     self.redo_stack = {}
 end

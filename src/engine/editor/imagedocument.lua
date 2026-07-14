@@ -1,8 +1,9 @@
----@class EditorImageDocument : Class
+---@class EditorImageDocument : EditorDocument
 ---@overload fun(workspace: EditorProjectWorkspace, path: string, image: love.Image): EditorImageDocument
-local EditorImageDocument = Class()
+local EditorImageDocument, super = Class(EditorDocument)
 
 function EditorImageDocument:init(workspace, path, image)
+    super.init(self, workspace.editor)
     self.workspace = workspace
     self.path = path
     self.real_path = assert(ProjectFileSystem.getRealPath(path))

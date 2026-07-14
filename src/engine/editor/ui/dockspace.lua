@@ -4,6 +4,7 @@ local EditorDockSpace = Class()
 
 local REGIONS = { "top", "bottom", "left", "right", "center" }
 local HEADER_HEIGHT = 28
+local TAB_SCROLL_BUTTON_WIDTH = 22
 local SPLITTER_SIZE = 5
 local EDGE_TARGET_SIZE = 64
 local FLOATING_RESIZE_SIZE = 6
@@ -225,7 +226,7 @@ function EditorDockSpace:layoutRegion(region, rect)
     if #visible == 0 then
         local stack = self.stacks[region]
         stack.x, stack.y, stack.width, stack.height = rect.x, rect.y, rect.width, rect.height
-        stack.tab_rects = {}
+        self:layoutStackContent(stack)
         return
     end
     local horizontal = region == "top" or region == "bottom"
@@ -281,11 +282,49 @@ end
 
 function EditorDockSpace:layoutStackContent(stack)
     stack.tab_rects = {}
+    stack.tab_total_width = 0
+    stack.tab_view_rect = nil
+    stack.tab_scroll_left_rect = nil
+    stack.tab_scroll_right_rect = nil
     if stack:isEmpty() then return end
     local font = EditorFont.get(16)
-    local tab_x = stack.x
+    local tab_widths = {}
+    local total_width = 0
     for index, panel in ipairs(stack.panels) do
         local width = math.min(math.max(72, font:getWidth(panel.title) + 20), math.max(72, stack.width))
+        tab_widths[index] = width
+        total_width = total_width + width
+    end
+    stack.tab_total_width = total_width
+    local overflow = total_width > stack.width
+    local view_x = stack.x + (overflow and TAB_SCROLL_BUTTON_WIDTH or 0)
+    local view_width = math.max(0, stack.width - (overflow and TAB_SCROLL_BUTTON_WIDTH * 2 or 0))
+    stack.tab_view_rect = { x = view_x, y = stack.y, width = view_width, height = HEADER_HEIGHT }
+    if overflow then
+        stack.tab_scroll_left_rect = {
+            x = stack.x, y = stack.y, width = TAB_SCROLL_BUTTON_WIDTH, height = HEADER_HEIGHT
+        }
+        stack.tab_scroll_right_rect = {
+            x = stack.x + stack.width - TAB_SCROLL_BUTTON_WIDTH, y = stack.y,
+            width = TAB_SCROLL_BUTTON_WIDTH, height = HEADER_HEIGHT
+        }
+    else
+        stack.tab_scroll_left_rect = nil
+        stack.tab_scroll_right_rect = nil
+        stack.tab_scroll = 0
+    end
+    local maximum_scroll = math.max(0, total_width - view_width)
+    stack.tab_scroll = MathUtils.clamp(stack.tab_scroll or 0, 0, maximum_scroll)
+    local active_start = 0
+    for index = 1, math.max(0, stack.active_index - 1) do active_start = active_start + tab_widths[index] end
+    local active_finish = active_start + (tab_widths[stack.active_index] or 0)
+    if active_start < stack.tab_scroll then
+        stack.tab_scroll = active_start
+    elseif active_finish > stack.tab_scroll + view_width then
+        stack.tab_scroll = math.min(maximum_scroll, active_finish - view_width)
+    end
+    local tab_x = view_x - stack.tab_scroll
+    for index, width in ipairs(tab_widths) do
         stack.tab_rects[index] = { x = tab_x, y = stack.y, width = width, height = HEADER_HEIGHT }
         tab_x = tab_x + width
     end
@@ -340,16 +379,37 @@ function EditorDockSpace:drawStack(stack)
     if stack:isEmpty() or stack.width <= 0 or stack.height <= 0 then return end
     love.graphics.setColor(self.theme.panel)
     love.graphics.rectangle("fill", stack.x, stack.y, stack.width, stack.height)
-    for index, panel in ipairs(stack.panels) do
-        local rect = stack.tab_rects[index]
-        love.graphics.setColor(index == stack.active_index and self.theme.tab_active or self.theme.tab_inactive)
-        love.graphics.rectangle("fill", rect.x, rect.y, rect.width, rect.height)
-        love.graphics.setLineWidth(1)
-        love.graphics.setColor(self.theme.border)
-        love.graphics.rectangle("line", rect.x + 0.5, rect.y + 0.5, rect.width - 1, rect.height - 1)
-        love.graphics.setColor(self.theme.text)
-        love.graphics.setFont(EditorFont.get(16))
-        love.graphics.print(panel.title, rect.x + 10, rect.y + math.floor((HEADER_HEIGHT - EditorFont.get(16):getHeight()) / 2))
+    withScissor(stack.tab_view_rect, function()
+        for index, panel in ipairs(stack.panels) do
+            local rect = stack.tab_rects[index]
+            love.graphics.setColor(index == stack.active_index and self.theme.tab_active or self.theme.tab_inactive)
+            love.graphics.rectangle("fill", rect.x, rect.y, rect.width, rect.height)
+            love.graphics.setLineWidth(1)
+            love.graphics.setColor(self.theme.border)
+            love.graphics.rectangle("line", rect.x + 0.5, rect.y + 0.5, rect.width - 1, rect.height - 1)
+            love.graphics.setColor(self.theme.text)
+            love.graphics.setFont(EditorFont.get(16))
+            love.graphics.print(panel.title, rect.x + 10,
+                rect.y + math.floor((HEADER_HEIGHT - EditorFont.get(16):getHeight()) / 2))
+        end
+    end)
+    if stack.tab_scroll_left_rect then
+        local font = EditorFont.get(16)
+        love.graphics.setFont(font)
+        for _, button in ipairs({
+            { rect = stack.tab_scroll_left_rect, label = "<", enabled = stack.active_index > 1 },
+            { rect = stack.tab_scroll_right_rect, label = ">", enabled = stack.active_index < #stack.panels }
+        }) do
+            love.graphics.setColor(self.theme.header)
+            love.graphics.rectangle("fill", button.rect.x, button.rect.y, button.rect.width, button.rect.height)
+            love.graphics.setColor(button.enabled and self.theme.text or { 0.42, 0.42, 0.46, 1 })
+            love.graphics.print(button.label,
+                button.rect.x + math.floor((button.rect.width - font:getWidth(button.label)) / 2),
+                button.rect.y + math.floor((button.rect.height - font:getHeight()) / 2))
+            love.graphics.setColor(self.theme.border)
+            love.graphics.rectangle("line", button.rect.x + 0.5, button.rect.y + 0.5,
+                button.rect.width - 1, button.rect.height - 1)
+        end
     end
     local panel = stack:getActivePanel()
     self:drawPanelContent(panel, {
@@ -407,10 +467,31 @@ function EditorDockSpace:getTabAt(x, y)
         if pointInRect(x, y, rect) then return panel, rect end
     end
     for _, stack in ipairs(self:getStacks()) do
-        for index, rect in ipairs(stack.tab_rects) do
-            if pointInRect(x, y, rect) then return stack.panels[index], rect, stack end
+        if stack.tab_view_rect and pointInRect(x, y, stack.tab_view_rect) then
+            for index, rect in ipairs(stack.tab_rects) do
+                if pointInRect(x, y, rect) then return stack.panels[index], rect, stack end
+            end
         end
     end
+end
+
+function EditorDockSpace:getTabNavigationAt(x, y)
+    for _, stack in ipairs(self:getStacks()) do
+        if stack.tab_scroll_left_rect and pointInRect(x, y, stack.tab_scroll_left_rect) then
+            return stack, -1
+        end
+        if stack.tab_scroll_right_rect and pointInRect(x, y, stack.tab_scroll_right_rect) then
+            return stack, 1
+        end
+    end
+end
+
+function EditorDockSpace:activateAdjacentTab(stack, direction)
+    local index = MathUtils.clamp(stack.active_index + direction, 1, #stack.panels)
+    if index == stack.active_index then return false end
+    stack:setActivePanel(stack.panels[index], true)
+    self:layoutStackContent(stack)
+    return true
 end
 
 function EditorDockSpace:getControlAt(x, y)
@@ -492,6 +573,7 @@ function EditorDockSpace:getCursorType(x, y)
     if floating_cursor then return floating_cursor end
     local splitter = self:getSplitterAt(x, y)
     if splitter then return self:getSplitterCursor(splitter) end
+    if self:getTabNavigationAt(x, y) then return "select" end
     if self:getTabAt(x, y) then return "resize_all" end
 
     local target = self:getControlAt(x, y)
@@ -828,6 +910,11 @@ function EditorDockSpace:onMousePressed(x, y, button, presses)
         end
     end
     if button == 1 then
+        local navigation_stack, direction = self:getTabNavigationAt(x, y)
+        if navigation_stack then
+            self:activateAdjacentTab(navigation_stack, direction)
+            return true
+        end
         local resizing_panel, resize_edges, resize_cursor = self:getFloatingResizeAt(x, y)
         if resizing_panel then
             local rect = resizing_panel.floating
@@ -1069,6 +1156,14 @@ function EditorDockSpace:onWheelMoved(x, y)
             self:layoutContextMenu(menu)
         end
         return true
+    end
+    for _, stack in ipairs(self:getStacks()) do
+        local header = self:getStackHeaderRect(stack)
+        if stack.tab_scroll_left_rect and pointInRect(mouse_x, mouse_y, header) then
+            local direction = x ~= 0 and (x > 0 and 1 or -1) or (y < 0 and 1 or -1)
+            self:activateAdjacentTab(stack, direction)
+            return true
+        end
     end
     local target = self:getControlAt(mouse_x, mouse_y)
     while target do
