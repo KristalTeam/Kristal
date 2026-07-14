@@ -172,39 +172,56 @@ function EditorFileBrowser:addWorkspaceNode(parent, data)
     return node
 end
 
-function EditorFileBrowser:refresh(select_path)
+function EditorFileBrowser:refresh(select_path, previous_path)
     local expanded = {}
-    for _, entry in ipairs(self.tree.visible_nodes or {}) do
-        local node = entry.node
-        if node.children and node.expanded and node.data then expanded[node.data.path] = true end
+    local selected_path = self.tree.selected_node and self.tree.selected_node.data
+        and self.tree.selected_node.data.path or nil
+    local scroll_row = self.tree.scroll_row
+    local function capture(node)
+        if node.children and node.data then expanded[node.data.path] = node.expanded == true end
+        for _, child in ipairs(node.children or {}) do capture(child) end
     end
+    capture(self.tree.root)
     self.tree:clear()
     local root, reason = self.workspace:scan()
     if not root then
         self.editor:addError("Could not scan project files", reason, "filesystem")
         return false
     end
-    local nodes = {}
-    local function add(parent, data)
-        local node = self:addWorkspaceNode(parent, data)
-        nodes[data.path] = node
-        if node.children then
-            node.expanded = data.path == self.workspace.virtual_root or expanded[data.path] == true
-            for _, child in ipairs(node.children) do
-                if child.data then nodes[child.data.path] = child end
-            end
-        end
-        return node
-    end
     -- Show the project itself as the single root entry.
-    local project = add(self.tree.root, root)
+    local project = self:addWorkspaceNode(self.tree.root, root)
+    local nodes = {}
+    local function statePath(path)
+        if previous_path and select_path
+            and (path == select_path or StringUtils.startsWith(path, select_path .. "/")) then
+            return previous_path .. path:sub(#select_path + 1)
+        end
+        return path
+    end
     local function index(node)
         if node.data then nodes[node.data.path] = node end
+        if node.children and node.data then
+            node.expanded = node.data.path == self.workspace.virtual_root
+                or expanded[statePath(node.data.path)] == true
+        end
         for _, child in ipairs(node.children or {}) do index(child) end
     end
     index(project)
     self.tree:refreshVisibleNodes()
-    if select_path and nodes[select_path] then self.tree:selectNode(nodes[select_path]) end
+    self.tree.scroll_row = scroll_row
+    self.tree:clampScroll()
+    local selected = nodes[select_path or selected_path]
+    if selected then
+        if select_path then
+            local parent = selected.parent
+            while parent and parent ~= self.tree.root do
+                parent.expanded = true
+                parent = parent.parent
+            end
+            self.tree:refreshVisibleNodes()
+        end
+        self.tree:selectNode(selected)
+    end
     return true
 end
 
@@ -336,7 +353,7 @@ function EditorFileBrowser:renameNode(node, old_name)
         self:refresh(old_path)
         return false
     end
-    self:refresh(destination)
+    self:refresh(destination, old_path)
     return true
 end
 
@@ -349,7 +366,7 @@ function EditorFileBrowser:moveNode(node, old_parent)
     if destination == node.data.path then return true end
     local moved, reason = self.workspace:rename(node.data.path, destination)
     if not moved then self.editor:addError("Could not move " .. node.name, reason, "filesystem") end
-    self:refresh(moved and destination or node.data.path)
+    self:refresh(moved and destination or node.data.path, moved and node.data.path or nil)
     return moved
 end
 
