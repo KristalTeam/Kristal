@@ -1069,12 +1069,21 @@ function EditorMapDocument:getObjectLocalRect(selection)
     return data.x or 0, data.y or 0, width, height
 end
 
+function EditorMapDocument:getEditorObjectType(data, map_id)
+    local event_type = data and data.type
+    local reader = map_id and Registry.getMapReader(map_id)
+    if reader and reader.LEGACY_FORMAT and (event_type == nil or event_type == "") then
+        event_type = data.class
+        if event_type == nil or event_type == "" then event_type = data.name end
+    end
+    return type(event_type) == "string" and event_type:lower() or event_type
+end
+
 function EditorMapDocument:getObjectScalingMode(selection)
     local data = selection and selection.data
     if not data or data.gid or data.tileset and data.tile_id ~= nil then return "resize" end
-    local event_id = data.type or data.class
-    if event_id == nil or event_id == "" then event_id = data.name end
-    local event_class = event_id and Registry.getEditorEvent(event_id)
+    local event_type = self:getEditorObjectType(data, selection.map_id)
+    local event_class = event_type and Registry.getEditorEvent(event_type)
     return event_class and event_class.scaling_mode or EditorEvent.scaling_mode
 end
 
@@ -1174,8 +1183,7 @@ end
 
 function EditorMapDocument:getObjectReferenceValues(selection)
     local data = selection.data
-    local event_id = data.type or data.class
-    if event_id == nil or event_id == "" then event_id = data.name end
+    local event_id = self:getEditorObjectType(data, selection.map_id)
     local result = {}
     local success, event = pcall(Registry.createEditorEvent, event_id, data, { map_id = selection.map_id })
     if success and event then
@@ -1193,12 +1201,6 @@ function EditorMapDocument:getObjectReferenceValues(selection)
         end
     end
     return result
-end
-
-local function getEditorObjectType(data)
-    local event_id = data.type or data.class
-    if event_id == nil or event_id == "" then event_id = data.name end
-    return type(event_id) == "string" and event_id:lower() or event_id
 end
 
 function EditorMapDocument:findMarkerSelection(map_id, marker)
@@ -1221,7 +1223,7 @@ function EditorMapDocument:findMarkerSelection(map_id, marker)
 end
 
 function EditorMapDocument:getTransitionLink(selection)
-    if getEditorObjectType(selection.data) ~= "transition" then return nil end
+    if self:getEditorObjectType(selection.data, selection.map_id) ~= "transition" then return nil end
     local properties = selection.data.properties or {}
     local target_map = properties.map
     local target_entry = target_map and self.map_lookup[target_map]
@@ -1239,7 +1241,7 @@ function EditorMapDocument:getTransitionLink(selection)
     local reciprocal, reciprocal_distance
     for _, layer in ipairs(self:getAllEditableLayers(target_map)) do
         for _, object in ipairs(layer.objects or {}) do
-            if getEditorObjectType(object) == "transition"
+            if self:getEditorObjectType(object, target_map) == "transition"
                 and object.properties and object.properties.map == selection.map_id then
                 local candidate = self:getObjectSelection(target_map, layer, object)
                 local x, y = self:getObjectWorldCenter(candidate)
@@ -1334,8 +1336,7 @@ function EditorMapDocument:createPreview(entry)
             if layer_type and (layer_type.id == "objects" or layer_type.id == "controllers") then
                 local layer_color = layer_registry:getLayerColor(layer, layer_type)
                 for _, object in ipairs(layer.objects or {}) do
-                    local event_id = object.type or object.class
-                    if event_id == nil or event_id == "" then event_id = object.name end
+                    local event_id = self:getEditorObjectType(object, entry.id)
                     table.insert(editor_events, Registry.createEditorEvent(event_id, object, {
                         depth = layer_depth,
                         layer_uid = layer._editor_uid,

@@ -593,7 +593,7 @@ end
 
 function Registry.createEditorEvent(id, data, options)
     local tile_object = data and (data.gid or data.tileset and data.tile_id ~= nil)
-    local event_class = tile_object and EditorTileObject or self.getEditorEvent(id) or EditorEvent
+    local event_class = self.getEditorEvent(id) or (tile_object and EditorTileObject) or EditorEvent
     options = options or {}
     options.event_id = id
     local event = event_class(data, options)
@@ -787,6 +787,8 @@ end
 function Registry.registerEditorEvent(id, class)
     assert(type(id) == "string" and id ~= "", "Editor event requires a non-empty id")
     assert(isClass(class) and class:includes(EditorEvent), "Editor event must extend EditorEvent")
+    assert(class.createObject ~= EditorEvent.createObject,
+        "Editor event '" .. id .. "' must override createObject()")
     class.id = id
     self.editor_events[id] = class
 end

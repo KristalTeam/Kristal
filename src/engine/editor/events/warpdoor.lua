@@ -24,4 +24,8 @@ function EditorWarpDoor:init(data, options)
     })
     destinations:registerProperty("flag", "string")
 end
+function EditorWarpDoor:createObject(map, context)
+    return WarpDoor(self.data.x, self.data.y, self.data.properties)
+end
+
 return EditorWarpDoor

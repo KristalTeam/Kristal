@@ -52,6 +52,29 @@ function EditorEvent:init(data, options)
     self.sprite = self:getPreviewSprite(options.sprite)
 end
 
+function EditorEvent:getShapeData()
+    return { self.data.width, self.data.height, self.data.polygon }
+end
+
+function EditorEvent:getRectData()
+    return { self.data.width, self.data.height }
+end
+
+function EditorEvent:getCharacterPosition(map)
+    if self.data.gid or self.data.tileset and self.data.tile_id ~= nil then
+        local x, y, width, height = map:getTileObjectRect(self.data)
+        return x + width / 2, y + height
+    end
+    return self.data.center_x, self.data.center_y
+end
+
+---@param map Map
+---@param context? {layer_type: string?, layer: table?, depth: number?, reader: MapReader?}
+---@return Object?
+function EditorEvent:createObject(map, context)
+    error(ClassUtils.getClassName(self) .. ":createObject() must be overridden", 2)
+end
+
 function EditorEvent:getBoundsSize()
     if self.scaling_mode == "scale" then
         return self.width * math.abs(self.scale_x), self.height * math.abs(self.scale_y)

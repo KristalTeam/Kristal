@@ -12,4 +12,9 @@ function EditorCameraTarget:init(data, options)
     self:registerProperty("time", "number")
     self:registerProperty("returntime", "number", { name = "Return Time" })
 end
+function EditorCameraTarget:createObject(map, context)
+    local data = self.data
+    return CameraTarget(data.x, data.y, self:getShapeData(), data.properties)
+end
+
 return EditorCameraTarget

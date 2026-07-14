@@ -92,9 +92,6 @@ function Game:enter(previous_state, save_id, save_name, fade)
     self.quick_save = nil
 
     self.event_registry = EventRegistry()
-    self.builtin_event_registry = EventRegistry()
-
-    self:registerBuiltInEvents()
 
     Kristal.callEvent(KRISTAL_EVENT.init)
 
@@ -134,111 +131,18 @@ function Game:enter(previous_state, save_id, save_name, fade)
     end
 end
 
---- Register a new event class with the given ID.
----@param id string                    The ID of the event.
----@param constructor fun(data):Event  A constructor function that takes event data and returns an event instance.
+--- Registers a fallback runtime constructor for a mod event which has no EditorEvent.
+---@param id string
+---@param constructor fun(data: table):Object
+---@return boolean registered
 function Game:registerEvent(id, constructor)
+    if Registry.getEditorEvent(id) then
+        Kristal.Console:warn("Ignoring fallback event '" .. id
+            .. "' because an EditorEvent is already registered for that type")
+        return false
+    end
     self.event_registry:register(id, constructor)
-end
-
---- Responsible for registering all built-in events.
-function Game:registerBuiltInEvents()
-    local registry = Game.builtin_event_registry
-
-    -- Unfortunately, we have to defer all of these...
-
-    local function getCharaX(data)
-        if data.gid then
-            local tx, _, tw, _ = Game.world.map:getTileObjectRect(data)
-            return tx + tw / 2
-        end
-        return data.center_x
-    end
-
-    local function getCharaY(data)
-        if data.gid then
-            local _, ty, _, th = Game.world.map:getTileObjectRect(data)
-            return ty + th
-        end
-        return data.center_y
-    end
-
-    local function getShapeData(data)
-        return { data.width, data.height, data.polygon }
-    end
-
-    local function getRectData(data)
-        return { data.width, data.height }
-    end
-
-    registry:register("savepoint", function(data) return Savepoint(data.center_x, data.center_y, data.properties) end)
-    registry:register("interactable", function(data) return Interactable(data.x, data.y, getShapeData(data), data.properties) end)
-    registry:register("script", function(data) return Script(data.x, data.y, getShapeData(data), data.properties) end)
-    registry:register("transition", function(data) return Transition(data.x, data.y, getShapeData(data), data.properties) end)
-    registry:register("npc", function(data) return NPC(data.properties["actor"], getCharaX(data), getCharaY(data), data.properties) end)
-    registry:register("enemy", function(data) return ChaserEnemy(data.properties["actor"], getCharaX(data), getCharaY(data), data.properties) end)
-    registry:register("outline", function(data) return Outline(data.x, data.y, getRectData(data)) end)
-    registry:register("silhouette", function(data) return Silhouette(data.x, data.y, getRectData(data), data.properties) end)
-    registry:register("slidearea", function(data) return SlideArea(data.x, data.y, getRectData(data), data.properties) end)
-    registry:register("mirror", function(data) return MirrorArea(data.x, data.y, getRectData(data), data.properties) end)
-    registry:register("chest", function(data) return TreasureChest(data.center_x, data.center_y, data.properties) end)
-    registry:register("cameratarget", function(data) return CameraTarget(data.x, data.y, getShapeData(data), data.properties) end)
-    registry:register("hideparty", function(data) return HideParty(data.x, data.y, getShapeData(data), data.properties.alpha) end)
-    registry:register("setflag", function(data) return SetFlagEvent(data.x, data.y, getShapeData(data), data.properties) end)
-    registry:register("cybertrash", function(data) return CyberTrashCan(data.center_x, data.center_y, data.properties) end)
-    registry:register("forcefield", function(data) return Forcefield(data.x, data.y, getRectData(data), data.properties) end)
-    registry:register("pushblock", function(data) return PushBlock(data.x, data.y, getRectData(data), data.properties) end)
-    registry:register("tilebutton", function(data) return TileButton(data.x, data.y, getRectData(data), data.properties) end)
-    registry:register("magicglass", function(data) return MagicGlass(data.x, data.y, getRectData(data), data.properties) end)
-    registry:register("warpdoor", function(data) return WarpDoor(data.x, data.y, data.properties) end)
-    registry:register("darkfountain", function(data) return DarkFountain(data.x, data.y, data.properties) end)
-    registry:register("fountainfloor", function(data) return FountainFloor(data.x, data.y, getRectData(data)) end)
-    registry:register("quicksave", function(data) return QuicksaveEvent(data.x, data.y, getShapeData(data), data.properties["marker"]) end)
-    registry:register("sprite", function(data)
-        local sprite = Sprite(data.properties["texture"], data.x, data.y)
-        sprite:play(data.properties["speed"], true)
-        sprite:setScale(data.properties["scalex"] or 2, data.properties["scaley"] or 2)
-        return sprite
-    end)
-
-    registry:register("climbentry", function(data)
-        return ClimbEntry(data.x, data.y, getRectData(data), {
-            target = data.properties.target,
-            solid = data.properties.solid
-        })
-    end)
-
-    registry:register("climbexit", function(data)
-        return ClimbExit(data.x, data.y, getRectData(data), {
-            target = data.properties.target,
-            direction = data.properties.direction,
-            can_exit = data.properties.can_exit
-        })
-    end)
-
-    registry:register("climblanding", function(data) return ClimbLanding(data.x, data.y, getRectData(data)) end)
-    registry:register("climbarea", function(data) return ClimbArea(data.x, data.y, getRectData(data)) end)
-
-    registry:register("fallingclimbarea", function(data)
-        return FallingClimbArea(data.x, data.y, getRectData(data), {
-            dont_break = data.properties.dont_break,
-            breaks_on_leave = data.properties.breaks_on_leave,
-            fall_time = data.properties.fall_time,
-            timed = data.properties.timed,
-            no_unsafe_area = data.properties.no_unsafe_area
-        })
-    end)
-
-    registry:register("climbunsafe", function(data) return ClimbUnsafe(data.x, data.y, getRectData(data)) end)
-
-    registry:register("climbmover", function(data)
-        return ClimbMover(data.x, data.y, getRectData(data), {
-            target = data.properties.target,
-            exit = data.properties.exit,
-            start_exit = data.properties.start_exit,
-            one_way = data.properties.one_way
-        })
-    end)
+    return true
 end
 
 function Game:leave()

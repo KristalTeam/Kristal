@@ -514,7 +514,7 @@
         {
           "id": 43,
           "name": "fallingclimbarea",
-          "type": "",
+          "type": "fallingclimbarea",
           "x": 400,
           "y": 480,
           "width": 40,
@@ -532,7 +532,7 @@
         {
           "id": 44,
           "name": "fallingclimbarea",
-          "type": "",
+          "type": "fallingclimbarea",
           "x": 440,
           "y": 480,
           "width": 40,
@@ -550,7 +550,7 @@
         {
           "id": 46,
           "name": "fallingclimbarea",
-          "type": "",
+          "type": "fallingclimbarea",
           "x": 480,
           "y": 480,
           "width": 40,
@@ -568,7 +568,7 @@
         {
           "id": 48,
           "name": "fallingclimbarea",
-          "type": "",
+          "type": "fallingclimbarea",
           "x": 560,
           "y": 520,
           "width": 40,
@@ -592,7 +592,7 @@
         {
           "id": 50,
           "name": "fallingclimbarea",
-          "type": "",
+          "type": "fallingclimbarea",
           "x": 320,
           "y": 480,
           "width": 40,
@@ -610,7 +610,7 @@
         {
           "id": 53,
           "name": "fallingclimbarea",
-          "type": "",
+          "type": "fallingclimbarea",
           "x": 400,
           "y": 200,
           "width": 40,
@@ -628,7 +628,7 @@
         {
           "id": 54,
           "name": "fallingclimbarea",
-          "type": "",
+          "type": "fallingclimbarea",
           "x": 440,
           "y": 200,
           "width": 40,
@@ -663,7 +663,7 @@
         {
           "id": 72,
           "name": "fallingclimbarea",
-          "type": "",
+          "type": "fallingclimbarea",
           "x": 560,
           "y": 480,
           "width": 40,
@@ -687,7 +687,7 @@
         {
           "id": 73,
           "name": "fallingclimbarea",
-          "type": "",
+          "type": "fallingclimbarea",
           "x": 280,
           "y": 200,
           "width": 40,
@@ -711,7 +711,7 @@
         {
           "id": 78,
           "name": "fallingclimbarea",
-          "type": "",
+          "type": "fallingclimbarea",
           "x": 280,
           "y": 480,
           "width": 40,
@@ -729,7 +729,7 @@
         {
           "id": 79,
           "name": "fallingclimbarea",
-          "type": "",
+          "type": "fallingclimbarea",
           "x": 360,
           "y": 480,
           "width": 40,
@@ -747,7 +747,7 @@
         {
           "id": 84,
           "name": "climbmover",
-          "type": "",
+          "type": "climbmover",
           "x": 560,
           "y": 160,
           "width": 40,
@@ -895,7 +895,7 @@
         {
           "id": 9,
           "name": "transition",
-          "type": "",
+          "type": "transition",
           "x": -40,
           "y": 920,
           "width": 40,
@@ -926,7 +926,7 @@
         {
           "id": 13,
           "name": "savepoint",
-          "type": "",
+          "type": "savepoint",
           "x": 160,
           "y": 860,
           "width": 40,
@@ -955,7 +955,7 @@
         {
           "id": 24,
           "name": "climbentry",
-          "type": "",
+          "type": "climbentry",
           "x": 400,
           "y": 880,
           "width": 40,
@@ -981,7 +981,7 @@
         {
           "id": 25,
           "name": "climbentry",
-          "type": "",
+          "type": "climbentry",
           "x": 440,
           "y": 880,
           "width": 40,
@@ -1007,7 +1007,7 @@
         {
           "id": 26,
           "name": "climbexit",
-          "type": "",
+          "type": "climbexit",
           "x": 400,
           "y": 840,
           "width": 40,
@@ -1033,7 +1033,7 @@
         {
           "id": 29,
           "name": "climbexit",
-          "type": "",
+          "type": "climbexit",
           "x": 440,
           "y": 840,
           "width": 40,
@@ -1059,7 +1059,7 @@
         {
           "id": 57,
           "name": "climbexit",
-          "type": "",
+          "type": "climbexit",
           "x": 1000,
           "y": 280,
           "width": 40,
@@ -1085,7 +1085,7 @@
         {
           "id": 58,
           "name": "climbentry",
-          "type": "",
+          "type": "climbentry",
           "x": 1000,
           "y": 360,
           "width": 40,
@@ -1111,7 +1111,7 @@
         {
           "id": 68,
           "name": "slidearea",
-          "type": "",
+          "type": "slidearea",
           "x": 1320,
           "y": 560,
           "width": 40,
@@ -1134,7 +1134,7 @@
         {
           "id": 69,
           "name": "transition",
-          "type": "",
+          "type": "transition",
           "x": 1280,
           "y": 1040,
           "width": 120,

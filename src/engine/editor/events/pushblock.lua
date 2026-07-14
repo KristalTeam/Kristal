@@ -15,4 +15,8 @@ function EditorPushBlock:init(data, options)
     self:registerProperty("lock", "boolean")
     self:registerProperty("inputlock", "boolean", { name = "Input Lock" })
 end
+function EditorPushBlock:createObject(map, context)
+    return PushBlock(self.data.x, self.data.y, self:getRectData(), self.data.properties)
+end
+
 return EditorPushBlock

@@ -10,4 +10,8 @@ function EditorCyberTrashCan:init(data, options)
     self:registerProperty("setflag", "string", { name = "Set Flag" })
     self:registerProperty("setvalue", "value", { name = "Set Value" })
 end
+function EditorCyberTrashCan:createObject(map, context)
+    return CyberTrashCan(self.data.center_x, self.data.center_y, self.data.properties)
+end
+
 return EditorCyberTrashCan

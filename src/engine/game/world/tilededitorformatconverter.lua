@@ -140,6 +140,12 @@ function TiledEditorFormatConverter.convertMap(data, options)
     end
     converted.tilewidth, converted.tileheight, converted.backgroundcolor = nil, nil, nil
     local references = getTiledTilesetReferences(data)
+    local function getLegacyObjectType(object)
+        if type(object.type) == "string" and object.type ~= "" then return object.type end
+        if type(object.class) == "string" and object.class ~= "" then return object.class end
+        if type(object.name) == "string" and object.name ~= "" then return object.name end
+        return nil
+    end
     local function convertTileObject(object)
         if not object.gid then return true end
         local reference, packed = resolveTiledGid(object.gid, references)
@@ -151,7 +157,6 @@ function TiledEditorFormatConverter.convertMap(data, options)
         end
         object.tileset = reference.id
         object.tile_id = tile_id
-        object.type = object.type or object.class or ""
         object.flip_x = flip_x or nil
         object.flip_y = flip_y or nil
         object.gid = nil
@@ -182,6 +187,9 @@ function TiledEditorFormatConverter.convertMap(data, options)
                 layer.x = layer.offsetx or 0
                 layer.y = layer.offsety or 0
                 for _, object in ipairs(layer.objects or {}) do
+                    if layer_type.id == "objects" or layer_type.id == "controllers" then
+                        object.type = getLegacyObjectType(object) or ""
+                    end
                     local success, object_reason = convertTileObject(object)
                     if not success then return nil, object_reason end
                 end
@@ -195,9 +203,7 @@ function TiledEditorFormatConverter.convertMap(data, options)
     converted.layers = converted_layers
     if Registry.editor_events then
         MapUtils.walkObjects(converted.layers, function(object)
-            local event_id = object.type or object.class
-            if event_id == nil or event_id == "" then event_id = object.name end
-            Registry.createEditorEvent(event_id, object, { map_id = converted.id })
+            Registry.createEditorEvent(object.type, object, { map_id = converted.id })
         end)
     end
     return EditorFormat.migrateMap(converted)

@@ -1917,8 +1917,7 @@ function Editor:getMapObjectPropertiesTarget(selection)
     local data = selection.data
     data.properties = data.properties or {}
     data.__editor_property_types = data.__editor_property_types or {}
-    local event_id = data.type or data.class
-    if event_id == nil or event_id == "" then event_id = data.name end
+    local event_id = selection.document:getEditorObjectType(data, selection.map_id)
     local layer_type = Registry.getLayerType(selection.layer._editor_type_id)
     local editor_event = Registry.createEditorEvent(event_id, data, {
         depth = selection.layer._editor_depth_override or 0,
@@ -1964,8 +1963,15 @@ function Editor:getMapObjectPropertiesTarget(selection)
         })
     end
     local tile_object = data.gid or data.tileset and data.tile_id ~= nil
+    local name_field = valueField("Name", "name")
+    name_field.compact = true
+    local type_field = valueField("Type", "type")
+    type_field.compact = true
+    type_field.rebuild_target = function()
+        return self:getMapObjectPropertiesTarget(selection)
+    end
     local fields = {
-        valueField("Name", "name"),
+        name_field, type_field,
         numberField("X", "x"), numberField("Y", "y")
     }
     if tile_object then
@@ -2286,8 +2292,7 @@ function Editor:getObjectLinkProperties(selection)
     local data = selection.data
     data.properties = data.properties or {}
     data.__editor_property_types = data.__editor_property_types or {}
-    local event_id = data.type or data.class
-    if event_id == nil or event_id == "" then event_id = data.name end
+    local event_id = selection.document:getEditorObjectType(data, selection.map_id)
     local success, event = pcall(Registry.createEditorEvent, event_id, data, {
         map_id = selection.map_id
     })
@@ -3186,8 +3191,12 @@ function Editor:getGameObjectPropertiesTarget(object)
     if data then data.__editor_property_types = data.__editor_property_types or {} end
     local event_id
     if data then
-        event_id = data.type or data.class
-        if event_id == nil or event_id == "" then event_id = data.name end
+        event_id = data.type
+        local map = Game.world and Game.world.map
+        if map and map.reader:isLegacyFormat() and (event_id == nil or event_id == "") then
+            event_id = data.class
+            if event_id == nil or event_id == "" then event_id = data.name end
+        end
     end
     local property_set
     if event_id then
@@ -3411,7 +3420,7 @@ function Editor:onKeyPressed(key, is_repeat)
         self.show_tile_grid = not self.show_tile_grid
         return true
     end
-    if Input.is("editor_view", key) and not is_repeat then
+    if Input.is("editor_view", key) and not is_repeat and not editing_text then
         self.consumed_editor_keys[key] = true
         Input.clear("editor_view")
         self:setTileEditingMode(not self.tile_editing_mode)
@@ -3424,6 +3433,7 @@ function Editor:onKeyPressed(key, is_repeat)
         return true
     end
     if self.dockspace:onKeyPressed(key, is_repeat) then return true end
+    if editing_text then return true end
     return self:forwardGameKeyPressed(key, is_repeat)
 end
 

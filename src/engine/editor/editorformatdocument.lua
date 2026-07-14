@@ -36,15 +36,13 @@ function EditorFormatDocument.buildMapData(document, map_id, options)
     data.grid_width = context.grid_width or data.grid_width or data.tilewidth or 40
     data.grid_height = context.grid_height or data.grid_height or data.tileheight or 40
     data.layers = context.layers
-    MapUtils.walkObjects(data.layers, function(object)
-        local event_id = object.type or object.class
-        if event_id == nil or event_id == "" then event_id = object.name end
-        Registry.createEditorEvent(event_id, object, { map_id = context.id })
-    end)
     local reader = Registry.getMapReader(context.id)
     if reader and reader.LEGACY_FORMAT then
         return TiledEditorFormatConverter.convertMap(data, options)
     end
+    MapUtils.walkObjects(data.layers, function(object)
+        Registry.createEditorEvent(object.type, object, { map_id = context.id })
+    end)
     return data
 end
 

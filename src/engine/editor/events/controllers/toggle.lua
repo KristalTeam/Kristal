@@ -16,4 +16,8 @@ function EditorToggleController:init(data, options)
     if not found_target then self:registerProperty("target", "object_reference", { name = "Target" }) end
 end
 
+function EditorToggleController:createObject(map, context)
+    return ToggleController(self.data.properties)
+end
+
 return EditorToggleController

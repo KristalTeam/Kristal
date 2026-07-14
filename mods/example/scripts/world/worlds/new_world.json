@@ -2,8 +2,13 @@
   "version": 1,
   "kristal_version": "0.11.0-dev",
   "id": "new_world",
-  "name": "ExampleWorld",
+  "name": "Debug Dorld",
   "maps": [
+    {
+      "map": "voidclimb",
+      "x": 1280,
+      "y": 280
+    },
     {
       "map": "room1",
       "x": 0,
@@ -18,11 +23,6 @@
       "map": "postclimb",
       "x": 2360,
       "y": 360
-    },
-    {
-      "map": "voidclimb",
-      "x": 1280,
-      "y": 280
     },
     {
       "map": "climbing",

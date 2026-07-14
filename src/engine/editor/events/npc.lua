@@ -45,4 +45,9 @@ function EditorNPC:init(data, options)
     self:registerProperty("progress", "number")
 end
 
+function EditorNPC:createObject(map, context)
+    local x, y = self:getCharacterPosition(map)
+    return NPC(self.data.properties.actor, x, y, self.data.properties)
+end
+
 return EditorNPC

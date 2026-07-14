@@ -295,7 +295,7 @@
         {
           "id": 6,
           "name": "enemy",
-          "type": "",
+          "type": "enemy",
           "x": 530,
           "y": 220,
           "width": 40,
@@ -323,7 +323,7 @@
         {
           "id": 9,
           "name": "transition",
-          "type": "",
+          "type": "transition",
           "x": -40,
           "y": 320,
           "width": 40,
@@ -354,7 +354,7 @@
         {
           "id": 12,
           "name": "transition",
-          "type": "",
+          "type": "transition",
           "x": 800,
           "y": 320,
           "width": 40,

@@ -41,4 +41,9 @@ function EditorChaserEnemy:init(data, options)
     self:registerProperty("aura", "boolean", { default = true })
 end
 
+function EditorChaserEnemy:createObject(map, context)
+    local x, y = self:getCharacterPosition(map)
+    return ChaserEnemy(self.data.properties.actor, x, y, self.data.properties)
+end
+
 return EditorChaserEnemy
