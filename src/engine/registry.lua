@@ -65,7 +65,6 @@ Registry.paths = {
     ["battle_cutscenes"] = "battle/cutscenes",
     ["legend_cutscenes"] = "legends/",
     ["event_scripts"]    = "world/scripts",
-    ["editor_events"]    = "editor/events",
     ["tilesets"]         = "world/tilesets",
     ["maps"]             = "world/maps",
     ["events"]           = "world/events",
@@ -131,6 +130,7 @@ function Registry.saveData()
     end
     self.saved_data.map_readers = self.map_readers
     self.saved_data.layer_types = self.layer_types
+    self.saved_data.editor_events = self.editor_events
     self.saved_data.editor_worlds = self.editor_worlds
     self.saved_data.editor_draw_fx = self.editor_draw_fx
     self.saved_data.editor_templates = self.editor_templates
@@ -145,6 +145,7 @@ function Registry.restoreData()
         end
         self.map_readers = self.saved_data.map_readers
         self.layer_types = self.saved_data.layer_types
+        self.editor_events = self.saved_data.editor_events or {}
         self.editor_worlds = self.saved_data.editor_worlds or {}
         self.editor_draw_fx = self.saved_data.editor_draw_fx or {}
         self.editor_templates = self.saved_data.editor_templates or {}
@@ -1268,14 +1269,6 @@ function Registry.initEditorEvents()
         toggle = EditorToggleController, fountainshadow = EditorFountainShadowController
     }
     for id, event in pairs(builtins) do self.registerEditorEvent(id, event) end
-
-    for _, path, event in self.iterScripts(Registry.paths["editor_events"], false, true) do
-        assert(event ~= nil, '"editor/events/' .. path .. '.lua" does not return value')
-        assert(isClass(event) and event:includes(EditorEvent),
-            '"editor/events/' .. path .. '.lua" must return an EditorEvent class')
-        event.id = event.id or path
-        self.registerEditorEvent(event.id, event)
-    end
 
     Kristal.callEvent(KRISTAL_EVENT.onRegisterEditorEvents)
 end
