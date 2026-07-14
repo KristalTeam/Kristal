@@ -55,7 +55,7 @@ function EditorMapView:update(dt)
         if effect.time >= delay + duration then table.remove(self.explosions, index) end
     end
     if self.polygon_build and self.editor.live_document ~= self.document then
-        local mouse_x, mouse_y = love.mouse.getPosition()
+        local mouse_x, mouse_y = self.editor:getMousePosition()
         local view_x, view_y = self:getGlobalPosition()
         local local_x, local_y = mouse_x - view_x, mouse_y - view_y
         if local_x >= 0 and local_y >= 0 and local_x < self.width and local_y < self.height then
@@ -195,7 +195,7 @@ function EditorMapView:drawObjectLinks()
     local source = drag and drag.source
     if source and source.document == self.document then
         local x1, y1 = self.document:getObjectWorldCenter(source)
-        local mouse_x, mouse_y = love.mouse.getPosition()
+        local mouse_x, mouse_y = self.editor:getMousePosition()
         local local_x, local_y = self:toLocal(mouse_x, mouse_y)
         local x2, y2 = self:getMapCoordinates(local_x, local_y)
         local target = self.document:findObjectAt(x2, y2, { all_layers = true })

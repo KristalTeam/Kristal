@@ -336,7 +336,7 @@ end
 
 function EditorGameView:drawCursorAndCoordinates()
     if not love.window.hasMouseFocus() then return end
-    local mouse_x, mouse_y = love.mouse.getPosition()
+    local mouse_x, mouse_y = self.editor:getMousePosition()
     local global_x, global_y = self:getGlobalPosition()
     local x, y = mouse_x - global_x, mouse_y - global_y
     if x < 0 or y < 0 or x >= self.width or y >= self.height then return end
@@ -372,7 +372,7 @@ function EditorGameView:onWheelMoved(x, y)
         return
     end
     if y == 0 then return false end
-    local mouse_x, mouse_y = love.mouse.getPosition()
+    local mouse_x, mouse_y = self.editor:getMousePosition()
     local global_x, global_y = self:getGlobalPosition()
     local anchor_x, anchor_y = mouse_x - global_x, mouse_y - global_y
     return self:setViewZoom(self.view_zoom * (1.15 ^ y), anchor_x, anchor_y)

@@ -32,6 +32,28 @@ function Editor:init()
     self.music = Music()
 end
 
+function Editor:getUIScale()
+    return tonumber(self.ui_scale) or 1
+end
+
+function Editor:getUIDimensions()
+    local scale = self:getUIScale()
+    return love.graphics.getWidth() / scale, love.graphics.getHeight() / scale
+end
+
+function Editor:screenToUI(x, y)
+    local scale = self:getUIScale()
+    return x / scale, y / scale
+end
+
+function Editor:screenDeltaToUI(x, y)
+    return self:screenToUI(x, y)
+end
+
+function Editor:getMousePosition()
+    return self:screenToUI(love.mouse.getPosition())
+end
+
 function Editor:resetEditingMusic()
     if self.music then self.music:remove() end
     self.music = Music()
@@ -262,15 +284,18 @@ function Editor:setupWindow(session)
     local saved_height = session and type(session.window) == "table" and session.window.height
     local requested_width = type(saved_width) == "number" and saved_width or math.max(current_width, EDITOR_DEFAULT_WIDTH)
     local requested_height = type(saved_height) == "number" and saved_height or math.max(current_height, EDITOR_DEFAULT_HEIGHT)
-    local editor_width = math.min(desktop_width, math.max(SCREEN_WIDTH + 570, requested_width))
+    local ui_scale = self:getUIScale()
+    local minimum_width = MathUtils.round((SCREEN_WIDTH + 570) * ui_scale)
+    local minimum_height = MathUtils.round(
+        (SCREEN_HEIGHT + EditorMenuBar.HEIGHT + EditorMessageBar.HEIGHT + 100) * ui_scale)
+    local editor_width = math.min(desktop_width, math.max(minimum_width, requested_width))
     local editor_height = math.min(desktop_height,
-        math.max(SCREEN_HEIGHT + EditorMenuBar.HEIGHT + EditorMessageBar.HEIGHT + 28, requested_height))
+        math.max(minimum_height, requested_height))
     local editor_flags = TableUtils.copy(flags, true)
     editor_flags.fullscreen = false
     editor_flags.resizable = true
-    editor_flags.minwidth = math.min(editor_width, SCREEN_WIDTH + 570)
-    editor_flags.minheight = math.min(editor_height,
-        SCREEN_HEIGHT + EditorMenuBar.HEIGHT + EditorMessageBar.HEIGHT + 100)
+    editor_flags.minwidth = math.min(editor_width, minimum_width)
+    editor_flags.minheight = math.min(editor_height, minimum_height)
     love.window.updateMode(fromPixels(editor_width), fromPixels(editor_height), editor_flags)
     self:centerWindow(display, desktop_width, desktop_height)
     Kristal.refreshWindowText()
@@ -417,6 +442,10 @@ function Editor:registerEditorSettings(session)
     if stored["appearance.darken_unselected"] == nil and legacy.darken_unselected_layers ~= nil then
         stored["appearance.darken_unselected"] = legacy.darken_unselected_layers
     end
+    if stored["appearance.ui_scale"] == nil and stored["appearance.font_scale"] ~= nil then
+        stored["appearance.ui_scale"] = stored["appearance.font_scale"]
+    end
+    stored["appearance.font_scale"] = nil
 
     self.settings = EditorSettingsRegistry(self, stored)
     self.settings:registerPage("appearance", "Appearance")
@@ -425,10 +454,10 @@ function Editor:registerEditorSettings(session)
         choices = { { value = "deltarune", label = "Deltarune" }, { value = "default", label = "System Default" } },
         set = function(value, editor) editor.use_deltarune_font = value == "deltarune" end
     })
-    self.settings:registerSetting("appearance", "appearance.font_scale", {
-        name = "Font Scale", type = "number", default = 1, minimum = 0.5, maximum = 3,
-        description = "Scales fonts throughout editor panels.",
-        set = function(value, editor) editor.font_scale = value end
+    self.settings:registerSetting("appearance", "appearance.ui_scale", {
+        name = "UI Scale", type = "number", default = 1, minimum = 0.5, maximum = 2,
+        description = "Adjust the scale of the editor's UI- note, the font may look odd on non-integer scaling.",
+        set = function(value, editor) editor.ui_scale = value end
     })
     self.settings:registerSetting("appearance", "appearance.custom_cursors", {
         name = "Use Custom Cursors", type = "boolean", default = true,
@@ -741,10 +770,11 @@ function Editor:setupPanels(session)
     self.dockspace.sizes.bottom = 260
     self.dockspace.minimum_center_width = SCREEN_WIDTH
     self.dockspace.minimum_center_height = SCREEN_HEIGHT + 28
-    self.menu_bar:setBounds(0, 0, love.graphics.getWidth())
-    self.message_bar:setBounds(0, love.graphics.getHeight() - EditorMessageBar.HEIGHT, love.graphics.getWidth())
-    self.dockspace:setBounds(0, EditorMenuBar.HEIGHT, love.graphics.getWidth(),
-        love.graphics.getHeight() - EditorMenuBar.HEIGHT - EditorMessageBar.HEIGHT)
+    local ui_width, ui_height = self:getUIDimensions()
+    self.menu_bar:setBounds(0, 0, ui_width)
+    self.message_bar:setBounds(0, ui_height - EditorMessageBar.HEIGHT, ui_width)
+    self.dockspace:setBounds(0, EditorMenuBar.HEIGHT, ui_width,
+        ui_height - EditorMenuBar.HEIGHT - EditorMessageBar.HEIGHT)
 
     self.default_layout = self:captureLayout()
     if session and type(session.layout) == "table" then
@@ -846,7 +876,7 @@ function Editor:enter(previous, options)
 
     local game_center_x, game_center_y = self:setupWindow(session)
 
-    self.dockspace = EditorDockSpace()
+    self.dockspace = EditorDockSpace(self)
     self.suppress_panel_activation = true
     self.map_documents = {}
     self.active_document = nil
@@ -2473,15 +2503,19 @@ function Editor:getGameCanvasScreenCenter()
     local window_x, window_y = love.window.getPosition()
     local game_x, game_y = self.game_preview:getGlobalPosition()
     local canvas_center_x, canvas_center_y = self.game_preview:getCanvasDisplayCenter()
-    return window_x + fromPixels(game_x + canvas_center_x),
-        window_y + fromPixels(game_y + canvas_center_y)
+    local ui_scale = self:getUIScale()
+    return window_x + fromPixels((game_x + canvas_center_x) * ui_scale),
+        window_y + fromPixels((game_y + canvas_center_y) * ui_scale)
 end
 
 function Editor:positionGameCanvasAtScreen(screen_x, screen_y)
     local window_x, window_y = love.window.getPosition()
     local game_x, game_y = self.game_preview:getGlobalPosition()
-    local canvas_x = toPixels(screen_x - window_x) - game_x - SCREEN_WIDTH * self.game_preview.view_zoom / 2
-    local canvas_y = toPixels(screen_y - window_y) - game_y - SCREEN_HEIGHT * self.game_preview.view_zoom / 2
+    local ui_scale = self:getUIScale()
+    local canvas_x = toPixels(screen_x - window_x) / ui_scale
+        - game_x - SCREEN_WIDTH * self.game_preview.view_zoom / 2
+    local canvas_y = toPixels(screen_y - window_y) / ui_scale
+        - game_y - SCREEN_HEIGHT * self.game_preview.view_zoom / 2
     self.game_preview:setCanvasPosition(canvas_x, canvas_y)
 end
 
@@ -2508,10 +2542,11 @@ function Editor:update()
         and self.source_state and self.source_state.update and not self.game_faulted then
         self:runGameCallback("update", function() self.source_state:update() end)
     end
-    self.menu_bar:setBounds(0, 0, love.graphics.getWidth())
-    self.message_bar:setBounds(0, love.graphics.getHeight() - EditorMessageBar.HEIGHT, love.graphics.getWidth())
-    self.dockspace:setBounds(0, EditorMenuBar.HEIGHT, love.graphics.getWidth(),
-        love.graphics.getHeight() - EditorMenuBar.HEIGHT - EditorMessageBar.HEIGHT)
+    local ui_width, ui_height = self:getUIDimensions()
+    self.menu_bar:setBounds(0, 0, ui_width)
+    self.message_bar:setBounds(0, ui_height - EditorMessageBar.HEIGHT, ui_width)
+    self.dockspace:setBounds(0, EditorMenuBar.HEIGHT, ui_width,
+        ui_height - EditorMenuBar.HEIGHT - EditorMessageBar.HEIGHT)
     self.dockspace:update(DT)
     if self.creation_dialog then self.creation_dialog:update(DT) end
 
@@ -2542,9 +2577,11 @@ function Editor:drawEditor(canvas)
     love.graphics.origin()
     love.graphics.clear(0.055, 0.055, 0.065, 1)
     self.game_preview:setCanvas(canvas)
+    love.graphics.push()
+    love.graphics.scale(self:getUIScale())
     self.dockspace:draw()
     if self.drag_preview then
-        local x, y = love.mouse.getPosition()
+        local x, y = self:getMousePosition()
         local font = EditorFont.get(16)
         love.graphics.setFont(font)
         local preview = self.drag_preview
@@ -2575,7 +2612,8 @@ function Editor:drawEditor(canvas)
     self.message_bar:draw()
     self.menu_bar:draw()
     if self.creation_dialog then self.creation_dialog:draw() end
-    local mouse_x, mouse_y = love.mouse.getPosition()
+    love.graphics.pop()
+    local mouse_x, mouse_y = self:getMousePosition()
     self.editor_cursor:setType(self:getCursorType(mouse_x, mouse_y))
 end
 
@@ -3151,7 +3189,7 @@ function Editor:activateGameObjectSelection()
     debug_system:setSelectionEnvironment(self,
         function() return Game.stage end,
         function() return self.object_selection_cursor_x or 0, self.object_selection_cursor_y or 0 end)
-    local mouse_x, mouse_y = love.mouse.getPosition()
+    local mouse_x, mouse_y = self:getMousePosition()
     self:updateGameObjectSelectionCursor(mouse_x, mouse_y)
     return true
 end
@@ -3509,6 +3547,7 @@ end
 
 function Editor:onMousePressed(x, y, button, istouch, presses)
     if self.entry_transition or self.exit_transition then return true end
+    x, y = self:screenToUI(x, y)
     if self.creation_dialog then return self.creation_dialog:onMousePressed(x, y, button, istouch, presses) end
     if self.message_bar:containsPoint(x, y) then
         if button == 1 then self:toggleDiagnosticsPanel() end
@@ -3522,6 +3561,8 @@ end
 
 function Editor:onMouseMoved(x, y, dx, dy, istouch)
     if self.entry_transition or self.exit_transition then return true end
+    x, y = self:screenToUI(x, y)
+    dx, dy = self:screenDeltaToUI(dx, dy)
     if self.creation_dialog then return self.creation_dialog:onMouseMoved(x, y, dx, dy, istouch) end
     self:updateGameObjectSelectionCursor(x, y)
     if self.dockspace:onMouseMoved(x, y, dx, dy) then return true end
@@ -3535,6 +3576,7 @@ end
 
 function Editor:onMouseReleased(x, y, button, istouch, presses)
     if self.entry_transition or self.exit_transition then return true end
+    x, y = self:screenToUI(x, y)
     if self.creation_dialog then return self.creation_dialog:onMouseReleased(x, y, button, istouch, presses) end
     if self.dockspace:onMouseReleased(x, y, button, presses) then return true end
     if self:handleGameObjectSelectionMouseReleased(x, y, button, istouch, presses) then return true end
@@ -3544,7 +3586,7 @@ end
 function Editor:onWheelMoved(x, y)
     if self.entry_transition or self.exit_transition then return true end
     if self.creation_dialog then return self.creation_dialog:onWheelMoved(x, y) end
-    local mouse_x, mouse_y = love.mouse.getPosition()
+    local mouse_x, mouse_y = self:getMousePosition()
     if self.message_bar:containsPoint(mouse_x, mouse_y) then return true end
     return self.dockspace:onWheelMoved(x, y)
 end

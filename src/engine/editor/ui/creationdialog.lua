@@ -158,7 +158,8 @@ function DialogChoice:onKeyPressed(key)
 end
 
 function EditorCreationDialog:init(editor, options)
-    super.init(self, 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+    local ui_width, ui_height = editor:getUIDimensions()
+    super.init(self, 0, 0, ui_width, ui_height)
     self.editor = editor
     self.title = options.title or "Create"
     self.templates = options.templates or {}
@@ -346,7 +347,7 @@ function EditorCreationDialog:layoutForm()
 end
 
 function EditorCreationDialog:update(dt)
-    self:setBounds(0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+    self:setBounds(0, 0, self.editor:getUIDimensions())
     local width = math.min(780, self.width - 48)
     local height = math.min(620, self.height - 48)
     self.panel_x = math.floor((self.width - width) / 2)
@@ -372,7 +373,7 @@ end
 
 function EditorCreationDialog:updateFieldTooltip()
     self.field_tooltip.visible = false
-    local mouse_x, mouse_y = love.mouse.getPosition()
+    local mouse_x, mouse_y = self.editor:getMousePosition()
     local target = self:getControlAt(mouse_x, mouse_y)
     while target and target ~= self do
         if target.code_name then
@@ -482,7 +483,7 @@ function EditorCreationDialog:onMouseReleased(x, y, button, _, presses)
 end
 
 function EditorCreationDialog:onWheelMoved(x, y)
-    local mouse_x, mouse_y = love.mouse.getPosition()
+    local mouse_x, mouse_y = self.editor:getMousePosition()
     local target = self:getControlAt(mouse_x, mouse_y)
     while target and target ~= self do
         if target:onWheelMoved(x, y) then return true end

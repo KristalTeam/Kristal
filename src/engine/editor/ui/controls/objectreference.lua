@@ -51,7 +51,7 @@ function EditorObjectReferenceControl:onMouseReleased(_, _, button)
     local was_dragging = self.dragging
     self.pending_drag, self.dragging = false, false
     if was_dragging then
-        local x, y = love.mouse.getPosition()
+        local x, y = self.editor:getMousePosition()
         local value = self.editor:finishObjectReferenceDrag(x, y)
         if value then
             self.value = value

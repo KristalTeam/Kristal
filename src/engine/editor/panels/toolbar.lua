@@ -40,7 +40,7 @@ end
 function EditorToolbar:update(dt)
     local x, height = 6, math.max(24, self.height - 8)
     self.hovered_tool = nil
-    local mouse_x, mouse_y = love.mouse.getPosition()
+    local mouse_x, mouse_y = self.editor:getMousePosition()
     for _, button in ipairs(self.buttons) do
         if button.tool_id == "shape" then
             for _, mode in ipairs(self.editor:getShapeModes()) do

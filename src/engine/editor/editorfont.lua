@@ -2,16 +2,15 @@ local EditorFont = {}
 
 local default_fonts = {}
 
-local function scaledSize(size)
+local function fontSize(size)
     size = size or 16
     local editor = Kristal and Kristal.States and Kristal.States["Editor"]
-    local scale = editor and editor.font_scale or 1
-    return math.max(6, MathUtils.round(size * scale)), editor
+    return math.max(6, MathUtils.round(size)), editor
 end
 
 function EditorFont.get(size)
     local editor
-    size, editor = scaledSize(size)
+    size, editor = fontSize(size)
     if not editor or editor.use_deltarune_font ~= false then
         return Assets.getFont("main", size)
     end
@@ -23,7 +22,7 @@ end
 
 function EditorFont.getMono(size)
     local editor
-    size, editor = scaledSize(size)
+    size, editor = fontSize(size)
     if not editor or editor.use_deltarune_font ~= false then
         return Assets.getFont("main_mono", size)
     end
