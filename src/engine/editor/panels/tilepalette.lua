@@ -249,7 +249,7 @@ end
 
 function EditorTilePalette:onWheelMoved(x, y)
     if Input.ctrl() then
-        local mouse_x, mouse_y = love.mouse.getPosition()
+        local mouse_x, mouse_y = self.editor:getMousePosition()
         local local_x, local_y = self:toLocal(mouse_x, mouse_y)
         return self:stepZoom(y ~= 0 and y or x, local_x, local_y)
     elseif Input.keyDown("shift") or x ~= 0 then

@@ -588,7 +588,7 @@ function EditorCodeInput:requestHover(position, x, y, explicit)
     local document, version = self.document, self.document.version
     if explicit then
         self.hover_explicit = true
-        self.hover_mouse_x, self.hover_mouse_y = love.mouse.getPosition()
+        self.hover_mouse_x, self.hover_mouse_y = self.editor:getMousePosition()
     end
     service:requestHover(document, position, function(result, response_error)
         if generation ~= self.hover_generation or document ~= self.document or version ~= document.version
@@ -819,7 +819,7 @@ function EditorCodeInput:update(dt)
     end
     local context_menu_open = self.editor and self.editor.dockspace
         and self.editor.dockspace.context_menu ~= nil
-    local mouse_x, mouse_y = love.mouse.getPosition()
+    local mouse_x, mouse_y = self.editor:getMousePosition()
     local over_hover = self.hover_popup.visible and self.hover_popup:containsPoint(mouse_x, mouse_y)
     if self.hover_explicit then
         if not self.hover_mouse_x or math.abs(mouse_x - self.hover_mouse_x) > 2

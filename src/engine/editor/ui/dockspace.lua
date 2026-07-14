@@ -1,5 +1,5 @@
 ---@class EditorDockSpace : Class
----@overload fun(): EditorDockSpace
+---@overload fun(editor: Editor): EditorDockSpace
 local EditorDockSpace = Class()
 
 local REGIONS = { "top", "bottom", "left", "right", "center" }
@@ -29,7 +29,8 @@ local function withScissor(rect, callback)
     love.graphics.setScissor(unpack(old_scissor))
 end
 
-function EditorDockSpace:init()
+function EditorDockSpace:init(editor)
+    self.editor = editor
     self.x, self.y, self.width, self.height = 0, 0, 0, 0
     self.panels = {}
     self.panel_order = {}
@@ -713,7 +714,7 @@ function EditorDockSpace:drawContextMenu()
     love.graphics.setLineWidth(1)
     local font = EditorFont.get(16)
     love.graphics.setFont(font)
-    local mouse_x, mouse_y = love.mouse.getPosition()
+    local mouse_x, mouse_y = self.editor:getMousePosition()
     self:updateContextMenuHover(mouse_x, mouse_y, false)
     if menu.searchable then
         local search = menu.search_rect
@@ -1057,7 +1058,8 @@ function EditorDockSpace:getMapPanelDropTarget(x, y)
 end
 
 function EditorDockSpace:onWheelMoved(x, y)
-    if self.context_menu and pointInRect(love.mouse.getX(), love.mouse.getY(), self.context_menu.rect) then
+    local mouse_x, mouse_y = self.editor:getMousePosition()
+    if self.context_menu and pointInRect(mouse_x, mouse_y, self.context_menu.rect) then
         local menu = self.context_menu
         local maximum = math.max(0, #menu.filtered_items - menu.maximum_rows)
         local scroll = MathUtils.clamp(menu.scroll - y, 0, maximum)
@@ -1068,7 +1070,6 @@ function EditorDockSpace:onWheelMoved(x, y)
         end
         return true
     end
-    local mouse_x, mouse_y = love.mouse.getPosition()
     local target = self:getControlAt(mouse_x, mouse_y)
     while target do
         local handled = target:onWheelMoved(x, y)
@@ -1124,7 +1125,7 @@ end
 
 function EditorDockSpace:onKeyReleased(key)
     if self.dragging_panel and (key == "lshift" or key == "rshift") then
-        local x, y = love.mouse.getPosition()
+        local x, y = self.editor:getMousePosition()
         self.dock_preview = self:getDockTarget(x, y, self.dragging_panel)
         return true
     end
