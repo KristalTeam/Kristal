@@ -99,7 +99,7 @@ function EditorProjectWorkspace:openDocument(path)
     end
     self.documents[path] = document
     table.insert(self.document_order, document)
-    self.editor.document_providers:broadcast("document_opened", document)
+    self.editor.document_providers:broadcast("onDocumentOpened", document)
     return document
 end
 
@@ -207,14 +207,14 @@ function EditorProjectWorkspace:openDocumentByRealPath(real_path)
     })
     self.documents[path] = document
     table.insert(self.document_order, document)
-    self.editor.document_providers:broadcast("document_opened", document)
+    self.editor.document_providers:broadcast("onDocumentOpened", document)
     return document
 end
 
 function EditorProjectWorkspace:closeDocument(document)
     if not document or self.documents[document.path] ~= document then return false end
     if document:isDirty() then return false, "The file has unsaved changes" end
-    self.editor.document_providers:broadcast("document_closed", document)
+    self.editor.document_providers:broadcast("onDocumentClosed", document)
     self.documents[document.path] = nil
     TableUtils.removeValue(self.document_order, document)
     if document.release then document:release() end
@@ -223,17 +223,17 @@ end
 
 function EditorProjectWorkspace:onDocumentChanged(document, options)
     self:refreshDocument(document)
-    self.editor.document_providers:broadcast("document_changed", document, options or {})
+    self.editor.document_providers:broadcast("onDocumentChanged", document, options or {})
 end
 
 function EditorProjectWorkspace:onDocumentSaved(document)
     self:refreshDocument(document)
-    self.editor.document_providers:broadcast("document_saved", document)
+    self.editor.document_providers:broadcast("onDocumentSaved", document)
     if self.editor.message_bar then self.editor.message_bar:setStatus("Saved " .. document.relative_path) end
 end
 
 function EditorProjectWorkspace:refreshDocument(document)
-    self.editor.document_providers:broadcast("document_refreshed", document)
+    self.editor.document_providers:broadcast("onDocumentRefreshed", document)
 end
 
 function EditorProjectWorkspace:rename(path, destination)
@@ -257,7 +257,7 @@ function EditorProjectWorkspace:rename(path, destination)
     end
     for _, entry in ipairs(affected) do
         local document = entry.document
-        self.editor.document_providers:broadcast("document_closed", document)
+        self.editor.document_providers:broadcast("onDocumentClosed", document)
         self.documents[entry.path] = nil
         document.path = destination .. entry.path:sub(#path + 1)
         document.real_path = assert(ProjectFileSystem.getRealPath(document.path))
@@ -265,7 +265,7 @@ function EditorProjectWorkspace:rename(path, destination)
         document.name = document.relative_path:match("([^/]+)$") or document.relative_path
         document.language_id = document.name:lower():match("%.lua$") and "lua" or "plaintext"
         self.documents[document.path] = document
-        self.editor.document_providers:broadcast("document_opened", document)
+        self.editor.document_providers:broadcast("onDocumentOpened", document)
     end
     return true
 end
@@ -286,7 +286,7 @@ end
 
 function EditorProjectWorkspace:shutdown()
     for _, document in ipairs(self.document_order) do
-        self.editor.document_providers:broadcast("document_closed", document)
+        self.editor.document_providers:broadcast("onDocumentClosed", document)
     end
     for _, document in ipairs(self.document_order) do
         if document.release then document:release() end

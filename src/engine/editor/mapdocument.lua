@@ -1,6 +1,6 @@
----@class EditorMapDocument : Class
+---@class EditorMapDocument : EditorDocument
 ---@overload fun(editor: table, map_id?: string): EditorMapDocument
-local EditorMapDocument = Class()
+local EditorMapDocument, super = Class(EditorDocument)
 
 local function flattenLayers(layers, result, parent)
     result = result or {}
@@ -47,7 +47,7 @@ local function stripLayerRuntimeState(layers)
 end
 
 function EditorMapDocument:init(editor, map_id)
-    self.editor = editor
+    super.init(self, editor)
     self.world = EditorWorld(map_id and ("session:" .. map_id) or nil)
     self.primary_map_id = self.world.primary_map_id
     self.maps = self.world.maps
@@ -56,8 +56,6 @@ function EditorMapDocument:init(editor, map_id)
     self.selected_layers = {}
     self.next_layer_uid = 1
     self.next_object_uid = 1
-    self.history_revision = 0
-    self.saved_history_revision = 0
     if map_id then self:setPrimaryMap(map_id) end
 end
 
@@ -124,10 +122,6 @@ function EditorMapDocument:restoreHistoryState(state)
         entry.preview, entry.preview_attempted = nil, false
     end
     return true
-end
-
-function EditorMapDocument:isDirty()
-    return (self.history_revision or 0) ~= (self.saved_history_revision or 0)
 end
 
 function EditorMapDocument:getFormatContext(map_id)

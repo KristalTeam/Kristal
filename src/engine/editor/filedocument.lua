@@ -1,9 +1,10 @@
----@class EditorFileDocument : Class
+---@class EditorFileDocument : EditorDocument
 ---@overload fun(workspace: EditorProjectWorkspace, path: string, contents: string, options?: table): EditorFileDocument
-local EditorFileDocument = Class()
+local EditorFileDocument, super = Class(EditorDocument)
 
 function EditorFileDocument:init(workspace, path, contents, options)
     options = options or {}
+    super.init(self, workspace.editor)
     self.workspace = workspace
     self.path = path
     self.real_path = options.real_path or assert(ProjectFileSystem.getRealPath(path))

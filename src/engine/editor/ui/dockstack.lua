@@ -9,6 +9,11 @@ function EditorDockStack:init(id, region)
     self.active_index = 1
     self.x, self.y, self.width, self.height = 0, 0, 0, 0
     self.tab_rects = {}
+    self.tab_scroll = 0
+    self.tab_total_width = 0
+    self.tab_view_rect = nil
+    self.tab_scroll_left_rect = nil
+    self.tab_scroll_right_rect = nil
 end
 
 function EditorDockStack:addPanel(panel, index)

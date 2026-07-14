@@ -8,27 +8,36 @@ function EditorDocumentProviders:init(editor)
     self.order = {}
 end
 
-function EditorDocumentProviders:register(id, definition)
+---@param id string
+---@param provider EditorDocumentProvider
+function EditorDocumentProviders:register(id, provider)
     assert(type(id) == "string" and id ~= "", "Document providers require an id")
-    assert(type(definition) == "table", "Document providers require a definition")
-    assert(type(definition.supports) == "function", "Document providers require a supports callback")
-    assert(type(definition.open) == "function", "Document providers require an open callback")
-    definition.id = id
-    definition.priority = tonumber(definition.priority) or 0
+    assert(isClass(provider) and provider:includes(EditorDocumentProvider),
+        "Document providers must extend EditorDocumentProvider")
+    assert(rawget(provider, "__index") ~= provider,
+        "Document providers must be instances, not classes")
+    assert(provider.open ~= EditorDocumentProvider.open,
+        "Document providers must override open()")
+    assert(provider.editor == self.editor,
+        "Document providers must belong to this editor")
+    local previous = self.providers[id]
+    if previous and previous ~= provider then previous:shutdown() end
+    provider.id = id
+    provider.priority = tonumber(provider.priority) or 0
     if not self.providers[id] then table.insert(self.order, id) end
-    self.providers[id] = definition
+    self.providers[id] = provider
     table.sort(self.order, function(first, second)
         local a, b = self.providers[first], self.providers[second]
         if a.priority ~= b.priority then return a.priority > b.priority end
         return first < second
     end)
-    return definition
+    return provider
 end
 
 function EditorDocumentProviders:unregister(id)
     local provider = self.providers[id]
     if not provider then return false end
-    if provider.shutdown then provider.shutdown() end
+    provider:shutdown()
     self.providers[id] = nil
     TableUtils.removeValue(self.order, id)
     return true
@@ -49,10 +58,11 @@ end
 
 function EditorDocumentProviders:createDocument(workspace, path, contents, file_type, options)
     for _, provider in ipairs(self:getAll()) do
-        if provider.create_document and provider.supports_path
-            and provider.supports_path(path, file_type, options or {}) then
-            local document = provider.create_document(workspace, path, contents, file_type, options or {})
+        if provider:supportsPath(path, file_type, options or {}) then
+            local document = provider:createDocument(workspace, path, contents, file_type, options or {})
             if document then
+                assert(isClass(document) and document:includes(EditorDocument),
+                    "Document providers must create EditorDocument instances")
                 document.document_provider_id = provider.id
                 return document
             end
@@ -62,48 +72,50 @@ end
 
 function EditorDocumentProviders:getForDocument(document)
     if document.document_provider_id and self.providers[document.document_provider_id]
-        and self.providers[document.document_provider_id].supports(document) then
+        and self.providers[document.document_provider_id]:supports(document) then
         return self.providers[document.document_provider_id]
     end
     for _, provider in ipairs(self:getAll()) do
-        if provider.supports(document) then return provider end
+        if provider:supports(document) then return provider end
     end
 end
 
 function EditorDocumentProviders:open(document, options)
+    assert(isClass(document) and document:includes(EditorDocument),
+        "Document providers can only open EditorDocument instances")
     local provider = self:getForDocument(document)
-    if not provider then return false, "No document viewer supports " .. tostring(document.name) end
-    local opened, reason = provider.open(document, options or {})
+    if not provider then return false, "No document viewer supports " .. document:getName() end
+    local opened, reason = provider:open(document, options or {})
     if opened ~= false then document.open_provider_id = provider.id end
     return opened, reason, provider
 end
 
 function EditorDocumentProviders:close(document)
     local provider = document and document.open_provider_id and self.providers[document.open_provider_id]
-    if provider and provider.close then return provider.close(document) end
+    if provider then return provider:close(document) end
     return false
 end
 
 function EditorDocumentProviders:getFocused()
     for _, provider in ipairs(self:getAll()) do
-        if provider.is_focused and provider.is_focused() then return provider end
+        if provider:isFocused() then return provider end
     end
 end
 
 function EditorDocumentProviders:invokeFocused(method, ...)
     local provider = self:getFocused()
-    if provider and provider[method] then return provider[method](...) end
+    if provider and provider[method] then return provider[method](provider, ...) end
 end
 
 function EditorDocumentProviders:broadcast(method, ...)
     for _, provider in ipairs(self:getAll()) do
-        if provider[method] then provider[method](...) end
+        if provider[method] then provider[method](provider, ...) end
     end
 end
 
 function EditorDocumentProviders:any(method)
     for _, provider in ipairs(self:getAll()) do
-        if provider[method] and provider[method]() then return true end
+        if provider[method] and provider[method](provider) then return true end
     end
     return false
 end
@@ -111,20 +123,21 @@ end
 function EditorDocumentProviders:captureSession()
     local result = {}
     for _, provider in ipairs(self:getAll()) do
-        if provider.capture_session then result[provider.id] = provider.capture_session() end
+        local state = provider:captureSession()
+        if state ~= nil then result[provider.id] = state end
     end
     return result
 end
 
 function EditorDocumentProviders:restoreSession(session)
     for _, provider in ipairs(self:getAll()) do
-        if provider.restore_session then provider.restore_session((session or {})[provider.id]) end
+        provider:restoreSession((session or {})[provider.id])
     end
 end
 
 function EditorDocumentProviders:shutdown()
     for _, provider in ipairs(self:getAll()) do
-        if provider.shutdown then provider.shutdown() end
+        provider:shutdown()
     end
     self.providers, self.order = {}, {}
 end
