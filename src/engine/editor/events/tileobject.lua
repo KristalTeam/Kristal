@@ -26,6 +26,12 @@ function EditorTileObject:init(data, options)
     end
 end
 
+function EditorTileObject:createObject(map, context)
+    if not self.tileset or self.tile_id == nil then return nil end
+    return TileObject(self.tileset, self.tile_id, self.x, self.y,
+        self.width, self.height, self.rotation, self.flip_x, self.flip_y)
+end
+
 function EditorTileObject:draw(alpha)
     if not self.visible or not self.tileset or self.tile_id == nil then return end
     alpha = alpha or 1

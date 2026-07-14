@@ -10,4 +10,8 @@ function EditorSavepoint:init(data, options)
     self:registerProperty("heals", "boolean")
 end
 
+function EditorSavepoint:createObject(map, context)
+    return Savepoint(self.data.center_x, self.data.center_y, self.data.properties)
+end
+
 return EditorSavepoint

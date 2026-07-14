@@ -7,4 +7,8 @@ function EditorSetFlagEvent:init(data, options)
     self:registerProperty("once", "boolean")
     self:registerProperty("mapflag", "boolean", { name = "Map Flag" })
 end
+function EditorSetFlagEvent:createObject(map, context)
+    return SetFlagEvent(self.data.x, self.data.y, self:getShapeData(), self.data.properties)
+end
+
 return EditorSetFlagEvent

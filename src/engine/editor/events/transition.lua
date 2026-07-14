@@ -21,4 +21,8 @@ function EditorTransition:init(data, options)
     self:registerProperty("exit_pitch", "number", { name = "Exit Pitch", default = 1 })
 end
 
+function EditorTransition:createObject(map, context)
+    return Transition(self.data.x, self.data.y, self:getShapeData(), self.data.properties)
+end
+
 return EditorTransition

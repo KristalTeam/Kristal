@@ -254,6 +254,12 @@ function operations.shouldLoadObject(self, data, layer)
     return not skip_loading
 end
 
+--- Resolves the registered runtime type for an object in this map format.
+function operations.getObjectType(self, data)
+    if type(data.type) == "string" and data.type ~= "" then return data.type end
+    return nil
+end
+
 function operations.loadObjects(self, layer, depth, layer_type)
     local parent = layer_type == "controllers" and self.world.controller_parent or self.world
 
@@ -290,19 +296,22 @@ function operations.loadObjects(self, layer, depth, layer_type)
             v.center_y = ty + th / 2
         end
 
-        local obj_type = v.type or v.class
-        if obj_type == "" then
-            obj_type = v.name
-        end
+        local obj_type = self:getObjectType(v)
 
         local uid = self:getUniqueID() .. "#" .. tostring(v.properties["uid"] or v.id)
         if not Game:getFlag(uid .. ":dont_load") then
             if self:shouldLoadObject(v, layer) then
                 local obj
+                local runtime_context = {
+                    layer_type = layer_type,
+                    layer = layer,
+                    depth = depth,
+                    reader = self.reader
+                }
                 if layer_type == "controllers" then
-                    obj = self:loadController(obj_type, v)
+                    obj = self:loadController(obj_type, v, runtime_context)
                 else
-                    obj = self:loadObject(obj_type, v)
+                    obj = self:loadObject(obj_type, v, runtime_context)
                 end
                 if obj then
                     obj.rotation = rotation
@@ -361,7 +370,7 @@ function operations.legacyLoadObject(self, name, data)
     return nil
 end
 
-function operations.loadObject(self, name, data)
+function operations.loadObject(self, name, data, context)
 
     -- Check the events
     local loaded = Kristal.callEvent(KRISTAL_EVENT.loadObject, self.world, name, data)
@@ -375,8 +384,18 @@ function operations.loadObject(self, name, data)
         end
     end
 
-    -- Check the registry
-    if Game.event_registry:has(name) then
+    local editor_event_class = Registry.getEditorEvent(name)
+    local tile_object = data.gid or data.tileset and data.tile_id ~= nil
+    if editor_event_class or tile_object then
+        local editor_event = Registry.createEditorEvent(name, data, {
+            map = self,
+            map_id = self.id,
+            runtime = true
+        })
+        return editor_event:createObject(self, context)
+    end
+
+    if Game.event_registry and Game.event_registry:has(name) then
         return Game.event_registry:create(name, data)
     end
 
@@ -386,20 +405,10 @@ function operations.loadObject(self, name, data)
         return loaded
     end
 
-    -- Check for built-in events, must happen after everything else
-    if Game.builtin_event_registry:has(name) then
-        return Game.builtin_event_registry:create(name, data)
-    end
-
-    -- Fallback to a TileObject
-    if data.gid or data.tileset and data.tile_id ~= nil then
-        return self:createTileObject(data)
-    end
-
     Kristal.Console:warn("No event with ID '" .. tostring(name) .. "' found")
 end
 
-function operations.loadController(self, name, data)
+function operations.loadController(self, name, data, context)
     -- Mod object loading
     local obj = Kristal.modCall("loadController", self.world, name, data)
     if obj then
@@ -425,11 +434,14 @@ function operations.loadController(self, name, data)
             end
         end
     end
-    -- Kristal object loading
-    if name:lower() == "toggle" then
-        return ToggleController(data.properties)
-    elseif name:lower() == "fountainshadow" then
-        return FountainShadowController(data.properties)
+    local editor_event_class = Registry.getEditorEvent(name)
+    if editor_event_class then
+        local editor_event = Registry.createEditorEvent(name, data, {
+            map = self,
+            map_id = self.id,
+            runtime = true
+        })
+        return editor_event:createObject(self, context)
     end
 end
 

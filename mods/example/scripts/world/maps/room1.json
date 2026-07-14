@@ -561,7 +561,7 @@
         {
           "id": 56,
           "name": "mouseholeentry",
-          "type": "",
+          "type": "mouseholeentry",
           "x": 660,
           "y": 560,
           "width": 80,
@@ -634,7 +634,7 @@
         {
           "id": 58,
           "name": "climbmover",
-          "type": "",
+          "type": "climbmover",
           "x": 480,
           "y": 1240,
           "width": 40,
@@ -833,7 +833,7 @@
         {
           "id": 19,
           "name": "npc",
-          "type": "",
+          "type": "npc",
           "x": 480,
           "y": 840,
           "width": 40,
@@ -844,6 +844,12 @@
             "shape_data": {}
           },
           "visible": true,
+          "fx": [
+            {
+              "type": "outline",
+              "properties": []
+            }
+          ],
           "properties": [
             {
               "name": "actor",
@@ -870,7 +876,7 @@
         {
           "id": 27,
           "name": "savepoint",
-          "type": "",
+          "type": "savepoint",
           "x": 80,
           "y": 210,
           "width": 40,
@@ -901,7 +907,7 @@
         {
           "id": 29,
           "name": "transition",
-          "type": "",
+          "type": "transition",
           "x": 800,
           "y": 200,
           "width": 40,
@@ -934,7 +940,7 @@
         {
           "id": 33,
           "name": "interactable",
-          "type": "",
+          "type": "interactable",
           "x": 280,
           "y": 80,
           "width": 40,
@@ -964,7 +970,7 @@
         {
           "id": 35,
           "name": "npc",
-          "type": "",
+          "type": "npc",
           "x": 300,
           "y": 160,
           "width": 0,
@@ -999,7 +1005,7 @@
         {
           "id": 51,
           "name": "transition",
-          "type": "",
+          "type": "transition",
           "x": 780,
           "y": 1240,
           "width": 20,
@@ -1032,7 +1038,7 @@
         {
           "id": 53,
           "name": "transition",
-          "type": "",
+          "type": "transition",
           "x": 660,
           "y": 590,
           "width": 80,
@@ -1083,6 +1089,38 @@
           "properties": [],
           "center_x": 140,
           "center_y": 740
+        },
+        {
+          "id": 143,
+          "name": "savepoint",
+          "type": "savepoint",
+          "x": 58.038475772934,
+          "y": 822.67949192431,
+          "width": 40,
+          "height": 40,
+          "rotation": 30,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "scale_x": 3,
+          "scale_y": 1,
+          "visible": true,
+          "properties": [
+            {
+              "name": "text",
+              "type": "table",
+              "value": {
+                "kind": "array",
+                "values": [
+                  "* You are filled with the power of [font:main,64]scale."
+                ]
+              }
+            }
+          ],
+          "center_x": 100,
+          "center_y": 230,
+          "opacity": 1
         }
       ]
     }

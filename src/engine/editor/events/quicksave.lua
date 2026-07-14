@@ -3,4 +3,8 @@ function EditorQuicksave:init(data, options)
     super.init(self, data, options)
     self:registerProperty("marker", "object_reference", { marker = true })
 end
+function EditorQuicksave:createObject(map, context)
+    return QuicksaveEvent(self.data.x, self.data.y, self:getShapeData(), self.data.properties.marker)
+end
+
 return EditorQuicksave

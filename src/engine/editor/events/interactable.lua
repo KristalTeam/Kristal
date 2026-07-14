@@ -12,4 +12,8 @@ function EditorInteractable:init(data, options)
     self:registerProperty("usetile", "boolean", { name = "Use Tile" })
 end
 
+function EditorInteractable:createObject(map, context)
+    return Interactable(self.data.x, self.data.y, self:getShapeData(), self.data.properties)
+end
+
 return EditorInteractable

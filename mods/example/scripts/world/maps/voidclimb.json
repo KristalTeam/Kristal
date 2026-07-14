@@ -163,7 +163,7 @@
         {
           "id": 104,
           "name": "fallingclimbarea",
-          "type": "",
+          "type": "fallingclimbarea",
           "x": 320,
           "y": 240,
           "width": 40,
@@ -192,7 +192,7 @@
         {
           "id": 105,
           "name": "fallingclimbarea",
-          "type": "",
+          "type": "fallingclimbarea",
           "x": 440,
           "y": 240,
           "width": 40,
@@ -210,7 +210,7 @@
         {
           "id": 106,
           "name": "fallingclimbarea",
-          "type": "",
+          "type": "fallingclimbarea",
           "x": 520,
           "y": 240,
           "width": 40,
@@ -573,7 +573,7 @@
         {
           "id": 101,
           "name": "transition",
-          "type": "",
+          "type": "transition",
           "x": 1060,
           "y": 200,
           "width": 20,
@@ -604,7 +604,7 @@
         {
           "id": 131,
           "name": "climbshooter",
-          "type": "",
+          "type": "climbshooter",
           "x": 520,
           "y": 840,
           "width": 40,
@@ -627,7 +627,7 @@
         {
           "id": 132,
           "name": "climbshooter",
-          "type": "",
+          "type": "climbshooter",
           "x": 640,
           "y": 840,
           "width": 40,
@@ -644,7 +644,7 @@
         {
           "id": 133,
           "name": "climbshooter",
-          "type": "",
+          "type": "climbshooter",
           "x": 760,
           "y": 840,
           "width": 40,
@@ -667,7 +667,7 @@
         {
           "id": 134,
           "name": "climbshooter",
-          "type": "",
+          "type": "climbshooter",
           "x": 400,
           "y": 840,
           "width": 40,
@@ -684,7 +684,7 @@
         {
           "id": 135,
           "name": "climbshooter",
-          "type": "",
+          "type": "climbshooter",
           "x": 440,
           "y": 480,
           "width": 40,
@@ -712,7 +712,7 @@
         {
           "id": 136,
           "name": "climbshooter",
-          "type": "",
+          "type": "climbshooter",
           "x": 480,
           "y": 480,
           "width": 40,
@@ -735,7 +735,7 @@
         {
           "id": 137,
           "name": "climbshooter",
-          "type": "",
+          "type": "climbshooter",
           "x": 580,
           "y": 480,
           "width": 40,
@@ -758,7 +758,7 @@
         {
           "id": 138,
           "name": "climbshooter",
-          "type": "",
+          "type": "climbshooter",
           "x": 700,
           "y": 480,
           "width": 40,
@@ -775,7 +775,7 @@
         {
           "id": 141,
           "name": "transition",
-          "type": "",
+          "type": "transition",
           "x": 0,
           "y": 680,
           "width": 20,

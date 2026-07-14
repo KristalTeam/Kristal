@@ -18,4 +18,8 @@ function EditorTileButton:init(data, options)
     self:registerProperty("cutscene", "string")
     self:registerProperty("script", "string")
 end
+function EditorTileButton:createObject(map, context)
+    return TileButton(self.data.x, self.data.y, self:getRectData(), self.data.properties)
+end
+
 return EditorTileButton

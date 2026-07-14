@@ -4,6 +4,7 @@ local EditorCodeInput, super = Class(EditorControl)
 local EditorCodeCompletionPopup, EditorCodeHoverPopup = ...
 
 local COLORS = EditorLuaHighlighter.COLORS
+local TAB_WIDTH = 4
 
 local function copyPosition(position)
     return { line = position.line, column = position.column }
@@ -368,6 +369,69 @@ function EditorCodeInput:replaceSelection(text)
     self.preferred_x = nil
     self:ensureCursorVisible()
     self:scheduleAutomaticCompletion()
+    return true
+end
+
+function EditorCodeInput:indentSelection(outdent)
+    if not self.document or not self.buffer then return false end
+    if self.document.read_only then return true end
+
+    if not self:hasSelection() then
+        if not outdent then
+            local spaces = TAB_WIDTH - ((self.cursor.column - 1) % TAB_WIDTH)
+            return self:replaceSelection(string.rep(" ", spaces))
+        end
+        local line = self.buffer:getLine(self.cursor.line)
+        local leading = line:match("^[ \t]*") or ""
+        local remove = leading:sub(1, 1) == "\t" and 1
+            or math.min(#(leading:match("^ +") or ""), TAB_WIDTH)
+        if remove == 0 then return true end
+        self:closeCodeAssists()
+        local changed = self.document:replaceRange(
+            { line = self.cursor.line, column = 1 },
+            { line = self.cursor.line, column = remove + 1 }, "")
+        if changed then
+            self.cursor.column = math.max(1, self.cursor.column - remove)
+            self.preferred_x = nil
+            self:ensureCursorVisible()
+        end
+        return true
+    end
+
+    local first, last = self:getSelection()
+    local last_line = last.line
+    if last.column == 1 and last_line > first.line then last_line = last_line - 1 end
+    local replacement, deltas = {}, {}
+    for line_index = first.line, last_line do
+        local line = self.buffer:getLine(line_index)
+        if outdent then
+            local leading = line:match("^[ \t]*") or ""
+            local remove = leading:sub(1, 1) == "\t" and 1
+                or math.min(#(leading:match("^ +") or ""), TAB_WIDTH)
+            replacement[#replacement + 1] = line:sub(remove + 1)
+            deltas[line_index] = -remove
+        else
+            replacement[#replacement + 1] = string.rep(" ", TAB_WIDTH) .. line
+            deltas[line_index] = TAB_WIDTH
+        end
+    end
+    self:closeCodeAssists()
+    local changed = self.document:replaceRange(
+        { line = first.line, column = 1 },
+        { line = last_line, column = #self.buffer:getLine(last_line) + 1 },
+        table.concat(replacement, "\n"))
+    if not changed then return true end
+
+    local function adjust(position)
+        local result = copyPosition(position)
+        local delta = deltas[result.line]
+        if delta and result.column > 1 then result.column = math.max(1, result.column + delta) end
+        return self.buffer:clampPosition(result)
+    end
+    self.selection_anchor = adjust(self.selection_anchor)
+    self.cursor = adjust(self.cursor)
+    self.preferred_x = nil
+    self:ensureCursorVisible()
     return true
 end
 
@@ -737,7 +801,7 @@ function EditorCodeInput:onKeyPressed(key, is_repeat)
         local before = line:sub(1, self.cursor.column - 1)
         return self:replaceSelection("\n" .. (before:match("^%s*") or ""))
     elseif key == "tab" then
-        return self:replaceSelection("    ")
+        return self:indentSelection(shift)
     end
     return false
 end

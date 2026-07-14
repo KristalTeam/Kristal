@@ -5,4 +5,8 @@ function EditorDarkFountain:init(data, options)
     super.init(self, data, options)
     self:registerProperty("narrow", "boolean")
 end
+function EditorDarkFountain:createObject(map, context)
+    return DarkFountain(self.data.x, self.data.y, self.data.properties)
+end
+
 return EditorDarkFountain

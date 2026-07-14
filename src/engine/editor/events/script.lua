@@ -12,4 +12,8 @@ function EditorScriptEvent:init(data, options)
     self:registerProperty("temp", "boolean")
 end
 
+function EditorScriptEvent:createObject(map, context)
+    return Script(self.data.x, self.data.y, self:getShapeData(), self.data.properties)
+end
+
 return EditorScriptEvent

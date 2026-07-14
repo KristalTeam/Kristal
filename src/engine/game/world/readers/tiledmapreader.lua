@@ -184,6 +184,13 @@ function operations.isLayerType(self, layer, type)
     return StringUtils.startsWith(layer.name:lower(), type)
 end
 
+function operations.getObjectType(self, data)
+    if type(data.type) == "string" and data.type ~= "" then return data.type end
+    if type(data.class) == "string" and data.class ~= "" then return data.class end
+    if type(data.name) == "string" and data.name ~= "" then return data.name end
+    return nil
+end
+
 function operations.loadLayer(self, layer, depth)
     if layer.type == "tilelayer" then
         self:loadTiles(layer, depth)

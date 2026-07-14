@@ -250,7 +250,11 @@ function EditorPropertiesPanel:rebuild()
             local changed = field.set(value, submitted) ~= false
             if changed then self:notifyChanged("standard") end
             self:finishTargetHistory(changed)
-            if changed and field.rebuild then self:rebuild() end
+            if changed and field.rebuild_target then
+                self:setTarget(field.rebuild_target())
+            elseif changed and field.rebuild then
+                self:rebuild()
+            end
             return changed
         end
         local value_control
