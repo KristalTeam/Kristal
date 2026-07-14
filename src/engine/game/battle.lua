@@ -1921,11 +1921,18 @@ function Battle:commitSingleAction(action)
         anim = action.data:getSelectAnimation()
         local result = action.data:onSelect(battler, action.target)
         if result ~= false then
-            if action.tp then
+            if action.tp ~= nil then
+                local amount = action.tp
+
+                if Game:getConfig("newSpellCostCalculation") then
+                    -- Floor to 100 (if negative, ceil)
+                    amount = MathUtils.roundToZero(amount)
+                end
+
                 if action.tp > 0 then
-                    Game:giveTension(action.tp)
+                    Game:giveTension(amount)
                 elseif action.tp < 0 then
-                    Game:removeTension(-action.tp)
+                    Game:removeTension(-amount)
                 end
             end
             battler:setAnimation(anim)
