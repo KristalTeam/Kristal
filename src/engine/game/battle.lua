@@ -742,7 +742,7 @@ function Battle:onVictory()
     --     win_text == "* You won the battle!"
     -- end
 
-    if self.used_violence and Game:getConfig("growStronger") then
+    if self.used_violence and self.encounter.level_up then
         local stronger = "You"
 
         local party_to_lvl_up = {}
