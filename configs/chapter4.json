@@ -57,5 +57,6 @@
 
     "healthConversion": true,        // Whether to (properly) convert health when switching between light and dark worlds.
     "defaultInvulnTime": 40,         // The default length of invulnerability given to the player when hit by a bullet, in frames. (30 frames = 1 second)
-    "newChoicers": false             // Whether to use the new choicer style or not
+    "newChoicers": false,            // Whether to use the new choicer style or not
+    "newSpellCostCalculation": true  // Whether to use the new spell cost calculation or not
 }

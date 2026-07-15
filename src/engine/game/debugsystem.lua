@@ -449,6 +449,7 @@ function DebugSystem:enterMenu(menu, soul, skip_history)
     self.current_menu = menu
     self.current_selecting = soul or self.current_selecting or 1
     self:updateBounds(self:getValidOptions())
+    self.menu_y = self.menu_target_y
 
     if (self.menu_entry_callbacks[self.current_menu]) then
         self.menu_entry_callbacks[self.current_menu]()
@@ -563,7 +564,6 @@ function DebugSystem:registerSubMenus()
     )
 
     self:registerConfigOption("engine_options", "Frame Skip", "Toggle frame skipping.", "frameSkip")
-    self:registerOption("engine_options", "Print Performance", "Show performance in the console.", function() PERFORMANCE_TEST_STAGE = "UPDATE" end)
     self:registerOption("engine_options", "Force GC", "Force a garbage collection.", function() collectgarbage("collect") end)
     self:registerOption("engine_options", "Force Crash", "Force a crash.", function() error("Debug crash!") end)
     self:registerOption("engine_options", "Back", "Go back to the previous menu.", function() self:returnMenu() end)
@@ -1555,7 +1555,7 @@ function DebugSystem:onStateChange(old, new)
 end
 
 ---@param options table|number
-function DebugSystem:updateBounds(options)
+function DebugSystem:updateBounds(options, is_repeat)
     local is_search = (self.menus[self.current_menu].type == "search")
     if self.state == "FLAGS" then
         is_search = false
@@ -1566,6 +1566,11 @@ function DebugSystem:updateBounds(options)
     end
 
     local limit = is_search and 0 or 1
+
+    if is_repeat then
+        self.current_selecting = MathUtils.clamp(self.current_selecting, limit, options)
+    end
+
     if self.current_selecting < limit then self.current_selecting = options end
     if self.current_selecting > options then self.current_selecting = limit end
     if self.state == "MENU" or self.state == "FLAGS" or self.state == "FLAG_FILTERS" then
@@ -1649,15 +1654,38 @@ function DebugSystem:onKeyPressed(key, is_repeat)
         end
 
         local limit = (self.menus[self.current_menu].type == "search") and 0 or 1
-        if Input.is("down", key) and (not is_repeat or self.current_selecting < #options) then
-            Assets.playSound("ui_move")
+        local old_selecting = self.current_selecting
+
+        if Input.is("down", key) then
             self.current_selecting = self.current_selecting + 1
         end
-        if Input.is("up", key) and (not is_repeat or self.current_selecting > limit) then
-            Assets.playSound("ui_move")
+
+        if Input.is("up", key) then
             self.current_selecting = self.current_selecting - 1
         end
-        self:updateBounds(options)
+
+        if Input.is("left", key) then
+            if self.current_selecting == limit and not is_repeat then
+                self.current_selecting = #options
+            else
+                self.current_selecting = math.max(self.current_selecting - 5, limit)
+            end
+        end
+
+        if Input.is("right", key) then
+            if self.current_selecting == #options and not is_repeat then
+                self.current_selecting = limit
+            else
+                self.current_selecting = math.min(self.current_selecting + 5, #options)
+            end
+        end
+
+        self:updateBounds(options, is_repeat)
+
+        if old_selecting ~= self.current_selecting then
+            Assets.playSound("ui_move")
+        end
+
     elseif self.state == "SELECTION" and not is_repeat then
         -- Gamepad
         if (key == "gamepad:a") and Input.usingGamepad() then

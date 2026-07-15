@@ -175,10 +175,6 @@ function love.load(args)
     SCREEN_CANVAS = love.graphics.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
     SCREEN_CANVAS:setFilter("nearest", "nearest")
 
-    PERFORMANCE_TEST = nil
-    ---@type string?
-    PERFORMANCE_TEST_STAGE = nil
-
     SCREENSHOT_DISPLAY = 1
     TAKING_SCREENSHOT = false
 
@@ -243,11 +239,6 @@ function love.focus()
 end
 
 function love.draw()
-    if PERFORMANCE_TEST_STAGE == "DRAW" then
-        PERFORMANCE_TEST = {}
-        Utils.pushPerformance("Total")
-    end
-
     -- We need to draw the game to a canvas, so we can scale
     -- Also, to draw the borders later
     Draw.reset()
@@ -292,13 +283,6 @@ function love.draw()
     end
 
     Draw._clearUnusedCanvases()
-
-    if PERFORMANCE_TEST then
-        Utils.popPerformance()
-        Utils.printPerformance()
-        PERFORMANCE_TEST_STAGE = nil
-        PERFORMANCE_TEST = nil
-    end
 
     local screenshot_size = MathUtils.lerp(20, 0, SCREENSHOT_DISPLAY)
     if screenshot_size > 0 and not TAKING_SCREENSHOT then
@@ -356,11 +340,6 @@ function Kristal.drawBorders()
 end
 
 function love.update(dt)
-    if PERFORMANCE_TEST_STAGE == "UPDATE" then
-        PERFORMANCE_TEST = {}
-        Utils.pushPerformance("Total")
-    end
-
     BASE_DT = dt
     if FAST_FORWARD then
         CURRENT_SPEED_MULT = FAST_FORWARD_SPEED
@@ -456,14 +435,6 @@ function love.update(dt)
 
     -- Update overlay last (after loader, which sometimes updates the overlay)
     Kristal.Overlay:update()
-
-    if PERFORMANCE_TEST then
-        Utils.popPerformance()
-        print("-------- PERFORMANCE --------")
-        Utils.printPerformance()
-        PERFORMANCE_TEST_STAGE = "DRAW"
-        PERFORMANCE_TEST = nil
-    end
 end
 
 function love.textinput(key)

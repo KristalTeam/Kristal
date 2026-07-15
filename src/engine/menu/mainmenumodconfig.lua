@@ -246,6 +246,7 @@ function MainMenuModConfig:registerOptions()
     self:registerOption("defaultInvulnTime", "Default Invulnerability Time", "The default length of invulnerability given to the player when hit by a bullet, in frames. (30 frames = 1 second)", "selection", { nil, 30, 40, 60 }) -- unhardcode
 
     self:registerOption("newChoicers", "New Choicers", "Whether to use the new choicer style or not", "selection", { nil, true, false })
+    self:registerOption("newSpellCostCalculation", "New Spell Cost Calculation", "Whether to use the new spell cost calculation (floor before use) or not", "selection", { nil, true, false })
 end
 
 function MainMenuModConfig:registerOption(id, name, description, type, options)

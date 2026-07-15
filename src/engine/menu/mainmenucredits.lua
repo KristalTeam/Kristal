@@ -68,6 +68,7 @@ function MainMenuCredits:init(menu)
                 "Maks7594",
                 "MaybeSamo",
                 "MCdeDaxia",
+                "MihBoss96",
                 "MrOinky",
                 "NakuAutumn",
             }

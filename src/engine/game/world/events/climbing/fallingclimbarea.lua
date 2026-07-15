@@ -57,7 +57,7 @@ function FallingClimbArea:onRemove(parent)
 end
 
 function FallingClimbArea:onCollide(character)
-    if character.is_player and character:isClimbing() and character.climb_state:isOverlappingInstance(self) and self.state == 0 then
+    if self.state == 0 and character.is_player and character:isClimbing() then
         self.state = 1
     end
 end
@@ -76,7 +76,7 @@ function FallingClimbArea:update()
     local target = Game.world.player
 
     if self.breaks_on_leave then
-        if target ~= nil and (not target.climb_state:isOverlappingInstance(self)) then
+        if target ~= nil and (not target:collidesWith(self)) then
             if self.dont_break == nil then
                 self.state = 2
                 should_destroy = true

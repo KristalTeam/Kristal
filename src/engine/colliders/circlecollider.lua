@@ -22,7 +22,12 @@ function CircleCollider:collidesWith(other)
         return other:collidesWith(self)
     elseif self.inside then
         if other:includes(Hitbox) then
-            return self:applyInvert(other, CollisionUtil.circlePolygonInside(self.x, self.y, self.radius, other:getShapeFor(self)))
+            local aabb, shape = other:getShapeFor(self)
+            if aabb then
+                return self:applyInvert(other, CollisionUtil.circleRectInside(self.x, self.y, self.radius, unpack(shape)))
+            else
+                return self:applyInvert(other, CollisionUtil.circlePolygonInside(self.x, self.y, self.radius, shape))
+            end
         elseif other:includes(LineCollider) then
             return self:applyInvert(other, CollisionUtil.circleLineInside(self.x, self.y, self.radius, other:getShapeFor(self)))
         elseif other:includes(CircleCollider) then
@@ -54,7 +59,11 @@ function CircleCollider:collidesWith(other)
 end
 
 function CircleCollider:getShapeFor(other)
-    local cx, cy, crx, cry = other:getLocalPointsWith(self, self.x, self.y, self.x + self.radius, self.y)
+    local tf1, tf2 = other:getTransformsWith(self)
+
+    local cx, cy = other:getLocalPoint(tf1, tf2, self.x, self.y)
+    local crx, cry = other:getLocalPoint(tf1, tf2, self.x + self.radius, self.y)
+
     return cx, cy, MathUtils.dist(cx, cy, crx, cry)
 end
 

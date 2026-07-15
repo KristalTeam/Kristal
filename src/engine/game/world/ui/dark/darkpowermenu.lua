@@ -184,10 +184,23 @@ function DarkPowerMenu:selectParty(target_type, spell)
 end
 
 function DarkPowerMenu:canCast(spell)
-    if not Game:getConfig("overworldSpells") then return false end
-    if Game:getTension() < spell:getTPCost(self.party:getSelected()) then return false end
+    -- Check if we can use overworld spells
+    if not Game:getConfig("overworldSpells") then
+        return false
+    end
 
-    return (spell:hasWorldUsage(self.party:getSelected()))
+    -- Okay, do we actually have a world usage?
+    if not spell:hasWorldUsage(self.party:getSelected()) then
+        return false
+    end
+
+    -- Do we have enough tension?
+    if Game:getTension() < spell:getTPCost(self.party:getSelected()) then
+        return false
+    end
+
+    -- Yes to everything!
+    return true
 end
 
 function DarkPowerMenu:draw()
@@ -274,7 +287,7 @@ function DarkPowerMenu:drawSpells()
         else
             Draw.setColor(1, 1, 1)
         end
-        love.graphics.print(tostring(spell:getTPCost(self.party:getSelected())).."%", tp_x, tp_y + (offset * 25))
+        love.graphics.print(spell:getPowerMenuTPDisplay(self.party:getSelected()), tp_x, tp_y + (offset * 25))
         love.graphics.print(spell:getName(), name_x, name_y + (offset * 25))
     end
 

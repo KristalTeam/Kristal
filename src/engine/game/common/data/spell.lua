@@ -55,6 +55,14 @@ function Spell:getBattleDescription() return self.effect end
 ---@param chara PartyMember The `PartyMember` that is casting the spell
 ---@return number
 function Spell:getTPCost(chara) return self.cost end
+
+--- Gets the displayed TP cost of this spell.
+---@param chara PartyMember The `PartyMember` who has this spell
+---@return string
+function Spell:getPowerMenuTPDisplay(chara)
+    return tostring(self:getTPCost(chara)) .. "%"
+end
+
 --- *(Override)* Gets whether the spell is currently castable
 ---@param chara PartyMember The `PartyMember` the check is being run for
 ---@return boolean

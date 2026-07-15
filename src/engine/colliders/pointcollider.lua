@@ -15,7 +15,12 @@ function PointCollider:collidesWith(other)
         return other:collidesWith(self)
     elseif self.inside then
         if other:includes(Hitbox) then
-            return self:applyInvert(other, CollisionUtil.pointPolygonInside(self.x,self.y, other:getShapeFor(self)))
+            local aabb, shape = other:getShapeFor(self)
+            if aabb then
+                return self:applyInvert(other, CollisionUtil.pointRectInside(self.x,self.y, unpack(shape)))
+            else
+                return self:applyInvert(other, CollisionUtil.pointPolygonInside(self.x,self.y, shape))
+            end
         elseif other:includes(LineCollider) then
             return self:applyInvert(other, CollisionUtil.pointLineInside(self.x,self.y, other:getShapeFor(self)))
         elseif other:includes(CircleCollider) then
@@ -47,7 +52,9 @@ function PointCollider:collidesWith(other)
 end
 
 function PointCollider:getShapeFor(other)
-    return other:getLocalPointsWith(self, self.x,self.y)
+    local tf1, tf2 = other:getTransformsWith(self)
+
+    return other:getLocalPoint(tf1, tf2, self.x, self.y)
 end
 
 function PointCollider:draw(r,g,b,a)

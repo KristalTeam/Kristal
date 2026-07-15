@@ -416,7 +416,7 @@ end
 --- Sets this party member's health value
 ---@param health number
 function PartyMember:setHealth(health)
-    if INVINCIBILITY then
+    if INVINCIBILITY and health < self:getHealth() then
         return
     end
 

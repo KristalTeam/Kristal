@@ -24,7 +24,12 @@ function LineCollider:collidesWith(other, symmetrical)
         return other:collidesWith(self)
     elseif self.inside then
         if other:includes(Hitbox) then
-            return self:applyInvert(other, CollisionUtil.linePolygonInside(self.x, self.y, self.x2, self.y2, other:getShapeFor(self)))
+            local aabb, shape = other:getShapeFor(self)
+            if aabb then
+                return self:applyInvert(other, CollisionUtil.lineRectInside(self.x, self.y, self.x2, self.y2, unpack(shape)))
+            else
+                return self:applyInvert(other, CollisionUtil.linePolygonInside(self.x, self.y, self.x2, self.y2, shape))
+            end
         elseif other:includes(LineCollider) then
             return self:applyInvert(other, CollisionUtil.lineLineInside(self.x, self.y, self.x2, self.y2, other:getShapeFor(self)))
         elseif other:includes(CircleCollider) then
@@ -56,7 +61,12 @@ function LineCollider:collidesWith(other, symmetrical)
 end
 
 function LineCollider:getShapeFor(other)
-    return other:getLocalPointsWith(self, self.x, self.y, self.x2, self.y2)
+    local tf1, tf2 = other:getTransformsWith(self)
+
+    local x1, y1 = other:getLocalPoint(tf1, tf2, self.x, self.y)
+    local x2, y2 = other:getLocalPoint(tf1, tf2, self.x2, self.y2)
+
+    return x1, y1, x2, y2
 end
 
 function LineCollider:draw(r, g, b, a)

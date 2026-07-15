@@ -452,7 +452,7 @@ function World:onKeyPressed(key)
         end
         if key == "k" then
             Game:setTension(Game:getMaxTension())
-            Assets.playSound("cardrive")
+            Assets.playSound("cardrive", 0.8, 1.4)
         end
         if key == "n" then
             NOCLIP = not NOCLIP
@@ -1273,7 +1273,6 @@ function World:shakeCamera(x, y, friction)
 end
 
 function World:sortChildren()
-    Utils.pushPerformance("World#sortChildren")
     Object.startCache()
     local positions = {}
     for _, child in ipairs(self.children) do
@@ -1291,7 +1290,6 @@ function World:sortChildren()
                     (a:includes(Follower) and b:includes(Follower) and b.index < a.index)))))
     end)
     Object.endCache()
-    Utils.popPerformance()
 end
 
 ---@param parent Object

@@ -1921,11 +1921,18 @@ function Battle:commitSingleAction(action)
         anim = action.data:getSelectAnimation()
         local result = action.data:onSelect(battler, action.target)
         if result ~= false then
-            if action.tp then
+            if action.tp ~= nil then
+                local amount = action.tp
+
+                if Game:getConfig("newSpellCostCalculation") then
+                    -- Floor to 100 (if negative, ceil)
+                    amount = MathUtils.roundToZero(amount)
+                end
+
                 if action.tp > 0 then
-                    Game:giveTension(action.tp)
+                    Game:giveTension(amount)
                 elseif action.tp < 0 then
-                    Game:removeTension(-action.tp)
+                    Game:removeTension(-amount)
                 end
             end
             battler:setAnimation(anim)
@@ -3293,7 +3300,7 @@ function Battle:onKeyPressed(key)
         end
         if key == "k" then
             Game:setTension(Game:getMaxTension())
-            Assets.playSound("cardrive")
+            Assets.playSound("cardrive", 0.8, 1.4)
 
             if self.tension_bar ~= nil then
                 self.tension_bar:flash()
