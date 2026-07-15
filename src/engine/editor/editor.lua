@@ -934,6 +934,7 @@ function Editor:enter(previous, options)
     self.game_view = nil
     self.selected_map_object = nil
     self.selected_map_objects = {}
+    self.map_object_clipboard = nil
     self.map_browser = EditorMapBrowser(self)
     self.file_type_registry = EditorFileTypeRegistry()
     self.project_workspace = EditorProjectWorkspace(self, self.file_type_registry)
@@ -2204,12 +2205,12 @@ function Editor:selectMapObject(selection, additive)
     return self:selectMapObjects(selections, found and nil or selection)
 end
 
-function Editor:deleteSelectedMapObject(explode)
+function Editor:deleteSelectedMapObject(explode, history_label)
     local selections = self:getSelectedMapObjects()
     if #selections == 0 then return false end
     local owners = {}
     for _, selection in ipairs(selections) do table.insert(owners, selection.document) end
-    self:beginHistoryTransaction(explode and "Explode Objects" or "Delete Objects", owners)
+    self:beginHistoryTransaction(history_label or (explode and "Explode Objects" or "Delete Objects"), owners)
     local removed = false
     local explosions = {}
     for _, selection in ipairs(selections) do
@@ -2229,6 +2230,87 @@ function Editor:deleteSelectedMapObject(explode)
         self:cancelHistoryTransaction()
     end
     return removed
+end
+
+function Editor:copySelectedMapObjects(silent)
+    local selected = self:getSelectedMapObjects()
+    if #selected == 0 then return false end
+    local objects = {}
+    for _, selection in ipairs(selected) do
+        table.insert(objects, {
+            data = TableUtils.copy(selection.data, true),
+            document = selection.document,
+            map_id = selection.map_id
+        })
+    end
+    self.map_object_clipboard = { objects = objects, paste_count = 0, cut = false }
+    if not silent and self.message_bar then
+        self.message_bar:setStatus(string.format("Copied %d object%s", #objects, #objects == 1 and "" or "s"))
+    end
+    return true
+end
+
+function Editor:cutSelectedMapObjects()
+    local count = #(self.selected_map_objects or {})
+    if not self:copySelectedMapObjects(true) then return false end
+    if not self:deleteSelectedMapObject(false, "Cut Objects") then return false end
+    self.map_object_clipboard.cut = true
+    if self.message_bar then
+        self.message_bar:setStatus(string.format("Cut %d object%s", count, count == 1 and "" or "s"))
+    end
+    return true
+end
+
+function Editor:pasteMapObjects()
+    local clipboard = self.map_object_clipboard
+    local document = self.active_document
+    if not clipboard or not clipboard.objects or #clipboard.objects == 0 or not document then return false end
+    local view = document.map_view
+    local map_id = view and view.active_map_id or document.primary_map_id
+    if not document.map_lookup[map_id] then map_id = document.primary_map_id end
+    local layer = document:getSelectedObjectLayer(map_id)
+    if not layer then
+        if self.message_bar then self.message_bar:setStatus("Select an object layer before pasting") end
+        return false
+    end
+    local first_cut_paste = clipboard.cut == true
+    if first_cut_paste then
+        clipboard.cut = false
+        clipboard.paste_count = 0
+    else
+        clipboard.paste_count = (clipboard.paste_count or 0) + 1
+    end
+    local grid_width, grid_height = document:getTileLayerCellSize(nil, map_id)
+    local offset_x = grid_width * (clipboard.paste_count or 0)
+    local offset_y = grid_height * (clipboard.paste_count or 0)
+    self:beginHistoryTransaction("Paste Objects", document)
+    local pasted = {}
+    layer.objects = layer.objects or {}
+    for _, stored in ipairs(clipboard.objects) do
+        local object = TableUtils.copy(stored.data, true)
+        local preserve_id = first_cut_paste and stored.document == document and stored.map_id == map_id
+        if not preserve_id then object.id = nil end
+        object._editor_uid = nil
+        object.x = (object.x or 0) + offset_x
+        object.y = (object.y or 0) + offset_y
+        document:getObjectId(object)
+        table.insert(layer.objects, object)
+        local selection = document:getObjectSelection(map_id, layer, object)
+        selection.view = view
+        table.insert(pasted, selection)
+    end
+    if #pasted == 0 then
+        self:cancelHistoryTransaction()
+        return false
+    end
+    document:invalidatePreview(map_id)
+    self:markHistoryChanged()
+    self:commitHistoryTransaction()
+    self:selectMapObjects(pasted, pasted[1])
+    if self.message_bar then
+        self.message_bar:setStatus(string.format("Pasted %d object%s", #pasted, #pasted == 1 and "" or "s"))
+    end
+    return true
 end
 
 function Editor:duplicateSelectedMapObject()
@@ -3421,6 +3503,14 @@ function Editor:onKeyPressed(key, is_repeat)
     if self.menu_bar:onKeyPressed(key) then return true end
     local focused = self.dockspace.focused_control
     local editing_text = focused and focused.accepts_text_input
+    if Input.ctrl() and not is_repeat and (key == "c" or key == "x" or key == "v") then
+        self.consumed_editor_keys[key] = true
+        if self.dockspace:onKeyPressed(key, is_repeat) then return true end
+        if focused and (focused.accepts_text_input or focused.accepts_clipboard_input) then return true end
+        if key == "c" then return self:copySelectedMapObjects() end
+        if key == "x" then return self:cutSelectedMapObjects() end
+        return self:pasteMapObjects()
+    end
     if Input.ctrl() and not is_repeat
         and not editing_text then
         if key == "s" then

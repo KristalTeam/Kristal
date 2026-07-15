@@ -18,7 +18,7 @@ end
 
 function EditorDockStack:addPanel(panel, index)
     if panel.stack == self then
-        self:setActivePanel(panel)
+        self:setActivePanel(panel, true)
         return
     end
     if panel.stack then panel.stack:removePanel(panel) end
@@ -29,12 +29,24 @@ function EditorDockStack:addPanel(panel, index)
 end
 
 function EditorDockStack:removePanel(panel)
+    local active = self:getActivePanel()
     for index, candidate in ipairs(self.panels) do
         if candidate == panel then
             table.remove(self.panels, index)
             panel.stack = nil
-            self.active_index = MathUtils.clamp(self.active_index, 1, math.max(1, #self.panels))
-            return panel
+            if #self.panels == 0 then
+                self.active_index = 1
+            elseif active == panel then
+                self.active_index = math.min(index, #self.panels)
+            else
+                for active_index, remaining in ipairs(self.panels) do
+                    if remaining == active then
+                        self.active_index = active_index
+                        break
+                    end
+                end
+            end
+            return panel, active == panel
         end
     end
 end

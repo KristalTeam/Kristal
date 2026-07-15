@@ -33,6 +33,7 @@ function EditorSourceInput:init(options)
     self.selection_anchor = nil
     self.scroll_x, self.scroll_y = 0, 0
     self.focusable = true
+    self.accepts_clipboard_input = true
     self.cursor_type = "type"
     self.focused = false
     self.mouse_selecting = false
