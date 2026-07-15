@@ -33,8 +33,6 @@ function Encounter:init()
     self.defeated_enemies = nil
 
     self.reduced_tension = false
-
-    self.level_up = Game:getConfig("growStronger")
 end
 
 -- Callbacks
@@ -353,6 +351,10 @@ end
 ---@return boolean reduced Whether the encounter has reduced tension.
 function Encounter:hasReducedTension()
     return self.reduced_tension
+end
+
+function Encounter:shouldGrowStronger()
+    return Game:getConfig("growStronger")
 end
 
 --- Returns the tension gained from defending.
