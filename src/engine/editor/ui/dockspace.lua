@@ -130,8 +130,11 @@ function EditorDockSpace:setPanelVisible(panel, visible, region)
         self:dockPanel(panel, region or panel.last_region or "center")
     else
         if panel.stack then
-            panel.last_region = panel.stack.id
-            panel.stack:removePanel(panel)
+            local stack = panel.stack
+            panel.last_region = stack.id
+            local _, removed_active = stack:removePanel(panel)
+            local active = removed_active and stack:getActivePanel()
+            if active and active.on_activate then active.on_activate(active) end
         end
         self:removeFloating(panel)
         self:removeEmptySplitStacks()
@@ -144,7 +147,12 @@ end
 function EditorDockSpace:unregisterPanel(panel)
     if type(panel) == "string" then panel = self.panels[panel] end
     if not panel then return false end
-    if panel.stack then panel.stack:removePanel(panel) end
+    if panel.stack then
+        local stack = panel.stack
+        local _, removed_active = stack:removePanel(panel)
+        local active = removed_active and stack:getActivePanel()
+        if active and active.on_activate then active.on_activate(active) end
+    end
     self:removeFloating(panel)
     self.panels[panel.id] = nil
     for index, candidate in ipairs(self.panel_order) do
