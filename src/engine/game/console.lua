@@ -338,7 +338,11 @@ function Console:log(str)
                     for k, v in pairs(value) do
                         if entries < maxtableentries then
                             if type(v) == "table" then
-                                j(v, spaces + 1, k, recursion_depth + 1, 0)
+                                if not isClass(v) then
+                                    j(v, spaces + 1, k, recursion_depth + 1, 0)
+                                else
+                                    table.insert(printtext, string.rep(" ", spaces + 1) .. tostring(k) .. ": " .. (ClassUtils.getClassName(v) or "<unknown class>"))
+                                end
                             else
                                 table.insert(printtext, string.rep(" ", spaces + 1) .. tostring(k) .. ": " .. tostring(v))
                                 entries = entries + 1
@@ -349,6 +353,8 @@ function Console:log(str)
                         end
                     end
                     table.insert(printtext, string.rep(" ", spaces-1) .. "}")
+                elseif type(value) == "string" then
+                    table.insert(printtext, string.rep(" ", spaces) .. '"'..tostring(value)..'"')
                 else
                     table.insert(printtext, string.rep(" ", spaces) .. tostring(value))
                 end
@@ -356,7 +362,11 @@ function Console:log(str)
                 table.insert(printtext, string.rep(" ", spaces) .. "... and more deeper within.")
             end
         end
-        j(str)
+        if not isClass(str) then
+            j(str)
+        else
+            self:log(ClassUtils.getClassName(str) or "<unknown class>")
+        end
         for k, v in pairs(printtext) do
             print("[CONSOLE] " .. tostring(v))
             self:push(v)
