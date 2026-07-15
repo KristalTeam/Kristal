@@ -211,9 +211,12 @@ function EditorProjectWorkspace:openDocumentByRealPath(real_path)
     return document
 end
 
-function EditorProjectWorkspace:closeDocument(document)
+function EditorProjectWorkspace:closeDocument(document, options)
+    options = options or {}
     if not document or self.documents[document.path] ~= document then return false end
-    if document:isDirty() then return false, "The file has unsaved changes" end
+    if document:isDirty() and options.discard ~= true then
+        return false, "The file has unsaved changes"
+    end
     self.editor.document_providers:broadcast("onDocumentClosed", document)
     self.documents[document.path] = nil
     TableUtils.removeValue(self.document_order, document)

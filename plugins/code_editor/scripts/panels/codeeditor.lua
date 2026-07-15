@@ -67,16 +67,19 @@ function EditorCodeEditor:closeDocument(document)
     document = document or self.active_document
     if not document then return false end
     if document:isDirty() then
-        self.editor:addWarning("Save '" .. document.relative_path .. "' before closing it",
-            nil, "code_editor")
-        return false
+        if not self.editor:confirmUnsavedChanges({
+            dirty = true,
+            save_label = "Save",
+            message = "Save changes to '" .. document.relative_path .. "' before closing it?",
+            save = function() return document:save() end
+        }) then return false end
     end
     local index
     for candidate_index, candidate in ipairs(self.documents) do
         if candidate == document then index = candidate_index break end
     end
     if not index then return false end
-    if not self.workspace:closeDocument(document) then return false end
+    if not self.workspace:closeDocument(document, { discard = true }) then return false end
     table.remove(self.documents, index)
     if self.active_document == document then
         self.navigation_request = self.navigation_request + 1
