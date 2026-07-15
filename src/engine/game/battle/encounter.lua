@@ -33,6 +33,8 @@ function Encounter:init()
     self.defeated_enemies = nil
 
     self.reduced_tension = false
+
+    self.level_up = Game:getConfig("growStronger")
 end
 
 -- Callbacks
