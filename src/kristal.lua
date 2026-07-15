@@ -221,8 +221,20 @@ function love.load(args)
 end
 
 function love.quit()
-    if Kristal.getState() == Kristal.States["Editor"] and Kristal.States["Editor"].saveSession then
-        pcall(function() Kristal.States["Editor"]:saveSession() end)
+    local state = Kristal.getState()
+    local editor = state and state.editor_mode and state or nil
+    if not editor and state == Kristal.States["EditorTransition"] then
+        local source = state.source_state
+        if source and source.editor_mode then
+            editor = source
+        end
+    end
+    if editor and editor.confirmUnsavedChanges
+        and not editor:confirmUnsavedChanges({
+            message = "Save your changes before closing Kristal?"
+        }) then return true end
+    if editor and editor.saveSession then
+        pcall(function() editor:saveSession() end)
     end
     if DISCORD_RPC_AVAILABLE and Kristal.Config["discordRPC"] then
         DiscordRPC.shutdown()
@@ -1242,6 +1254,27 @@ function Kristal.loadModIntoEditor(id)
             })
         end
     end)
+end
+
+--- Unloads the active project and opens another project directly in editor mode.
+---@param id string
+---@return boolean success
+function Kristal.switchEditorProject(id)
+    if RELEASE_MODE or Kristal.isLoading() or type(id) ~= "string"
+        or id == "" or not Kristal.Mods.getMod(id) then return false end
+
+    Kristal.setState("Empty")
+    Kristal.clearModState()
+    Kristal.loadAssets("", "mods", "", function()
+        if not Kristal.loadModIntoEditor(id) then
+            Kristal.Console:error("Failed to switch editor project to '" .. id .. "'")
+            Kristal.setDesiredWindowTitleAndIcon()
+            Kristal.setState(MainMenu)
+        end
+    end)
+    Kristal.DebugSystem:refresh()
+    if not Kristal.Console.is_open then TextInput.endInput() end
+    return true
 end
 
 ---@return number runtime The current runtime (`RUNTIME`), affected by timescale / fast-forward.

@@ -356,6 +356,10 @@ function Editor:registerMenuBar()
         is_enabled = function() return self:hasUnsavedChanges() end,
         on_activate = function() self:saveAllDocuments() end
     })
+    self.menu_bar:registerItem("file", "switch_project", "Switch Project...", {
+        is_enabled = function() return self:hasSwitchableProjects() end,
+        on_activate = function() self:openProjectSwitcher() end
+    })
     self.menu_bar:registerItem("file", "exit_editor",
         self.return_to_menu_on_exit and "Return to Main Menu" or "Return to Game", {
             on_activate = function() Kristal.exitEditor() end
@@ -891,6 +895,7 @@ function Editor:enter(previous, options)
     self:resetEditingMusic()
     self.source_state = options.source_state or previous
     self.return_to_menu_on_exit = options.return_to_menu == true
+    self.pending_project_switch_id = nil
     self.entry_transition = options.entry_transition
     self.exit_transition = nil
     self.session_saved_for_exit = false
@@ -1012,6 +1017,7 @@ function Editor:leave()
     self.menu_bar = nil
     self.editor_cursor = nil
     self.return_to_menu_on_exit = nil
+    self.pending_project_switch_id = nil
     self.previous_mouse_cursor = nil
     self.message_bar = nil
     self.map_documents = nil
@@ -1301,8 +1307,6 @@ function Editor:saveMapDocumentToProject(document, options)
     end
     if not options.defer_mark_saved then self.history:markSaved(document) end
     self:clearDiagnostics("editor_save")
-    self:clearDiagnostics("unsaved_exit")
-    self.discard_changes_confirmed = false
     self:selectMapObjects({})
     if self.layers_browser and self.active_document == document then
         self.layers_browser:setDocument(nil)
@@ -1354,8 +1358,6 @@ function Editor:saveTilesetDocumentToProject(document)
     document:adoptSavedData(decoded, tileset)
     self.history:markSaved(document)
     self:clearDiagnostics("editor_save")
-    self:clearDiagnostics("unsaved_exit")
-    self.discard_changes_confirmed = false
     self:setActiveTileset(document)
     if self.tileset_browser then self.tileset_browser:refresh(document.id) end
     if self.tileset_editor and self.active_tileset_document == document then
@@ -1582,6 +1584,59 @@ function Editor:performHistoryCommand(label, command)
     return self.history:performCommand(label, command)
 end
 
+function Editor:getSwitchableProjects()
+    local projects = {}
+    for _, project in ipairs(Kristal.Mods.getMods()) do
+        if project.id ~= self.project_id and project.hidden ~= true then
+            table.insert(projects, project)
+        end
+    end
+    table.sort(projects, function(first, second)
+        local first_name = tostring(first.name or first.id):lower()
+        local second_name = tostring(second.name or second.id):lower()
+        if first_name ~= second_name then return first_name < second_name end
+        return tostring(first.id) < tostring(second.id)
+    end)
+    return projects
+end
+
+function Editor:hasSwitchableProjects()
+    return #self:getSwitchableProjects() > 0
+end
+
+function Editor:openProjectSwitcher()
+    local items = {}
+    for _, project in ipairs(self:getSwitchableProjects()) do
+        local selected = project
+        local name = tostring(selected.name or selected.id)
+        local label = name == selected.id and name or (name .. " [" .. selected.id .. "]")
+        table.insert(items, {
+            label = label,
+            search_text = table.concat({ name, tostring(selected.id), tostring(selected.path or "") }, " "),
+            action = function() self:beginProjectSwitch(selected.id) end
+        })
+    end
+    if #items == 0 then return false end
+    self.menu_bar.open_menu = nil
+    local width = math.min(620, math.max(360, self.dockspace.width - 24))
+    local x = self.dockspace.x + math.floor((self.dockspace.width - width) / 2)
+    return self.dockspace:openContextMenu(items, x, self.dockspace.y + 18, self, {
+        searchable = true,
+        maximum_rows = 14,
+        width = width,
+        placeholder = "Search projects..."
+    })
+end
+
+function Editor:beginProjectSwitch(id)
+    if type(id) ~= "string" or id == "" or id == self.project_id
+        or not Kristal.Mods.getMod(id) then return false end
+    self.pending_project_switch_id = id
+    local started = self:beginExitTransition()
+    if not started then self.pending_project_switch_id = nil end
+    return started
+end
+
 function Editor:openCommandPalette()
     local items = {}
     for _, registered in ipairs(self.command_registry:getAll()) do
@@ -1625,8 +1680,6 @@ function Editor:redo()
 end
 
 function Editor:onHistoryChanged(owners, restored, command, direction)
-    self.discard_changes_confirmed = false
-    self:clearDiagnostics("unsaved_exit")
     if restored then self:selectMapObjects({}) end
     if restored and command and direction and self.message_bar then
         local verb = direction == "undo" and "Undid" or "Redid"
@@ -1646,7 +1699,6 @@ function Editor:onHistoryChanged(owners, restored, command, direction)
         end
     end
     for _, owner in ipairs(owners or {}) do
-        owner.discard_close_confirmed = false
         local editor_world = owner.world and owner.world.id
             and Registry.getEditorWorld(owner.world.id)
         local is_editor_world = owner.editor_world == true or editor_world ~= nil
@@ -1719,6 +1771,34 @@ function Editor:hasUnsavedChanges()
     end
     if self.document_providers:any("hasUnsavedChanges") then return true end
     return false
+end
+
+---@param options? {message?: string, save?: function, save_label?: string, dirty?: boolean}
+function Editor:confirmUnsavedChanges(options)
+    options = options or {}
+    local dirty = options.dirty
+    if dirty == nil then dirty = self:hasUnsavedChanges() end
+    if not dirty then return true end
+
+    local buttons = {
+        options.save_label or "Save All",
+        "Discard",
+        "Cancel",
+        enterbutton = 1,
+        escapebutton = 3
+    }
+    local pressed = love.window.showMessageBox(
+        "Unsaved Changes",
+        options.message or "Save your changes before leaving the editor?",
+        buttons,
+        "warning",
+        true
+    )
+    if pressed == 1 then
+        local save = options.save or function() return self:saveAllDocuments() end
+        return save() == true
+    end
+    return pressed == 2
 end
 
 function Editor:canUndo()
@@ -3206,12 +3286,21 @@ function Editor:removeMapDocument(document)
         if candidate == document then remove_index = index break end
     end
     if not remove_index then return false end
-    if document:isDirty() and not document.discard_close_confirmed then
-        document.discard_close_confirmed = true
-        self:addWarning("Closing this map tab would discard unsaved changes",
-            "Use File > Save Active Document first, or close the tab again to discard its current working changes.",
-            "unsaved_close:" .. document.panel.id)
-        return false
+    if document:isDirty() then
+        local name = document.editor_world and document.world
+            and (document.world.name or document.world.id)
+            or document.primary_map_id or document.panel.title
+        if not self:confirmUnsavedChanges({
+            dirty = true,
+            save_label = "Save",
+            message = "Save changes to '" .. tostring(name) .. "' before closing it?",
+            save = function()
+                if document.editor_world then
+                    return self:saveWorldDocumentToProject(document.world)
+                end
+                return self:saveMapDocumentToProject(document)
+            end
+        }) then return false end
     end
     if self.live_document == document then self:detachGamePreview() end
     if self.history then self.history:forgetOwner(document) end
@@ -3578,13 +3667,13 @@ end
 
 function Editor:beginExitTransition()
     if self.entry_transition or self.exit_transition then return false end
-    if self:hasUnsavedChanges() and not self.discard_changes_confirmed then
-        self.discard_changes_confirmed = true
-        self:addWarning("Unsaved editor changes have not been written",
-            "Use File > Save All to write them, or trigger exit again to discard the current working changes.",
-            "unsaved_exit")
-        return false
+    local message = "Save your changes before leaving the editor?"
+    if self.pending_project_switch_id then
+        local project = Kristal.Mods.getMod(self.pending_project_switch_id)
+        local name = project and (project.name or project.id) or self.pending_project_switch_id
+        message = "Save your changes before switching to '" .. tostring(name) .. "'?"
     end
+    if not self:confirmUnsavedChanges({ message = message }) then return false end
     self:cancelPolygonBuilds()
     self:cancelEventRegionDrags()
     self:saveSession()
@@ -3612,6 +3701,7 @@ function Editor:finishExitTransition(transition)
     local resume_game_music = self.game_music_suspended_by_editor == true
     local game_lock_movement = self.game_preview_movement_lock
     local return_to_menu = self.return_to_menu_on_exit == true
+    local switch_project_id = self.pending_project_switch_id
     self.game_preview_snapshot = nil
     self.game_preview_snapshot_document = nil
     self.game_preview_snapshot_save_id = nil
@@ -3624,7 +3714,8 @@ function Editor:finishExitTransition(transition)
         game_snapshot_save_id = snapshot_save_id,
         resume_game_music = resume_game_music,
         game_lock_movement = game_lock_movement,
-        return_to_menu = return_to_menu
+        return_to_menu = return_to_menu,
+        switch_project_id = switch_project_id
     })
 end
 

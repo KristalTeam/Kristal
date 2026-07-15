@@ -22,6 +22,12 @@ function EditorTransitionState:enter(previous, mode, options)
     elseif mode == "exit_tail" then
         self.transition = assert(self.options.transition, "Exit transition tail requires a transition")
         self.transition.on_complete = function()
+            if self.options.switch_project_id then
+                if not Kristal.switchEditorProject(self.options.switch_project_id) then
+                    Kristal.returnToMenu()
+                end
+                return
+            end
             if self.options.return_to_menu then
                 Kristal.returnToMenu()
                 return
@@ -58,12 +64,14 @@ function EditorTransitionState:update()
 end
 
 function EditorTransitionState:draw()
-    if self.mode == "exit_tail" and self.options.return_to_menu then
+    if self.mode == "exit_tail"
+        and (self.options.switch_project_id or self.options.return_to_menu) then
         Draw.setColor(0.03, 0.03, 0.035, 1)
         love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
         Draw.setColor(0.82, 0.82, 0.86, 1)
         love.graphics.setFont(Assets.getFont("main"))
-        love.graphics.printf("Returning to Main Menu...", 0,
+        love.graphics.printf(self.options.switch_project_id and "Switching Projects..."
+                or "Returning to Main Menu...", 0,
             math.floor((SCREEN_HEIGHT - love.graphics.getFont():getHeight()) / 2),
             SCREEN_WIDTH, "center")
     elseif self.source_state and self.source_state.draw then
