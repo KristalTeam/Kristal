@@ -323,7 +323,6 @@ function Console:log(str)
         end
         return counter
     end
-    print("[CONSOLE] " .. tostring(str))
     if type(str) == "table" then
         local maxrecursiondepth = 5
         local maxtableentries = 10 -- arbritrary values, feel free to change
@@ -363,6 +362,7 @@ function Console:log(str)
             self:push(v)
         end
     else
+        print("[CONSOLE] " .. tostring(str))
         self:push(str)
     end
 end
