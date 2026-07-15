@@ -316,8 +316,55 @@ function Console:push(str)
 end
 
 function Console:log(str)
+    local function tablegetsize(t)
+        local counter = 0
+        for k, v in pairs(t) do
+            counter = counter + 1
+        end
+        return counter
+    end
     print("[CONSOLE] " .. tostring(str))
-    self:push(str)
+    if type(str) == "table" then
+        local maxrecursiondepth = 5
+        local maxtableentries = 10 -- arbritrary values, feel free to change
+        local printtext = {}
+        local function j(value, spaces, key, recursion_depth, entries)
+            spaces = spaces or 0
+            recursion_depth = recursion_depth or 0
+            entries = entries or 0
+            if recursion_depth < maxrecursiondepth then
+                if type(value) == "table" then
+                    table.insert(printtext, string.rep(" ", spaces) .. (key and key .. ": " or "") .. "Table: {")
+                    spaces = spaces + 1
+                    for k, v in pairs(value) do
+                        if entries < maxtableentries then
+                            if type(v) == "table" then
+                                j(v, spaces + 1, k, recursion_depth + 1, 0)
+                            else
+                                table.insert(printtext, string.rep(" ", spaces + 1) .. tostring(k) .. ": " .. tostring(v))
+                                entries = entries + 1
+                            end
+                        else
+                            table.insert(printtext, string.rep(" ", spaces + 1) .. "... and "..tostring(tablegetsize(value)-maxtableentries).." more values.")
+                            break
+                        end
+                    end
+                    table.insert(printtext, string.rep(" ", spaces-1) .. "}")
+                else
+                    table.insert(printtext, string.rep(" ", spaces) .. tostring(value))
+                end
+            else
+                table.insert(printtext, string.rep(" ", spaces) .. "... and more deeper within.")
+            end
+        end
+        j(str)
+        for k, v in pairs(printtext) do
+            print("[CONSOLE] " .. tostring(v))
+            self:push(v)
+        end
+    else
+        self:push(str)
+    end
 end
 
 function Console:warn(str)
