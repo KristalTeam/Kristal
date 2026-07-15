@@ -242,10 +242,10 @@ function Console:draw()
     Draw.setColor(0, 0, 0, 0.4)
     love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, 480)
 
-    local input_pos = (self.height + 2) * line_height
+    local input_pos = (self.height + 1) * line_height
 
     Draw.setColor(0, 0, 0, 0.6)
-    love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, (self.height+1) * line_height)
+    love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, (self.height) * line_height)
 
     Draw.setColor(1, 1, 1, 1)
 
@@ -264,7 +264,7 @@ function Console:draw()
     end
     self.color = {1, 1, 1, 1}
     self:print({("Line %d of %d"):format(# self.history + self.read_offset, #self.history)}, 8, y_offset * line_height, 'right')
-    y_offset = y_offset + 1
+    --y_offset = y_offset + 1
 
     self.color = { 1, 1, 1, 1 }
 
