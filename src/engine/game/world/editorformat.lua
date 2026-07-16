@@ -125,6 +125,7 @@ EditorFormat.ORDERING = {
         "transparent_color",
         "transform_rules",
         "tiles",
+        "terrain_tags",
         "terrains",
         "properties"
     },
@@ -136,6 +137,7 @@ EditorFormat.ORDERING = {
         "width",
         "height",
         "probability",
+        "tags",
         "collision",
         "frames",
         "properties",
@@ -181,10 +183,15 @@ EditorFormat.ORDERING = {
         "id",
         "name",
         "tile_icon",
-        "type",
+        "fallback_mode",
         "terrain_variants",
         "terrain_tiles",
         "properties",
+    },
+    terrain_tag = {
+        "id",
+        "name",
+        "color"
     },
     object = {
         "id",
@@ -219,11 +226,35 @@ EditorFormat.ORDERING = {
         "color",
         "tile_icon",
         "probability",
+        "tags",
         "properties"
     },
     terrain_tile = {
         "tile_id",
-        "edges" -- 8 size table
+        "terrain",
+        "conditions",
+        "transforms",
+        "enabled",
+        "priority",
+        "probability",
+        "flip_x",
+        "flip_y",
+        "rotate"
+    },
+    terrain_condition = {
+        "type",
+        "x",
+        "y",
+        "operator",
+        "terrain",
+        "tag",
+        "subject",
+        "radius",
+        "count",
+        "predicate",
+        "parameters",
+        "source",
+        "influence_radius"
     },
     frame = {
         "tile_id",
@@ -267,6 +298,9 @@ local ARRAY_CHILDREN = {
     terrains = "terrain",
     terrain_variants = "terrain_variant",
     terrain_tiles = "terrain_tile",
+    terrain_tags = "terrain_tag",
+    conditions = "terrain_condition",
+    parameters = "property",
     frames = "frame",
     fx = "fx",
     maps = "world_map",
@@ -292,6 +326,9 @@ local function getOrdering(schema, value)
     elseif schema == "chunk" then
         local tile_kind = Registry.getLayerKind("tile")
         return tile_kind and tile_kind.extra_format and tile_kind.extra_format.chunks
+    elseif schema == "terrain_condition" then
+        local definition = Registry.getTerrainConditionType(value.type)
+        return definition and definition.format or EditorFormat.ORDERING.terrain_condition
     end
     return EditorFormat.ORDERING[schema]
 end
@@ -758,6 +795,28 @@ function EditorFormat.decodeTileset(source, path, options)
             success, reason = decodeOwnerProperties(variant, { tileset = data, path = path })
             if not success then return nil, reason end
         end
+        for _, rule in ipairs(terrain.terrain_tiles or {}) do
+            for index, condition in ipairs(rule.conditions or {}) do
+                local definition = Registry.getTerrainConditionType(condition.type)
+                if definition and definition.decode then
+                    local decoded_success, decoded, decode_reason = pcall(definition.decode,
+                        copySerializable(condition), { tileset = data, terrain = terrain, rule = rule, path = path })
+                    if not decoded_success then return nil, decoded end
+                    if not decoded then return nil, decode_reason or "Could not decode terrain condition" end
+                    rule.conditions[index] = decoded
+                    condition = decoded
+                end
+                if condition.parameters then
+                    local parameter_set
+                    parameter_set, reason = EditorPropertySet.fromEntries(condition.parameters, {
+                        tileset = data, terrain = terrain, rule = rule, path = path
+                    })
+                    if not parameter_set then return nil, reason end
+                    Registry.terrain_rules:setParameterSet(condition, parameter_set)
+                end
+                Registry.terrain_rules:markConditionDecoded(condition)
+            end
+        end
     end
     data.margin = data.margin or 0
     data.spacing = data.spacing or 0
@@ -795,11 +854,22 @@ function EditorFormat.encodeTileset(data, options)
     local reason
     result.properties, reason = encodeOwnerProperties(data, { owner = data })
     if not result.properties then return nil, reason end
+    result.terrain_tags = {}
+    local tag_ids, tag_id_map = {}, {}
+    for _, tag in ipairs(data.terrain_tags or {}) do
+        local encoded_tag = copySerializable(tag)
+        encoded_tag.id = EditorFormat.uniqueSlug(tag.name or tag.id, tag_ids, "terrain_tag")
+        tag_id_map[tag.id] = encoded_tag.id
+        table.insert(result.terrain_tags, encoded_tag)
+    end
     result.tiles = {}
     for _, tile in ipairs(data.tiles or {}) do
         local encoded
         encoded, reason = encodeTile(tile, { tileset = result })
         if not encoded then return nil, reason end
+        if encoded.tags then
+            for index, tag in ipairs(encoded.tags) do encoded.tags[index] = tag_id_map[tag] or tag end
+        end
         table.insert(result.tiles, encoded)
     end
     result.terrains = {}
@@ -812,13 +882,58 @@ function EditorFormat.encodeTileset(data, options)
         if not encoded.properties then return nil, reason end
         encoded.terrain_variants = {}
         local variant_ids, variant_state = {}, { next_id = 1 }
+        local variant_id_map = {}
         for _, variant in ipairs(terrain.terrain_variants or {}) do
             local encoded_variant = copySerializable(variant)
             encoded_variant.id = nextNumericId(variant.id, variant_ids, variant_state)
+            variant_id_map[variant.id] = encoded_variant.id
             encoded_variant.properties = nil
             encoded_variant.properties, reason = encodeOwnerProperties(variant, { tileset = result })
             if not encoded_variant.properties then return nil, reason end
+            if encoded_variant.tags then
+                for index, tag in ipairs(encoded_variant.tags) do
+                    encoded_variant.tags[index] = tag_id_map[tag] or tag
+                end
+            end
             table.insert(encoded.terrain_variants, encoded_variant)
+        end
+        encoded.terrain_tiles = {}
+        for _, terrain_tile in ipairs(terrain.terrain_tiles or {}) do
+            local encoded_tile = copySerializable(terrain_tile)
+            encoded_tile.terrain = variant_id_map[terrain_tile.terrain] or terrain_tile.terrain
+            encoded_tile.conditions = {}
+            for _, condition in ipairs(terrain_tile.conditions or {}) do
+                local definition = Registry.getTerrainConditionType(condition.type)
+                local encoded_condition = copySerializable(condition)
+                if definition and definition.encode then
+                    local encode_success, encoded_value, encode_reason = pcall(definition.encode,
+                        condition, { tileset = result, terrain = encoded, rule = encoded_tile })
+                    if not encode_success then return nil, encoded_value end
+                    if not encoded_value then return nil, encode_reason or "Could not encode terrain condition" end
+                    encoded_condition = encoded_value
+                end
+                local parameter_set = Registry.terrain_rules:getParameterSet(condition)
+                if parameter_set and condition.parameters then
+                    local encoded_parameters, parameter_reason = parameter_set:encodeEntries({
+                        tileset = result, terrain = encoded, rule = encoded_tile
+                    })
+                    if not encoded_parameters then return nil, parameter_reason end
+                    encoded_condition.parameters = encoded_parameters
+                end
+                if (condition.type == "terrain"
+                    or condition.type == "count" and condition.subject ~= "tag")
+                    and type(encoded_condition.terrain) == "number"
+                    and encoded_condition.terrain > 0 then
+                    encoded_condition.terrain = variant_id_map[encoded_condition.terrain]
+                        or encoded_condition.terrain
+                end
+                if encoded_condition.tag then
+                    encoded_condition.tag = tag_id_map[encoded_condition.tag]
+                        or encoded_condition.tag
+                end
+                table.insert(encoded_tile.conditions, encoded_condition)
+            end
+            table.insert(encoded.terrain_tiles, encoded_tile)
         end
         table.insert(result.terrains, encoded)
     end
@@ -967,6 +1082,25 @@ function EditorFormat.validateTileset(data, options)
             end
         end
     end
+    local tag_ids = {}
+    for tag_index, tag in ipairs(data.terrain_tags or {}) do
+        local tag_path = string.format("terrain_tags[%d]", tag_index)
+        if type(tag.id) ~= "string" or tag.id == "" then
+            table.insert(diagnostics, tag_path .. ".id must be a non-empty string")
+        elseif tag_ids[tag.id] then
+            table.insert(diagnostics, tag_path .. ".id duplicates tag '" .. tag.id .. "'")
+        else
+            tag_ids[tag.id] = true
+        end
+    end
+    for tile_index, tile in ipairs(data.tiles or {}) do
+        for _, tag in ipairs(tile.tags or {}) do
+            if not tag_ids[tag] then
+                table.insert(diagnostics, string.format("tiles[%d].tags references unknown tag '%s'",
+                    tile_index, tostring(tag)))
+            end
+        end
+    end
     local terrain_ids = {}
     for terrain_index, terrain in ipairs(data.terrains or {}) do
         local path = string.format("terrains[%d]", terrain_index)
@@ -977,6 +1111,10 @@ function EditorFormat.validateTileset(data, options)
         else
             terrain_ids[terrain.id] = true
         end
+        if terrain.fallback_mode ~= nil and terrain.fallback_mode ~= "closest"
+            and terrain.fallback_mode ~= "strict" then
+            table.insert(diagnostics, path .. ".fallback_mode must be 'closest' or 'strict'")
+        end
         local variant_ids = {}
         for variant_index, variant in ipairs(terrain.terrain_variants or {}) do
             local variant_path = string.format("%s.terrain_variants[%d]", path, variant_index)
@@ -986,6 +1124,96 @@ function EditorFormat.validateTileset(data, options)
                 table.insert(diagnostics, variant_path .. ".id duplicates variant " .. tostring(variant.id))
             else
                 variant_ids[variant.id] = true
+            end
+            for _, tag in ipairs(variant.tags or {}) do
+                if not tag_ids[tag] then
+                    table.insert(diagnostics, variant_path .. ".tags references unknown tag '" .. tostring(tag) .. "'")
+                end
+            end
+        end
+        local tile_terrain_ids = {}
+        for tile_index, terrain_tile in ipairs(terrain.terrain_tiles or {}) do
+            local tile_path = string.format("%s.terrain_tiles[%d]", path, tile_index)
+            local valid_tile_id = type(terrain_tile.tile_id) == "number" and terrain_tile.tile_id >= 0
+                and terrain_tile.tile_id % 1 == 0
+            if not valid_tile_id then
+                table.insert(diagnostics, tile_path .. ".tile_id must be a non-negative integer")
+            elseif type(data.tile_count) == "number" and terrain_tile.tile_id >= data.tile_count then
+                table.insert(diagnostics, tile_path .. ".tile_id is outside the tileset")
+            end
+            if type(terrain_tile.terrain) ~= "number" or terrain_tile.terrain < 1
+                or terrain_tile.terrain % 1 ~= 0 or not variant_ids[terrain_tile.terrain] then
+                table.insert(diagnostics, tile_path .. ".terrain must reference a terrain variant")
+            elseif valid_tile_id and tile_terrain_ids[terrain_tile.tile_id]
+                and tile_terrain_ids[terrain_tile.tile_id] ~= terrain_tile.terrain then
+                table.insert(diagnostics, tile_path .. ".tile_id is already assigned to another terrain variant")
+            elseif valid_tile_id then
+                tile_terrain_ids[terrain_tile.tile_id] = terrain_tile.terrain
+            end
+            if terrain_tile.enabled ~= nil and type(terrain_tile.enabled) ~= "boolean" then
+                table.insert(diagnostics, tile_path .. ".enabled must be boolean")
+            end
+            if terrain_tile.priority ~= nil and type(terrain_tile.priority) ~= "number" then
+                table.insert(diagnostics, tile_path .. ".priority must be numeric")
+            end
+            if terrain_tile.probability ~= nil and (type(terrain_tile.probability) ~= "number"
+                or terrain_tile.probability < 0) then
+                table.insert(diagnostics, tile_path .. ".probability must be non-negative")
+            end
+            for condition_index, condition in ipairs(terrain_tile.conditions or {}) do
+                local condition_path = string.format("%s.conditions[%d]", tile_path, condition_index)
+                if type(condition.type) ~= "string" or condition.type == "" then
+                    table.insert(diagnostics, condition_path .. ".type must be a non-empty string")
+                elseif condition.type == "terrain" then
+                    if type(condition.x) ~= "number" or condition.x % 1 ~= 0
+                        or type(condition.y) ~= "number" or condition.y % 1 ~= 0 then
+                        table.insert(diagnostics, condition_path .. " requires integer x/y offsets")
+                    end
+                    local expected = condition.terrain
+                    if expected ~= "same" and (type(expected) ~= "number" or expected < 0
+                        or expected % 1 ~= 0 or expected > 0 and not variant_ids[expected]) then
+                        table.insert(diagnostics, condition_path .. ".terrain must be 'same', 0, or a terrain variant")
+                    end
+                elseif condition.type == "tag" and not tag_ids[condition.tag] then
+                    table.insert(diagnostics, condition_path .. ".tag references an unknown terrain tag")
+                elseif condition.type == "count" then
+                    if condition.subject == "tag" and not tag_ids[condition.tag] then
+                        table.insert(diagnostics, condition_path .. ".tag references an unknown terrain tag")
+                    elseif condition.subject ~= "tag" and condition.subject ~= "occupied" then
+                        local expected = condition.terrain
+                        if expected ~= "same" and (type(expected) ~= "number" or expected < 0
+                            or expected % 1 ~= 0 or expected > 0 and not variant_ids[expected]) then
+                            table.insert(diagnostics, condition_path .. ".terrain is invalid")
+                        end
+                    end
+                elseif condition.type == "predicate" and type(condition.predicate) ~= "string" then
+                    table.insert(diagnostics, condition_path .. ".predicate must be a string id")
+                elseif condition.type == "script" and type(condition.source) ~= "string" then
+                    table.insert(diagnostics, condition_path .. ".source must be an anonymous function")
+                end
+                if condition.parameters ~= nil and type(condition.parameters) ~= "table" then
+                    table.insert(diagnostics, condition_path .. ".parameters must be property entries")
+                end
+                local definition = Registry.getTerrainConditionType(condition.type)
+                if definition and definition.validate then
+                    local success, valid, reason = pcall(definition.validate, condition, {
+                        tileset = data, terrain = terrain, rule = terrain_tile
+                    })
+                    if not success or valid == false then
+                        table.insert(diagnostics, condition_path .. ": " .. tostring(success and reason or valid))
+                    end
+                end
+            end
+            for transform_index, transform in ipairs(terrain_tile.transforms or {}) do
+                if transform ~= "identity" and transform ~= "rotate_90"
+                    and transform ~= "rotate_180" and transform ~= "rotate_270"
+                    and transform ~= "flip_x" and transform ~= "flip_y" then
+                    table.insert(diagnostics, string.format("%s.transforms[%d] is invalid",
+                        tile_path, transform_index))
+                end
+            end
+            if terrain_tile.transforms and #terrain_tile.transforms == 0 then
+                table.insert(diagnostics, tile_path .. ".transforms must allow at least one transform")
             end
         end
     end

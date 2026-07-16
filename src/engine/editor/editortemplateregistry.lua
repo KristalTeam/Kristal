@@ -283,8 +283,7 @@ function EditorTemplateRegistry.registerBuiltins(registry)
             variable("height", "Grid Height", "integer", 12, { minimum = 1 }),
             variable("grid_width", "Tile Width", "integer", 40, { minimum = 1 }),
             variable("grid_height", "Tile Height", "integer", 40, { minimum = 1 }),
-            variable("background_color", "Background", "string", "#00000000",
-                { description = "Hex RGB or RGBA color." })
+            variable("background_color", "Background", "color", "#00000000")
         }
     })
     register("core:world", {

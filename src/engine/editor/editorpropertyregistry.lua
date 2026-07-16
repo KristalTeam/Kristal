@@ -81,7 +81,7 @@ function EditorPropertyRegistry:init()
         name = "Chooser", default = "", control = "choice", coerce = self.types.choice.coerce
     })
     self:registerType("color", {
-        name = "Color", default = "#FFFFFFFF", control = "text",
+        name = "Color", default = "#FFFFFFFF", control = "color",
         coerce = function(value)
             value = tostring(value or "")
             local hex = value:gsub("^#", "")

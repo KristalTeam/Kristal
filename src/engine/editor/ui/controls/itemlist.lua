@@ -66,7 +66,9 @@ local function normalizeItem(item, index)
             right_color = item.right_color,
             right_action = item.right_action,
             indent = item.indent or 0,
-            disclosure = item.disclosure
+            disclosure = item.disclosure,
+            expanded = item.expanded,
+            on_toggle = item.on_toggle
         }
     end
     return { id = item, label = tostring(item), data = item }
@@ -125,7 +127,7 @@ function EditorItemList:updateRenameBounds()
     local y = -(self.scroll_row - math.floor(self.scroll_row)) * self.row_height
         + (index - math.floor(self.scroll_row) - 1) * self.row_height
     local label_x = 6 + (self.rename_item.indent or 0) * 14
-    if self.rename_item.disclosure then label_x = label_x + 14 end
+    if self.rename_item.disclosure or self.rename_item.expanded ~= nil then label_x = label_x + 14 end
     if self.rename_item.preview then
         label_x = label_x + self.row_height - 2
     elseif self.rename_item.icon then
@@ -208,6 +210,13 @@ function EditorItemList:onMousePressed(x, y, button, presses)
     if x >= self.width - self.scrollbar.width then return false end
     local index = self:getItemIndexAt(y)
     local item = self.filtered_items[index]
+    if button == 1 and item and item.expanded ~= nil and item.on_toggle then
+        local disclosure_x = 6 + (item.indent or 0) * 14
+        if x >= disclosure_x and x < disclosure_x + 14 then
+            item.on_toggle(item, self)
+            return true
+        end
+    end
     if button == 1 and item and item.right_icon and item.right_action then
         local texture = Assets.getTexture(item.right_icon)
         local icon_width = texture and texture:getWidth() or self.row_height
@@ -274,6 +283,14 @@ function EditorItemList:onWheelMoved(_, y)
 end
 
 function EditorItemList:onKeyPressed(key)
+    local selected = self:getSelectedItem()
+    if key == "left" and selected and selected.expanded == true and selected.on_toggle then
+        selected.on_toggle(selected, self)
+        return true
+    elseif key == "right" and selected and selected.expanded == false and selected.on_toggle then
+        selected.on_toggle(selected, self)
+        return true
+    end
     if key == "up" then
         self:select((self.selected_index or 1) - 1)
         return true
@@ -323,12 +340,29 @@ function EditorItemList:drawSelf()
         end
         local item = self.filtered_items[index]
         local label_x = 6 + (item.indent or 0) * 14
-        if item.disclosure then
+        if item.expanded ~= nil then
+            love.graphics.setColor(0.72, 0.72, 0.76, 1)
+            if item.expanded then
+                love.graphics.polygon("fill", label_x + 2, y + self.row_height * 0.40,
+                    label_x + 11, y + self.row_height * 0.40,
+                    label_x + 6.5, y + self.row_height * 0.66)
+            else
+                love.graphics.polygon("fill", label_x + 3, y + self.row_height * 0.30,
+                    label_x + 10, y + self.row_height * 0.50,
+                    label_x + 3, y + self.row_height * 0.70)
+            end
+            label_x = label_x + 14
+        elseif item.disclosure then
             love.graphics.setColor(0.72, 0.72, 0.76, 1)
             love.graphics.print(item.disclosure, label_x, math.floor(y + (self.row_height - font:getHeight()) / 2))
             label_x = label_x + 14
         end
-        if item.preview and item.preview.drawPreviewIcon then
+        if type(item.preview) == "function" then
+            local padding = 4
+            local preview_size = self.row_height - padding * 2
+            item.preview(label_x, y + padding, preview_size, preview_size, 0.9)
+            label_x = label_x + self.row_height - 2
+        elseif item.preview and item.preview.drawPreviewIcon then
             local padding = 4
             local preview_size = self.row_height - padding * 2
             item.preview:drawPreviewIcon(label_x, y + padding, preview_size, preview_size, 0.9)

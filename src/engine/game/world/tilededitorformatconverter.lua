@@ -250,12 +250,13 @@ function TiledEditorFormatConverter.convertTileset(data, options)
         if has_images then converted.image = images end
     end
     converted.terrains = {}
+    local terrain_ids = {}
     for terrain_index, wangset in ipairs(data.wangsets or {}) do
         local terrain = {
-            id = wangset.id or terrain_index,
+            id = EditorFormat.uniqueSlug(wangset.name or wangset.id, terrain_ids,
+                "terrain_" .. terrain_index),
             name = wangset.name,
             tile_icon = wangset.tile and wangset.tile >= 0 and wangset.tile or nil,
-            type = wangset.type or "mixed",
             properties = TableUtils.copy(wangset.properties or {}, true),
             __editor_property_types = TableUtils.copy(wangset.__editor_property_types or {}, true),
             terrain_variants = {},
@@ -273,10 +274,34 @@ function TiledEditorFormatConverter.convertTileset(data, options)
             })
         end
         for _, wangtile in ipairs(wangset.wangtiles or {}) do
-            table.insert(terrain.terrain_tiles, {
-                tile_id = wangtile.tileid,
-                edges = TableUtils.copy(wangtile.wangid or {}, true)
-            })
+            local wang_id = wangtile.wangid or {}
+            local counts, center, center_count = {}, nil, 0
+            for _, variant_id in ipairs(wang_id) do
+                if variant_id and variant_id > 0 then
+                    counts[variant_id] = (counts[variant_id] or 0) + 1
+                    if counts[variant_id] > center_count then
+                        center, center_count = variant_id, counts[variant_id]
+                    end
+                end
+            end
+            local offsets = {
+                { 0, -1 }, { 1, -1 }, { 1, 0 }, { 1, 1 },
+                { 0, 1 }, { -1, 1 }, { -1, 0 }, { -1, -1 }
+            }
+            local conditions = {}
+            for index, offset in ipairs(offsets) do
+                table.insert(conditions, {
+                    type = "terrain", x = offset[1], y = offset[2],
+                    terrain = wang_id[index] or 0
+                })
+            end
+            if center then
+                table.insert(terrain.terrain_tiles, {
+                    tile_id = wangtile.tileid,
+                    terrain = center,
+                    conditions = conditions
+                })
+            end
         end
         table.insert(converted.terrains, terrain)
     end

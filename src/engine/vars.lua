@@ -294,6 +294,7 @@ KRISTAL_EVENT = {
     onRegisterCutscenes = "onRegisterCutscenes", -- cutscene scripts finished registering / in: Registry.initCutscenes() / passes: NONE / returns: NONE
     onRegisterLayerTypes = "onRegisterLayerTypes", -- default map layer types registered / in: Registry.initLayerTypes() / passes: LayerTypeRegistry:registry / returns: NONE
     onRegisterEditorPropertyTypes = "onRegisterEditorPropertyTypes", -- default editor property types registered / in: Registry.initEditorProperties() / passes: EditorPropertyRegistry:registry / returns: NONE
+    onRegisterTerrainRules = "onRegisterTerrainRules", -- default terrain conditions registered; libraries and the mod can register conditions and predicates / in: Registry.initTerrainRules() / passes: TerrainRuleRegistry:registry / returns: NONE
     onRegisterEditorTemplates = "onRegisterEditorTemplates", -- default editor templates registered / in: Registry.initEditorTemplates() / passes: Registry / returns: NONE
     onRegisterEditorDrawFX = "onRegisterEditorDrawFX", -- default editor DrawFX registered / in: Registry.initEditorDrawFX() / passes: table registry / returns: NONE
     onRegisterEvents = "onRegisterEvents", -- event scripts finished registering / in: Registry.initEventScripts() / passes: NONE / returns: NONE

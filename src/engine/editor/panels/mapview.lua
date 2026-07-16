@@ -165,6 +165,7 @@ function EditorMapView:drawDocument()
     self:drawSelectionMarquee()
     self:drawShapePreview()
     self:drawExplosions()
+    self:drawTerrainBrushPreview()
     love.graphics.pop()
 end
 
@@ -291,6 +292,210 @@ function EditorMapView:getTilePaintSource()
     return palette, tileset
 end
 
+function EditorMapView:getTerrainPaintSource()
+    local editor = self.editor
+    local document, terrain, variant
+    if editor then document, terrain, variant = editor:getSelectedTerrain() end
+    if not document or not terrain or not variant then
+        return nil, nil, nil, "Select a terrain variant in the Terrain Palette before painting"
+    end
+    return document, terrain, variant
+end
+
+function EditorMapView:getTerrainAtCell(target, tileset_document, terrain, column, row, overrides)
+    if column < 0 or row < 0 or column >= target.width or row >= target.height then return 0 end
+    local key = target.map_id .. ":" .. column .. ":" .. row
+    if overrides and overrides[key] ~= nil then return overrides[key] end
+    local tile_id = self.document:getTileIdForLayer(target.layer, column, row,
+        target.map_id, tileset_document.id)
+    return tile_id ~= nil and tileset_document:getTerrainAtTile(terrain, tile_id) or 0
+end
+
+function EditorMapView:getTerrainTileIdAtCell(target, tileset_document, column, row)
+    if column < 0 or row < 0 or column >= target.width or row >= target.height then return nil end
+    return self.document:getTileIdForLayer(target.layer, column, row,
+        target.map_id, tileset_document.id)
+end
+
+function EditorMapView:createTerrainRuleContext(target, tileset_document, terrain,
+        column, row, terrain_id, overrides)
+    local seed = column * 73856093 + row * 19349663 + terrain_id * 83492791
+    return TerrainRuleContext({
+        map_id = target.map_id, layer_id = target.layer._editor_uid,
+        x = column, y = row, center = terrain_id, terrain = terrain,
+        tileset = tileset_document, seed = seed,
+        get_terrain = function(x, y)
+            return self:getTerrainAtCell(target, tileset_document, terrain,
+                column + x, row + y, overrides)
+        end,
+        get_tile_id = function(x, y)
+            return self:getTerrainTileIdAtCell(target, tileset_document,
+                column + x, row + y)
+        end,
+        get_tags = function(_, _, cell_terrain, tile_id)
+            return tileset_document:getTerrainCellTags(terrain, cell_terrain, tile_id)
+        end
+    }), seed
+end
+
+function EditorMapView:routeTerrainCell(target, tileset_document, terrain, column, row, overrides)
+    if column < 0 or row < 0 or column >= target.width or row >= target.height then return false end
+    local key = target.map_id .. ":" .. column .. ":" .. row
+    local terrain_id = self:getTerrainAtCell(target, tileset_document, terrain,
+        column, row, overrides)
+    if terrain_id == 0 then
+        if not overrides or overrides[key] ~= 0 then return false end
+        return self.document:setEncodedTile(target.layer, column, row, 0, target.map_id, true)
+    end
+    local context, seed = self:createTerrainRuleContext(target, tileset_document,
+        terrain, column, row, terrain_id, overrides)
+    local rule, routing_reason = tileset_document:chooseTerrainTile(terrain, terrain_id, context, seed)
+    if not rule then
+        return false, routing_reason or string.format("Terrain '%s' has no matching tile rule for '%s'",
+            tostring(terrain.name or terrain.id), tostring(terrain_id))
+    end
+    local encoded, reason = self.document:encodeTileForLayer(target.layer, target.map_id,
+        tileset_document.id, rule.tile_id, rule.flip_x, rule.flip_y, rule.rotate)
+    if not encoded then return false, reason end
+    return self.document:setEncodedTile(target.layer, column, row,
+        encoded, target.map_id, true)
+end
+
+function EditorMapView:getTerrainRoutingDebug(world_x, world_y)
+    local target = self:getTileEditTarget(world_x, world_y)
+    if not target then return nil end
+    local tileset_document, terrain = self:getTerrainPaintSource()
+    if not tileset_document or not terrain then return nil end
+    local terrain_id = self:getTerrainAtCell(target, tileset_document, terrain,
+        target.column, target.row)
+    if terrain_id == 0 then return "Terrain routing: empty cell" end
+    local context, seed = self:createTerrainRuleContext(target, tileset_document,
+        terrain, target.column, target.row, terrain_id)
+    local result, reason = tileset_document:chooseTerrainTile(terrain, terrain_id, context, seed)
+    if not result then return "Terrain routing: " .. tostring(reason or "no matching rule") end
+    local text = string.format("Terrain routing: tile %s, %s, score %s",
+        tostring(result.tile_id), tostring(result.transform), tostring(result.score))
+    if context.debug and #context.debug.rejected > 0 then
+        text = text .. string.format("; %d rejected (%s)", #context.debug.rejected,
+            tostring(context.debug.rejected[1].reason))
+    end
+    return text
+end
+
+function EditorMapView:rebuildTerrain(map_id, bounds, layer)
+    local tileset_document, terrain, _, source_reason = self:getTerrainPaintSource()
+    if not tileset_document then return false, source_reason end
+    map_id = map_id or self.active_map_id or self.document.primary_map_id
+    layer = layer or self.document:getSelectedTileLayer(map_id)
+    if not layer then return false, "Select a tile layer before rebuilding terrain" end
+    local width, height = self.document:getTileLayerGridSize(layer, map_id)
+    local target = { map_id = map_id, layer = layer, width = width, height = height }
+    local left, top, right, bottom = 0, 0, width - 1, height - 1
+    if bounds then
+        left = MathUtils.clamp(math.floor(bounds[1]), 0, width - 1)
+        top = MathUtils.clamp(math.floor(bounds[2]), 0, height - 1)
+        right = MathUtils.clamp(math.floor(bounds[3]), left, width - 1)
+        bottom = MathUtils.clamp(math.floor(bounds[4]), top, height - 1)
+    end
+    local changed, reason = false, nil
+    for row = top, bottom do
+        for column = left, right do
+            local cell_changed
+            cell_changed, reason = self:routeTerrainCell(target, tileset_document,
+                terrain, column, row, nil)
+            if cell_changed then changed = true end
+            if reason then return changed, reason end
+        end
+    end
+    if changed then self.document:invalidatePreview(map_id) end
+    return changed
+end
+
+function EditorMapView:getTerrainBrushCells(target)
+    local size = self.editor and self.editor:getTerrainBrushSize() or 1
+    local first = -math.floor((size - 1) / 2)
+    local cells = {}
+    for y = first, first + size - 1 do
+        for x = first, first + size - 1 do
+            local column, row = target.column + x, target.row + y
+            if column >= 0 and row >= 0 and column < target.width and row < target.height then
+                table.insert(cells, { column, row })
+            end
+        end
+    end
+    return cells
+end
+
+function EditorMapView:paintTerrainAnchor(target, erase)
+    local tileset_document, terrain, variant, reason = self:getTerrainPaintSource()
+    if not tileset_document then return false, reason end
+    local stroke = self.tile_stroke
+    local overrides = stroke and stroke.terrain_values or {}
+    if stroke then stroke.terrain_values = overrides end
+    local anchor_key = target.map_id .. ":" .. target.column .. ":" .. target.row
+        .. ":" .. tostring(erase == true)
+    if stroke then
+        stroke.terrain_anchors = stroke.terrain_anchors or {}
+        if stroke.terrain_anchors[anchor_key] then return false end
+        stroke.terrain_anchors[anchor_key] = true
+    end
+    local brush_cells = self:getTerrainBrushCells(target)
+    local has_change = false
+    for _, cell in ipairs(brush_cells) do
+        if self:getTerrainAtCell(target, tileset_document, terrain,
+            cell[1], cell[2], overrides) ~= (erase and 0 or variant.id) then
+            has_change = true
+        end
+        overrides[target.map_id .. ":" .. cell[1] .. ":" .. cell[2]]
+            = erase and 0 or variant.id
+    end
+    if not has_change then return false end
+
+    local route_cells, routed = {}, {}
+    for _, cell in ipairs(brush_cells) do
+        for _, offset in ipairs(tileset_document:getTerrainAffectedOffsets(terrain)) do
+            local column, row = cell[1] + offset[1], cell[2] + offset[2]
+            local key = column .. ":" .. row
+            if not routed[key] then
+                routed[key] = true
+                table.insert(route_cells, { column, row })
+            end
+        end
+    end
+    local changed = false
+    for _, cell in ipairs(route_cells) do
+        local cell_changed
+        cell_changed, reason = self:routeTerrainCell(target, tileset_document, terrain,
+            cell[1], cell[2], overrides)
+        if cell_changed then changed = true end
+        if reason then return changed, reason end
+    end
+    if changed then self.document:invalidatePreview(target.map_id) end
+    return changed
+end
+
+function EditorMapView:drawTerrainBrushPreview()
+    if not self.editor or self.editor.active_tool ~= "terrain_brush"
+        or self.editor.live_document == self.document then return end
+    local mouse_x, mouse_y = self.editor:getMousePosition()
+    local local_x, local_y = self:toLocal(mouse_x, mouse_y)
+    if local_x < 0 or local_y < 0 or local_x >= self.width or local_y >= self.height then return end
+    local world_x, world_y = self:getMapCoordinates(local_x, local_y)
+    local target = self:getTileEditTarget(world_x, world_y)
+    if not target then return end
+    local tile_width, tile_height = self.document:getTileLayerCellSize(target.layer, target.map_id)
+    local offset_x, offset_y = target.layer.offsetx or 0, target.layer.offsety or 0
+    love.graphics.setLineWidth(2 / self.view_zoom)
+    for _, cell in ipairs(self:getTerrainBrushCells(target)) do
+        local x = target.entry.x + offset_x + cell[1] * tile_width
+        local y = target.entry.y + offset_y + cell[2] * tile_height
+        Draw.setColor(0.36, 0.72, 1, 0.16)
+        love.graphics.rectangle("fill", x, y, tile_width, tile_height)
+        Draw.setColor(0.48, 0.78, 1, 0.9)
+        love.graphics.rectangle("line", x, y, tile_width, tile_height)
+    end
+end
+
 function EditorMapView:encodePaintTile(target, tileset, tile_id)
     local encoded, reason = self.document:encodeTileForLayer(
         target.layer, target.map_id, tileset.id, tile_id)
@@ -369,13 +574,20 @@ function EditorMapView:fillTiles(target)
     return changed
 end
 
-function EditorMapView:beginTileEdit(tool, world_x, world_y)
+function EditorMapView:beginTileEdit(tool, world_x, world_y, erase_terrain)
     local target, reason = self:getTileEditTarget(world_x, world_y)
     if not target then
         self.editor:addWarning(reason, nil, "tile_editing")
         return true
     end
-    if tool ~= "eraser" then
+    if tool == "terrain_brush" then
+        local tileset_document, terrain, variant
+        tileset_document, terrain, variant, reason = self:getTerrainPaintSource()
+        if not tileset_document then
+            self.editor:addWarning(reason, nil, "tile_editing")
+            return true
+        end
+    elseif tool ~= "eraser" then
         local palette
         palette, _, reason = self:getTilePaintSource()
         if not palette then
@@ -397,11 +609,21 @@ function EditorMapView:beginTileEdit(tool, world_x, world_y)
         end
         return true
     end
-    self.editor:beginHistoryTransaction(tool == "eraser" and "Erase Tiles" or "Paint Tiles",
-        self.document)
-    self.tile_stroke = { tool = tool, target = target, changed = false }
+    local history_label = tool == "eraser" and "Erase Tiles"
+        or tool == "terrain_brush" and erase_terrain and "Erase Terrain"
+        or tool == "terrain_brush" and "Paint Terrain" or "Paint Tiles"
+    self.editor:beginHistoryTransaction(history_label, self.document)
+    self.tile_stroke = {
+        tool = tool, target = target, changed = false,
+        button = erase_terrain and 2 or 1,
+        terrain_erase = erase_terrain == true
+    }
     local changed
-    changed, reason = self:paintTileAnchor(target, tool == "eraser")
+    if tool == "terrain_brush" then
+        changed, reason = self:paintTerrainAnchor(target, erase_terrain)
+    else
+        changed, reason = self:paintTileAnchor(target, tool == "eraser")
+    end
     self.tile_stroke.changed = changed
     if changed then self.editor:markHistoryChanged() end
     if reason then self.editor:addWarning(reason, nil, "tile_editing") end
@@ -416,11 +638,17 @@ function EditorMapView:continueTileEdit(world_x, world_y)
     local previous = stroke.target
     if target.map_id ~= previous.map_id or target.layer ~= previous.layer then
         stroke.target = target
-        local changed = self:paintTileAnchor(target, stroke.tool == "eraser")
+        local changed, reason
+        if stroke.tool == "terrain_brush" then
+            changed, reason = self:paintTerrainAnchor(target, stroke.terrain_erase)
+        else
+            changed, reason = self:paintTileAnchor(target, stroke.tool == "eraser")
+        end
         if changed then
             stroke.changed = true
             self.editor:markHistoryChanged()
         end
+        if reason then self.editor:addWarning(reason, nil, "tile_editing") end
         return true
     end
     local x0, y0, x1, y1 = previous.column, previous.row, target.column, target.row
@@ -433,7 +661,12 @@ function EditorMapView:continueTileEdit(world_x, world_y)
                 entry = target.entry, map_id = target.map_id, layer = target.layer,
                 column = x0, row = y0, width = target.width, height = target.height
             }
-            local changed, reason = self:paintTileAnchor(anchor, stroke.tool == "eraser")
+            local changed, reason
+            if stroke.tool == "terrain_brush" then
+                changed, reason = self:paintTerrainAnchor(anchor, stroke.terrain_erase)
+            else
+                changed, reason = self:paintTileAnchor(anchor, stroke.tool == "eraser")
+            end
             if changed then
                 stroke.changed = true
                 self.editor:markHistoryChanged()
@@ -824,10 +1057,29 @@ function EditorMapView:drawPreview()
     self:drawCursorAndCoordinates()
 end
 
+function EditorMapView:drawTerrainRuleDebug()
+    if not self.editor or self.editor.active_tool ~= "terrain_brush" then return end
+    local mouse_x, mouse_y = self.editor:getMousePosition()
+    local global_x, global_y = self:getGlobalPosition()
+    local local_x, local_y = mouse_x - global_x, mouse_y - global_y
+    if local_x < 0 or local_y < 0 or local_x >= self.width or local_y >= self.height then return end
+    local world_x, world_y = self:getMapCoordinates(local_x, local_y)
+    local text = self:getTerrainRoutingDebug(world_x, world_y)
+    if not text then return end
+    local font = EditorFont.get(14)
+    love.graphics.setFont(font)
+    local width = math.min(self.width - 16, font:getWidth(text) + 12)
+    Draw.setColor(0.04, 0.04, 0.05, 0.86)
+    love.graphics.rectangle("fill", 8, 30, width, font:getHeight() + 8)
+    Draw.setColor(0.82, 0.86, 0.92, 1)
+    love.graphics.printf(text, 14, 34, math.max(0, width - 12), "left")
+end
+
 function EditorMapView:drawSelf()
     Draw.setColor(0, 0, 0, 1)
     love.graphics.rectangle("fill", 0, 0, self.width, self.height)
     self:drawPreview()
+    self:drawTerrainRuleDebug()
     self:drawScaleReadout()
     Draw.setColor(1, 1, 1, 1)
 end
@@ -891,8 +1143,12 @@ function EditorMapView:onMousePressed(x, y, button, presses)
             if #self.polygon_build.points == 0 then self:cancelPolygon() end
             return true
         end
-        if button == 1 and (tool == "tile_brush" or tool == "tile_fill") then
+        if button == 1 and (tool == "tile_brush" or tool == "terrain_brush"
+            or tool == "tile_fill") then
             return self:beginTileEdit(tool, world_x, world_y)
+        end
+        if button == 2 and tool == "terrain_brush" then
+            return self:beginTileEdit(tool, world_x, world_y, true)
         end
         if button == 1 and tool == "eraser" then
             local entry = self.document:getMapAt(world_x, world_y)
@@ -1254,7 +1510,7 @@ function EditorMapView:onMouseReleased(x, y, button, presses)
     if self.editor and self.editor.live_document == self.document then
         return self.editor.game_preview:onMouseReleased(x, y, button, presses)
     end
-    if button == 1 and self.tile_stroke then
+    if self.tile_stroke and button == self.tile_stroke.button then
         local changed = self.tile_stroke.changed
         self.tile_stroke = nil
         if changed then
@@ -1387,7 +1643,8 @@ function EditorMapView:getCursorType(x, y)
         return self.document:getMapAt(world_x, world_y) and "grab" or "default"
     end
     if self.editor and (self.editor.active_tool == "object" or self.editor.active_tool == "shape"
-        or self.editor.active_tool == "tile_brush" or self.editor.active_tool == "tile_fill") then
+        or self.editor.active_tool == "tile_brush" or self.editor.active_tool == "terrain_brush"
+        or self.editor.active_tool == "tile_fill") then
         return "crosshair"
     end
     if self.editor and self.editor.active_tool == "eraser" then

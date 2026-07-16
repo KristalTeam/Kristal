@@ -44,4 +44,10 @@ function EditorPropertyFields.choice(target, label, key, choices, options)
     return field
 end
 
+function EditorPropertyFields.color(target, label, key, options)
+    local field = EditorPropertyFields.value(target, label, key, options)
+    field.control = "color"
+    return field
+end
+
 return EditorPropertyFields

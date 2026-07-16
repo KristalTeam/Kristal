@@ -1,6 +1,6 @@
 local EDITOR_DEFAULT_WIDTH = 1280
 local EDITOR_DEFAULT_HEIGHT = 800
-local EDITOR_SESSION_VERSION = 5
+local EDITOR_SESSION_VERSION = 6
 local EDITOR_SESSION_DIRECTORY = "editor"
 local EDITOR_MUSIC = "edit"
 local EDITOR_MUSIC_VOLUME = 0.5
@@ -229,6 +229,8 @@ function Editor:captureSession()
         standalone_preview_enabled = self:isStandaloneGamePreviewEnabled(),
         standalone_preview_map_id = self.standalone_preview_map_id,
         active_tileset_id = self.active_tileset_id,
+        active_terrain_id = self.selected_terrain_id,
+        active_terrain_variant_id = self.selected_terrain_variant_id,
         active_world_id = self.active_world_id,
         tile_palette_random = self.tile_palette and self.tile_palette.random_mode or false,
         active_panel_id = self.active_document and self.active_document.panel.id,
@@ -375,6 +377,20 @@ function Editor:registerMenuBar()
     self.menu_bar:registerItem("edit", "settings", "Editor Settings...", {
         on_activate = function() self:showSettingsPanel() end
     })
+    self.menu_bar:registerItem("edit", "rebuild_terrain_layer", "Rebuild Terrain in Layer", {
+        is_enabled = function()
+            local _, terrain = self:getSelectedTerrain()
+            return self.active_document and self.active_document.map_view and terrain ~= nil
+        end,
+        on_activate = function() self:rebuildTerrain("layer") end
+    })
+    self.menu_bar:registerItem("edit", "rebuild_terrain_map", "Rebuild Terrain in Map", {
+        is_enabled = function()
+            local _, terrain = self:getSelectedTerrain()
+            return self.active_document and self.active_document.map_view and terrain ~= nil
+        end,
+        on_activate = function() self:rebuildTerrain("map") end
+    })
     self.menu_bar:registerToggle("edit", "tile_editing", "Map Editing View (Tab)",
         function() return self.tile_editing_mode end,
         function(enabled) self:setTileEditingMode(enabled) end)
@@ -434,6 +450,10 @@ function Editor:registerEditorTools()
     self.tool_registry:register("tile_brush", {
         name = "Tile Brush", short_name = "Brush", icon = "editor/ui/tool/brush",
         keybind = "editor_tool_tile_brush"
+    })
+    self.tool_registry:register("terrain_brush", {
+        name = "Terrain Brush", short_name = "Terrain", icon = "editor/ui/tool/brush_terrain",
+        keybind = "editor_tool_terrain_brush"
     })
     self.tool_registry:register("tile_fill", {
         name = "Tile Fill", short_name = "Fill", icon = "editor/ui/tool/bucket",
@@ -526,6 +546,12 @@ function Editor:registerEditorSettings(session)
         get = function(editor) return editor.history:getLimit() end,
         set = function(value, editor) return editor.history:setLimit(value) end
     })
+    self.settings:registerSetting("editing", "editing.terrain_brush_size", {
+        name = "Terrain Brush Size", type = "integer", default = 1,
+        minimum = 1, maximum = 32,
+        description = "Width and height, in tiles, of the square terrain brush.",
+        set = function(value, editor) return editor:setTerrainBrushSize(value) end
+    })
 
     self.settings:registerPage("keybinds", "Keybinds")
     local function keybind(id, name, alias)
@@ -567,23 +593,164 @@ function Editor:setupTilesetDocuments(session)
     self.active_tileset_id = self.active_tileset_document and self.active_tileset_document.id or nil
 end
 
-function Editor:setActiveTileset(document)
+function Editor:setActiveTileset(document, options)
+    options = options or {}
     if type(document) == "string" then
         for _, candidate in ipairs(self.tileset_documents or {}) do
             if candidate.id == document then document = candidate break end
         end
     end
     if not document or not document.data then return false end
+    local changed_document = self.active_tileset_document ~= document
     self.active_tileset_document = document
     self.active_tileset_id = document.id
+    self.selected_terrain_set = nil
+    self.selected_terrain_variant = nil
+    if changed_document then
+        self.selected_terrain_id = nil
+        self.selected_terrain_variant_id = nil
+    end
     if self.tileset_panel then
         self.tileset_panel.title = "Tileset Editor" .. (document:isDirty() and " *" or "")
     end
     if self.tile_palette then self.tile_palette:setTilesetDocument(document) end
+    if self.terrain_palette then
+        self.terrain_palette:setDocument(document, options.refresh == true)
+    end
     if self.tileset_editor and self.tileset_panel and self.tileset_panel.visible then
-        self.tileset_editor:setDocument(document)
+        self.tileset_editor:setDocument(document, {
+            preserve_mode = not changed_document,
+            preserve_tile = not changed_document,
+            preserve_selection = not changed_document and options.view_state == nil,
+            view_state = options.view_state
+        })
     end
     return true
+end
+
+function Editor:setSelectedTerrain(document, terrain, variant)
+    if not document or not terrain or not variant
+        or not TableUtils.contains(document:getTerrainSets(), terrain)
+        or not TableUtils.contains(terrain.terrain_variants or {}, variant) then return false end
+    if self.active_tileset_document ~= document then self:setActiveTileset(document) end
+    self.selected_terrain_set = terrain
+    self.selected_terrain_variant = variant
+    self.selected_terrain_id = terrain.id
+    self.selected_terrain_variant_id = variant.id
+    self:clearDiagnostics("tile_editing")
+    self:clearDiagnostics("terrain_editing")
+    if self.terrain_palette and self.terrain_palette.document == document then
+        self.terrain_palette:selectCurrent()
+    end
+    if self.tileset_editor and self.tileset_editor.document == document then
+        self.tileset_editor:rebuildTerrainRuleLookup()
+    end
+    return true
+end
+
+function Editor:setTerrainBrushSize(value)
+    value = MathUtils.clamp(MathUtils.round(tonumber(value) or 1), 1, 32)
+    self.terrain_brush_size = value
+    if self.terrain_palette then self.terrain_palette:setBrushSize(value) end
+    return true
+end
+
+function Editor:getTerrainBrushSize()
+    return MathUtils.clamp(MathUtils.round(tonumber(self.terrain_brush_size) or 1), 1, 32)
+end
+
+function Editor:getSelectedTerrain()
+    local document = self.active_tileset_document
+    if not document then return nil end
+    local selected_terrain = self.selected_terrain_set
+    local selected_variant = self.selected_terrain_variant
+    if selected_terrain and selected_variant
+        and TableUtils.contains(document:getTerrainSets(), selected_terrain)
+        and TableUtils.contains(selected_terrain.terrain_variants or {}, selected_variant) then
+        self.selected_terrain_id = selected_terrain.id
+        self.selected_terrain_variant_id = selected_variant.id
+        return document, selected_terrain, selected_variant
+    end
+    for _, terrain in ipairs(document:getTerrainSets()) do
+        if terrain.id == self.selected_terrain_id then
+            local variant = document:getTerrainVariant(terrain, self.selected_terrain_variant_id)
+            if variant then
+                self.selected_terrain_set = terrain
+                self.selected_terrain_variant = variant
+                return document, terrain, variant
+            end
+        end
+    end
+    local selected_item = self.terrain_palette and self.terrain_palette.document == document
+        and self.terrain_palette.list:getSelectedItem() or nil
+    local selected_data = selected_item and selected_item.data
+    if selected_data then
+        local terrain = selected_data.terrain
+        local variant = selected_data.variant
+            or terrain and terrain.terrain_variants and terrain.terrain_variants[1]
+        if terrain and variant then
+            self.selected_terrain_set = terrain
+            self.selected_terrain_variant = variant
+            self.selected_terrain_id = terrain.id
+            self.selected_terrain_variant_id = variant.id
+            return document, terrain, variant
+        end
+    end
+    for _, terrain in ipairs(document:getTerrainSets()) do
+        local variant = terrain.terrain_variants and terrain.terrain_variants[1]
+        if variant then
+            self.selected_terrain_set = terrain
+            self.selected_terrain_variant = variant
+            self.selected_terrain_id = terrain.id
+            self.selected_terrain_variant_id = variant.id
+            return document, terrain, variant
+        end
+    end
+    self.selected_terrain_set = nil
+    self.selected_terrain_variant = nil
+    self.selected_terrain_id = nil
+    self.selected_terrain_variant_id = nil
+    return document
+end
+
+function Editor:rebuildTerrain(scope)
+    local document = self.active_document
+    local view = document and document.map_view
+    if not view then return false end
+    local map_id = view.active_map_id or document.primary_map_id
+    local layers = {}
+    if scope == "map" then
+        for _, layer in ipairs(document:getAllEditableLayers(map_id)) do
+            local layer_type = Registry.getLayerType(layer._editor_type_id)
+            if layer_type and layer_type.kind == "tile" then table.insert(layers, layer) end
+        end
+    else
+        local layer = document:getSelectedTileLayer(map_id)
+        if layer then table.insert(layers, layer) end
+    end
+    if #layers == 0 then
+        self:addWarning("Select a tile layer before rebuilding terrain", nil, "terrain_routing")
+        return false
+    end
+    self:beginHistoryTransaction(scope == "map" and "Rebuild Map Terrain"
+        or "Rebuild Layer Terrain", document)
+    local changed = false
+    for _, layer in ipairs(layers) do
+        local layer_changed, reason = view:rebuildTerrain(map_id, nil, layer)
+        changed = changed or layer_changed
+        if reason then
+            self:cancelHistoryTransaction()
+            self:addWarning(reason, nil, "terrain_routing")
+            return false
+        end
+    end
+    if changed then
+        self:markHistoryChanged()
+        self:commitHistoryTransaction()
+    else
+        self:cancelHistoryTransaction()
+    end
+    return changed
 end
 
 function Editor:setSelectedTile(tile)
@@ -596,7 +763,11 @@ function Editor:showTilesetEditor(document)
     if document then self:setActiveTileset(document) end
     if not self.tileset_panel then return false end
     if not self.tileset_panel.visible then self.dockspace:setPanelVisible(self.tileset_panel, true, "center") end
-    self.tileset_editor:setDocument(self.active_tileset_document)
+    self.tileset_editor:setDocument(self.active_tileset_document, {
+        preserve_mode = true,
+        preserve_tile = true,
+        preserve_selection = true
+    })
     if self.selected_tile then self.tileset_editor:setTile(self.selected_tile) end
     if self.tileset_panel.stack then self.tileset_panel.stack:setActivePanel(self.tileset_panel) end
     self.dockspace:setFocus(self.tileset_editor)
@@ -734,7 +905,7 @@ function Editor:setupPanels(session)
     }), self.events_panel.stack)
     self.events_panel.stack:setActivePanel(self.events_panel)
     self.toolbar_panel = self.dockspace:registerPanel(EditorPanel("toolbar", "Tools", self.toolbar, {
-        minimum_width = 360,
+        minimum_width = 420,
         minimum_height = 36,
         preferred_height = 72,
         recoverable = true
@@ -767,6 +938,14 @@ function Editor:setupPanels(session)
             preferred_height = 240,
             recoverable = true
         }), self.console_panel.stack)
+    self.terrain_palette_panel = self.dockspace:registerPanel(EditorPanel(
+        "terrain_palette", "Terrain Palette", self.terrain_palette, {
+            minimum_width = 280,
+            minimum_height = 150,
+            preferred_height = 240,
+            recoverable = true
+        }), self.properties_panel.stack)
+    self.properties_panel.stack:setActivePanel(self.properties_panel)
     self.console_panel.stack:setActivePanel(self.console_panel)
     self.tileset_panel = self.dockspace:registerPanel(EditorPanel(
         "tileset_editor", "Tileset Editor", self.tileset_editor, {
@@ -854,6 +1033,18 @@ function Editor:setupPanels(session)
         if restored and not had_tilesets_browser and self.maps_panel.stack then
             self.maps_panel.stack:setActivePanel(self.maps_panel)
         end
+        if restored and (session.version or 1) < 6 and self.properties_panel.stack then
+            local was_active = self.terrain_palette_panel.stack
+                and self.terrain_palette_panel.stack:getActivePanel() == self.terrain_palette_panel
+            if self.terrain_palette_panel.visible then
+                self.dockspace:dockPanel(self.terrain_palette_panel, self.properties_panel.stack)
+                if not was_active then
+                    self.properties_panel.stack:setActivePanel(self.properties_panel)
+                end
+            else
+                self.terrain_palette_panel.last_region = self.properties_panel.stack.id
+            end
+        end
         if restored and (session.version or 1) < 2 then
             if not self.fx_panel.visible then self.dockspace:setPanelVisible(self.fx_panel, true, "left") end
             self.dockspace:dockPanel(self.fx_panel, self.events_panel.stack)
@@ -909,6 +1100,7 @@ function Editor:enter(previous, options)
     self.object_selection_mouse_buttons = {}
     self.consumed_editor_keys = {}
     self.creation_dialog = nil
+    self.color_picker = nil
     self.game_preview_snapshot = nil
     self.game_preview_snapshot_document = nil
     self.game_preview_snapshot_save_id = nil
@@ -954,10 +1146,22 @@ function Editor:enter(previous, options)
     self.event_browser = EditorEventBrowser(self)
     self.tileset_browser = EditorTilesetBrowser(self)
     self.tile_palette = EditorTilePalette(self)
+    self.terrain_palette = EditorTerrainPalette(self)
     self.tileset_editor = EditorTilesetPanel(self)
     self.tile_palette.random_mode = session and session.tile_palette_random == true or false
     self.tile_palette.random_toggle:setValue(self.tile_palette.random_mode, true)
     self.tile_palette:setTilesetDocument(self.active_tileset_document)
+    self.terrain_palette:setDocument(self.active_tileset_document)
+    if self.active_tileset_document and session then
+        for _, terrain in ipairs(self.active_tileset_document:getTerrainSets()) do
+            if terrain.id == session.active_terrain_id then
+                local variant = self.active_tileset_document:getTerrainVariant(
+                    terrain, session.active_terrain_variant_id)
+                if variant then self:setSelectedTerrain(self.active_tileset_document, terrain, variant) end
+                break
+            end
+        end
+    end
     self.layers_browser = EditorLayersPanel(self)
     self.properties_browser = EditorPropertiesPanel(self)
     self.fx_browser = EditorFXBrowser(self)
@@ -969,6 +1173,13 @@ function Editor:enter(previous, options)
     self.editor_cursor:setCustomEnabled(self.use_custom_cursors)
 
     EditorPlugins:initialize(self)
+    for _, document in ipairs(self.tileset_documents or {}) do
+        local initialized, reason = document:initializeTerrainConditions()
+        if not initialized then
+            self:addError("Could not initialize terrain conditions in tileset '"
+                .. tostring(document.id) .. "'", reason, "terrain_conditions")
+        end
+    end
     local context_document, restored_by_panel = self:setupMapDocuments(session)
     self.settings_browser = EditorSettingsPanel(self)
     self.event_browser:refresh()
@@ -1039,10 +1250,16 @@ function Editor:leave()
     self.active_tileset_document = nil
     self.active_tileset_id = nil
     self.selected_tile = nil
+    self.selected_terrain_set = nil
+    self.selected_terrain_variant = nil
+    self.selected_terrain_id = nil
+    self.selected_terrain_variant_id = nil
     self.tileset_browser = nil
     self.tilesets_browser_panel = nil
     self.tile_palette = nil
     self.tile_palette_panel = nil
+    self.terrain_palette = nil
+    self.terrain_palette_panel = nil
     self.tileset_editor = nil
     self.tileset_panel = nil
     self.fx_browser = nil
@@ -1079,6 +1296,7 @@ function Editor:leave()
     self.properties_browser = nil
     self.properties_panel = nil
     self.properties_target_owner = nil
+    self.color_picker = nil
     self.standalone_preview_document = nil
     self.standalone_preview_map_id = nil
     self.game_preview_paused = nil
@@ -1243,8 +1461,18 @@ function Editor:getWorldSavePath(world)
     return self:getContentSavePath("world", world.id)
 end
 
+function Editor:commitFocusedTextInput()
+    local control = self.dockspace and self.dockspace.focused_control
+    if not control or not control.accepts_text_input then return true end
+    if control.pending_submit and control.submitValue
+        and control:submitValue() == false then return false end
+    self.dockspace:setFocus(nil)
+    return true
+end
+
 function Editor:saveMapDocumentToProject(document, options)
     if not document then return false end
+    if not self:commitFocusedTextInput() then return false end
     options = options or {}
     local ids, seen = {}, {}
     local function add(id)
@@ -1318,6 +1546,26 @@ end
 
 function Editor:saveTilesetDocumentToProject(document)
     if not document then return false end
+    if not self:commitFocusedTextInput() then return false end
+    local view_state = self.tileset_editor
+        and self.tileset_editor.document == document
+        and self.tileset_editor:captureViewState() or nil
+    local selected_terrain_index, selected_variant_index
+    if self.active_tileset_document == document then
+        local _, selected_terrain, selected_variant = self:getSelectedTerrain()
+        for terrain_index, terrain in ipairs(document:getTerrainSets()) do
+            if terrain == selected_terrain then
+                selected_terrain_index = terrain_index
+                for variant_index, variant in ipairs(terrain.terrain_variants or {}) do
+                    if variant == selected_variant then
+                        selected_variant_index = variant_index
+                        break
+                    end
+                end
+                break
+            end
+        end
+    end
     local data, reason = EditorFormatDocument.buildTilesetData(document)
     if not data then
         self:addError("Could not prepare tileset '" .. document.id .. "' for saving", reason, "editor_save")
@@ -1358,16 +1606,21 @@ function Editor:saveTilesetDocumentToProject(document)
     document:adoptSavedData(decoded, tileset)
     self.history:markSaved(document)
     self:clearDiagnostics("editor_save")
-    self:setActiveTileset(document)
-    if self.tileset_browser then self.tileset_browser:refresh(document.id) end
-    if self.tileset_editor and self.active_tileset_document == document then
-        self.tileset_editor:setDocument(document)
+    self:setActiveTileset(document, { refresh = true, view_state = view_state })
+    local selected_terrain = selected_terrain_index
+        and document:getTerrainSets()[selected_terrain_index]
+    local selected_variant = selected_terrain and selected_variant_index
+        and selected_terrain.terrain_variants[selected_variant_index]
+    if selected_variant then
+        self:setSelectedTerrain(document, selected_terrain, selected_variant)
     end
+    if self.tileset_browser then self.tileset_browser:refresh(document.id) end
     return true
 end
 
 function Editor:saveWorldToProject(world)
     if not world then return false end
+    if not self:commitFocusedTextInput() then return false end
     local document = self:findWorldDocument(world.id)
     if document then world = document.world end
     local data = EditorFormatDocument.buildWorldData(world)
@@ -1444,7 +1697,8 @@ function Editor:saveActiveDocument()
         if focused == self.world_browser then
             return self:saveWorldDocumentToProject(self.active_editor_world)
         end
-        if focused == self.tileset_editor or focused == self.tile_palette or focused == self.tileset_browser then
+        if focused == self.tileset_editor or focused == self.tile_palette
+            or focused == self.terrain_palette or focused == self.tileset_browser then
             return self:saveTilesetDocumentToProject(self.active_tileset_document)
         end
         focused = focused.parent
@@ -1519,6 +1773,17 @@ function Editor:setActiveTool(id)
     if id ~= "object" then self:cancelEventRegionDrags() end
     if id ~= "link" then self:cancelObjectLink(true) end
     self.active_tool = id
+    if id == "terrain_brush" and self.terrain_palette_panel then
+        if not self.terrain_palette_panel.visible then
+            self.dockspace:setPanelVisible(self.terrain_palette_panel, true)
+        end
+        if self.terrain_palette_panel.stack then
+            self.terrain_palette_panel.stack:setActivePanel(self.terrain_palette_panel)
+        end
+        if self.message_bar then
+            self.message_bar:setStatus("Terrain Brush: left-drag to paint, right-drag to erase")
+        end
+    end
     if id ~= "object" then self.placement_tile = nil end
     self.placement_event_id = id == "object" and not self.placement_tile and self.selected_event_id or nil
     return true
@@ -1742,7 +2007,12 @@ function Editor:onHistoryChanged(owners, restored, command, direction)
             if restored then
                 self.tile_palette:setTilesetDocument(nil)
                 self.tile_palette:setTilesetDocument(owner)
-                self.tileset_editor:setDocument(owner)
+                self.terrain_palette:setDocument(nil)
+                self.terrain_palette:setDocument(owner)
+                self.tileset_editor:setDocument(owner, {
+                    preserve_mode = true,
+                    preserve_tile = true
+                })
             end
         end
     end
@@ -2738,6 +3008,7 @@ function Editor:update()
         ui_height - EditorMenuBar.HEIGHT - EditorMessageBar.HEIGHT)
     self.dockspace:update(DT)
     if self.creation_dialog then self.creation_dialog:update(DT) end
+    if self.color_picker then self.color_picker:update(DT) end
 
     if self.entry_transition then
         self.entry_transition:update(DT)
@@ -2801,6 +3072,7 @@ function Editor:drawEditor(canvas)
     self.message_bar:draw()
     self.menu_bar:draw()
     if self.creation_dialog then self.creation_dialog:draw() end
+    if self.color_picker then self.color_picker:draw() end
     love.graphics.pop()
     local mouse_x, mouse_y = self:getMousePosition()
     self.editor_cursor:setType(self:getCursorType(mouse_x, mouse_y))
@@ -2808,6 +3080,7 @@ end
 
 function Editor:getCursorType(x, y)
     if self.entry_transition or self.exit_transition then return "cannot" end
+    if self.color_picker then return self.color_picker:getCursorType(x, y) end
     if self.creation_dialog then return self.creation_dialog:getCursorType(x, y) end
     if self.message_bar:containsPoint(x, y) then return "select" end
     local menu_cursor = self.menu_bar:getCursorType(x, y)
@@ -2830,6 +3103,24 @@ function Editor:closeCreationDialog(created)
     dialog:setFocus(nil)
     self.creation_dialog = nil
     if self.message_bar and created then self.message_bar:setStatus("Created " .. (dialog.template.name or "item"), 4) end
+    return true
+end
+
+function Editor:openColorPicker(value, on_apply)
+    if self.color_picker then self:closeColorPicker(false) end
+    self.dockspace.context_menu = nil
+    self.dockspace:setFocus(nil)
+    self.color_picker = EditorColorPicker(self, value, on_apply)
+    self.color_picker:update(0)
+    return self.color_picker
+end
+
+function Editor:closeColorPicker(applied)
+    local picker = self.color_picker
+    if not picker then return false end
+    picker:setFocus(nil)
+    self.color_picker = nil
+    if applied and self.message_bar then self.message_bar:setStatus("Color applied", 3) end
     return true
 end
 
@@ -3577,6 +3868,7 @@ end
 
 function Editor:onKeyPressed(key, is_repeat)
     if self.entry_transition or self.exit_transition then return true end
+    if self.color_picker then return self.color_picker:onKeyPressed(key, is_repeat) end
     if self.creation_dialog then return self.creation_dialog:onKeyPressed(key, is_repeat) end
     if self.dockspace.context_menu and self.dockspace.context_menu.searchable then
         return self.dockspace:onKeyPressed(key, is_repeat) ~= false
@@ -3600,12 +3892,12 @@ function Editor:onKeyPressed(key, is_repeat)
         if key == "x" then return self:cutSelectedMapObjects() end
         return self:pasteMapObjects()
     end
+    if Input.ctrl() and not is_repeat and key == "s" then
+        if Input.shift() then return self:saveAllDocuments() end
+        return self:saveActiveDocument()
+    end
     if Input.ctrl() and not is_repeat
         and not editing_text then
-        if key == "s" then
-            if Input.shift() then return self:saveAllDocuments() end
-            return self:saveActiveDocument()
-        end
         if key == "z" then return Input.shift() and self:redo() or self:undo() end
         if key == "y" then return self:redo() end
     end
@@ -3721,6 +4013,7 @@ end
 
 function Editor:onKeyReleased(key)
     if self.entry_transition or self.exit_transition then return true end
+    if self.color_picker then return self.color_picker:onKeyReleased(key) end
     if self.creation_dialog then return self.creation_dialog:onKeyReleased(key) end
     if self.consumed_editor_keys[key] then
         self.consumed_editor_keys[key] = nil
@@ -3732,6 +4025,7 @@ end
 
 function Editor:onTextInput(text)
     if self.entry_transition or self.exit_transition then return true end
+    if self.color_picker then return self.color_picker:onTextInput(text) end
     if self.creation_dialog then return self.creation_dialog:onTextInput(text) end
     if self.dockspace:onTextInput(text) then return true end
     return self:forwardGameTextInput(text)
@@ -3740,6 +4034,7 @@ end
 function Editor:onMousePressed(x, y, button, istouch, presses)
     if self.entry_transition or self.exit_transition then return true end
     x, y = self:screenToUI(x, y)
+    if self.color_picker then return self.color_picker:onMousePressed(x, y, button, istouch, presses) end
     if self.creation_dialog then return self.creation_dialog:onMousePressed(x, y, button, istouch, presses) end
     if self.message_bar:containsPoint(x, y) then
         if button == 1 then self:toggleDiagnosticsPanel() end
@@ -3755,6 +4050,7 @@ function Editor:onMouseMoved(x, y, dx, dy, istouch)
     if self.entry_transition or self.exit_transition then return true end
     x, y = self:screenToUI(x, y)
     dx, dy = self:screenDeltaToUI(dx, dy)
+    if self.color_picker then return self.color_picker:onMouseMoved(x, y, dx, dy, istouch) end
     if self.creation_dialog then return self.creation_dialog:onMouseMoved(x, y, dx, dy, istouch) end
     self:updateGameObjectSelectionCursor(x, y)
     if self.dockspace:onMouseMoved(x, y, dx, dy) then return true end
@@ -3769,6 +4065,7 @@ end
 function Editor:onMouseReleased(x, y, button, istouch, presses)
     if self.entry_transition or self.exit_transition then return true end
     x, y = self:screenToUI(x, y)
+    if self.color_picker then return self.color_picker:onMouseReleased(x, y, button, istouch, presses) end
     if self.creation_dialog then return self.creation_dialog:onMouseReleased(x, y, button, istouch, presses) end
     if self.dockspace:onMouseReleased(x, y, button, presses) then return true end
     if self:handleGameObjectSelectionMouseReleased(x, y, button, istouch, presses) then return true end
@@ -3777,6 +4074,7 @@ end
 
 function Editor:onWheelMoved(x, y)
     if self.entry_transition or self.exit_transition then return true end
+    if self.color_picker then return self.color_picker:onWheelMoved(x, y) end
     if self.creation_dialog then return self.creation_dialog:onWheelMoved(x, y) end
     local mouse_x, mouse_y = self:getMousePosition()
     if self.message_bar:containsPoint(mouse_x, mouse_y) then return true end

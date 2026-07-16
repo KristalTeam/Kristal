@@ -228,6 +228,28 @@ function EditorPlugin:registerMenuProvider(menu_id, id, provider)
     return definition
 end
 
+function EditorPlugin:registerTerrainConditionType(id, definition)
+    local type_id = namespaced(self, "terrain_condition", id)
+    local registered = Registry.registerTerrainConditionType(type_id, definition)
+    self:trackRegistration(function()
+        if Registry.terrain_rules then
+            Registry.terrain_rules:unregisterConditionType(type_id, registered)
+        end
+    end)
+    return type_id
+end
+
+function EditorPlugin:registerTerrainPredicate(id, definition)
+    local predicate_id = namespaced(self, "terrain_predicate", id)
+    local registered = Registry.registerTerrainPredicate(predicate_id, definition)
+    self:trackRegistration(function()
+        if Registry.terrain_rules then
+            Registry.terrain_rules:unregisterPredicate(predicate_id, registered)
+        end
+    end)
+    return predicate_id
+end
+
 function EditorPlugin:registerTemplate(id, definition)
     assert(type(id) == "string" and id ~= "", "Plugin templates require an id")
     local template_id = namespaced(self, "template", id)

@@ -27,6 +27,7 @@
 ---@field layer_types LayerTypeRegistry
 ---@field editor_events table<string, EditorEvent>
 ---@field editor_properties EditorPropertyRegistry
+---@field terrain_rules TerrainRuleRegistry
 ---@field editor_worlds table<string, EditorWorld>
 ---@field editor_draw_fx table<string, table>
 ---@field editor_templates table<string, table>
@@ -103,6 +104,7 @@ function Registry.initialize(preload)
         Registry.initCutscenes()
         Registry.initEventScripts()
         Registry.initEditorProperties()
+        Registry.initTerrainRules()
         Registry.initEditorTemplates()
         Registry.initEditorDrawFX()
         Registry.initEditorWorlds()
@@ -131,6 +133,7 @@ function Registry.saveData()
     self.saved_data.map_readers = self.map_readers
     self.saved_data.layer_types = self.layer_types
     self.saved_data.editor_events = self.editor_events
+    self.saved_data.terrain_rules = self.terrain_rules
     self.saved_data.editor_worlds = self.editor_worlds
     self.saved_data.editor_draw_fx = self.editor_draw_fx
     self.saved_data.editor_templates = self.editor_templates
@@ -146,6 +149,7 @@ function Registry.restoreData()
         self.map_readers = self.saved_data.map_readers
         self.layer_types = self.saved_data.layer_types
         self.editor_events = self.saved_data.editor_events or {}
+        self.terrain_rules = self.saved_data.terrain_rules or TerrainRuleRegistry()
         self.editor_worlds = self.saved_data.editor_worlds or {}
         self.editor_draw_fx = self.saved_data.editor_draw_fx or {}
         self.editor_templates = self.saved_data.editor_templates or {}
@@ -524,6 +528,32 @@ function Registry.registerEditorDrawFX(id, definition)
     self.editor_draw_fx = self.editor_draw_fx or {}
     self.editor_draw_fx[id] = definition
     return definition
+end
+
+function Registry.getTerrainConditionType(id)
+    return self.terrain_rules and self.terrain_rules:getConditionType(id)
+end
+
+function Registry.getTerrainConditionTypes()
+    return self.terrain_rules and self.terrain_rules:getConditionTypes() or {}
+end
+
+function Registry.registerTerrainConditionType(id, definition)
+    assert(self.terrain_rules, "Terrain rule registry is not initialized")
+    return self.terrain_rules:registerConditionType(id, definition)
+end
+
+function Registry.getTerrainPredicate(id)
+    return self.terrain_rules and self.terrain_rules:getPredicate(id)
+end
+
+function Registry.getTerrainPredicates()
+    return self.terrain_rules and self.terrain_rules:getPredicates() or {}
+end
+
+function Registry.registerTerrainPredicate(id, definition)
+    assert(self.terrain_rules, "Terrain rule registry is not initialized")
+    return self.terrain_rules:registerPredicate(id, definition)
 end
 
 function Registry.getEditorTemplate(id)
@@ -1067,6 +1097,11 @@ end
 function Registry.initEditorProperties()
     self.editor_properties = EditorPropertyRegistry()
     Kristal.callEvent(KRISTAL_EVENT.onRegisterEditorPropertyTypes, self.editor_properties)
+end
+
+function Registry.initTerrainRules()
+    self.terrain_rules = TerrainRuleRegistry()
+    Kristal.callEvent(KRISTAL_EVENT.onRegisterTerrainRules, self.terrain_rules)
 end
 
 function Registry.initEditorTemplates()
