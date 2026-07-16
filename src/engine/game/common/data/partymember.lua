@@ -537,16 +537,21 @@ end
 
 --- Adds a spell to this party member's set of available spells
 ---@param spell string|Spell
----@param pos number
-function PartyMember:addSpell(spell, pos)
+function PartyMember:addSpell(spell)
     if type(spell) == "string" then
         spell = Registry.createSpell(spell)
     end
-    if pos then
-        table.insert(self.spells, pos, spell)
-    else
-        table.insert(self.spells, spell)
+    table.insert(self.spells, spell)
+end
+
+--- Inserts a spell to this party member's set of available spells at `index` position
+---@param index number
+---@param spell string|Spell
+function PartyMember:insertSpell(index, spell)
+    if type(spell) == "string" then
+        spell = Registry.createSpell(spell)
     end
+    table.insert(self.spells, index, spell)
 end
 
 --- Removes a spell from this party member's available spells
