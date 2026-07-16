@@ -120,6 +120,10 @@ function EditorSettingsPanel:createControl(setting)
             })
         end)
         control = button
+    elseif setting.type == "color" then
+        control = EditorColorInput(self.editor, value, {
+            on_submit = function(color) return self.registry:setValue(setting.id, color) end
+        })
     elseif setting.type == "keybind" then
         control = self:createKeybindControl(setting)
     else

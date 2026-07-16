@@ -8,6 +8,10 @@ function EditorTilePalette:init(editor, options)
     self.editor = editor
     self.show_tools = options.show_tools ~= false
     self.on_selection = options.on_selection
+    self.on_tile_pressed = options.on_tile_pressed
+    self.on_tile_dragged = options.on_tile_dragged
+    self.on_tile_released = options.on_tile_released
+    self.draw_tile_overlay = options.draw_tile_overlay
     self.document = nil
     self.scroll_row = 0
     self.scroll_column = 0
@@ -128,6 +132,18 @@ function EditorTilePalette:getTileAt(x, y)
     return id < self.document:getTileCount() and id or nil
 end
 
+function EditorTilePalette:getTileRect(id)
+    if not self.document or id == nil or id < 0 or id >= self.document:getTileCount() then
+        return nil
+    end
+    local columns = self:getColumns()
+    local cell_width, cell_height = self:getCellSize()
+    local column, row = id % columns, math.floor(id / columns)
+    return 4 + (column - self.scroll_column) * cell_width,
+        self:getContentTop() + (row - self.scroll_row) * cell_height,
+        cell_width, cell_height
+end
+
 function EditorTilePalette:setSelection(first, last, notify)
     if first == nil then return false end
     last = last or first
@@ -215,6 +231,10 @@ end
 function EditorTilePalette:onMousePressed(x, y, button, presses)
     local id = self:getTileAt(x, y)
     if id == nil then return false end
+    if self.on_tile_pressed and self.on_tile_pressed(id, x, y, button, presses, self) then
+        self.custom_tile_drag = button
+        return true
+    end
     if button == 2 then
         self:setSelection(id, id)
         local global_x, global_y = self:getGlobalPosition()
@@ -235,13 +255,23 @@ function EditorTilePalette:onMousePressed(x, y, button, presses)
 end
 
 function EditorTilePalette:onMouseMoved(x, y)
+    if self.custom_tile_drag then
+        local id = self:getTileAt(x, y)
+        if id ~= nil and self.on_tile_dragged then self.on_tile_dragged(id, x, y, self) end
+        return true
+    end
     if not self.drag_selecting then return false end
     local id = self:getTileAt(x, y)
     if id ~= nil then self:setSelection(self.selection_start, id) end
     return true
 end
 
-function EditorTilePalette:onMouseReleased(_, _, button)
+function EditorTilePalette:onMouseReleased(x, y, button)
+    if self.custom_tile_drag == button then
+        self.custom_tile_drag = nil
+        if self.on_tile_released then self.on_tile_released(x, y, button, self) end
+        return true
+    end
     if button ~= 1 or not self.drag_selecting then return false end
     self.drag_selecting = false
     return true
@@ -340,6 +370,9 @@ function EditorTilePalette:drawSelf()
                 else
                     Draw.setColor(0.26, 0.26, 0.30, 0.7)
                     love.graphics.rectangle("line", x + 0.5, y + 0.5, cell_width - 1, cell_height - 1)
+                end
+                if self.draw_tile_overlay then
+                    self.draw_tile_overlay(id, x, y, cell_width, cell_height, self)
                 end
             end
         end

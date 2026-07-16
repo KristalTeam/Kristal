@@ -51,6 +51,14 @@ local function coerce(setting, value)
         end
         return nil
     end
+    if setting.type == "color" then
+        value = tostring(value or "")
+        local hex = value:gsub("^#", "")
+        if (#hex == 6 or #hex == 8) and hex:match("^%x+$") then
+            return "#" .. hex:upper()
+        end
+        return nil
+    end
     if setting.type == "keybind" then return value end
     return tostring(value or "")
 end

@@ -474,6 +474,22 @@ function EditorMapDocument:getEncodedTile(layer, column, row, map_id)
     return layer.data and layer.data[column + row * width + 1] or 0
 end
 
+function EditorMapDocument:getTileIdForLayer(layer, column, row, map_id, tileset_id)
+    local encoded = self:getEncodedTile(layer, column, row, map_id)
+    if not encoded or encoded == 0 then return nil end
+    if layer.chunks then
+        if layer.tileset ~= tileset_id then return nil end
+        return EditorFormat.unpackTile(encoded)
+    end
+    local gid = MapUtils.unpackTileGid(encoded)
+    local first_gid = self:getLegacyTilesetFirstGid(map_id, tileset_id)
+    if not first_gid or gid < first_gid then return nil end
+    local tileset = Registry.getTileset(tileset_id)
+    local tile_id = gid - first_gid
+    if tileset and tile_id >= (tileset.id_count or tileset.tile_count or 0) then return nil end
+    return tile_id
+end
+
 function EditorMapDocument:setEncodedTile(layer, column, row, encoded, map_id, defer_preview)
     local width, height = self:getTileLayerGridSize(layer, map_id)
     if column < 0 or row < 0 or column >= width or row >= height then return false end
@@ -513,7 +529,8 @@ function EditorMapDocument:setEncodedTile(layer, column, row, encoded, map_id, d
     return true
 end
 
-function EditorMapDocument:encodeTileForLayer(layer, map_id, tileset_id, tile_id)
+function EditorMapDocument:encodeTileForLayer(layer, map_id, tileset_id, tile_id,
+    flip_x, flip_y, rotated)
     if tile_id == nil then return 0 end
     if layer.chunks then
         if layer.tileset and layer.tileset ~= tileset_id then
@@ -527,11 +544,16 @@ function EditorMapDocument:encodeTileForLayer(layer, map_id, tileset_id, tile_id
             layer.tileset_rows = math.ceil((tileset.id_count or tileset.tile_count or 0)
                 / math.max(1, tileset.columns))
         end
-        return EditorFormat.packTile(tile_id)
+        return EditorFormat.packTile(tile_id, flip_x, flip_y, rotated)
     end
     local first_gid = self:getLegacyTilesetFirstGid(map_id, tileset_id)
     if not first_gid then return nil, "Map does not reference tileset '" .. tostring(tileset_id) .. "'" end
-    return first_gid + tile_id
+    local encoded = first_gid + tile_id
+    if flip_x then encoded = bit.bor(encoded, EditorFormat.TILE_FLIP_HORIZONTAL) end
+    if flip_y then encoded = bit.bor(encoded, EditorFormat.TILE_FLIP_VERTICAL) end
+    if rotated then encoded = bit.bor(encoded, EditorFormat.TILE_ROTATE) end
+    if encoded < 0 then encoded = encoded + 0x100000000 end
+    return encoded
 end
 
 function EditorMapDocument:getMapAt(world_x, world_y)

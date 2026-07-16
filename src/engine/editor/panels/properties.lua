@@ -151,7 +151,11 @@ end
 function EditorPropertiesPanel:createValueControl(name, definition, value)
     local property_type = self:getPropertyType(name, definition, value)
     local control_type = Registry.getEditorPropertyType(property_type).control or "text"
-    if control_type == "object_reference"
+    if control_type == "color" then
+        return self:addGeneratedControl(EditorColorInput(self.editor, value, {
+            on_submit = function(color) return self:setPropertyValue(name, color, definition) end
+        }))
+    elseif control_type == "object_reference"
         or control_type == "marker_reference" and type(value) == "table" then
         return self:addGeneratedControl(EditorObjectReferenceControl(self.editor, value, {
             on_changed = function(reference)
@@ -200,7 +204,11 @@ function EditorPropertiesPanel:createSectionValueControl(section, definition)
         self:finishTargetHistory(true)
         return true
     end
-    if property_type.control == "object_reference"
+    if property_type.control == "color" then
+        return self:addGeneratedControl(EditorColorInput(self.editor, value, {
+            on_submit = function(color) return changed(color) end
+        }))
+    elseif property_type.control == "object_reference"
         or property_type.control == "marker_reference" and type(value) == "table" then
         return self:addGeneratedControl(EditorObjectReferenceControl(self.editor, value, {
             on_changed = function(reference) changed(reference) end
@@ -280,6 +288,11 @@ function EditorPropertiesPanel:rebuild()
             end))
             button.enabled = field.readonly ~= true
             value_control = button
+        elseif field.control == "color" or field.type == "color" then
+            value_control = self:addGeneratedControl(EditorColorInput(self.editor, field.get(), {
+                on_submit = function(value) return setField(value, true) end
+            }))
+            value_control.enabled = field.readonly ~= true
         else
             local input = self:addGeneratedControl(EditorTextInput({
                 placeholder = field.placeholder,

@@ -197,32 +197,43 @@ end
 
 function EditorLayersPanel:getPropertiesTarget(layer)
     local layer_type = self:getLayerType(layer)
+    local fields = {
+        {
+            id = "color",
+            label = "Color",
+            control = "color",
+            compact = true,
+            placeholder = "#RRGGBBAA",
+            get = function() return ColorUtils.RGBAToHex(self:getLayerColor(layer)) end,
+            set = function(value) return self:setLayerColor(layer, value) end
+        },
+        {
+            id = "depth",
+            label = "Depth Override",
+            compact = true,
+            placeholder = "Automatic",
+            get = function() return layer._editor_depth_override or "" end,
+            set = function(value, submitted) return self:setLayerDepth(layer, value, submitted) end
+        },
+        EditorPropertyFields.number(layer, "Parallax X", "parallaxx", { default = 1 }),
+        EditorPropertyFields.number(layer, "Parallax Y", "parallaxy", { default = 1 })
+    }
+    if layer._editor_kind_id == "image" or (layer_type and layer_type.kind == "image") then
+        table.insert(fields, 1, {
+            id = "image",
+            label = "Image Source",
+            placeholder = "Sprite asset ID or path",
+            get = function() return layer.image or "" end,
+            set = function(value) return self:setLayerImage(layer, value) end
+        })
+    end
     return {
         title = (layer.name or "Unnamed Layer") .. " (" .. (layer_type and layer_type.name or "Unknown") .. ")",
         history_owner = self.document,
         properties = layer.properties,
         property_types = layer._editor_property_types,
         property_set = layer._editor_property_set,
-        fields = {
-            {
-                id = "color",
-                label = "Color",
-                compact = true,
-                placeholder = "#RRGGBBAA",
-                get = function() return ColorUtils.RGBAToHex(self:getLayerColor(layer)) end,
-                set = function(value) return self:setLayerColor(layer, value) end
-            },
-            {
-                id = "depth",
-                label = "Depth Override",
-                compact = true,
-                placeholder = "Automatic",
-                get = function() return layer._editor_depth_override or "" end,
-                set = function(value, submitted) return self:setLayerDepth(layer, value, submitted) end
-            },
-            EditorPropertyFields.number(layer, "Parallax X", "parallaxx", { default = 1 }),
-            EditorPropertyFields.number(layer, "Parallax Y", "parallaxy", { default = 1 })
-        },
+        fields = fields,
         on_changed = function() self:changed(false) end
     }
 end
@@ -274,6 +285,27 @@ function EditorLayersPanel:setLayerColor(layer, value)
         self.editor:addWarning("Layer color must use #RRGGBB or #RRGGBBAA", nil, "layer_color")
         return false
     end
+end
+
+function EditorLayersPanel:setLayerImage(layer, value)
+    if not layer then return false end
+    value = StringUtils.trim(tostring(value or ""))
+    if value == "" then
+        layer.image = nil
+        layer.image_width = nil
+        layer.image_height = nil
+        self.editor:clearDiagnostics("layer_image")
+        return true
+    end
+    local texture, asset_id = Assets.resolveTextureReference(value)
+    if not texture then
+        self.editor:addWarning("Could not resolve image layer source '" .. value .. "'", nil, "layer_image")
+        return false
+    end
+    layer.image = asset_id
+    layer.image_width, layer.image_height = texture:getDimensions()
+    self.editor:clearDiagnostics("layer_image")
+    return true
 end
 
 function EditorLayersPanel:setLayerDepth(layer, value, submitted)

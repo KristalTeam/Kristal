@@ -192,7 +192,12 @@ function EditorDockSpace:dockPanelSplit(panel, target, side)
 end
 
 function EditorDockSpace:floatPanel(panel, rect)
-    if panel.stack then panel.stack:removePanel(panel) end
+    if panel.stack then
+        local stack = panel.stack
+        local _, removed_active = stack:removePanel(panel)
+        local active = removed_active and stack:getActivePanel()
+        if active and active.on_activate then active.on_activate(active) end
+    end
     self:removeFloating(panel)
     panel.floating = rect or {
         x = self.x + 80,
