@@ -190,7 +190,7 @@ function Object:init(x, y, width, height)
 
     -- Save the previous position
     self.last_x = self.x
-    self.last_x = self.y
+    self.last_y = self.y
 
     -- Initialize this object's size
     self.width = width or 0
