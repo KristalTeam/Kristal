@@ -161,6 +161,7 @@ SmallFaceText = require("src.engine.game.common.smallfacetext")
 
 World = require("src.engine.game.world")
 LayerTypeRegistry = require("src.engine.game.world.layertyperegistry")
+EditorFormatRegistry = require("src.engine.game.world.editorformatregistry")
 EditorFormat = require("src.engine.game.world.editorformat")
 EditorFormatDiscovery = require("src.engine.game.world.editorformatdiscovery")
 TiledEditorFormatConverter = require("src.engine.game.world.tilededitorformatconverter")

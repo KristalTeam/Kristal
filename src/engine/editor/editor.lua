@@ -164,6 +164,7 @@ function Editor:configureWorldDocument(document, source, primary_map_id)
     local world = EditorWorld(source.id)
     world.name = source.name or source.id
     world.data = TableUtils.copy(source.data or {}, true)
+    world:initializeFormatExtensions()
     world.properties = TableUtils.copy(source.properties or {}, true)
     world.__editor_property_types = TableUtils.copy(source.__editor_property_types or {}, true)
     world.virtual = source.virtual
@@ -1178,7 +1179,28 @@ function Editor:enter(previous, options)
     self.editor_cursor:setCustomEnabled(self.use_custom_cursors)
 
     EditorPlugins:initialize(self)
+    for id, data in pairs(Registry.map_data or {}) do
+        local initialized, reason = EditorFormat.decodeMapExtensions(data, {
+            map = data, map_id = id
+        })
+        if not initialized then
+            self:addError("Could not initialize format extensions in map '"
+                .. tostring(id) .. "'", reason, "map_extensions")
+        end
+    end
+    for _, world in pairs(Registry.editor_worlds or {}) do
+        local initialized, reason = world:initializeFormatExtensions()
+        if not initialized then
+            self:addError("Could not initialize format extensions in world '"
+                .. tostring(world.id) .. "'", reason, "world_extensions")
+        end
+    end
     for _, document in ipairs(self.tileset_documents or {}) do
+        local extensions_initialized, extension_reason = document:initializeFormatExtensions()
+        if not extensions_initialized then
+            self:addError("Could not initialize format extensions in tileset '"
+                .. tostring(document.id) .. "'", extension_reason, "tileset_extensions")
+        end
         local initialized, reason = document:initializeTerrainConditions()
         if not initialized then
             self:addError("Could not initialize terrain conditions in tileset '"

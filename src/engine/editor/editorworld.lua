@@ -12,6 +12,32 @@ function EditorWorld:init(id)
     self.map_lookup = {}
 end
 
+function EditorWorld:initializeFormatExtensions(force)
+    self.data = self.data or {}
+    return EditorFormat.decodeWorldExtensions(self.data, {
+        world = self.data, editor_world = self, world_id = self.id
+    }, force)
+end
+
+function EditorWorld:getFormatExtensionData(id, default)
+    self.data = self.data or {}
+    self.data.extensions = self.data.extensions or {}
+    local value = self.data.extensions[id]
+    if value == nil and default ~= nil then
+        value = type(default) == "table" and TableUtils.copy(default, true) or default
+        self.data.extensions[id] = value
+    end
+    return value
+end
+
+function EditorWorld:setFormatExtensionData(id, value)
+    assert(type(id) == "string" and id ~= "", "World format extension data requires an id")
+    self.data = self.data or {}
+    self.data.extensions = self.data.extensions or {}
+    self.data.extensions[id] = value
+    return value
+end
+
 function EditorWorld:hasMap(id)
     return self.map_lookup[id] ~= nil
 end

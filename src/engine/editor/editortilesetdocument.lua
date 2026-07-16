@@ -30,7 +30,31 @@ function EditorTilesetDocument:init(editor, id, tileset, data)
     self.property_set = EditorPropertySet(self.data.properties, self.data.__editor_property_types)
     self.virtual = tileset == nil
     self.tile_documents = {}
+    self:initializeFormatExtensions()
     self:initializeTerrainConditions()
+end
+
+function EditorTilesetDocument:initializeFormatExtensions(force)
+    return EditorFormat.decodeTilesetExtensions(self.data, {
+        document = self, tileset = self.data, tileset_id = self.id
+    }, force)
+end
+
+function EditorTilesetDocument:getFormatExtensionData(id, default)
+    self.data.extensions = self.data.extensions or {}
+    local value = self.data.extensions[id]
+    if value == nil and default ~= nil then
+        value = type(default) == "table" and TableUtils.copy(default, true) or default
+        self.data.extensions[id] = value
+    end
+    return value
+end
+
+function EditorTilesetDocument:setFormatExtensionData(id, value)
+    assert(type(id) == "string" and id ~= "", "Tileset format extension data requires an id")
+    self.data.extensions = self.data.extensions or {}
+    self.data.extensions[id] = value
+    return value
 end
 
 function EditorTilesetDocument:initializeTerrainConditions()

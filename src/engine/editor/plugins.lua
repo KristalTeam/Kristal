@@ -96,6 +96,33 @@ function EditorPlugin:registerPropertyType(id, definition)
     return type_id
 end
 
+function EditorPlugin:registerFormatExtension(scope, id, definition)
+    assert(scope == "map" or scope == "tileset" or scope == "world",
+        "Editor format extension scope must be map, tileset, or world")
+    local extension_id = namespaced(self, scope .. "_format", id)
+    local registered = Registry.editor_format_extensions:registerExtension(
+        scope, extension_id, definition)
+    registered.owner = self
+    self:trackRegistration(function()
+        Registry.editor_format_extensions:unregisterExtension(scope, extension_id, registered)
+    end)
+    local initialized, reason = EditorPlugins:initializeFormatExtensions(scope)
+    if not initialized then error(reason, 2) end
+    return extension_id
+end
+
+function EditorPlugin:registerMapFormatExtension(id, definition)
+    return self:registerFormatExtension("map", id, definition)
+end
+
+function EditorPlugin:registerTilesetFormatExtension(id, definition)
+    return self:registerFormatExtension("tileset", id, definition)
+end
+
+function EditorPlugin:registerWorldFormatExtension(id, definition)
+    return self:registerFormatExtension("world", id, definition)
+end
+
 function EditorPlugin:registerLayerKind(id, definition)
     local kind_id = namespaced(self, "layer_kind", id)
     local registered = Registry.registerLayerKind(kind_id, definition)
@@ -459,6 +486,30 @@ function EditorPlugins:initializePluginScript(plugin)
     if not loaded then return false, result end
     self:clearPluginHooks(plugin)
     return true, result
+end
+
+function EditorPlugins:initializeFormatExtensions(scope)
+    local editor = self.editor
+    if not editor then return true end
+    if scope == "map" then
+        for id, data in pairs(Registry.map_data or {}) do
+            local success, reason = EditorFormat.decodeMapExtensions(data, {
+                editor = editor, map = data, map_id = id
+            })
+            if not success then return false, reason end
+        end
+    elseif scope == "tileset" then
+        for _, document in ipairs(editor.tileset_documents or {}) do
+            local success, reason = document:initializeFormatExtensions()
+            if not success then return false, reason end
+        end
+    elseif scope == "world" then
+        for _, world in pairs(Registry.editor_worlds or {}) do
+            local success, reason = world:initializeFormatExtensions()
+            if not success then return false, reason end
+        end
+    end
+    return true
 end
 
 function EditorPlugins:scanDirectory(editor, directory, source)

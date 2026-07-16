@@ -65,12 +65,21 @@ function EditorMapDocument:captureHistoryState()
         stripLayerRuntimeState(map_layers)
     end
     local maps = {}
+    local map_format_extensions = {}
     for _, entry in ipairs(self.maps) do
         table.insert(maps, {
             id = entry.id, x = entry.x, y = entry.y,
             explicit_companion = entry.explicit_companion == true,
             primary = entry.id == self.primary_map_id
         })
+        local data = Registry.getMapData(entry.id)
+        if data then
+            map_format_extensions[entry.id] = {
+                extensions = TableUtils.copy(data.extensions or {}, true),
+                raw = TableUtils.copy(data.__editor_map_extension_raw or {}, true),
+                decoded = TableUtils.copy(data.__editor_map_extensions_decoded or {}, true)
+            }
+        end
     end
     return {
         world_id = self.world.id,
@@ -81,6 +90,7 @@ function EditorMapDocument:captureHistoryState()
         world_virtual = self.world.virtual,
         primary_map_id = self.primary_map_id,
         maps = maps,
+        map_format_extensions = map_format_extensions,
         editable_layers = layers,
         selected_layers = TableUtils.copy(self.selected_layers, true),
         next_layer_uid = self.next_layer_uid,
@@ -111,6 +121,14 @@ function EditorMapDocument:restoreHistoryState(state)
     self.world = world
     self.primary_map_id = state.primary_map_id
     self.maps, self.map_lookup = world.maps, world.map_lookup
+    for id, extensions in pairs(state.map_format_extensions or {}) do
+        local data = Registry.getMapData(id)
+        if data then
+            data.extensions = TableUtils.copy(extensions.extensions or {}, true)
+            data.__editor_map_extension_raw = TableUtils.copy(extensions.raw or {}, true)
+            data.__editor_map_extensions_decoded = TableUtils.copy(extensions.decoded or {}, true)
+        end
+    end
     self.editable_layers = TableUtils.copy(state.editable_layers or {}, true)
     for _, layers in pairs(self.editable_layers) do
         MapUtils.walkLayers(layers, setupLayerProperties)
@@ -147,6 +165,7 @@ function EditorMapDocument:getEditableLayers(id)
     id = id or self.primary_map_id
     if not id then return {} end
     if not self.editable_layers[id] then
+        self:initializeMapFormatExtensions(id)
         local data = Registry.getMapData(id)
         local reader_class = Registry.getMapReader(id)
         local legacy = reader_class and reader_class.LEGACY_FORMAT
@@ -367,15 +386,47 @@ function EditorMapDocument:hasMap(id)
     return self.world:hasMap(id)
 end
 
+function EditorMapDocument:initializeMapFormatExtensions(id, force)
+    local data = Registry.getMapData(id)
+    if not data then return false, "Unknown map '" .. tostring(id) .. "'" end
+    return EditorFormat.decodeMapExtensions(data, {
+        document = self, map = data, map_id = id
+    }, force)
+end
+
+function EditorMapDocument:getMapFormatExtensionData(id, extension_id, default)
+    local data = Registry.getMapData(id or self.primary_map_id)
+    if not data then return nil end
+    data.extensions = data.extensions or {}
+    local value = data.extensions[extension_id]
+    if value == nil and default ~= nil then
+        value = type(default) == "table" and TableUtils.copy(default, true) or default
+        data.extensions[extension_id] = value
+    end
+    return value
+end
+
+function EditorMapDocument:setMapFormatExtensionData(id, extension_id, value)
+    local data = Registry.getMapData(id or self.primary_map_id)
+    if not data then return false end
+    assert(type(extension_id) == "string" and extension_id ~= "",
+        "Map format extension data requires an id")
+    data.extensions = data.extensions or {}
+    data.extensions[extension_id] = value
+    return true
+end
+
 function EditorMapDocument:addMap(id, x, y, options)
     options = options or {}
     local entry = self.world:addMap(id, x, y, options)
+    if entry then self:initializeMapFormatExtensions(id) end
     if options.primary then self:setPrimaryMap(id) end
     return entry
 end
 
 function EditorMapDocument:setPrimaryMap(id)
     if not self.world:setPrimaryMap(id) then return false end
+    self:initializeMapFormatExtensions(id)
     self.primary_map_id = id
     return true
 end

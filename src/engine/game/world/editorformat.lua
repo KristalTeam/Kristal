@@ -100,6 +100,7 @@ EditorFormat.ORDERING = {
         "parallax_origin_x",
         "parallax_origin_y",
         "layers",
+        "extensions",
         "properties"
     },
     tileset = {
@@ -127,6 +128,7 @@ EditorFormat.ORDERING = {
         "tiles",
         "terrain_tags",
         "terrains",
+        "extensions",
         "properties"
     },
     tile = {
@@ -172,6 +174,7 @@ EditorFormat.ORDERING = {
         "id",
         "name",
         "maps",
+        "extensions",
         "properties"
     },
     world_map = {
@@ -315,7 +318,13 @@ local SERIALIZATION_METADATA = {
     __editor_property_order = true,
     _editor_property_types = true,
     _editor_property_order = true,
-    _editor_property_set = true
+    _editor_property_set = true,
+    __editor_map_extension_raw = true,
+    __editor_map_extensions_decoded = true,
+    __editor_tileset_extension_raw = true,
+    __editor_tileset_extensions_decoded = true,
+    __editor_world_extension_raw = true,
+    __editor_world_extensions_decoded = true
 }
 
 local function getOrdering(schema, value)
@@ -329,6 +338,11 @@ local function getOrdering(schema, value)
     elseif schema == "terrain_condition" then
         local definition = Registry.getTerrainConditionType(value.type)
         return definition and definition.format or EditorFormat.ORDERING.terrain_condition
+    elseif schema and StringUtils.startsWith(schema, "format_extension:") then
+        local scope, id = schema:match("^format_extension:([^:]+):(.+)$")
+        local definition = scope and Registry.editor_format_extensions
+            and Registry.editor_format_extensions:getExtension(scope, id)
+        return definition and definition.format
     end
     return EditorFormat.ORDERING[schema]
 end
@@ -345,6 +359,16 @@ local function getChildSchema(schema, key, value)
         return "array:compact_array:2"
     end
     if key == "transform_rules" then return "transform_rules" end
+    if (schema == "map" or schema == "tileset" or schema == "world")
+        and key == "extensions" then return schema .. "_extensions" end
+    local extension_scope = schema and schema:match("^(map|tileset|world)_extensions$")
+    if extension_scope then
+        local definition = Registry.editor_format_extensions
+            and Registry.editor_format_extensions:getExtension(extension_scope, key)
+        if definition and definition.format then
+            return "format_extension:" .. extension_scope .. ":" .. key
+        end
+    end
 end
 
 local function shouldSerialize(key, value)
@@ -355,6 +379,7 @@ end
 
 local function encodeJSONValue(value, schema, options, depth, seen)
     local value_type = type(value)
+    if value == JSON.null then return "null" end
     if value_type ~= "table" then
         local success, encoded = pcall(JSON.encode, value)
         if not success then return nil, encoded end
@@ -373,8 +398,9 @@ local function encodeJSONValue(value, schema, options, depth, seen)
     local child_padding = pretty and string.rep(indent, depth + 1) or ""
     local array_schema = schema and schema:match("^array:(.+)$")
     local compact_width = schema and tonumber(schema:match("^compact_array:(%d+)$"))
+    local explicit_object = getmetatable(value) and getmetatable(value).__json_object
     local array = array_schema ~= nil or compact_width ~= nil
-        or schema == nil and TableUtils.isContiguousArray(value)
+        or schema == nil and not explicit_object and TableUtils.isContiguousArray(value)
     local parts = {}
 
     if array then
@@ -438,6 +464,7 @@ function EditorFormat.decodeJSON(source, path)
 end
 
 local function copySerializable(value, seen)
+    if value == JSON.null then return JSON.null end
     if type(value) ~= "table" then return value end
     seen = seen or {}
     if seen[value] then return seen[value] end
@@ -448,7 +475,150 @@ local function copySerializable(value, seen)
             result[key] = copySerializable(child, seen)
         end
     end
+    local metadata = getmetatable(value)
+    if metadata and metadata.__json_object then
+        setmetatable(result, { __json_object = true })
+    end
     return result
+end
+
+local function formatExtensionContext(context, scope, id, phase, raw)
+    local result = TableUtils.copy(context or {})
+    result.scope = scope
+    result.extension_id = id
+    result.phase = phase
+    result.raw = raw
+    return result
+end
+
+local function validateFormatExtension(definition, value, context)
+    if not definition or not definition.validate then return true end
+    local success, valid, reason = pcall(definition.validate, value, context)
+    if not success then return false, valid end
+    if valid == false then return false, reason or "validation failed" end
+    return true
+end
+
+local function decodeFormatExtensions(scope, data, context, force)
+    if type(data) ~= "table" then return false, "Format extension owner must be a table" end
+    if data.extensions ~= nil and type(data.extensions) ~= "table" then
+        return false, StringUtils.titleCase(scope) .. " extensions must be an object"
+    end
+    data.extensions = data.extensions or {}
+    local raw_key = "__editor_" .. scope .. "_extension_raw"
+    local decoded_key = "__editor_" .. scope .. "_extensions_decoded"
+    local raw = data[raw_key]
+    if not raw then
+        raw = copySerializable(data.extensions)
+        data[raw_key] = raw
+    end
+    local decoded = data[decoded_key] or {}
+    data[decoded_key] = decoded
+
+    for id, payload in pairs(raw) do
+        local definition = Registry.editor_format_extensions
+            and Registry.editor_format_extensions:getExtension(scope, id)
+        if definition and (force or not decoded[id]) then
+            local extension_context = formatExtensionContext(context, scope, id, "decode", payload)
+            local value = copySerializable(payload)
+            if definition.decode then
+                local success, decoded_value, reason = pcall(definition.decode,
+                    value, extension_context)
+                if not success then
+                    return false, string.format("%s extension '%s' could not be decoded: %s",
+                        StringUtils.titleCase(scope), id, tostring(decoded_value))
+                end
+                if decoded_value == nil then
+                    return false, string.format("%s extension '%s' could not be decoded: %s",
+                        StringUtils.titleCase(scope), id,
+                        tostring(reason or "decode returned no value"))
+                end
+                value = decoded_value
+            end
+            local valid, reason = validateFormatExtension(definition, value, extension_context)
+            if not valid then
+                return false, string.format("%s extension '%s' is invalid: %s",
+                    StringUtils.titleCase(scope), id, tostring(reason))
+            end
+            data.extensions[id] = value
+            decoded[id] = true
+        elseif not definition and data.extensions[id] == nil then
+            data.extensions[id] = copySerializable(payload)
+        end
+    end
+    return true
+end
+
+local function encodeFormatExtensions(scope, data, context)
+    local initialized, reason = decodeFormatExtensions(scope, data, context)
+    if not initialized then return false, reason end
+    local values = data.extensions or {}
+    local raw = data["__editor_" .. scope .. "_extension_raw"] or {}
+    local ids = {}
+    for id in pairs(values) do ids[id] = true end
+    for id in pairs(raw) do ids[id] = true end
+
+    local result = {}
+    for _, id in ipairs(TableUtils.getSortedKeys(ids)) do
+        local definition = Registry.editor_format_extensions
+            and Registry.editor_format_extensions:getExtension(scope, id)
+        local value
+        if definition then
+            value = values[id]
+            if value ~= nil then
+                local extension_context = formatExtensionContext(context, scope, id, "encode", raw[id])
+                local valid
+                valid, reason = validateFormatExtension(definition, value, extension_context)
+                if not valid then
+                    return false, string.format("%s extension '%s' is invalid: %s",
+                        StringUtils.titleCase(scope), id, tostring(reason))
+                end
+                if definition.encode then
+                    local success, encoded
+                    success, encoded, reason = pcall(definition.encode, value, extension_context)
+                    if not success then
+                        return false, string.format("%s extension '%s' could not be encoded: %s",
+                            StringUtils.titleCase(scope), id, tostring(encoded))
+                    end
+                    if encoded == nil then
+                        return false, string.format("%s extension '%s' could not be encoded: %s",
+                            StringUtils.titleCase(scope), id,
+                            tostring(reason or "encode returned no value"))
+                    end
+                    value = encoded
+                end
+                result[id] = copySerializable(value)
+            end
+        else
+            value = raw[id] ~= nil and raw[id] or values[id]
+            if value ~= nil then result[id] = copySerializable(value) end
+        end
+    end
+    return true, result
+end
+
+function EditorFormat.decodeMapExtensions(data, context, force)
+    return decodeFormatExtensions("map", data, context, force)
+end
+
+function EditorFormat.encodeMapExtensions(data, context)
+    return encodeFormatExtensions("map", data, context)
+end
+
+function EditorFormat.decodeTilesetExtensions(data, context, force)
+    return decodeFormatExtensions("tileset", data, context, force)
+end
+
+function EditorFormat.encodeTilesetExtensions(data, context)
+    return encodeFormatExtensions("tileset", data, context)
+end
+
+function EditorFormat.decodeWorldExtensions(data, context, force)
+    return decodeFormatExtensions("world", data, context, force)
+end
+
+function EditorFormat.encodeWorldExtensions(data, context)
+    return encodeFormatExtensions("world", data, context)
 end
 
 local function decodeOwnerProperties(owner, context)
@@ -731,6 +901,10 @@ function EditorFormat.decodeMap(source, path, options)
     data.tilewidth = data.grid_width
     data.tileheight = data.grid_height
     data.backgroundcolor = data.background_color
+    success, reason = EditorFormat.decodeMapExtensions(data, {
+        map = data, path = path, options = options
+    })
+    if not success then return nil, reason end
     data.__map_reader = EditorMapReader
     return data
 end
@@ -764,6 +938,11 @@ function EditorFormat.encodeMap(data, options)
         if not encoded then return nil, reason end
         table.insert(result.layers, encoded)
     end
+    local extensions_success, extensions_encoded = EditorFormat.encodeMapExtensions(data, {
+        source = data, map = result, options = options
+    })
+    if not extensions_success then return nil, extensions_encoded end
+    result.extensions = next(extensions_encoded) and extensions_encoded or nil
     local valid, diagnostics = EditorFormat.validateMap(result, options)
     if not valid then return nil, table.concat(diagnostics, "; ") end
     return EditorFormat.encodeJSON(result, "map", options)
@@ -821,6 +1000,10 @@ function EditorFormat.decodeTileset(source, path, options)
     end
     data.margin = data.margin or 0
     data.spacing = data.spacing or 0
+    success, reason = EditorFormat.decodeTilesetExtensions(data, {
+        tileset = data, path = path, options = options
+    })
+    if not success then return nil, reason end
     data.__tileset_reader = EditorTilesetReader
     return data
 end
@@ -938,6 +1121,12 @@ function EditorFormat.encodeTileset(data, options)
         end
         table.insert(result.terrains, encoded)
     end
+    local extensions_success, extensions_encoded
+    extensions_success, extensions_encoded = EditorFormat.encodeTilesetExtensions(data, {
+        source = data, tileset = result, options = options
+    })
+    if not extensions_success then return nil, extensions_encoded end
+    result.extensions = next(extensions_encoded) and extensions_encoded or nil
     local valid, diagnostics = EditorFormat.validateTileset(result, options)
     if not valid then return nil, table.concat(diagnostics, "; ") end
     return EditorFormat.encodeJSON(result, "tileset", options)
@@ -953,6 +1142,10 @@ function EditorFormat.decodeWorld(source, path, options)
     local success
     success, reason = decodeOwnerProperties(data, { owner = data, path = path })
     if not success then return nil, reason end
+    success, reason = EditorFormat.decodeWorldExtensions(data, {
+        world = data, path = path, options = options
+    })
+    if not success then return nil, reason end
     return data
 end
 
@@ -965,6 +1158,11 @@ function EditorFormat.encodeWorld(data, options)
     local reason
     result.properties, reason = encodeOwnerProperties(data, { owner = data })
     if not result.properties then return nil, reason end
+    local extensions_success, extensions_encoded = EditorFormat.encodeWorldExtensions(data, {
+        source = data, world = result, options = options
+    })
+    if not extensions_success then return nil, extensions_encoded end
+    result.extensions = next(extensions_encoded) and extensions_encoded or nil
     local valid, diagnostics = EditorFormat.validateWorld(result, options)
     if not valid then return nil, table.concat(diagnostics, "; ") end
     return EditorFormat.encodeJSON(result, "world", options)
@@ -999,10 +1197,23 @@ end
 
 -- SECTION : Validation
 
+local function validateFormatExtensions(data, label, diagnostics)
+    if data.extensions ~= nil and type(data.extensions) ~= "table" then
+        table.insert(diagnostics, label .. " extensions must be an object")
+    elseif type(data.extensions) == "table" then
+        for id in pairs(data.extensions) do
+            if type(id) ~= "string" or id == "" then
+                table.insert(diagnostics, label .. " extension ids must be non-empty strings")
+            end
+        end
+    end
+end
+
 ---@return boolean? valid
 ---@return table|string? diagnostics
 function EditorFormat.validateMap(data, options)
     local diagnostics = {}
+    validateFormatExtensions(data, "Map", diagnostics)
     if type(data.width) ~= "number" or data.width < 0 then table.insert(diagnostics, "Map width must be non-negative") end
     if type(data.height) ~= "number" or data.height < 0 then table.insert(diagnostics, "Map height must be non-negative") end
     if type(data.grid_width) ~= "number" or data.grid_width <= 0 then table.insert(diagnostics, "Map grid_width must be positive") end
@@ -1047,6 +1258,7 @@ end
 ---@return table|string? diagnostics
 function EditorFormat.validateTileset(data, options)
     local diagnostics = {}
+    validateFormatExtensions(data, "Tileset", diagnostics)
     if type(data.tile_width) ~= "number" or data.tile_width <= 0 then table.insert(diagnostics, "Tileset tile_width must be positive") end
     if type(data.tile_height) ~= "number" or data.tile_height <= 0 then table.insert(diagnostics, "Tileset tile_height must be positive") end
     if type(data.tile_count) ~= "number" or data.tile_count < 0 then table.insert(diagnostics, "Tileset tile_count must be non-negative") end
@@ -1223,6 +1435,7 @@ end
 
 function EditorFormat.validateWorld(data, options)
     local diagnostics = {}
+    validateFormatExtensions(data, "World", diagnostics)
     if type(data.maps) ~= "table" then
         table.insert(diagnostics, "World maps must be an array")
     else

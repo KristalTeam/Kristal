@@ -382,7 +382,7 @@ local function parse_object(str, i)
     if chr == "}" then break end
     if chr ~= "," then decode_error(str, i, "expected '}' or ','") end
   end
-  return res, i
+  return json.object(res), i
 end
 
 
