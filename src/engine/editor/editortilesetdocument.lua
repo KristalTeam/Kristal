@@ -645,7 +645,10 @@ function EditorTilesetDocument:getPropertiesTarget()
             { label = "Type", readonly = true,
                 get = function() return data.image and "Tileset Image" or "Collection of Images" end,
                 set = function() return false end },
-            { label = "Image", get = function() return data.image or "" end,
+            { label = "Image", control = "path", path_kind = "asset",
+                asset_categories = { "sprites" },
+                extensions = { "png", "jpg", "jpeg", "bmp", "tga", "webp" },
+                get = function() return data.image or "" end,
                 set = function(value) data.image = value ~= "" and value or nil return true end },
             numberField("Tile Width", "tile_width"), numberField("Tile Height", "tile_height"),
             numberField("Tile Count", "tile_count"), numberField("Columns", "tile_columns"),
@@ -705,6 +708,9 @@ function EditorTilesetDocument:getTilePropertiesTarget(tile)
                     return true
                 end },
             { label = "Image", readonly = self.data.image ~= nil,
+                control = "path", path_kind = "asset",
+                asset_categories = { "sprites" },
+                extensions = { "png", "jpg", "jpeg", "bmp", "tga", "webp" },
                 get = function() return source.image or (self.data.image and "Tileset image" or "") end,
                 set = function(value) if self.data.image ~= nil then return false end source.image = value return true end }
         }

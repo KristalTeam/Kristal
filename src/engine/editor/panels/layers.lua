@@ -222,6 +222,11 @@ function EditorLayersPanel:getPropertiesTarget(layer)
         table.insert(fields, 1, {
             id = "image",
             label = "Image Source",
+            control = "path",
+            path_kind = "asset",
+            asset_registry = { "texture", "frames" },
+            path_root = "assets/sprites",
+            strip_extension = true,
             placeholder = "Sprite asset ID or path",
             get = function() return layer.image or "" end,
             set = function(value) return self:setLayerImage(layer, value) end

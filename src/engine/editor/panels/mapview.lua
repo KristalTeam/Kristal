@@ -96,6 +96,10 @@ function EditorMapView:selectWorldMap(entry)
     self.selected_world_map_id = entry and entry.id or nil
     self.active_map_id = entry and entry.id or self.active_map_id
     self.editor:selectMapObjects({})
+    if entry and self.editor.layers_browser
+        and self.editor.active_document == self.document then
+        self.editor.layers_browser:setDocument(self.document, entry.id)
+    end
     local world = self.document and self.document.world
     if entry and world and Registry.getEditorWorld(world.id) and self.editor.world_browser then
         self.editor.active_world_id = world.id

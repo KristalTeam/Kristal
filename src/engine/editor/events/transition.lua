@@ -14,10 +14,16 @@ function EditorTransition:init(data, options)
         marker = true, target_map_property = "map"
     })
     self:registerProperty("facing", "choice", { choices = { "up", "down", "left", "right" } })
-    self:registerProperty("sound", "string")
+    self:registerProperty("sound", "asset_path", {
+        asset_registry = "sound_data", path_root = "assets/sounds",
+        strip_extension = true, extensions = { "wav", "ogg" }
+    })
     self:registerProperty("pitch", "number", { default = 1 })
     self:registerProperty("exit_delay", "number", { name = "Exit Delay" })
-    self:registerProperty("exit_sound", "string", { name = "Exit Sound" })
+    self:registerProperty("exit_sound", "asset_path", {
+        name = "Exit Sound", asset_registry = "sound_data",
+        path_root = "assets/sounds", strip_extension = true, extensions = { "wav", "ogg" }
+    })
     self:registerProperty("exit_pitch", "number", { name = "Exit Pitch", default = 1 })
 end
 

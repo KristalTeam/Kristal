@@ -146,6 +146,20 @@ function EditorFileBrowser:init(editor, workspace)
         on_activate = function(node) self:activateNode(node) end,
         on_rename = function(node, old_name) self:renameNode(node, old_name) end,
         on_move = function(node, old_parent) self:moveNode(node, old_parent) end,
+        on_drag_start = function(node)
+            if node.data and node.data.type == "file" then
+                self.editor:beginProjectFileDrag(node.data, getFileIcon(node.data))
+            end
+        end,
+        on_drag_move = function(_, tree, x, y)
+            local global_x, global_y = tree:getGlobalPosition()
+            self.editor:updateProjectFileDrag(global_x + x, global_y + y)
+        end,
+        on_drag_outside = function(_, tree, x, y)
+            local global_x, global_y = tree:getGlobalPosition()
+            self.editor:finishProjectFileDrag(global_x + x, global_y + y)
+        end,
+        on_drag_end = function() self.editor:cancelProjectFileDrag() end,
         on_context_menu = function(node, tree, x, y) self:openContextMenu(node, tree, x, y) end,
         on_request_focus = function(control) self.editor.dockspace:setFocus(control) end,
         icon_scale = 1

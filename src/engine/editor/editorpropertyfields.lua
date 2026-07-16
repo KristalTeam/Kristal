@@ -50,4 +50,20 @@ function EditorPropertyFields.color(target, label, key, options)
     return field
 end
 
+function EditorPropertyFields.path(target, label, key, path_kind, options)
+    local field = EditorPropertyFields.value(target, label, key, options)
+    field.control = "path"
+    field.path_kind = path_kind
+    for option, value in pairs(options or {}) do field[option] = value end
+    return field
+end
+
+function EditorPropertyFields.assetPath(target, label, key, options)
+    return EditorPropertyFields.path(target, label, key, "asset", options)
+end
+
+function EditorPropertyFields.scriptPath(target, label, key, options)
+    return EditorPropertyFields.path(target, label, key, "script", options)
+end
+
 return EditorPropertyFields

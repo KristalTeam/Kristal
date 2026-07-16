@@ -150,18 +150,24 @@ end
 
 function EditorPropertiesPanel:createValueControl(name, definition, value)
     local property_type = self:getPropertyType(name, definition, value)
-    local control_type = Registry.getEditorPropertyType(property_type).control or "text"
+    local property_type_definition = Registry.getEditorPropertyType(property_type)
+    local control_type = definition and definition.control or property_type_definition.control or "text"
     if control_type == "color" then
         return self:addGeneratedControl(EditorColorInput(self.editor, value, {
             on_submit = function(color) return self:setPropertyValue(name, color, definition) end
         }))
+    elseif control_type == "path" then
+        local options = TableUtils.copy(property_type_definition, true)
+        for key, option in pairs(definition or {}) do options[key] = option end
+        options.on_submit = function(path) return self:setPropertyValue(name, path, definition) end
+        return self:addGeneratedControl(EditorPathInput(self.editor, value, options))
     elseif control_type == "object_reference"
         or control_type == "marker_reference" and type(value) == "table" then
-        return self:addGeneratedControl(EditorObjectReferenceControl(self.editor, value, {
-            on_changed = function(reference)
-                self:setPropertyValue(name, reference, definition)
-            end
-        }))
+        local options = TableUtils.copy(definition or {}, true)
+        options.on_changed = function(reference)
+            return self:setPropertyValue(name, reference, definition)
+        end
+        return self:addGeneratedControl(EditorObjectReferenceControl(self.editor, value, options))
     elseif control_type == "table" or type(value) == "table" then
         return self:addGeneratedControl(EditorTableInput(self.editor, value, {
             on_changed = function(table_value)
@@ -208,11 +214,16 @@ function EditorPropertiesPanel:createSectionValueControl(section, definition)
         return self:addGeneratedControl(EditorColorInput(self.editor, value, {
             on_submit = function(color) return changed(color) end
         }))
+    elseif property_type.control == "path" or definition.control == "path" then
+        local options = TableUtils.copy(property_type, true)
+        for key, option in pairs(definition) do options[key] = option end
+        options.on_submit = function(path) return changed(path) end
+        return self:addGeneratedControl(EditorPathInput(self.editor, value, options))
     elseif property_type.control == "object_reference"
         or property_type.control == "marker_reference" and type(value) == "table" then
-        return self:addGeneratedControl(EditorObjectReferenceControl(self.editor, value, {
-            on_changed = function(reference) changed(reference) end
-        }))
+        local options = TableUtils.copy(definition, true)
+        options.on_changed = function(reference) return changed(reference) end
+        return self:addGeneratedControl(EditorObjectReferenceControl(self.editor, value, options))
     elseif property_type.control == "table" or type(value) == "table" then
         return self:addGeneratedControl(EditorTableInput(self.editor, value, {
             on_changed = function(table_value) return changed(table_value) end
@@ -292,6 +303,12 @@ function EditorPropertiesPanel:rebuild()
             value_control = self:addGeneratedControl(EditorColorInput(self.editor, field.get(), {
                 on_submit = function(value) return setField(value, true) end
             }))
+            value_control.enabled = field.readonly ~= true
+        elseif field.control == "path" or field.type == "asset_path" or field.type == "script_path" then
+            local options = TableUtils.copy(Registry.getEditorPropertyType(field.type or "string"), true)
+            for key, option in pairs(field) do options[key] = option end
+            options.on_submit = function(value) return setField(value, true) end
+            value_control = self:addGeneratedControl(EditorPathInput(self.editor, field.get(), options))
             value_control.enabled = field.readonly ~= true
         else
             local input = self:addGeneratedControl(EditorTextInput({

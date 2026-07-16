@@ -253,6 +253,11 @@ function EditorCreationDialog:addRow(field, value, on_changed)
         control = self.form:addChild(EditorColorInput(self.editor, value, {
             on_submit = on_changed
         }))
+    elseif field.control == "path" or field.type == "asset_path" or field.type == "script_path" then
+        local options = TableUtils.copy(Registry.getEditorPropertyType(field.type or "string"), true)
+        for key, option in pairs(field) do options[key] = option end
+        options.on_submit = on_changed
+        control = self.form:addChild(EditorPathInput(self.editor, value, options))
     elseif field.type == "table" then
         control = self.form:addChild(EditorTableInput(self.editor, value, {
             maximum_visible_rows = field.maximum_visible_rows or 4,
