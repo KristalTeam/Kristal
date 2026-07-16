@@ -77,15 +77,17 @@ function EditorProjectWorkspace:openDocument(path)
     end
     local contents, reason = ProjectFileSystem.readFile(path)
     if not contents then return nil, reason end
-    local document
-    if file_type.id == "text" then
+    local document = self.editor.document_providers:createDocument(self, path, contents, file_type, {
+        read_only = false,
+        persistent = true
+    })
+    if document then
+        -- Handled by a registered document provider.
+    elseif file_type.id == "text" then
         if contents:find("\0", 1, true) or not utf8.len(contents) then
             return nil, "The file is not valid UTF-8 text", "unsupported"
         end
-        document = self.editor.document_providers:createDocument(self, path, contents, file_type, {
-            read_only = false,
-            persistent = true
-        }) or EditorFileDocument(self, path, contents)
+        document = EditorFileDocument(self, path, contents)
     elseif file_type.id == "image" then
         local loaded, image = pcall(function()
             local file_data = love.filesystem.newFileData(contents, path:match("([^/]+)$") or "image")

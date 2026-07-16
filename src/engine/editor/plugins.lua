@@ -96,6 +96,20 @@ function EditorPlugin:registerPropertyType(id, definition)
     return type_id
 end
 
+function EditorPlugin:registerFileType(id, definition)
+    assert(type(id) == "string" and id ~= "", "Plugin file types require an id")
+    local editor = assert(EditorPlugins.editor, "Plugin file types require an active editor")
+    local type_id = namespaced(self, "file_type", id)
+    local registered = editor.file_type_registry:register(type_id, definition)
+    registered.owner = self
+    self:trackRegistration(function()
+        if editor.file_type_registry then
+            editor.file_type_registry:unregister(type_id, registered)
+        end
+    end)
+    return registered
+end
+
 function EditorPlugin:registerFormatExtension(scope, id, definition)
     assert(scope == "map" or scope == "tileset" or scope == "world",
         "Editor format extension scope must be map, tileset, or world")
