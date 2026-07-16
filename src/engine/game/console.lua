@@ -36,6 +36,16 @@ end
 
 function Console:update()
     self.env:update()
+
+    local delta = Input.getScrollDeltaY()
+
+    if delta ~= 0 then
+        -- Specifically mouse wheel is clamped
+
+        self.read_offset = self.read_offset - delta
+        self.read_offset = math.max(self.read_offset, -#self.history + self.height)
+        self.read_offset = math.min(self.read_offset, 0)
+    end
 end
 
 function Console:createEnv()
@@ -73,7 +83,7 @@ function Console:createEnv()
         self:push("giveItem([color:yellow]str[color:reset]) [color:gray]- Attempts to give item with ID [color:yellow]str[color:gray].")
         self:push("")
         self:push("[color:yellow]Controls:")
-        self:push("Arrow keys [color:gray]- Move cursor.")
+        self:push("Arrow keys / scroll wheel [color:gray]- Move cursor.")
         self:push("Up/Down [color:gray]- Move through command history.")
         self:push("Ctrl + Up/Down [color:gray]- Scroll the console.")
         self:push("Shift + Enter [color:gray]- New line.")
@@ -94,8 +104,10 @@ function Console:createEnv()
     function env.moveTo(line)
         self.read_offset = -#self.history + (line or 0)
     end
-    
-    function env.resetPos() self.read_offset = 0 end
+
+    function env.resetPos()
+        self.read_offset = 0
+    end
 
     function env.giveItem(str)
         local success, result_text = Game.inventory:tryGiveItem(str)
@@ -259,9 +271,10 @@ function Console:draw()
     end
 
     for line = #self.history - self.height, #self.history do
-        self:print(self.history[line + self.read_offset] or {COLORS.gray, "~" }, 8, y_offset * line_height)
+        self:print(self.history[line + self.read_offset] or { COLORS.gray, "~" }, 8, y_offset * line_height)
         y_offset = y_offset + 1
     end
+
     self.color = {1, 1, 1, 1}
     self:print({("Line %d of %d"):format(# self.history + self.read_offset, #self.history)}, 8, y_offset * line_height, 'right')
     --y_offset = y_offset + 1

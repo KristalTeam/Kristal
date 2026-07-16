@@ -44,6 +44,9 @@
 ---@field mouse_pressed table<number, Input.MouseData>
 ---@field mouse_released table<number, Input.MouseData>
 ---
+---@field private scroll_delta_x number
+---@field private scroll_delta_y number
+---
 ---@field order string[]
 ---
 ---@field required_binds table<string, boolean>
@@ -93,6 +96,9 @@ Input.mouse_button_max = 3
 Input.mouse_down = {}
 Input.mouse_pressed = {}
 Input.mouse_released = {}
+
+Input.scroll_delta_x = 0
+Input.scroll_delta_y = 0
 
 Input.order = {
     "down", "right", "up", "left", "confirm", "cancel", "menu", "console", "debug_menu", "object_selector",
@@ -557,6 +563,8 @@ function Input.clear(key, clear_down)
             end
         end
     else
+        self.scroll_delta_x = 0
+        self.scroll_delta_y = 0
         self.key_pressed = {}
         self.key_repeated = {}
         self.key_released = {}
@@ -735,6 +743,8 @@ end
 ---@param x number
 ---@param y number
 function Input.onWheelMoved(x, y)
+    self.scroll_delta_x = x
+    self.scroll_delta_y = y
     Kristal.onWheelMoved(x, y)
 end
 
@@ -1010,6 +1020,25 @@ function Input.is(alias, key)
         end
     end
     return false
+end
+
+--- Gets how much the user scrolled this frame.
+---@return number x
+---@return number y
+function Input.getScrollDelta()
+    return self.scroll_delta_x, self.scroll_delta_y
+end
+
+--- Gets how much the user scrolled this frame horizontally.
+---@return number x
+function Input.getScrollDeltaX()
+    return self.scroll_delta_x
+end
+
+--- Gets how much the user scrolled this frame vertically.
+---@return number y
+function Input.getScrollDeltaY()
+    return self.scroll_delta_y
 end
 
 ---@param alias string
