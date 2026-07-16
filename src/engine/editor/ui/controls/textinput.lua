@@ -396,7 +396,7 @@ function EditorTextInput:drawSelf()
             love.graphics.print(line.text, self.padding - self.scroll_x, y)
         end
     end
-    if self.value == "" and not self.focused then
+    if self.value == "" then
         Draw.setColor(0.55, 0.55, 0.58, 1)
         love.graphics.print(self.placeholder, self.padding, self.padding)
     end

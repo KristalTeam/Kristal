@@ -6,17 +6,37 @@ function EditorTileButton:getEditorSprite(data)
 end
 function EditorTileButton:init(data, options)
     super.init(self, data, options)
-    self:registerProperty("sprite", "string")
-    self:registerProperty("pressedsprite", "string", { name = "Pressed Sprite" })
-    self:registerProperty("onsound", "string", { name = "On Sound" })
-    self:registerProperty("offsound", "string", { name = "Off Sound" })
+    self:registerProperty("sprite", "asset_path", {
+        asset_registry = { "texture", "frames" },
+        path_root = "assets/sprites", strip_extension = true,
+        extensions = { "png", "jpg", "jpeg" }
+    })
+    self:registerProperty("pressedsprite", "asset_path", {
+        name = "Pressed Sprite", asset_registry = { "texture", "frames" },
+        path_root = "assets/sprites", strip_extension = true,
+        extensions = { "png", "jpg", "jpeg" }
+    })
+    self:registerProperty("onsound", "asset_path", {
+        name = "On Sound", asset_registry = "sound_data",
+        path_root = "assets/sounds", strip_extension = true, extensions = { "wav", "ogg" }
+    })
+    self:registerProperty("offsound", "asset_path", {
+        name = "Off Sound", asset_registry = "sound_data",
+        path_root = "assets/sounds", strip_extension = true, extensions = { "wav", "ogg" }
+    })
     self:registerProperty("blocks", "boolean")
     self:registerProperty("group", "string")
     self:registerProperty("flag", "string")
     self:registerProperty("once", "boolean")
     self:registerProperty("keepdown", "boolean", { name = "Keep Down" })
-    self:registerProperty("cutscene", "string")
-    self:registerProperty("script", "string")
+    self:registerProperty("cutscene", "script_path", {
+        path_root = "scripts/world/cutscenes", strip_extension = true,
+        extensions = { "lua" }, registry = "world_cutscenes"
+    })
+    self:registerProperty("script", "script_path", {
+        path_root = "scripts/world/scripts", strip_extension = true,
+        extensions = { "lua" }, registry = "event_scripts"
+    })
 end
 function EditorTileButton:createObject(map, context)
     return TileButton(self.data.x, self.data.y, self:getRectData(), self.data.properties)

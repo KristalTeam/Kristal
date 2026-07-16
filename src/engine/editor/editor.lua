@@ -1107,6 +1107,11 @@ function Editor:enter(previous, options)
     self.consumed_editor_keys = {}
     self.creation_dialog = nil
     self.color_picker = nil
+    self.path_picker = nil
+    self.object_reference_picker = nil
+    self.asset_drag = nil
+    self.project_file_drag = nil
+    self.drag_preview = nil
     self.game_preview_snapshot = nil
     self.game_preview_snapshot_document = nil
     self.game_preview_snapshot_save_id = nil
@@ -1322,6 +1327,7 @@ function Editor:leave()
     self.file_type_registry = nil
     self.document_providers = nil
     self.asset_drag = nil
+    self.project_file_drag = nil
     self.drag_preview = nil
     self.object_reference_drag = nil
     self.object_link = nil
@@ -1332,6 +1338,8 @@ function Editor:leave()
     self.properties_panel = nil
     self.properties_target_owner = nil
     self.color_picker = nil
+    self.path_picker = nil
+    self.object_reference_picker = nil
     self.standalone_preview_document = nil
     self.standalone_preview_map_id = nil
     self.game_preview_paused = nil
@@ -2176,6 +2184,40 @@ function Editor:beginAssetDrag(kind, id, label)
     if kind == "drawfx" then icon = "editor/ui/tool/brush" end
     self:beginDragPreview(kind, label or id, icon, id)
     return true
+end
+
+function Editor:beginProjectFileDrag(data, icon)
+    if type(data) ~= "table" or data.type ~= "file" then return false end
+    self.project_file_drag = { data = data }
+    self:beginDragPreview("project_file", data.relative_path or data.name, icon, data)
+    return true
+end
+
+function Editor:updateProjectFileDrag(x, y)
+    if not self.project_file_drag then return false end
+    self.project_file_drag.x, self.project_file_drag.y = x, y
+    self:updateDragPreview(x, y)
+    return true
+end
+
+function Editor:cancelProjectFileDrag()
+    if not self.project_file_drag then return false end
+    self.project_file_drag = nil
+    self:finishDragPreview()
+    return true
+end
+
+function Editor:finishProjectFileDrag(x, y)
+    local drag = self.project_file_drag
+    self.project_file_drag = nil
+    self:finishDragPreview()
+    if not drag then return false end
+    local target = self.dockspace:getControlAt(x, y)
+    while target do
+        if target.acceptProjectFileDrop and target:acceptProjectFileDrop(drag.data) then return true end
+        target = target.parent
+    end
+    return false
 end
 
 function Editor:beginDragPreview(kind, label, icon, data)
@@ -3044,6 +3086,8 @@ function Editor:update()
     self.dockspace:update(DT)
     if self.creation_dialog then self.creation_dialog:update(DT) end
     if self.color_picker then self.color_picker:update(DT) end
+    if self.path_picker then self.path_picker:update(DT) end
+    if self.object_reference_picker then self.object_reference_picker:update(DT) end
 
     if self.entry_transition then
         self.entry_transition:update(DT)
@@ -3108,6 +3152,8 @@ function Editor:drawEditor(canvas)
     self.menu_bar:draw()
     if self.creation_dialog then self.creation_dialog:draw() end
     if self.color_picker then self.color_picker:draw() end
+    if self.path_picker then self.path_picker:draw() end
+    if self.object_reference_picker then self.object_reference_picker:draw() end
     love.graphics.pop()
     local mouse_x, mouse_y = self:getMousePosition()
     self.editor_cursor:setType(self:getCursorType(mouse_x, mouse_y))
@@ -3115,6 +3161,8 @@ end
 
 function Editor:getCursorType(x, y)
     if self.entry_transition or self.exit_transition then return "cannot" end
+    if self.object_reference_picker then return self.object_reference_picker:getCursorType(x, y) end
+    if self.path_picker then return self.path_picker:getCursorType(x, y) end
     if self.color_picker then return self.color_picker:getCursorType(x, y) end
     if self.creation_dialog then return self.creation_dialog:getCursorType(x, y) end
     if self.message_bar:containsPoint(x, y) then return "select" end
@@ -3125,6 +3173,8 @@ end
 
 function Editor:openCreationDialog(options)
     if self.creation_dialog then self:closeCreationDialog(false) end
+    if self.path_picker then self:closePathPicker(false) end
+    if self.object_reference_picker then self:closeObjectReferencePicker(false) end
     self.dockspace.context_menu = nil
     self.dockspace:setFocus(nil)
     self.creation_dialog = EditorCreationDialog(self, options or {})
@@ -3143,6 +3193,8 @@ end
 
 function Editor:openColorPicker(value, on_apply)
     if self.color_picker then self:closeColorPicker(false) end
+    if self.path_picker then self:closePathPicker(false) end
+    if self.object_reference_picker then self:closeObjectReferencePicker(false) end
     self.dockspace.context_menu = nil
     self.dockspace:setFocus(nil)
     self.color_picker = EditorColorPicker(self, value, on_apply)
@@ -3156,6 +3208,46 @@ function Editor:closeColorPicker(applied)
     picker:setFocus(nil)
     self.color_picker = nil
     if applied and self.message_bar then self.message_bar:setStatus("Color applied", 3) end
+    return true
+end
+
+function Editor:openPathPicker(value, items, options)
+    if self.path_picker then self:closePathPicker(false) end
+    if self.color_picker then self:closeColorPicker(false) end
+    if self.object_reference_picker then self:closeObjectReferencePicker(false) end
+    self.dockspace.context_menu = nil
+    self.dockspace:setFocus(nil)
+    self.path_picker = EditorPathPicker(self, value, items, options)
+    self.path_picker:update(0)
+    return self.path_picker
+end
+
+function Editor:closePathPicker(applied)
+    local picker = self.path_picker
+    if not picker then return false end
+    picker:setFocus(nil)
+    self.path_picker = nil
+    if applied and self.message_bar then self.message_bar:setStatus("Path applied", 3) end
+    return true
+end
+
+function Editor:openObjectReferencePicker(value, options)
+    if self.object_reference_picker then self:closeObjectReferencePicker(false) end
+    if self.color_picker then self:closeColorPicker(false) end
+    if self.path_picker then self:closePathPicker(false) end
+    self.dockspace.context_menu = nil
+    self.dockspace:setFocus(nil)
+    self.object_reference_picker = EditorObjectReferencePicker(self, value, options)
+    self.object_reference_picker:update(0)
+    return self.object_reference_picker
+end
+
+function Editor:closeObjectReferencePicker(applied)
+    local picker = self.object_reference_picker
+    if not picker then return false end
+    picker:setFocus(nil)
+    self.object_reference_picker = nil
+    if applied and self.message_bar then self.message_bar:setStatus("Object reference applied", 3) end
     return true
 end
 
@@ -3548,7 +3640,7 @@ function Editor:openMapTab(id, dock_target)
         if not document then return false end
     end
     if dock_target and dock_target.stack then
-        self.dockspace:dockPanel(document.panel, dock_target.stack)
+        self.dockspace:dockPanel(document.panel, dock_target.stack, dock_target.tab_index)
     end
     return self:activateMapDocument(document)
 end
@@ -3903,6 +3995,10 @@ end
 
 function Editor:onKeyPressed(key, is_repeat)
     if self.entry_transition or self.exit_transition then return true end
+    if self.object_reference_picker then
+        return self.object_reference_picker:onKeyPressed(key, is_repeat)
+    end
+    if self.path_picker then return self.path_picker:onKeyPressed(key, is_repeat) end
     if self.color_picker then return self.color_picker:onKeyPressed(key, is_repeat) end
     if self.creation_dialog then return self.creation_dialog:onKeyPressed(key, is_repeat) end
     if self.dockspace.context_menu and self.dockspace.context_menu.searchable then
@@ -3952,9 +4048,11 @@ function Editor:onKeyPressed(key, is_repeat)
             end
         end
     end
-    if key == "escape" and (self.asset_drag or self.object_reference_drag or self.object_link or self.drag_preview) then
+    if key == "escape" and (self.asset_drag or self.project_file_drag
+        or self.object_reference_drag or self.object_link or self.drag_preview) then
         local cancelled_link = self:cancelObjectLink()
-        self.asset_drag, self.object_reference_drag, self.drag_preview = nil, nil, nil
+        self.asset_drag, self.project_file_drag = nil, nil
+        self.object_reference_drag, self.drag_preview = nil, nil
         if not cancelled_link and self.message_bar then self.message_bar:setStatus("Drag cancelled") end
         return true
     end
@@ -4048,6 +4146,8 @@ end
 
 function Editor:onKeyReleased(key)
     if self.entry_transition or self.exit_transition then return true end
+    if self.object_reference_picker then return self.object_reference_picker:onKeyReleased(key) end
+    if self.path_picker then return self.path_picker:onKeyReleased(key) end
     if self.color_picker then return self.color_picker:onKeyReleased(key) end
     if self.creation_dialog then return self.creation_dialog:onKeyReleased(key) end
     if self.consumed_editor_keys[key] then
@@ -4060,6 +4160,8 @@ end
 
 function Editor:onTextInput(text)
     if self.entry_transition or self.exit_transition then return true end
+    if self.object_reference_picker then return self.object_reference_picker:onTextInput(text) end
+    if self.path_picker then return self.path_picker:onTextInput(text) end
     if self.color_picker then return self.color_picker:onTextInput(text) end
     if self.creation_dialog then return self.creation_dialog:onTextInput(text) end
     if self.dockspace:onTextInput(text) then return true end
@@ -4069,6 +4171,10 @@ end
 function Editor:onMousePressed(x, y, button, istouch, presses)
     if self.entry_transition or self.exit_transition then return true end
     x, y = self:screenToUI(x, y)
+    if self.object_reference_picker then
+        return self.object_reference_picker:onMousePressed(x, y, button, istouch, presses)
+    end
+    if self.path_picker then return self.path_picker:onMousePressed(x, y, button, istouch, presses) end
     if self.color_picker then return self.color_picker:onMousePressed(x, y, button, istouch, presses) end
     if self.creation_dialog then return self.creation_dialog:onMousePressed(x, y, button, istouch, presses) end
     if self.message_bar:containsPoint(x, y) then
@@ -4085,6 +4191,10 @@ function Editor:onMouseMoved(x, y, dx, dy, istouch)
     if self.entry_transition or self.exit_transition then return true end
     x, y = self:screenToUI(x, y)
     dx, dy = self:screenDeltaToUI(dx, dy)
+    if self.object_reference_picker then
+        return self.object_reference_picker:onMouseMoved(x, y, dx, dy, istouch)
+    end
+    if self.path_picker then return self.path_picker:onMouseMoved(x, y, dx, dy, istouch) end
     if self.color_picker then return self.color_picker:onMouseMoved(x, y, dx, dy, istouch) end
     if self.creation_dialog then return self.creation_dialog:onMouseMoved(x, y, dx, dy, istouch) end
     self:updateGameObjectSelectionCursor(x, y)
@@ -4100,6 +4210,10 @@ end
 function Editor:onMouseReleased(x, y, button, istouch, presses)
     if self.entry_transition or self.exit_transition then return true end
     x, y = self:screenToUI(x, y)
+    if self.object_reference_picker then
+        return self.object_reference_picker:onMouseReleased(x, y, button, istouch, presses)
+    end
+    if self.path_picker then return self.path_picker:onMouseReleased(x, y, button, istouch, presses) end
     if self.color_picker then return self.color_picker:onMouseReleased(x, y, button, istouch, presses) end
     if self.creation_dialog then return self.creation_dialog:onMouseReleased(x, y, button, istouch, presses) end
     if self.dockspace:onMouseReleased(x, y, button, presses) then return true end
@@ -4109,6 +4223,8 @@ end
 
 function Editor:onWheelMoved(x, y)
     if self.entry_transition or self.exit_transition then return true end
+    if self.object_reference_picker then return self.object_reference_picker:onWheelMoved(x, y) end
+    if self.path_picker then return self.path_picker:onWheelMoved(x, y) end
     if self.color_picker then return self.color_picker:onWheelMoved(x, y) end
     if self.creation_dialog then return self.creation_dialog:onWheelMoved(x, y) end
     local mouse_x, mouse_y = self:getMousePosition()

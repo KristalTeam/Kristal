@@ -88,6 +88,12 @@ function EditorPropertyRegistry:init()
             return (#hex == 6 or #hex == 8) and hex:match("^%x+$") and "#" .. hex or nil
         end
     })
+    self:registerType("asset_path", {
+        name = "Asset Path", default = "", control = "path", path_kind = "asset"
+    })
+    self:registerType("script_path", {
+        name = "Script Path", default = "", control = "path", path_kind = "script"
+    })
     self:registerType("object_reference", {
         name = "Object Reference",
         default = nil,

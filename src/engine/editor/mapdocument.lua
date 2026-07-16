@@ -1519,7 +1519,8 @@ function EditorMapDocument:drawPreview(entry, outline_width)
             drawable.value:fullDraw()
             drawable.value.alpha = old_alpha
         else
-            drawable.value:draw(drawable.alpha, outline_width)
+            drawable.value:draw(drawable.alpha, outline_width,
+                selected_uid == drawable.value.layer_uid)
         end
     end
     for _, event in ipairs(preview.editor_events or {}) do

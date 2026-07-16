@@ -14,6 +14,7 @@ function EditorDockStack:init(id, region)
     self.tab_view_rect = nil
     self.tab_scroll_left_rect = nil
     self.tab_scroll_right_rect = nil
+    self.layout_weight = 1
 end
 
 function EditorDockStack:addPanel(panel, index)

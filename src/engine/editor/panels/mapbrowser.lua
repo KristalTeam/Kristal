@@ -72,7 +72,10 @@ function EditorMapBrowser:selectNode(node)
     local property_set = EditorPropertySet(property_values, property_types)
     if node.type == "map" then
         property_set:registerProperty("name", "string")
-        property_set:registerProperty("music", "string")
+        property_set:registerProperty("music", "asset_path", {
+            name = "Music", asset_registry = "music",
+            path_root = "assets/music", strip_extension = true
+        })
         property_set:registerProperty("keepmusic", "boolean", { name = "Keep Music" })
         property_set:registerProperty("light", "boolean")
         property_set:registerProperty("border", "string")

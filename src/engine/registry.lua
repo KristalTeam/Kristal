@@ -1263,7 +1263,12 @@ function Registry.initEditorDrawFX()
         return fx
     end)
     register("shader", "Shader", function(fx)
-        fx:registerProperty("shader", "string")
+        fx:registerProperty("shader", "asset_path", {
+            asset_registry = "shader_paths",
+            path_root = "assets/shaders",
+            strip_extension = true,
+            extensions = { "glsl" }
+        })
     end, nil, function(properties)
         if not properties.shader or properties.shader == "" then
             return nil, "Shader DrawFX requires a shader asset"

@@ -1,0 +1,7 @@
+{
+    "id": "actor_editor",
+    "name": "Actor and Party Member Editor",
+    "version": "0.1.0",
+    "description": "Visual editing tools for Kristal actors and party members.",
+    "author": "Kristal"
+}
