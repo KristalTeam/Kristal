@@ -12,6 +12,7 @@ function EditorTilePalette:init(editor, options)
     self.on_tile_dragged = options.on_tile_dragged
     self.on_tile_released = options.on_tile_released
     self.draw_tile_overlay = options.draw_tile_overlay
+    self.allow_empty_tile_press = options.allow_empty_tile_press
     self.document = nil
     self.scroll_row = 0
     self.scroll_column = 0
@@ -230,11 +231,14 @@ end
 
 function EditorTilePalette:onMousePressed(x, y, button, presses)
     local id = self:getTileAt(x, y)
-    if id == nil then return false end
+    local allow_empty = type(self.allow_empty_tile_press) == "function"
+        and self.allow_empty_tile_press(self) or self.allow_empty_tile_press == true
+    if id == nil and not allow_empty then return false end
     if self.on_tile_pressed and self.on_tile_pressed(id, x, y, button, presses, self) then
         self.custom_tile_drag = button
         return true
     end
+    if id == nil then return false end
     if button == 2 then
         self:setSelection(id, id)
         local global_x, global_y = self:getGlobalPosition()
@@ -257,7 +261,7 @@ end
 function EditorTilePalette:onMouseMoved(x, y)
     if self.custom_tile_drag then
         local id = self:getTileAt(x, y)
-        if id ~= nil and self.on_tile_dragged then self.on_tile_dragged(id, x, y, self) end
+        if self.on_tile_dragged then self.on_tile_dragged(id, x, y, self) end
         return true
     end
     if not self.drag_selecting then return false end
@@ -347,6 +351,7 @@ function EditorTilePalette:drawSelf()
     local last_column = math.min(columns - 1, first_column + self:getVisibleColumns())
     local selection = {}
     for _, row in ipairs(self.stamp) do for _, id in ipairs(row) do if id ~= false then selection[id] = true end end end
+    local drawn_tiles = {}
     for row = first_row, last_row do
         for column = first_column, last_column do
             local id = row * columns + column
@@ -371,10 +376,14 @@ function EditorTilePalette:drawSelf()
                     Draw.setColor(0.26, 0.26, 0.30, 0.7)
                     love.graphics.rectangle("line", x + 0.5, y + 0.5, cell_width - 1, cell_height - 1)
                 end
-                if self.draw_tile_overlay then
-                    self.draw_tile_overlay(id, x, y, cell_width, cell_height, self)
-                end
+                table.insert(drawn_tiles, { id = id, x = x, y = y })
             end
+        end
+    end
+    if self.draw_tile_overlay then
+        for _, tile in ipairs(drawn_tiles) do
+            self.draw_tile_overlay(tile.id, tile.x, tile.y,
+                cell_width, cell_height, self)
         end
     end
 end

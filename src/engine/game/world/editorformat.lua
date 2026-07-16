@@ -654,7 +654,7 @@ local function decodeTile(tile, context)
     tile = copySerializable(tile)
     local success, reason = decodeOwnerProperties(tile, context)
     if not success then return nil, reason end
-    if tile.frames and not tile.animation then
+    if tile.frames and #tile.frames > 0 and not tile.animation then
         tile.animation = {}
         for _, frame in ipairs(tile.frames) do
             table.insert(tile.animation, { tileid = frame.tile_id, duration = frame.duration })
@@ -683,9 +683,10 @@ local function encodeTile(tile, context)
     result.properties, reason = encodeOwnerProperties(tile, context)
     if not result.properties then return nil, reason end
     result.frames = nil
-    if tile.animation or tile.frames then
+    local animation = tile.animation or tile.frames
+    if animation and #animation > 0 then
         result.frames = {}
-        for _, frame in ipairs(tile.animation or tile.frames) do
+        for _, frame in ipairs(animation) do
             table.insert(result.frames, { tile_id = frame.tile_id or frame.tileid, duration = frame.duration })
         end
     end

@@ -4,9 +4,16 @@ local EditorTilesetPanel, super = Class(EditorControl)
 
 local MODES = {
     { id = "tileset", name = "Tileset" }, { id = "tile", name = "Tile" },
-    { id = "terrain", name = "Terrain" }, { id = "collision", name = "Collision" },
+    { id = "terrain", name = "Terrain" },
+    { id = "collision", name = "Collision", hidden = true },
     { id = "animation", name = "Animation" }
 }
+
+local function getModeDefinition(id)
+    for _, mode in ipairs(MODES) do
+        if mode.id == id then return mode end
+    end
+end
 
 local TERRAIN_SLOTS = {
     { id = "nw", x = -1, y = -1, u = 0.16, v = 0.16 },
@@ -35,6 +42,35 @@ local function parseTags(document, value)
     return result
 end
 
+local function collisionShapeType(shape)
+    if shape.polygon then return "polygon" end
+    if shape.polyline then return shape.shape == "line" and "line" or "polyline" end
+    if shape.point == true then return "point" end
+    if shape.ellipse == true then return "ellipse" end
+    return shape.shape or "rectangle"
+end
+
+local function pointSegmentDistance(x, y, x1, y1, x2, y2)
+    local dx, dy = x2 - x1, y2 - y1
+    local length_squared = dx * dx + dy * dy
+    if length_squared == 0 then return math.sqrt((x - x1) ^ 2 + (y - y1) ^ 2) end
+    local amount = MathUtils.clamp(((x - x1) * dx + (y - y1) * dy) / length_squared, 0, 1)
+    local closest_x, closest_y = x1 + dx * amount, y1 + dy * amount
+    return math.sqrt((x - closest_x) ^ 2 + (y - closest_y) ^ 2)
+end
+
+local function pointInPolygon(x, y, points)
+    local inside, previous = false, points[#points]
+    for _, point in ipairs(points) do
+        local px, py = point.x or point[1] or 0, point.y or point[2] or 0
+        local qx, qy = previous.x or previous[1] or 0, previous.y or previous[2] or 0
+        if (py > y) ~= (qy > y)
+            and x < (qx - px) * (y - py) / (qy - py) + px then inside = not inside end
+        previous = point
+    end
+    return inside
+end
+
 function EditorTilesetPanel:init(editor)
     super.init(self, 0, 0, 440, 420)
     self.editor = editor
@@ -42,13 +78,22 @@ function EditorTilesetPanel:init(editor)
     self.tile = nil
     self.mode = "tileset"
     self.terrain_paint_mode = "is"
+    self.collision_snap = true
     self.terrain_rule_lookup = {}
     self.terrain_expansion = {}
+    self.collision_drag = nil
+    self.animation_target_tile = nil
+    self.animation_source_tile_id = nil
+    self.animation_clock = 0
+    self.animation_playing = true
     self.mode_buttons = {}
     for _, mode in ipairs(MODES) do
-        local id = mode.id
-        local button = self:addChild(EditorButton(mode.name, function() self:setMode(id) end))
-        table.insert(self.mode_buttons, button)
+        if not mode.hidden then
+            local id = mode.id
+            local button = self:addChild(EditorButton(mode.name, function() self:setMode(id) end))
+            button.mode_id = id
+            table.insert(self.mode_buttons, button)
+        end
     end
     self.add_button = self:addChild(EditorButton("Add", function() self:openAddMenu() end))
     self.tile_grid = self:addChild(EditorTilePalette(editor, {
@@ -56,10 +101,11 @@ function EditorTilesetPanel:init(editor)
         on_selection = function()
             if self.mode == "tileset" then self:setMode("tile") end
         end,
-        on_tile_pressed = function(...) return self:beginTerrainRulePaint(...) end,
-        on_tile_dragged = function(...) return self:continueTerrainRulePaint(...) end,
-        on_tile_released = function(...) return self:endTerrainRulePaint(...) end,
-        draw_tile_overlay = function(...) self:drawTerrainTileOverlay(...) end
+        on_tile_pressed = function(...) return self:onAtlasTilePressed(...) end,
+        on_tile_dragged = function(...) return self:onAtlasTileDragged(...) end,
+        on_tile_released = function(...) return self:onAtlasTileReleased(...) end,
+        draw_tile_overlay = function(...) self:drawTileOverlay(...) end,
+        allow_empty_tile_press = function() return self.mode == "collision" end
     }))
     self.list = self:addChild(EditorItemList({
         on_select = function(item) self:selectItem(item and item.data) end,
@@ -80,6 +126,18 @@ function EditorTilesetPanel:init(editor)
     self.terrain_any_button = self:addChild(EditorButton("ANY", function()
         self:setTerrainPaintMode("any")
     end))
+    self.collision_snap_button = self:addChild(EditorButton("Snap: 1px", function()
+        self.collision_snap = not self.collision_snap
+        if self.editor.message_bar then
+            self.editor.message_bar:setStatus(self.collision_snap
+                and "Collision pixel snapping enabled; hold Ctrl for free movement"
+                or "Collision pixel snapping disabled")
+        end
+    end))
+    self.animation_play_button = self:addChild(EditorButton("Pause", function()
+        self.animation_playing = not self.animation_playing
+        self.animation_play_button.label = self.animation_playing and "Pause" or "Play"
+    end))
 end
 
 function EditorTilesetPanel:setDocument(document, options)
@@ -88,6 +146,8 @@ function EditorTilesetPanel:setDocument(document, options)
     local selected = options.preserve_selection and self.selected_item or nil
     local mode = state and state.mode
         or options.preserve_mode and self.mode or "tileset"
+    local mode_definition = getModeDefinition(mode)
+    if not mode_definition or mode_definition.hidden then mode = "tile" end
     local tile_id = state and state.tile_id
         or options.preserve_tile and self.tile and self.tile.id or 0
     self.document = document
@@ -95,11 +155,26 @@ function EditorTilesetPanel:setDocument(document, options)
     self.tile_grid:setTilesetDocument(document)
     self.tile = document and (document:getTile(tile_id) or document:getTile(0)) or nil
     if self.tile then self.tile_grid:setSelectedTile(self.tile) end
-    self:setMode(mode)
-    if state and state.selection and mode == "terrain" then
-        selected = self:resolveViewSelection(state.selection)
+    if mode == "animation" then
+        self.animation_target_tile = self.tile
+        self.animation_source_tile_id = state and state.animation_source_tile_id
+            or self.tile and self.tile.id or nil
     end
-    if selected and mode == "terrain" then self:refreshList(selected) end
+    self:setMode(mode)
+    if state and state.selection then
+        if mode == "terrain" then
+            selected = self:resolveViewSelection(state.selection)
+        elseif mode == "collision" or mode == "animation" then
+            selected = self:getItems()[state.selection.item_index]
+        end
+    end
+    if selected and (mode == "terrain" or mode == "collision" or mode == "animation") then
+        self:refreshList(selected)
+    end
+    if mode == "animation" and self.animation_source_tile_id ~= nil then
+        self.tile_grid:setSelection(self.animation_source_tile_id,
+            self.animation_source_tile_id, false)
+    end
 end
 
 function EditorTilesetPanel:captureViewState()
@@ -107,8 +182,21 @@ function EditorTilesetPanel:captureViewState()
         mode = self.mode,
         tile_id = self.tile and self.tile.id or 0
     }
+    if self.mode == "animation" then
+        state.animation_source_tile_id = self.animation_source_tile_id
+    end
     local item = self.selected_item
-    if not item or self.mode ~= "terrain" or not self.document then return state end
+    if not item or not self.document then return state end
+    if self.mode == "collision" or self.mode == "animation" then
+        for index, value in ipairs(self:getItems()) do
+            if value == item then
+                state.selection = { item_index = index }
+                break
+            end
+        end
+        return state
+    end
+    if self.mode ~= "terrain" then return state end
     local selection = { kind = item.kind }
     if item.kind == "tag" then
         for index, tag in ipairs(self.document:getTerrainTags()) do
@@ -164,6 +252,11 @@ end
 
 function EditorTilesetPanel:setTile(tile)
     self.tile = tile
+    if self.mode == "animation" then
+        self.animation_target_tile = tile
+        self.animation_source_tile_id = tile and tile.id or nil
+        self.animation_clock = 0
+    end
     self.tile_grid:setSelectedTile(tile)
     if self.mode ~= "tileset" then self:rebuild() end
 end
@@ -171,12 +264,260 @@ end
 function EditorTilesetPanel:setMode(mode)
     if self.mode ~= mode then self.selected_item = nil end
     self.mode = mode
+    self.collision_drag = nil
+    if mode == "animation" then
+        self.animation_target_tile = self.animation_target_tile
+            and self.animation_target_tile.document == self.document
+            and self.animation_target_tile or self.tile
+        self.animation_source_tile_id = self.animation_source_tile_id
+            or self.animation_target_tile and self.animation_target_tile.id
+        self.animation_clock = 0
+    end
     self:rebuildTerrainRuleLookup()
     self:rebuild()
     if mode == "terrain" and self.editor.message_bar then
         self.editor.message_bar:setStatus(
             "Terrain setup: select a variant, click tile centers to assign it, then paint neighbor slots")
+    elseif mode == "collision" and self.editor.message_bar then
+        self.editor.message_bar:setStatus(
+            "Collision: pixel snap is on (hold Ctrl for free movement); drag shapes, handles, or vertices")
+    elseif mode == "animation" and self.editor.message_bar then
+        self.editor.message_bar:setStatus(
+            "Animation: the current tile is the target; click atlas tiles then Add, or double-click to append frames")
     end
+end
+
+function EditorTilesetPanel:onAtlasTilePressed(tile_id, x, y, button, presses, palette)
+    if self.mode == "terrain" then
+        return self:beginTerrainRulePaint(tile_id, x, y, button, presses, palette)
+    elseif self.mode == "collision" then
+        return self:beginCollisionEdit(tile_id, x, y, button, presses, palette)
+    elseif self.mode == "animation" then
+        if button ~= 1 then return true end
+        self.animation_source_tile_id = tile_id
+        palette:setSelection(tile_id, tile_id, false)
+        if presses and presses >= 2 then self:addItem("frame") end
+        return true
+    end
+    return false
+end
+
+function EditorTilesetPanel:onAtlasTileDragged(tile_id, x, y, palette)
+    if self.mode == "terrain" then
+        return self:continueTerrainRulePaint(tile_id, x, y, palette)
+    elseif self.mode == "collision" then
+        return self:continueCollisionEdit(tile_id, x, y, palette)
+    elseif self.mode == "animation" then
+        if tile_id == nil then return true end
+        self.animation_source_tile_id = tile_id
+        palette:setSelection(tile_id, tile_id, false)
+        return true
+    end
+    return false
+end
+
+function EditorTilesetPanel:onAtlasTileReleased(x, y, button, palette)
+    if self.mode == "terrain" then
+        return self:endTerrainRulePaint(x, y, button, palette)
+    elseif self.mode == "collision" then
+        return self:endCollisionEdit(x, y, button, palette)
+    elseif self.mode == "animation" then
+        return true
+    end
+    return false
+end
+
+function EditorTilesetPanel:atlasToTile(tile_id, x, y, palette)
+    local tile_x, tile_y, display_width, display_height = palette:getTileRect(tile_id)
+    if not tile_x then return nil end
+    local tile_width, tile_height = self.document:getPaletteTileSize()
+    return (x - tile_x) / display_width * tile_width,
+        (y - tile_y) / display_height * tile_height,
+        tile_width, tile_height, display_width / tile_width
+end
+
+function EditorTilesetPanel:snapCollisionPoint(x, y)
+    if self.collision_snap and not Input.ctrl() then
+        return MathUtils.round(x), MathUtils.round(y)
+    end
+    return x, y
+end
+
+function EditorTilesetPanel:collisionLocalPoint(shape, x, y)
+    local rotation = -math.rad(tonumber(shape.rotation) or 0)
+    local dx, dy = x - (tonumber(shape.x) or 0), y - (tonumber(shape.y) or 0)
+    return dx * math.cos(rotation) - dy * math.sin(rotation),
+        dx * math.sin(rotation) + dy * math.cos(rotation)
+end
+
+function EditorTilesetPanel:collisionShapeContains(shape, x, y, tolerance)
+    local local_x, local_y = self:collisionLocalPoint(shape, x, y)
+    local shape_type = collisionShapeType(shape)
+    local width, height = tonumber(shape.width) or 0, tonumber(shape.height) or 0
+    tolerance = tolerance or 2
+    if shape_type == "point" then
+        return local_x * local_x + local_y * local_y <= tolerance * tolerance
+    elseif shape_type == "ellipse" then
+        if width == 0 or height == 0 then return false end
+        local nx, ny = (local_x - width / 2) / (width / 2), (local_y - height / 2) / (height / 2)
+        return nx * nx + ny * ny <= 1
+    elseif shape_type == "polygon" then
+        return pointInPolygon(local_x, local_y, shape.polygon or {})
+    elseif shape_type == "line" or shape_type == "polyline" then
+        local points = shape.polyline or {}
+        for _, edge in ipairs(MapUtils.getPolylineEdges(shape, #points)) do
+            local first, second = points[edge[1]], points[edge[2]]
+            if pointSegmentDistance(local_x, local_y,
+                first.x or first[1] or 0, first.y or first[2] or 0,
+                second.x or second[1] or 0, second.y or second[2] or 0) <= tolerance then
+                return true
+            end
+        end
+        return false
+    end
+    return local_x >= 0 and local_y >= 0 and local_x <= width and local_y <= height
+end
+
+function EditorTilesetPanel:findCollisionShape(x, y, tolerance)
+    local shapes = self.document:getCollisionShapes(self.tile)
+    for index = #shapes, 1, -1 do
+        if self:collisionShapeContains(shapes[index], x, y, tolerance) then return shapes[index] end
+    end
+end
+
+function EditorTilesetPanel:isCollisionResizeHandle(shape, x, y, tolerance)
+    local shape_type = collisionShapeType(shape)
+    if shape_type ~= "rectangle" and shape_type ~= "ellipse" then return false end
+    local local_x, local_y = self:collisionLocalPoint(shape, x, y)
+    return math.abs(local_x - (tonumber(shape.width) or 0)) <= tolerance
+        and math.abs(local_y - (tonumber(shape.height) or 0)) <= tolerance
+end
+
+function EditorTilesetPanel:findCollisionVertex(shape, x, y, tolerance)
+    local shape_type = collisionShapeType(shape)
+    local points = shape_type == "polygon" and shape.polygon
+        or (shape_type == "line" or shape_type == "polyline") and shape.polyline
+    if not points then return nil end
+    local local_x, local_y = self:collisionLocalPoint(shape, x, y)
+    for index, point in ipairs(points) do
+        local point_x, point_y = point.x or point[1] or 0, point.y or point[2] or 0
+        if (local_x - point_x) ^ 2 + (local_y - point_y) ^ 2 <= tolerance ^ 2 then
+            return index
+        end
+    end
+end
+
+function EditorTilesetPanel:beginCollisionEdit(tile_id, x, y, button, _, palette)
+    if not self.tile then return false end
+    local active_tile_id = self.tile.id
+    local tile_x, tile_y, _, _, scale = self:atlasToTile(active_tile_id, x, y, palette)
+    if tile_x == nil then return true end
+    local tolerance = 6 / math.max(scale, 0.001)
+    local shape = self:findCollisionShape(tile_x, tile_y, tolerance)
+    if not shape and tile_id ~= active_tile_id then
+        if button == 1 and tile_id ~= nil then palette:setSelection(tile_id, tile_id) end
+        return tile_id ~= nil
+    end
+    tile_id = active_tile_id
+    if button == 2 then
+        if shape then self:refreshList(shape) end
+        local global_x, global_y = palette:getGlobalPosition()
+        local items = { { label = "Add Shape", children = self:getCollisionShapeMenuItems() } }
+        if shape then
+            table.insert(items, { label = "Delete",
+                action = function() self:removeItem(shape) end })
+        end
+        return self.editor.dockspace:openContextMenu(items,
+            global_x + x, global_y + y, palette)
+    elseif button ~= 1 then
+        return true
+    end
+    if shape then
+        self:refreshList(shape)
+        local vertex = shape == self.selected_item
+            and self:findCollisionVertex(shape, tile_x, tile_y, tolerance)
+        local resize = not vertex and shape == self.selected_item
+            and self:isCollisionResizeHandle(shape, tile_x, tile_y, tolerance)
+        local mode = vertex and "vertex" or resize and "resize" or "move"
+        local history_name = mode == "vertex" and "Edit Tile Collision"
+            or mode == "resize" and "Resize Tile Collision" or "Move Tile Collision"
+        self.editor:beginHistoryTransaction(history_name, self.document)
+        self.collision_drag = {
+            mode = mode, vertex = vertex, shape = shape,
+            tile_id = tile_id,
+            start_x = tile_x, start_y = tile_y,
+            x = tonumber(shape.x) or 0, y = tonumber(shape.y) or 0,
+            width = tonumber(shape.width) or 0, height = tonumber(shape.height) or 0,
+            changed = false
+        }
+    else
+        tile_x, tile_y = self:snapCollisionPoint(tile_x, tile_y)
+        self.editor:beginHistoryTransaction("Add Tile Collision", self.document)
+        shape = self.document:addCollisionShape(self.tile, "rectangle", {
+            x = tile_x, y = tile_y, width = 0, height = 0
+        })
+        self.collision_drag = {
+            mode = "create", shape = shape, tile_id = tile_id,
+            start_x = tile_x, start_y = tile_y,
+            changed = false
+        }
+        self:refreshList(shape)
+    end
+    return true
+end
+
+function EditorTilesetPanel:continueCollisionEdit(_, x, y, palette)
+    local drag = self.collision_drag
+    if not drag or not self.tile then return false end
+    local tile_x, tile_y = self:atlasToTile(drag.tile_id, x, y, palette)
+    if tile_x == nil then return false end
+    local shape = drag.shape
+    if drag.mode == "move" then
+        shape.x, shape.y = self:snapCollisionPoint(
+            drag.x + tile_x - drag.start_x, drag.y + tile_y - drag.start_y)
+    elseif drag.mode == "resize" then
+        local local_x, local_y = self:collisionLocalPoint(shape, tile_x, tile_y)
+        local_x, local_y = self:snapCollisionPoint(local_x, local_y)
+        shape.width, shape.height = math.max(0, local_x), math.max(0, local_y)
+    elseif drag.mode == "vertex" then
+        local local_x, local_y = self:collisionLocalPoint(shape, tile_x, tile_y)
+        local_x, local_y = self:snapCollisionPoint(local_x, local_y)
+        local points = collisionShapeType(shape) == "polygon" and shape.polygon or shape.polyline
+        local point = points and points[drag.vertex]
+        if point then
+            if point.x ~= nil then
+                point.x, point.y = local_x, local_y
+            else
+                point[1], point[2] = local_x, local_y
+            end
+        end
+    else
+        tile_x, tile_y = self:snapCollisionPoint(tile_x, tile_y)
+        shape.x, shape.y = math.min(drag.start_x, tile_x), math.min(drag.start_y, tile_y)
+        shape.width, shape.height = math.abs(tile_x - drag.start_x), math.abs(tile_y - drag.start_y)
+    end
+    if not drag.changed then
+        drag.changed = true
+        self.editor:markHistoryChanged()
+    end
+    return true
+end
+
+function EditorTilesetPanel:endCollisionEdit()
+    local drag = self.collision_drag
+    if not drag then return false end
+    self.collision_drag = nil
+    if drag.mode == "create" and ((drag.shape.width or 0) < 0.5 or (drag.shape.height or 0) < 0.5) then
+        TableUtils.removeValue(self.document:getCollisionShapes(self.tile), drag.shape)
+        self.editor:cancelHistoryTransaction()
+        self:refreshList()
+    elseif drag.changed then
+        self.editor:commitHistoryTransaction()
+        self:refreshList(drag.shape)
+    else
+        self.editor:cancelHistoryTransaction()
+    end
+    return true
 end
 
 function EditorTilesetPanel:getTerrainExpansionKey(item)
@@ -313,9 +654,21 @@ function EditorTilesetPanel:refreshList(selected)
                     indent = 3
                 end
             end
-        elseif self.mode == "collision" then label = string.format("%s %d", StringUtils.titleCase(value.shape or "rectangle"), index)
-        else label = string.format("Tile %s  -  %sms", tostring(value.tileid or 0), tostring(value.duration or 100)) end
+        elseif self.mode == "collision" then
+            label = string.format("%s %d", StringUtils.titleCase(collisionShapeType(value)), index)
+        else label = string.format("Tile %s  -  %sms",
+            tostring(value.tile_id or value.tileid or 0), tostring(value.duration or 100)) end
         local list_item = { id = index, label = label, data = value, indent = indent }
+        if self.mode == "animation" then
+            local tile_id = value.tile_id or value.tileid
+            list_item.preview = function(x, y, width, height, alpha)
+                Draw.setColor(1, 1, 1, alpha or 1)
+                if self.document.tileset then
+                    self.document.tileset:drawGridTile(tile_id, x, y, width, height,
+                        nil, nil, nil, true)
+                end
+            end
+        end
         if self.mode == "terrain" and value.has_children then
             list_item.expanded = self:isTerrainItemExpanded(value)
             local row = value
@@ -566,8 +919,154 @@ function EditorTilesetPanel:drawTerrainTileOverlay(tile_id, x, y, width, height,
     love.graphics.setLineWidth(1)
 end
 
+function EditorTilesetPanel:drawCollisionShape(shape, x, y, scale, selected)
+    local shape_type = collisionShapeType(shape)
+    local width, height = tonumber(shape.width) or 0, tonumber(shape.height) or 0
+    love.graphics.push("all")
+    love.graphics.translate(x + (tonumber(shape.x) or 0) * scale,
+        y + (tonumber(shape.y) or 0) * scale)
+    love.graphics.rotate(math.rad(tonumber(shape.rotation) or 0))
+    love.graphics.scale(scale, scale)
+    love.graphics.setLineWidth((selected and 2 or 1) / math.max(scale, 0.001))
+    Draw.setColor(selected and { 1, 0.84, 0.24, 0.22 } or { 0.18, 0.82, 1, 0.16 })
+    if shape_type == "rectangle" then
+        love.graphics.rectangle("fill", 0, 0, width, height)
+    elseif shape_type == "ellipse" and width > 0 and height > 0 then
+        love.graphics.ellipse("fill", width / 2, height / 2, width / 2, height / 2)
+    elseif shape_type == "polygon" and #(shape.polygon or {}) >= 3 then
+        local coordinates = {}
+        for _, point in ipairs(shape.polygon) do
+            table.insert(coordinates, point.x or point[1] or 0)
+            table.insert(coordinates, point.y or point[2] or 0)
+        end
+        love.graphics.polygon("fill", coordinates)
+    end
+    Draw.setColor(selected and { 1, 0.84, 0.24, 1 } or { 0.22, 0.88, 1, 0.9 })
+    if shape_type == "point" then
+        love.graphics.circle("line", 0, 0, 5 / math.max(scale, 0.001))
+        love.graphics.line(-4 / scale, 0, 4 / scale, 0)
+        love.graphics.line(0, -4 / scale, 0, 4 / scale)
+    elseif shape_type == "ellipse" and width > 0 and height > 0 then
+        love.graphics.ellipse("line", width / 2, height / 2, width / 2, height / 2)
+    elseif shape_type == "polygon" and #(shape.polygon or {}) >= 3 then
+        local coordinates = {}
+        for _, point in ipairs(shape.polygon) do
+            table.insert(coordinates, point.x or point[1] or 0)
+            table.insert(coordinates, point.y or point[2] or 0)
+        end
+        love.graphics.polygon("line", coordinates)
+        if selected then
+            for index = 1, #coordinates, 2 do
+                love.graphics.circle("fill", coordinates[index], coordinates[index + 1], 3 / scale)
+            end
+        end
+    elseif shape_type == "line" or shape_type == "polyline" then
+        local points = shape.polyline or {}
+        for _, edge in ipairs(MapUtils.getPolylineEdges(shape, #points)) do
+            local first, second = points[edge[1]], points[edge[2]]
+            love.graphics.line(first.x or first[1] or 0, first.y or first[2] or 0,
+                second.x or second[1] or 0, second.y or second[2] or 0)
+        end
+        if selected then
+            for _, point in ipairs(points) do
+                love.graphics.circle("fill", point.x or point[1] or 0,
+                    point.y or point[2] or 0, 3 / scale)
+            end
+        end
+    else
+        love.graphics.rectangle("line", 0, 0, width, height)
+    end
+    if selected and (shape_type == "rectangle" or shape_type == "ellipse") then
+        local handle = 6 / math.max(scale, 0.001)
+        love.graphics.rectangle("fill", width - handle / 2, height - handle / 2, handle, handle)
+    end
+    love.graphics.pop()
+end
+
+function EditorTilesetPanel:drawCollisionTileOverlay(tile_id, x, y, width, height)
+    local tile_width = self.document:getPaletteTileSize()
+    local scale = width / tile_width
+    for _, shape in ipairs(self.document:getExistingCollisionShapes(tile_id)) do
+        self:drawCollisionShape(shape, x, y, scale,
+            self.tile and tile_id == self.tile.id and shape == self.selected_item)
+    end
+end
+
+function EditorTilesetPanel:drawAnimationTileOverlay(tile_id, x, y, width, height)
+    love.graphics.push("all")
+    local target = self.animation_target_tile or self.tile
+    if target and tile_id == target.id then
+        Draw.setColor(1, 0.76, 0.18, 0.95)
+        love.graphics.setLineWidth(2)
+        love.graphics.rectangle("line", x + 2, y + 2, width - 4, height - 4)
+    end
+    local count = 0
+    for _, frame in ipairs(target and self.document:getAnimationFrames(target) or {}) do
+        if (frame.tile_id or frame.tileid) == tile_id then count = count + 1 end
+    end
+    if count > 0 then
+        local radius = MathUtils.clamp(math.min(width, height) * 0.13, 6, 12)
+        Draw.setColor(0.1, 0.16, 0.24, 0.92)
+        love.graphics.circle("fill", x + width - radius - 2, y + radius + 2, radius)
+        Draw.setColor(0.52, 0.82, 1, 1)
+        love.graphics.circle("line", x + width - radius - 2, y + radius + 2, radius)
+        love.graphics.setFont(EditorFont.get(12))
+        love.graphics.printf(tostring(count), x + width - radius * 2 - 2,
+            y + radius - 5, radius * 2, "center")
+    end
+    love.graphics.pop()
+end
+
+function EditorTilesetPanel:drawTileOverlay(tile_id, x, y, width, height, palette)
+    if self.mode == "terrain" then
+        self:drawTerrainTileOverlay(tile_id, x, y, width, height, palette)
+    elseif self.mode == "collision" then
+        self:drawCollisionTileOverlay(tile_id, x, y, width, height)
+    elseif self.mode == "animation" then
+        self:drawAnimationTileOverlay(tile_id, x, y, width, height)
+    end
+end
+
+function EditorTilesetPanel:getAnimationPreviewFrame()
+    local target = self.animation_target_tile or self.tile
+    local frames = target and self.document:getAnimationFrames(target) or {}
+    if #frames == 0 then return target and target.id end
+    if not self.animation_playing and self.selected_item then
+        return self.selected_item.tile_id or self.selected_item.tileid
+    end
+    local total = 0
+    for _, frame in ipairs(frames) do total = total + math.max(1, tonumber(frame.duration) or 100) end
+    local position = total > 0 and self.animation_clock % total or 0
+    local elapsed = 0
+    for _, frame in ipairs(frames) do
+        elapsed = elapsed + math.max(1, tonumber(frame.duration) or 100)
+        if position < elapsed then return frame.tile_id or frame.tileid end
+    end
+    return frames[#frames].tile_id or frames[#frames].tileid
+end
+
+function EditorTilesetPanel:getCollisionShapeMenuItems()
+    local items = {}
+    for _, shape in ipairs({ "rectangle", "ellipse", "point", "line", "polygon", "polyline" }) do
+        local shape_type = shape
+        table.insert(items, {
+            label = StringUtils.titleCase(shape_type),
+            action = function() self:addItem(shape_type) end
+        })
+    end
+    return items
+end
+
 function EditorTilesetPanel:openAddMenu()
-    if self.mode ~= "terrain" then return self:addItem() end
+    if self.mode == "collision" then
+        local x, y = self.add_button:getGlobalPosition()
+        return self.editor.dockspace:openContextMenu(self:getCollisionShapeMenuItems(),
+            x, y + self.add_button.height, self.add_button)
+    elseif self.mode == "animation" then
+        return self:addItem("frame")
+    elseif self.mode ~= "terrain" then
+        return self:addItem()
+    end
     local selected = self.selected_item
     local terrain = selected and selected.terrain
     local variant = selected and (selected.variant
@@ -625,11 +1124,16 @@ function EditorTilesetPanel:addItem(kind, terrain, variant, rule, condition_type
             item = { kind = "condition", value = value, terrain = terrain,
                 variant = variant, rule = rule, condition = value }
         end
-    elseif self.mode == "collision" then item = self.document:addCollisionShape(self.tile)
-    elseif self.mode == "animation" then item = self.document:addAnimationFrame(self.tile) end
+    elseif self.mode == "collision" then
+        item = self.document:addCollisionShape(self.tile, kind)
+    elseif self.mode == "animation" then
+        item = self.document:addAnimationFrame(self.animation_target_tile or self.tile,
+            self.animation_source_tile_id)
+    end
     if item then
         self.editor:markHistoryChanged()
         self.editor:commitHistoryTransaction()
+        if self.mode == "animation" then self.animation_clock = 0 end
         self:refreshList(item)
         if self.mode == "terrain" and self.editor.terrain_palette then
             self.editor.terrain_palette:refresh()
@@ -919,15 +1423,28 @@ function EditorTilesetPanel:getItemTarget(item)
         end
     elseif self.mode == "collision" then
         title = "Tile Collision Shape"
-        fields = { EditorPropertyFields.choice(item, "Shape", "shape",
-                { "point", "line", "rectangle", "ellipse", "polygon", "polyline" },
-                { default = "rectangle" }),
+        fields = { { label = "Shape", choices = {
+                    "point", "line", "rectangle", "ellipse", "polygon", "polyline"
+                }, get = function() return collisionShapeType(item) end,
+                set = function(value)
+                    return self.document:setCollisionShapeType(item, value)
+                end, rebuild = true },
+            field("Name", "name"), field("Type", "type"),
             field("X", "x", true), field("Y", "y", true),
             field("Width", "width", true), field("Height", "height", true),
             field("Rotation", "rotation", true) }
     elseif self.mode == "animation" then
         title = "Animation Frame"
-        fields = { field("Tile ID", "tileid", true), field("Duration (ms)", "duration", true) }
+        fields = {
+            { label = "Tile ID", get = function() return item.tile_id or item.tileid end,
+                set = function(value)
+                    return self.document:setAnimationFrameTile(item, value)
+                end },
+            { label = "Duration (ms)", get = function() return item.duration or 100 end,
+                set = function(value)
+                    return self.document:setAnimationFrameDuration(item, value)
+                end }
+        }
     end
     return { title = title, fields = fields, property_set = set,
         properties = supports_properties and source.properties or nil,
@@ -988,6 +1505,7 @@ function EditorTilesetPanel:removeItem(item)
     end
     self.editor:markHistoryChanged()
     self.editor:commitHistoryTransaction()
+    if self.mode == "animation" then self.animation_clock = 0 end
     self:refreshList()
     if self.mode == "terrain" and self.editor.terrain_palette then
         self.editor.terrain_palette:refresh()
@@ -1007,6 +1525,7 @@ function EditorTilesetPanel:reorderItem(item, target)
     table.insert(items, MathUtils.clamp(target, 1, #items + 1), value)
     self.editor:markHistoryChanged()
     self.editor:commitHistoryTransaction()
+    if self.mode == "animation" then self.animation_clock = 0 end
     self:refreshList(value)
 end
 
@@ -1030,6 +1549,8 @@ function EditorTilesetPanel:openItemContext(item, list, x, y)
         table.insert(items, { label = "Add Condition",
             children = self:getConditionMenuItems(terrain, variant, rule),
             is_enabled = function() return rule ~= nil end })
+    elseif self.mode == "collision" then
+        items = { { label = "Add Shape", children = self:getCollisionShapeMenuItems() } }
     else
         items = { { label = "Add", action = function() self:addItem() end } }
     end
@@ -1043,11 +1564,12 @@ function EditorTilesetPanel:update(dt)
     local x = 8
     for _, button in ipairs(self.mode_buttons) do
         button:setBounds(x, 8, button_width - 4, 28)
-        button.focused = self.mode == button.label:lower()
+        button.focused = self.mode == button.mode_id
         x = x + button_width
     end
     local toolbar_y = 42
-    self.zoom_out_button:setBounds(math.max(8, self.width - 148), toolbar_y, 36, 28)
+    local zoom_x = math.max(8, self.width - 148)
+    self.zoom_out_button:setBounds(zoom_x, toolbar_y, 36, 28)
     self.zoom_label_button:setBounds(math.max(48, self.width - 108), toolbar_y, 64, 28)
     self.zoom_in_button:setBounds(math.max(116, self.width - 40), toolbar_y, 36, 28)
     self.zoom_label_button.label = string.format("%d%%", MathUtils.round(self.tile_grid.zoom * 100))
@@ -1062,6 +1584,25 @@ function EditorTilesetPanel:update(dt)
         self.terrain_is_button.focused = self.terrain_paint_mode == "is"
         self.terrain_not_button.focused = self.terrain_paint_mode == "not"
         self.terrain_any_button.focused = self.terrain_paint_mode == "any"
+    end
+    local collision_tools = self.mode == "collision"
+    self.collision_snap_button.visible = collision_tools
+    if collision_tools then
+        self.collision_snap_button:setBounds(104, toolbar_y,
+            math.max(0, math.min(82, zoom_x - 108)), 28)
+        self.collision_snap_button.focused = self.collision_snap
+    end
+    local animation_tools = self.mode == "animation"
+    local play_width = math.max(0, math.min(70, zoom_x - 110))
+    self.animation_play_button.visible = animation_tools and play_width >= 32
+    if self.animation_play_button.visible then
+        self.animation_play_button:setBounds(106, toolbar_y, play_width, 28)
+        self.animation_play_button.label = self.animation_playing and "Pause" or "Play"
+    end
+    self.animation_preview_rect = animation_tools and { x = 72, y = toolbar_y, width = 28, height = 28 }
+        or nil
+    if animation_tools and self.animation_playing then
+        self.animation_clock = self.animation_clock + dt * 1000
     end
 
     local atlas_y = 76
@@ -1093,7 +1634,23 @@ function EditorTilesetPanel:drawSelf()
     love.graphics.rectangle("fill", 0, 0, self.width, self.height)
     Draw.setColor(0.78, 0.78, 0.82, 1)
     love.graphics.setFont(EditorFont.get(16))
-    love.graphics.print("Tileset Atlas", 8, 48)
+    if self.mode == "animation" and self.animation_preview_rect then
+        love.graphics.print("Preview", 8, 48)
+        local preview = self.animation_preview_rect
+        Draw.setColor(0.03, 0.03, 0.04, 1)
+        love.graphics.rectangle("fill", preview.x, preview.y, preview.width, preview.height)
+        local frame_id = self:getAnimationPreviewFrame()
+        if frame_id ~= nil and self.document and self.document.tileset then
+            Draw.setColor(1, 1, 1, 1)
+            self.document.tileset:drawGridTile(frame_id, preview.x, preview.y,
+                preview.width, preview.height, nil, nil, nil, true)
+        end
+        Draw.setColor(0.46, 0.72, 1, 1)
+        love.graphics.rectangle("line", preview.x + 0.5, preview.y + 0.5,
+            preview.width - 1, preview.height - 1)
+    else
+        love.graphics.print("Tileset Atlas", 8, 48)
+    end
     Draw.setColor(0.30, 0.30, 0.34, 1)
     love.graphics.line(0, 38.5, self.width, 38.5)
     love.graphics.line(0, 73.5, self.width, 73.5)

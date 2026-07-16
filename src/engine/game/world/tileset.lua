@@ -52,7 +52,8 @@ end
 
 function Tileset:getDrawTile(id)
     local info = self.tile_info[id]
-    if info and info.animation then
+    if info and info.animation and info.animation.duration > 0
+        and #info.animation.frames > 0 then
         local time = Kristal.getTime()
         local pos = time % info.animation.duration
         local total_duration = 0
@@ -90,8 +91,8 @@ end
 ---@return number scale_y
 ---@return number ox
 ---@return number oy
-function Tileset:getGridTile(id, x, y, gw, gh, flip_x, flip_y, flip_diag)
-    local draw_id = self:getDrawTile(id)
+function Tileset:getGridTile(id, x, y, gw, gh, flip_x, flip_y, flip_diag, skip_animation)
+    local draw_id = skip_animation and id or self:getDrawTile(id)
     local w, h = self:getTileSize(draw_id)
 
     x, y = x or 0, y or 0
@@ -122,9 +123,10 @@ function Tileset:getGridTile(id, x, y, gw, gh, flip_x, flip_y, flip_diag)
     return self.quads[draw_id], (x or 0) + ox, (y or 0) + oy, rot, flip_x and -sx or sx, flip_y and -sy or sy, w / 2, h / 2
 end
 
-function Tileset:drawGridTile(id, x, y, gw, gh, flip_x, flip_y, flip_diag)
-    local draw_id = self:getDrawTile(id)
-    local quad, draw_x, draw_y, rot, scale_x, scale_y, ox, oy = self:getGridTile(id, x, y, gw, gh, flip_x, flip_y, flip_diag)
+function Tileset:drawGridTile(id, x, y, gw, gh, flip_x, flip_y, flip_diag, skip_animation)
+    local draw_id = skip_animation and id or self:getDrawTile(id)
+    local quad, draw_x, draw_y, rot, scale_x, scale_y, ox, oy = self:getGridTile(
+        id, x, y, gw, gh, flip_x, flip_y, flip_diag, skip_animation)
 
     local info = self.tile_info[draw_id]
     if info and info.texture then
