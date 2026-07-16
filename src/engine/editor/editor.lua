@@ -537,6 +537,11 @@ function Editor:registerEditorSettings(session)
             if editor.music then editor:syncEditingMusic() end
         end
     })
+    self.settings:registerSetting("appearance", "appearance.align_game_transition", {
+        name = "Align Game on Enter/Exit", type = "boolean", default = true,
+        description = "Keep the game canvas at the same screen position while entering or leaving the editor.",
+        set = function(value, editor) editor.align_game_transition = value end
+    })
 
     self.settings:registerPage("editing", "Editing")
     self.settings:registerSetting("editing", "editing.history_limit", {
@@ -1075,7 +1080,7 @@ function Editor:restoreEntryState(session, options, context_document, restored_b
     else
         self:setTileEditingMode(desired_tile_mode)
     end
-    if not options.restore_active_document then
+    if self.align_game_transition ~= false and not options.restore_active_document then
         self:positionGameCanvasAtScreen(game_center_x, game_center_y)
     end
     if self.game_preview_panel.visible then self:setStandaloneGamePreviewEnabled(true) end
@@ -1203,15 +1208,23 @@ function Editor:leave()
     EditorPlugins:shutdown(self)
     if self.document_providers then self.document_providers:shutdown() end
     self.dockspace:setFocus(nil)
-    local game_center_x, game_center_y = self:getGameCanvasScreenCenter()
+    local game_center_x, game_center_y
+    if self.align_game_transition ~= false then
+        game_center_x, game_center_y = self:getGameCanvasScreenCenter()
+    end
     local window = self.previous_window
     if window then love.window.updateMode(window.width, window.height, window.flags) end
     Kristal.refreshWindowText()
-    local game_offset_x, game_offset_y = Kristal.getSideOffsets()
-    local game_scale = Kristal.getGameScale()
-    local window_x = game_center_x - fromPixels(game_offset_x + (SCREEN_WIDTH * game_scale / 2))
-    local window_y = game_center_y - fromPixels(game_offset_y + (SCREEN_HEIGHT * game_scale / 2))
-    love.window.setPosition(MathUtils.round(window_x), MathUtils.round(window_y), window and window.display)
+    if window then
+        local window_x, window_y = window.x, window.y
+        if self.align_game_transition ~= false then
+            local game_offset_x, game_offset_y = Kristal.getSideOffsets()
+            local game_scale = Kristal.getGameScale()
+            window_x = game_center_x - fromPixels(game_offset_x + (SCREEN_WIDTH * game_scale / 2))
+            window_y = game_center_y - fromPixels(game_offset_y + (SCREEN_HEIGHT * game_scale / 2))
+        end
+        love.window.setPosition(MathUtils.round(window_x), MathUtils.round(window_y), window.display)
+    end
     Kristal.setDesiredWindowTitleAndIcon()
     if self.previous_mouse_cursor then
         love.mouse.setCursor(self.previous_mouse_cursor)

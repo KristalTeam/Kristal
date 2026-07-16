@@ -43,9 +43,10 @@ function EditorTilesetReader:initialize(data, path, base_dir)
             class = tile.type,
             objectgroup = tile.objectgroup
         }
-        if tile.frames or tile.animation then
+        local animation = tile.frames or tile.animation
+        if animation and #animation > 0 then
             info.animation = { duration = 0, frames = {} }
-            for _, frame in ipairs(tile.frames or tile.animation) do
+            for _, frame in ipairs(animation) do
                 local duration = (frame.duration or 0) / EditorFormat.MILLISECONDS_PER_SECOND
                 table.insert(info.animation.frames, { id = frame.tile_id or frame.tileid, duration = duration })
                 info.animation.duration = info.animation.duration + duration

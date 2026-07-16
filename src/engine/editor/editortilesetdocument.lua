@@ -156,13 +156,84 @@ function EditorTilesetDocument:getCollisionShapes(tile)
     return tile.source.objectgroup.objects
 end
 
-function EditorTilesetDocument:addCollisionShape(tile)
+function EditorTilesetDocument:addCollisionShape(tile, shape_type, values)
+    if not tile then return nil end
     local shapes = self:getCollisionShapes(tile)
     local width = self.data.tile_width or 40
     local height = self.data.tile_height or 40
-    local shape = { x = 0, y = 0, width = width, height = height, shape = "rectangle", properties = {} }
+    shape_type = shape_type or "rectangle"
+    local shape = {
+        x = width * 0.25, y = height * 0.25,
+        width = width * 0.5, height = height * 0.5,
+        rotation = 0, shape = shape_type, properties = {}
+    }
+    if shape_type == "point" then
+        shape.width, shape.height = 0, 0
+    elseif shape_type == "line" then
+        shape.height = 0
+        shape.polyline = { { x = 0, y = 0 }, { x = shape.width, y = 0 } }
+    elseif shape_type == "polygon" then
+        shape.polygon = {
+            { x = shape.width * 0.5, y = 0 },
+            { x = shape.width, y = shape.height }, { x = 0, y = shape.height }
+        }
+    elseif shape_type == "polyline" then
+        shape.polyline = {
+            { x = 0, y = shape.height }, { x = shape.width * 0.5, y = 0 },
+            { x = shape.width, y = shape.height }
+        }
+    end
+    for key, value in pairs(values or {}) do shape[key] = value end
     table.insert(shapes, shape)
     return shape
+end
+
+function EditorTilesetDocument:getExistingTileData(id)
+    for _, tile in ipairs(self.data.tiles or {}) do
+        if tile.id == id then return tile end
+    end
+end
+
+function EditorTilesetDocument:getExistingCollisionShapes(id)
+    local tile = self:getExistingTileData(id)
+    return tile and ((tile.objectgroup and tile.objectgroup.objects) or tile.collision) or {}
+end
+
+function EditorTilesetDocument:getExistingAnimationFrames(id)
+    local tile = self:getExistingTileData(id)
+    return tile and (tile.animation or tile.frames) or {}
+end
+
+function EditorTilesetDocument:setCollisionShapeType(shape, shape_type)
+    if not shape then return false end
+    local supported = {
+        point = true, line = true, rectangle = true,
+        ellipse = true, polygon = true, polyline = true
+    }
+    if not supported[shape_type] then return false end
+    local width = math.max(1, tonumber(shape.width) or (self.data.tile_width or 40) * 0.5)
+    local height = math.max(1, tonumber(shape.height) or (self.data.tile_height or 40) * 0.5)
+    shape.shape, shape.point, shape.ellipse = shape_type, nil, nil
+    shape.polygon, shape.polyline, shape.shape_data = nil, nil, nil
+    if shape_type == "point" then
+        shape.width, shape.height = 0, 0
+    elseif shape_type == "line" then
+        shape.width, shape.height = width, 0
+        shape.polyline = { { x = 0, y = 0 }, { x = width, y = 0 } }
+    elseif shape_type == "polygon" then
+        shape.width, shape.height = width, height
+        shape.polygon = {
+            { x = width * 0.5, y = 0 }, { x = width, y = height }, { x = 0, y = height }
+        }
+    elseif shape_type == "polyline" then
+        shape.width, shape.height = width, height
+        shape.polyline = {
+            { x = 0, y = height }, { x = width * 0.5, y = 0 }, { x = width, y = height }
+        }
+    else
+        shape.width, shape.height = width, height
+    end
+    return true
 end
 
 function EditorTilesetDocument:getAnimationFrames(tile)
@@ -172,9 +243,29 @@ function EditorTilesetDocument:getAnimationFrames(tile)
 end
 
 function EditorTilesetDocument:addAnimationFrame(tile, tile_id)
-    local frame = { tileid = tile_id or tile.id, duration = 100 }
+    if not tile then return nil end
+    tile_id = tonumber(tile_id == nil and tile.id or tile_id)
+    if not tile_id or tile_id < 0 or tile_id % 1 ~= 0
+        or tile_id >= self:getTileCount() then return nil end
+    local frame = { tileid = tile_id, duration = 100 }
     table.insert(self:getAnimationFrames(tile), frame)
     return frame
+end
+
+function EditorTilesetDocument:setAnimationFrameTile(frame, tile_id)
+    tile_id = tonumber(tile_id)
+    if not frame or not tile_id or tile_id < 0 or tile_id % 1 ~= 0
+        or tile_id >= self:getTileCount() then return false end
+    frame.tileid = tile_id
+    frame.tile_id = nil
+    return true
+end
+
+function EditorTilesetDocument:setAnimationFrameDuration(frame, duration)
+    duration = tonumber(duration)
+    if not frame or not duration or duration <= 0 then return false end
+    frame.duration = duration
+    return true
 end
 
 function EditorTilesetDocument:getTerrainSets()
