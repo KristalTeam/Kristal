@@ -7,6 +7,7 @@ function EditorPlugin:init(info)
     self.id = assert(info.id, "EditorPlugin metadata requires an id")
     self.info = info
     self.panels = {}
+    self.workspaces = {}
     self.settings_pages = {}
     self.loaded_scripts = {}
     self.loading_scripts = {}

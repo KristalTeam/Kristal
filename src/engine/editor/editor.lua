@@ -28,6 +28,11 @@ local function safeProjectId(id)
     return tostring(id or "unknown"):gsub("[^%w%._%-]", "_")
 end
 
+local function editorMusicFadeTime(options, fallback)
+    local fade = options and tonumber(options.fade)
+    return math.max(0, fade or fallback or 0)
+end
+
 function Editor:init()
     self.music = Music()
 end
@@ -56,44 +61,171 @@ end
 
 function Editor:resetEditingMusic()
     if self.music then self.music:remove() end
+    if self.editor_music_override_player then self.editor_music_override_player:remove() end
     self.music = Music()
+    self.editor_music_override_player = Music()
+    self.editor_music_overrides = {}
+    self.editor_music_override_sequence = 0
+    self.editor_music_fade_tokens = {}
     self.editing_music_started = false
 end
 
-function Editor:resumeEditingMusic()
-    if not self.editing_music_started then
-        self.music:play(EDITOR_MUSIC, 0)
-        if not self.music.source then return false end
-        self.music:fade(EDITOR_MUSIC_VOLUME, EDITOR_MUSIC_FADE_TIME)
-        self.editing_music_started = true
-    elseif self.music:canResume() then
-        self.music:resume()
+function Editor:invalidateEditingMusicFade(music)
+    local token = (self.editor_music_fade_tokens[music] or 0) + 1
+    self.editor_music_fade_tokens[music] = token
+    return token
+end
+
+function Editor:fadeEditingMusicOut(music, duration)
+    if not music or not music.source then return false end
+    local token = self:invalidateEditingMusicFade(music)
+    duration = math.max(0, tonumber(duration) or 0)
+    if duration == 0 or not music:isPlaying() then
+        music:setVolume(0)
+        music:pause()
+        return true
+    end
+    music:fade(0, duration, function(handler)
+        if self.editor_music_fade_tokens[handler] == token and handler.target_volume == 0 then
+            handler:pause()
+        end
+    end)
+    return true
+end
+
+function Editor:fadeEditingMusicIn(music, volume, duration)
+    if not music or not music.source then return false end
+    self:invalidateEditingMusicFade(music)
+    if music:canResume() then music:resume() end
+    duration = math.max(0, tonumber(duration) or 0)
+    if duration == 0 then
+        music:setVolume(volume)
+    else
+        music:fade(volume, duration)
     end
     return true
 end
 
-function Editor:pauseEditingMusic()
-    if self.music:isPlaying() then self.music:pause() end
+function Editor:resumeEditingMusic(fade_time)
+    if not self.editing_music_started then
+        self.music:play(EDITOR_MUSIC, 0)
+        if not self.music.source then return false end
+        self.editing_music_started = true
+    elseif self.music:canResume() then
+        self.music:resume()
+    end
+    self:fadeEditingMusicIn(self.music, EDITOR_MUSIC_VOLUME,
+        fade_time == nil and EDITOR_MUSIC_FADE_TIME or fade_time)
+    return true
 end
 
-function Editor:stopEditingMusic()
-    self.music:stop()
+function Editor:pauseEditingMusic(fade_time)
+    return self:fadeEditingMusicOut(self.music, fade_time or 0)
+end
+
+function Editor:stopBaseEditingMusic()
+    if self.music then
+        self:invalidateEditingMusicFade(self.music)
+        self.music:stop()
+    end
     self.editing_music_started = false
 end
 
-function Editor:syncEditingMusic()
-    if self.editor_music_enabled == false then
-        self:stopEditingMusic()
-        return
+function Editor:stopEditingMusic()
+    self:stopBaseEditingMusic()
+    if self.editor_music_override_player then
+        self:invalidateEditingMusicFade(self.editor_music_override_player)
+        self.editor_music_override_player:stop()
     end
+    self.editor_music_overrides = {}
+    self.active_editor_music_override = nil
+end
+
+function Editor:setEditorMusicOverride(owner, music, options)
+    assert(owner ~= nil, "Editor music overrides require an owner")
+    assert(music == false or type(music) == "string" and music ~= "",
+        "Editor music overrides require a music id or false for silence")
+    options = TableUtils.copy(options or {}, false)
+    self.editor_music_override_sequence = self.editor_music_override_sequence + 1
+    local request = {
+        owner = owner,
+        music = music,
+        volume = math.max(0, tonumber(options.volume) or 1),
+        pitch = tonumber(options.pitch) or 1,
+        looping = options.looping ~= false,
+        fade = editorMusicFadeTime(options, EDITOR_MUSIC_FADE_TIME),
+        sequence = self.editor_music_override_sequence
+    }
+    self.editor_music_overrides[owner] = request
+    self:syncEditingMusic({ fade = request.fade })
+    return request
+end
+
+function Editor:clearEditorMusicOverride(owner, options)
+    local request = self.editor_music_overrides and self.editor_music_overrides[owner]
+    if not request then return false end
+    self.editor_music_overrides[owner] = nil
+    if not options or options.sync ~= false then
+        self:syncEditingMusic({ fade = editorMusicFadeTime(options, request.fade) })
+    end
+    return true
+end
+
+function Editor:getActiveEditorMusicOverride()
+    local active
+    for _, request in pairs(self.editor_music_overrides or {}) do
+        if not active or request.sequence > active.sequence then active = request end
+    end
+    return active
+end
+
+function Editor:resumeEditorMusicOverride(request, fade_time)
+    local player = self.editor_music_override_player
+    if not player then return false end
+    player:setLooping(request.looping)
+    if player.current ~= request.music or not player.source then
+        player:play(request.music, 0, request.pitch)
+    else
+        player:setPitch(request.pitch)
+        if player:canResume() then player:resume() end
+    end
+    if not player.source then return false end
+    return self:fadeEditingMusicIn(player, request.volume, fade_time)
+end
+
+function Editor:syncEditingMusic(options)
     local preview_running = self.live_document ~= nil
         and not self.game_preview_paused
         and not self.game_faulted
         and not self.exit_transition
     if preview_running then
-        self:pauseEditingMusic()
+        self:pauseEditingMusic(0)
+        self:fadeEditingMusicOut(self.editor_music_override_player, 0)
+        return
+    end
+
+    local request = self:getActiveEditorMusicOverride()
+    self.active_editor_music_override = request
+    local fade_time = editorMusicFadeTime(options,
+        request and request.fade or EDITOR_MUSIC_FADE_TIME)
+    if request then
+        if request.music == false then
+            self:pauseEditingMusic(fade_time)
+            self:fadeEditingMusicOut(self.editor_music_override_player, fade_time)
+            return
+        end
+        if self:resumeEditorMusicOverride(request, fade_time) then
+            self:pauseEditingMusic(fade_time)
+            return
+        end
     else
-        self:resumeEditingMusic()
+        self:fadeEditingMusicOut(self.editor_music_override_player, fade_time)
+    end
+
+    if self.editor_music_enabled == false then
+        self:stopBaseEditingMusic()
+    else
+        self:resumeEditingMusic(fade_time)
     end
 end
 
@@ -410,7 +542,19 @@ function Editor:registerMenuBar()
     self.menu_bar:registerItem("view", "command_palette", "Command Palette (Ctrl+Shift+P)", {
         on_activate = function() self:openCommandPalette() end
     })
-    self.menu_bar:registerItem("view", "reset_layout", "Reset to Default", {
+    self.menu_bar:registerItem("workspaces", "switch", "Switch Workspace...", {
+        on_activate = function() self:openWorkspacePicker() end
+    })
+    self.menu_bar:registerItem("workspaces", "save", "Save Current Workspace...", {
+        on_activate = function() self:openSaveWorkspaceDialog() end
+    })
+    self.menu_bar:registerItem("workspaces", "delete", "Delete Saved Workspace...", {
+        is_enabled = function()
+            return self.workspace_registry and #self.workspace_registry:getUserWorkspaces() > 0
+        end,
+        on_activate = function() self:openDeleteWorkspacePicker() end
+    })
+    self.menu_bar:registerItem("workspaces", "reset", "Reset to Default", {
         on_activate = function() self:resetPanelLayout() end
     })
     self.menu_bar:registerProvider("window", "panels", function()
@@ -1017,6 +1161,11 @@ function Editor:setupPanels(session)
         ui_height - EditorMenuBar.HEIGHT - EditorMessageBar.HEIGHT)
 
     self.default_layout = self:captureLayout()
+    self.workspace_registry:register("core:default", {
+        name = "Default",
+        layout = function(editor) return editor:getDefaultPanelLayout() end,
+        core = true
+    })
     if session and type(session.layout) == "table" then
         local had_properties_panel = session.layout.panels and session.layout.panels.properties
         local had_events_panel = session.layout.panels and session.layout.panels.events
@@ -1063,6 +1212,8 @@ function Editor:setupPanels(session)
             bottom_stack:setActivePanel(self.console_panel)
             self.dockspace:layout()
         end
+    else
+        self.active_workspace_id = "core:default"
     end
 end
 
@@ -1120,6 +1271,12 @@ function Editor:enter(previous, options)
     self.project_id = options.project_id or (Mod and Mod.info.id)
     self.map_id = options.map_id or (Game.world and Game.world.map and Game.world.map.id)
     self.message_bar = EditorMessageBar()
+    self.workspace_registry = EditorWorkspaceRegistry(self)
+    local workspaces_loaded, workspace_error = self.workspace_registry:load()
+    if not workspaces_loaded then
+        self:addWarning("Could not load saved editor workspaces: " .. tostring(workspace_error),
+            nil, "editor_workspaces")
+    end
     self.history = EditorHistory(self)
     self.command_registry = EditorCommandRegistry()
     self.document_providers = EditorDocumentProviders(self)
@@ -1229,6 +1386,7 @@ end
 function Editor:leave()
     self:stopEditingMusic()
     self.music:remove()
+    self.editor_music_override_player:remove()
     self:clearGameObjectSelection()
     if not self.session_saved_for_exit then self:saveSession() end
     if self.project_workspace then self.project_workspace:shutdown() end
@@ -1354,12 +1512,19 @@ function Editor:leave()
     self.object_selection_mouse_buttons = nil
     self.consumed_editor_keys = nil
     self.default_layout = nil
+    self.workspace_registry = nil
+    self.active_workspace_id = nil
     self.game_preview_snapshot = nil
     self.game_preview_snapshot_document = nil
     self.game_preview_snapshot_save_id = nil
     self.game_music_suspended_by_editor = nil
     self.editing_music_started = nil
     self.editor_music_enabled = nil
+    self.editor_music_override_player = nil
+    self.editor_music_overrides = nil
+    self.editor_music_override_sequence = nil
+    self.editor_music_fade_tokens = nil
+    self.active_editor_music_override = nil
     self.game_preview_movement_lock = nil
     self.game_preview_lock_before_pause = nil
 end
@@ -1972,6 +2137,147 @@ function Editor:openCommandPalette()
         maximum_rows = 14,
         width = width,
         placeholder = "Type a command..."
+    })
+end
+
+function Editor:getWorkspaceDisplayName(workspace)
+    if workspace.user then return workspace.name .. " (Saved)" end
+    if workspace.owner then
+        local plugin_name = workspace.owner.info and workspace.owner.info.name or workspace.owner.id
+        return workspace.name .. " (" .. tostring(plugin_name) .. ")"
+    end
+    return workspace.name
+end
+
+function Editor:applyWorkspace(id)
+    local workspace = self.workspace_registry and self.workspace_registry:get(id)
+    if not workspace then return false end
+    local layout, reason = self.workspace_registry:resolveLayout(workspace)
+    if not layout then
+        self:addWarning("Could not load workspace '" .. tostring(workspace.name) .. "': "
+            .. tostring(reason), nil, "editor_workspace")
+        return false
+    end
+    local success, message = xpcall(function() self:restoreLayout(layout) end, ErrorUtils.traceback)
+    if not success then
+        self:addWarning("Could not apply workspace '" .. tostring(workspace.name) .. "'",
+            message, "editor_workspace")
+        return false
+    end
+    self.active_workspace_id = id
+    self.message_bar:setStatus("Workspace: " .. workspace.name)
+    return true
+end
+
+function Editor:openWorkspacePicker()
+    if not self.workspace_registry then return false end
+    local workspaces = self.workspace_registry:getAll()
+    table.sort(workspaces, function(a, b)
+        local a_group = a.core and 1 or a.user and 2 or 3
+        local b_group = b.core and 1 or b.user and 2 or 3
+        if a_group ~= b_group then return a_group < b_group end
+        return a.name:lower() < b.name:lower()
+    end)
+    local items = {}
+    for _, registered in ipairs(workspaces) do
+        local workspace = registered
+        local label = self:getWorkspaceDisplayName(workspace)
+        table.insert(items, {
+            label = label,
+            search_text = table.concat({ workspace.name, label, workspace.id }, " "),
+            checked = workspace.id == self.active_workspace_id,
+            action = function() self:applyWorkspace(workspace.id) end
+        })
+    end
+    if #items == 0 then return false end
+    self.menu_bar.open_menu = nil
+    local width = math.min(520, math.max(320, self.dockspace.width - 24))
+    local x = self.dockspace.x + math.floor((self.dockspace.width - width) / 2)
+    return self.dockspace:openContextMenu(items, x, self.dockspace.y + 18, self, {
+        searchable = true,
+        maximum_rows = 14,
+        width = width,
+        placeholder = "Search workspaces..."
+    })
+end
+
+function Editor:openSaveWorkspaceDialog()
+    if not self.workspace_registry then return false end
+    local active = self.workspace_registry:get(self.active_workspace_id)
+    local default_name = active and active.user and active.name or "Workspace"
+    return self:openCreationDialog({
+        title = "Save Current Workspace",
+        create_label = "Save",
+        templates = { {
+            id = "workspace",
+            category = "Workspace",
+            name = "Workspace",
+            variables = { {
+                id = "name", name = "Name", type = "string", code_name = false
+            } }
+        } },
+        context = { defaults = { name = default_name } },
+        on_create = function(values)
+            local name = StringUtils.trim(tostring(values.name or ""))
+            if name == "" then return false, "Workspace name cannot be empty" end
+            local existing = self.workspace_registry:findUserByName(name)
+            if existing then
+                local pressed = love.window.showMessageBox(
+                    "Overwrite Workspace",
+                    "Replace the saved workspace '" .. existing.name .. "' with the current layout?",
+                    { "Overwrite", "Cancel", enterbutton = 1, escapebutton = 2 },
+                    "warning",
+                    true
+                )
+                if pressed ~= 1 then return false, "Choose another name or cancel" end
+            end
+            local workspace, reason = self.workspace_registry:saveCurrent(name)
+            if not workspace then return false, reason end
+            self.active_workspace_id = workspace.id
+            return true
+        end
+    })
+end
+
+function Editor:openDeleteWorkspacePicker()
+    if not self.workspace_registry then return false end
+    local workspaces = self.workspace_registry:getUserWorkspaces()
+    table.sort(workspaces, function(a, b) return a.name:lower() < b.name:lower() end)
+    local items = {}
+    for _, registered in ipairs(workspaces) do
+        local workspace = registered
+        table.insert(items, {
+            label = workspace.name,
+            search_text = workspace.name .. " " .. workspace.id,
+            action = function()
+                local pressed = love.window.showMessageBox(
+                    "Delete Workspace",
+                    "Delete the saved workspace '" .. workspace.name .. "'?",
+                    { "Delete", "Cancel", enterbutton = 2, escapebutton = 2 },
+                    "warning",
+                    true
+                )
+                if pressed ~= 1 then return end
+                local deleted, reason = self.workspace_registry:deleteUser(workspace.id)
+                if not deleted then
+                    self:addWarning("Could not delete workspace '" .. workspace.name .. "': "
+                        .. tostring(reason), nil, "editor_workspace")
+                    return
+                end
+                if self.active_workspace_id == workspace.id then self.active_workspace_id = nil end
+                self.message_bar:setStatus("Deleted workspace: " .. workspace.name)
+            end
+        })
+    end
+    if #items == 0 then return false end
+    self.menu_bar.open_menu = nil
+    local width = math.min(460, math.max(300, self.dockspace.width - 24))
+    local x = self.dockspace.x + math.floor((self.dockspace.width - width) / 2)
+    return self.dockspace:openContextMenu(items, x, self.dockspace.y + 18, self, {
+        searchable = true,
+        maximum_rows = 12,
+        width = width,
+        placeholder = "Search saved workspaces..."
     })
 end
 
@@ -3763,6 +4069,44 @@ function Editor:canForwardGameKeyboardInput()
     return not (focused and focused.accepts_text_input)
 end
 
+function Editor:canUseGameDebugInput()
+    if not self:isGamePreviewMounted() then return false end
+    local owner = self:getGamePreviewOwnerPanel()
+    if not owner or not self.dockspace:isPanelDisplayed(owner) then return false end
+    local focused = self.dockspace.focused_control
+    return not (focused and focused.accepts_text_input)
+end
+
+function Editor:isGameDebugOverlayActive()
+    return Kristal.DebugSystem and Kristal.DebugSystem.state ~= "IDLE"
+end
+
+function Editor:handleGameDebugKeyPressed(key, is_repeat)
+    local debug_system = Kristal.DebugSystem
+    if not debug_system or not self:canUseGameDebugInput() then return false end
+
+    if Kristal.isDevMode() and not TextInput.active and Input.shouldProcess(key)
+        and Input.is("debug_menu", key) then
+        Input.clear("debug_menu")
+        self:runGameCallback("debug menu input", function()
+            if debug_system:isMenuOpen() then
+                Assets.playSound("ui_move")
+                debug_system:closeMenu()
+            else
+                debug_system:openMenu()
+            end
+        end)
+        return true
+    end
+
+    if debug_system.state == "IDLE" then return false end
+    self:runGameCallback("debug menu input", function()
+        debug_system:onKeyPressed(key, is_repeat)
+        if TextInput.active and not is_repeat then TextInput.onKeyPressed(key) end
+    end)
+    return true
+end
+
 function Editor:getGamePreviewPosition(x, y, allow_outside)
     if not self:isGamePreviewMounted() then return nil end
     local owner = self:getGamePreviewOwnerPanel()
@@ -3797,6 +4141,7 @@ end
 function Editor:clearGameObjectSelection()
     local debug_system = Kristal.DebugSystem
     if not debug_system or debug_system.selection_environment_owner ~= self then return false end
+    if debug_system.state ~= "IDLE" then debug_system:closeMenu() end
     if debug_system.context then debug_system.context:close() end
     debug_system:unselectObject()
     self:clearPropertiesTarget(self)
@@ -3949,9 +4294,10 @@ function Editor:forwardGameKeyReleased(key)
 end
 
 function Editor:forwardGameTextInput(text)
-    if not self:canForwardGameKeyboardInput() then return false end
+    local debug_input = self:isGameDebugOverlayActive() and self:canUseGameDebugInput()
+    if not self:canForwardGameKeyboardInput() and not debug_input then return false end
     self:runGameCallback("text input", function()
-        if self.source_state.onTextInput then self.source_state:onTextInput(text) end
+        if not OVERLAY_OPEN and self.source_state.onTextInput then self.source_state:onTextInput(text) end
         TextInput.onTextInput(text)
         Kristal.callEvent(KRISTAL_EVENT.onTextInput, text)
     end)
@@ -4007,6 +4353,7 @@ function Editor:onKeyPressed(key, is_repeat)
     if self.settings_browser and self.settings_browser:isCapturingKeybind() then
         return self.dockspace:onKeyPressed(key, is_repeat) ~= false
     end
+    if self:handleGameDebugKeyPressed(key, is_repeat) then return true end
     if not is_repeat and Input.is("editor_command_palette", key) then
         self.consumed_editor_keys[key] = true
         Input.clear("editor_command_palette")
@@ -4150,6 +4497,12 @@ function Editor:onKeyReleased(key)
     if self.path_picker then return self.path_picker:onKeyReleased(key) end
     if self.color_picker then return self.color_picker:onKeyReleased(key) end
     if self.creation_dialog then return self.creation_dialog:onKeyReleased(key) end
+    if self:isGameDebugOverlayActive() and self:canUseGameDebugInput() then
+        self:runGameCallback("debug menu input", function()
+            Kristal.DebugSystem:onKeyReleased(key)
+        end)
+        return true
+    end
     if self.consumed_editor_keys[key] then
         self.consumed_editor_keys[key] = nil
         return true
@@ -4227,6 +4580,12 @@ function Editor:onWheelMoved(x, y)
     if self.path_picker then return self.path_picker:onWheelMoved(x, y) end
     if self.color_picker then return self.color_picker:onWheelMoved(x, y) end
     if self.creation_dialog then return self.creation_dialog:onWheelMoved(x, y) end
+    if self:isGameDebugOverlayActive() and self:canUseGameDebugInput() then
+        self:runGameCallback("debug menu input", function()
+            Kristal.DebugSystem:onWheelMoved(x, y)
+        end)
+        return true
+    end
     local mouse_x, mouse_y = self:getMousePosition()
     if self.message_bar:containsPoint(mouse_x, mouse_y) then return true end
     return self.dockspace:onWheelMoved(x, y)
@@ -4236,7 +4595,7 @@ function Editor:captureLayout()
     return self.dockspace:captureLayout()
 end
 
-function Editor:resetPanelLayout()
+function Editor:getDefaultPanelLayout()
     if not self.default_layout then return false end
     local layout = TableUtils.copy(self.default_layout, true)
     local center = layout.regions.center
@@ -4254,7 +4613,14 @@ function Editor:resetPanelLayout()
         end
     end
     if self.active_document then center_stack.active = self.active_document.panel.id end
+    return layout
+end
+
+function Editor:resetPanelLayout()
+    local layout = self:getDefaultPanelLayout()
+    if not layout then return false end
     self:restoreLayout(layout)
+    self.active_workspace_id = "core:default"
     return true
 end
 

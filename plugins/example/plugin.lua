@@ -25,6 +25,17 @@ function ExamplePlugin:onInit(editor)
             end
         end
     })
+
+    self:registerWorkspace("help", "Help", function(active_editor)
+        local layout = active_editor:getDefaultPanelLayout()
+        local right = layout.regions.right
+        right.stacks = right.stacks or {}
+        right.stacks[1] = right.stacks[1] or { id = "right", panels = {} }
+        layout.panels[panel.panel_id] = { visible = true, last_region = right.stacks[1].id }
+        table.insert(right.stacks[1].panels, panel.panel_id)
+        right.stacks[1].active = panel.panel_id
+        return layout
+    end)
 end
 
 return ExamplePlugin

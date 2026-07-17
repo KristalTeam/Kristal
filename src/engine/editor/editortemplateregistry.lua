@@ -210,6 +210,23 @@ end
 
 function EditorTemplateRegistry.coerce(field, value)
     if field.type == "boolean" then return value == true end
+    if field.type == "asset_path_list" then
+        if type(value) == "string" then value = { value } end
+        if value == nil then value = {} end
+        if type(value) ~= "table" then return nil, field.name .. " must be a list of asset paths" end
+        local result = {}
+        for index, path in ipairs(value) do
+            if type(path) ~= "string" then
+                return nil, field.name .. " entry " .. index .. " must be an asset path"
+            end
+            path = path:match("^%s*(.-)%s*$"):gsub("\\", "/"):gsub("^%./", "")
+            result[index] = path
+        end
+        while result[#result] == "" do table.remove(result) end
+        if #result == 0 and field.required ~= true then return nil end
+        if #result == 0 then return nil, field.name .. " requires at least one asset path" end
+        return result
+    end
     if field.type == "table" then
         if value == nil and field.nullable then return nil end
         if type(value) ~= "table" then return nil, field.name .. " must be a table" end
@@ -301,8 +318,11 @@ function EditorTemplateRegistry.registerBuiltins(registry)
         variables = {
             variable("id", "ID", "string", "new_tileset", { validate = validId }),
             variable("name", "Name", "string", "New Tileset"),
-            variable("image", "Image", "string", "", { required = false,
-                description = "Asset path, or leave empty for a blank tileset." }),
+            variable("image", "Images", "asset_path_list", { "" }, { required = false,
+                path_kind = "asset", asset_categories = { "sprites" },
+                extensions = { "png", "jpg", "jpeg", "bmp", "tga", "webp" },
+                maximum_visible_rows = 5,
+                description = "Add one image for a spritesheet, or one image per tile for a multi-image tileset." }),
             variable("tile_width", "Tile Width", "integer", 40, { minimum = 1 }),
             variable("tile_height", "Tile Height", "integer", 40, { minimum = 1 }),
             variable("tile_columns", "Columns", "integer", 1, { minimum = 1 }),

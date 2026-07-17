@@ -58,12 +58,20 @@ function EditorTilesetBrowser:createTileset()
             for _, existing in ipairs(self.editor.tileset_documents) do
                 if existing.id == values.id then return false, "A tileset with that id already exists" end
             end
+            local image
+            if values.image and #values.image == 1 then
+                image = values.image[1]
+            elseif values.image and #values.image > 1 then
+                image = TableUtils.copy(values.image, true)
+            end
+            local tile_count = values.tile_count
+            if type(image) == "table" then tile_count = #image end
             local data = {
                 name = values.name,
-                image = values.image ~= "" and values.image or nil,
+                image = image,
                 tile_width = values.tile_width,
                 tile_height = values.tile_height,
-                tile_count = values.tile_count,
+                tile_count = tile_count,
                 tile_columns = values.tile_columns,
                 margin = values.margin,
                 spacing = values.spacing,
