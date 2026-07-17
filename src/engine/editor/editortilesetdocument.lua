@@ -643,13 +643,36 @@ function EditorTilesetDocument:getPropertiesTarget()
             { label = "Name", get = function() return data.name or self.id end,
                 set = function(value) data.name = value return true end },
             { label = "Type", readonly = true,
-                get = function() return data.image and "Tileset Image" or "Collection of Images" end,
+                get = function()
+                    if type(data.image) == "table" then return "Collection of Images" end
+                    return data.image and "Tileset Image" or "Blank Tileset"
+                end,
                 set = function() return false end },
-            { label = "Image", control = "path", path_kind = "asset",
+            { label = "Images", control = "path_list", path_kind = "asset",
                 asset_categories = { "sprites" },
                 extensions = { "png", "jpg", "jpeg", "bmp", "tga", "webp" },
-                get = function() return data.image or "" end,
-                set = function(value) data.image = value ~= "" and value or nil return true end },
+                maximum_visible_rows = 5,
+                get = function()
+                    if type(data.image) == "table" then return TableUtils.copy(data.image, true) end
+                    return data.image and { data.image } or {}
+                end,
+                set = function(value)
+                    local images = {}
+                    for index, image in ipairs(value or {}) do
+                        image = tostring(image or ""):match("^%s*(.-)%s*$")
+                        images[index] = image
+                    end
+                    while images[#images] == "" do table.remove(images) end
+                    if #images == 0 then
+                        data.image = nil
+                    elseif #images == 1 then
+                        data.image = images[1]
+                    else
+                        data.image = images
+                        data.tile_count = math.max(data.tile_count or 0, #images)
+                    end
+                    return true
+                end },
             numberField("Tile Width", "tile_width"), numberField("Tile Height", "tile_height"),
             numberField("Tile Count", "tile_count"), numberField("Columns", "tile_columns"),
             numberField("Margin", "margin"), numberField("Spacing", "spacing"),

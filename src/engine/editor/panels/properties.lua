@@ -310,6 +310,14 @@ function EditorPropertiesPanel:rebuild()
             options.on_submit = function(value) return setField(value, true) end
             value_control = self:addGeneratedControl(EditorPathInput(self.editor, field.get(), options))
             value_control.enabled = field.readonly ~= true
+        elseif field.control == "path_list" or field.type == "asset_path_list" then
+            local options = TableUtils.copy(field, true)
+            options.on_changed = function(value) return setField(value, true) end
+            options.on_request_focus = function(input)
+                if self.editor.dockspace then self.editor.dockspace:setFocus(input) end
+            end
+            value_control = self:addGeneratedControl(EditorPathListInput(self.editor, field.get(), options))
+            value_control.enabled = field.readonly ~= true
         else
             local input = self:addGeneratedControl(EditorTextInput({
                 placeholder = field.placeholder,
@@ -577,7 +585,8 @@ function EditorPropertiesPanel:update(dt)
     for _, row in ipairs(self.layout_rows) do
         if row.kind == "standard" then
             row.label_y = y
-            local control_height = row.value_control.multiline and 96 or 28
+            local control_height = row.value_control.preferred_height
+                or (row.value_control.multiline and 96 or 28)
             row.value_control:setBounds(padding, y + 18, width, control_height)
             y = y + control_height + 26
         elseif row.kind == "standard_pair" then

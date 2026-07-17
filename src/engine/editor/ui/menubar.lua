@@ -9,6 +9,7 @@ local BUTTONS = {
     { id = "edit", label = "Edit" },
     { id = "properties", label = "Properties" },
     { id = "view", label = "View" },
+    { id = "workspaces", label = "Workspaces" },
     { id = "window", label = "Window" },
     { id = "help", label = "Help" }
 }

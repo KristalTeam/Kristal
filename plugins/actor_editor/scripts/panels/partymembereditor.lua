@@ -27,6 +27,25 @@ local function labelFor(id)
     return tostring(id):gsub("_", " "):gsub("^%l", string.upper)
 end
 
+local function fitText(font, value, max_width)
+    local text = tostring(value or "")
+    if max_width <= 0 then return "" end
+    if font:getWidth(text) <= max_width then return text end
+
+    local suffix = "..."
+    local available = max_width - font:getWidth(suffix)
+    if available <= 0 then return "" end
+
+    local cursor, last = 1, 0
+    while cursor <= #text do
+        local next_cursor = utf8.offset(text, 2, cursor) or (#text + 1)
+        if font:getWidth(text:sub(1, next_cursor - 1)) > available then break end
+        last = next_cursor - 1
+        cursor = next_cursor
+    end
+    return text:sub(1, last) .. suffix
+end
+
 function PartyMemberEditor:init(editor, plugin)
     super.init(self, 0, 0, 980, 680)
     self.editor = editor
@@ -499,7 +518,8 @@ end
 function PartyMemberEditor:refreshActorLinks()
     for _, key in ipairs({ "actor", "light_actor", "dark_transition_actor" }) do
         local id = self.model and self.model[key]
-        self.actor_buttons[key].label = id or "None"
+        self.actor_buttons[key].full_label = id or "None"
+        self.actor_buttons[key].label = self.actor_buttons[key].full_label
         self.actor_buttons[key].enabled = self.model ~= nil
         self.actor_open_buttons[key].enabled = id ~= nil
     end
@@ -654,10 +674,11 @@ end
 
 function PartyMemberEditor:update(dt)
     local padding, header, list_width = 8, 34, 190
+    local footer_height = 24
     self.search:setBounds(padding, padding, list_width - 74, 28)
     self.refresh_button:setBounds(padding + list_width - 68, padding, 68, 28)
     self.member_list:setBounds(padding, padding + header, list_width,
-        math.max(0, self.height - header - padding * 2))
+        math.max(0, self.height - header - padding * 2 - footer_height))
     self.save_button:setBounds(math.max(padding, self.width - 76), padding, 68, 28)
 
     local content_x = padding + list_width + 10
@@ -676,6 +697,10 @@ function PartyMemberEditor:update(dt)
         self.actor_open_buttons[key]:setBounds(x + math.max(80, link_width - 50),
             links_y + 20, 50, 28)
         self.actor_buttons[key]._label_x = x
+        self.actor_buttons[key]._label_width = link_width
+        self.actor_buttons[key].label = fitText(EditorFont.get(16),
+            self.actor_buttons[key].full_label or self.actor_buttons[key].label,
+            self.actor_buttons[key].width - 10)
     end
 
     local body_y = links_y + 58
@@ -692,7 +717,7 @@ function PartyMemberEditor:update(dt)
     local column_gap = 10
     local column_width = math.max(100,
         math.floor((form_width - column_gap * (columns - 1)) / columns))
-    local row_height = 50
+    local row_height = 54
     for index, row in ipairs(rows) do
         local column = (index - 1) % columns
         local line = math.floor((index - 1) / columns)
@@ -718,12 +743,13 @@ function PartyMemberEditor:drawSelf()
     }
     for key, button in pairs(self.actor_buttons) do
         Draw.setColor(0.68, 0.68, 0.72, 1)
-        love.graphics.print(link_labels[key], button._label_x or button.x, button.y - 18)
+        love.graphics.print(fitText(font, link_labels[key], button._label_width or button.width),
+            button._label_x or button.x, button.y - 18)
     end
     for _, row in ipairs(self.field_rows) do
         if row.mode == self.mode and row.control.visible and row.draw_x then
             Draw.setColor(0.68, 0.68, 0.72, 1)
-            love.graphics.print(row.label, row.draw_x, row.draw_y)
+            love.graphics.print(fitText(font, row.label, row.draw_width), row.draw_x, row.draw_y)
         end
     end
     if self.mode == "chapters" and not self.selected_chapter then

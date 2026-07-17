@@ -233,6 +233,56 @@ function EditorPlugin:registerPanel(id, title, content_factory, options)
     return definition
 end
 
+---@param id string
+---@param name string|table
+---@param layout? table|fun(editor: Editor, workspace: table): table
+---@param options? table
+function EditorPlugin:registerWorkspace(id, name, layout, options)
+    assert(type(id) == "string" and id ~= "", "Plugin workspaces require an id")
+    assert(not self.workspaces[id], "Duplicate plugin workspace id: " .. id)
+    if type(name) == "table" and layout == nil then
+        options = name
+        name = options.name
+        layout = options.layout or options.get_layout
+    end
+    options = TableUtils.copy(options or {}, false)
+    local workspace_id = namespaced(self, "workspace", id)
+    options.name = name or options.name or id
+    options.layout = layout or options.layout or options.get_layout
+    options.owner = self
+    local workspace = EditorPlugins.editor.workspace_registry:register(workspace_id, options)
+    self.workspaces[id] = workspace
+    self:trackRegistration(function()
+        self.workspaces[id] = nil
+        local editor = EditorPlugins.editor
+        if editor and editor.workspace_registry then
+            editor.workspace_registry:remove(workspace_id, workspace)
+        end
+    end)
+    return workspace
+end
+
+---@param music string|false Music id, or false to silence editor music
+---@param options? {volume?: number, pitch?: number, looping?: boolean, fade?: number}
+function EditorPlugin:setEditorMusicOverride(music, options)
+    local editor = assert(EditorPlugins.editor, "Editor music is unavailable outside editor mode")
+    if not self.editor_music_cleanup_registered then
+        self.editor_music_cleanup_registered = true
+        self:trackRegistration(function()
+            local active_editor = EditorPlugins.editor
+            if active_editor then active_editor:clearEditorMusicOverride(self, { fade = 0 }) end
+            self.editor_music_cleanup_registered = nil
+        end)
+    end
+    return editor:setEditorMusicOverride(self, music, options)
+end
+
+---@param options? {fade?: number}
+function EditorPlugin:clearEditorMusicOverride(options)
+    local editor = EditorPlugins.editor
+    return editor and editor:clearEditorMusicOverride(self, options) or false
+end
+
 function EditorPlugin:registerMenuItem(menu_id, id, label, options)
     assert(type(menu_id) == "string" and menu_id ~= "", "Plugin menu items require a menu id")
     assert(type(id) == "string" and id ~= "", "Plugin menu items require an id")
@@ -379,6 +429,7 @@ function EditorPlugins:disablePlugin(plugin)
     if self.editor and self.editor.settings then self.editor.settings:removeOwner(plugin) end
     self:clearPluginRegistrations(plugin)
     plugin.settings_pages = {}
+    plugin.workspaces = {}
 end
 
 function EditorPlugins:report(editor, message, detail)

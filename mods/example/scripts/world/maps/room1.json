@@ -954,7 +954,7 @@
           "properties": [
             {
               "name": "cutscene",
-              "type": "string",
+              "type": "script_path",
               "value": "room1.wall"
             },
             {
