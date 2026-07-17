@@ -30,7 +30,7 @@ function MainMenuCredits:init(menu)
                 "Temmie Chang",
                 "DELTARUNE team",
                 "",
-                "",
+                ""
             },
             {
                 { "GitHub Contributors", COLORS.silver },
@@ -42,7 +42,7 @@ function MainMenuCredits:init(menu)
                 "Azrael",
                 "Bor",
                 "CosmicPikachu001",
-                "DiamondDeltahedron",
+                "DiamondDeltahedron"
             }
         },
         {
@@ -57,7 +57,7 @@ function MainMenuCredits:init(menu)
                 "HmmNoPls",
                 "HUECYCLES",
                 "Hyperboid",
-                "isakube",
+                "isakube"
             },
             {
                 { "GitHub Contributors", COLORS.silver },
@@ -69,14 +69,14 @@ function MainMenuCredits:init(menu)
                 "MaybeSamo",
                 "MCdeDaxia",
                 "MihBoss96",
-                "MrOinky",
-                "NakuAutumn",
+                "MrOinky"
             }
         },
         {
             "Kristal Engine",
             {
                 { "GitHub Contributors", COLORS.silver },
+                "NakuAutumn",
                 "NelleMonelle",
                 "Nextop",
                 "nightpool",
@@ -84,17 +84,17 @@ function MainMenuCredits:init(menu)
                 "rfrx",
                 "Simbel",
                 "sjl057",
-                "skarph",
-                "SuperOfSrb2",
+                "skarph"
             },
             {
                 { "GitHub Contributors", COLORS.silver },
+                "SuperOfSrb2",
                 "SweetSylveon",
                 "TFLTV",
                 "TheSkerch",
                 "Verozity",
                 "WIL-TZY",
-                "YeetusSnoopy",
+                "YeetusSnoopy"
             }
         }
     }
