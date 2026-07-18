@@ -216,7 +216,7 @@
       "name": "markers",
       "x": 0,
       "y": 0,
-      "type": "markers",
+      "type": "objects",
       "kind": "object",
       "alpha": 1,
       "visible": true,
@@ -228,7 +228,7 @@
         {
           "id": 5,
           "name": "spawn",
-          "type": "",
+          "type": "marker",
           "x": 360,
           "y": 240,
           "width": 0,
@@ -245,7 +245,7 @@
         {
           "id": 8,
           "name": "entry_left",
-          "type": "",
+          "type": "marker",
           "x": 40,
           "y": 360,
           "width": 0,
@@ -262,7 +262,7 @@
         {
           "id": 13,
           "name": "entry_right",
-          "type": "",
+          "type": "marker",
           "x": 720,
           "y": 360,
           "width": 0,

@@ -49,7 +49,8 @@ function EditorObjectReferenceControl:onBlur() self.focused = false end
 function EditorObjectReferenceControl:openPicker()
     if not self.editor then return false end
     local options = TableUtils.copy(self.options, true)
-    options.title = options.title or (options.marker and "Choose Marker Reference" or "Choose Object Reference")
+    options.title = options.title or (options.allowed_types and #options.allowed_types == 1
+        and options.allowed_types[1] == "marker" and "Choose Marker Reference" or "Choose Object Reference")
     options.on_apply = function(value)
         self.value = value
         if self.on_changed then return self.on_changed(value, self) end

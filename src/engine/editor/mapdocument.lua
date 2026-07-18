@@ -206,6 +206,12 @@ function EditorMapDocument:getEditableLayers(id)
                 and (layer.type == "group" and Registry.getLayerType("folder")
                     or Registry.layer_types:getLegacyTiledType(layer))
                 or Registry.getLayerType(layer._editor_type_id or layer.type or "default")
+            if legacy then
+                for _, object in ipairs(layer.objects or {}) do
+                    object.type = Registry.layer_types:getLegacyTiledObjectType(layer, object)
+                        or object.type
+                end
+            end
             layer._editor_type_id = layer_type and layer_type.id or "default"
             layer._editor_kind_id = layer.kind or (layer_type and layer_type.kind) or "object"
             layer._editor_visible = layer.visible ~= false
@@ -317,7 +323,8 @@ function EditorMapDocument:invalidatePreview(id)
     return true
 end
 
-function EditorMapDocument:createEditableLayer(type_id, id, parent_uid)
+function EditorMapDocument:createEditableLayer(type_id, id, parent_uid, options)
+    options = options or {}
     id = id or self.primary_map_id
     local data = Registry.getMapData(id)
     if not data then return nil end
@@ -333,10 +340,11 @@ function EditorMapDocument:createEditableLayer(type_id, id, parent_uid)
     local used, index = {}, 1
     for _, entry in ipairs(self:getFlatEditableLayers(id)) do used[(entry.layer.name or ""):lower()] = true end
     local layer_type = Registry.getLayerType(type_id or "tile") or Registry.getLayerType("default")
-    local name = "New " .. (layer_type and layer_type.name or "Layer")
+    local base_name = options.name or "New " .. (layer_type and layer_type.name or "Layer")
+    local name = base_name
     while used[name:lower()] do
         index = index + 1
-        name = "New " .. (layer_type and layer_type.name or "Layer") .. " " .. index
+        name = base_name .. " " .. index
     end
     local kind = layer_type and layer_type.kind or "object"
     local used_ids = {}
@@ -362,9 +370,9 @@ function EditorMapDocument:createEditableLayer(type_id, id, parent_uid)
         offsety = 0,
         parallaxx = 1,
         parallaxy = 1,
-        properties = {},
+        properties = TableUtils.copy(options.properties or {}, true),
         _editor_property_types = {},
-        color = TableUtils.copy(layer_type and layer_type.color or { 0.8, 0.8, 0.82, 1 }, true)
+        color = TableUtils.copy(options.color or (layer_type and layer_type.color) or { 0.8, 0.8, 0.82, 1 }, true)
     }
     self.next_layer_uid = self.next_layer_uid + 1
     if kind == "tile" then
@@ -505,10 +513,9 @@ function EditorMapDocument:getSelectedObjectLayer(id)
     local fallback
     for _, layer in ipairs(self:getAllEditableLayers(id)) do
         local layer_type = Registry.getLayerType(layer._editor_type_id)
-        if layer._editor_uid == selected and layer_type and layer_type.kind == "object"
+        if layer._editor_uid == selected and layer_type and layer_type.id == "objects"
             and not self:isLayerLocked(layer, id) then return layer end
-        if layer_type and layer_type.kind == "object" and not self:isLayerLocked(layer, id)
-            and (not fallback or layer._editor_type_id == "objects") then
+        if layer_type and layer_type.id == "objects" and not self:isLayerLocked(layer, id) then
             fallback = layer
         end
     end
@@ -1150,13 +1157,8 @@ function EditorMapDocument:getObjectLocalRect(selection)
 end
 
 function EditorMapDocument:getEditorObjectType(data, map_id)
-    local event_type = data and data.type
     local reader = map_id and Registry.getMapReader(map_id)
-    if reader and reader.LEGACY_FORMAT and (event_type == nil or event_type == "") then
-        event_type = data.class
-        if event_type == nil or event_type == "" then event_type = data.name end
-    end
-    return type(event_type) == "string" and event_type:lower() or event_type
+    return data and MapUtils.getObjectType(data, reader and reader.LEGACY_FORMAT)
 end
 
 function EditorMapDocument:getObjectScalingMode(selection)
@@ -1289,14 +1291,11 @@ function EditorMapDocument:findMarkerSelection(map_id, marker)
     if not self.map_lookup[map_id] or reference.object_id == nil then return nil end
     for _, layer_entry in ipairs(self:getFlatEditableLayers(map_id, false)) do
         local layer = layer_entry.layer
-        local marker_layer = layer._editor_type_id == "markers" or layer.type == "markers"
-            or tostring(layer.name or ""):lower() == "markers"
-        if marker_layer then
-            for _, object in ipairs(layer.objects or {}) do
-                if tostring(object.id) == tostring(reference.object_id)
-                    or tostring(object.name) == tostring(reference.object_id) then
-                    return self:getObjectSelection(map_id, layer, object)
-                end
+        for _, object in ipairs(layer.objects or {}) do
+            if self:getEditorObjectType(object, map_id) == "marker"
+                and (tostring(object.id) == tostring(reference.object_id)
+                    or tostring(object.name) == tostring(reference.object_id)) then
+                return self:getObjectSelection(map_id, layer, object)
             end
         end
     end
@@ -1415,7 +1414,7 @@ function EditorMapDocument:createPreview(entry)
         elseif layer.type == "objectgroup" then
             local layer_type = layer_registry:get(layer._editor_type_id)
                 or (reader_class and reader_class.LEGACY_FORMAT and layer_registry:getLegacyTiledType(layer))
-            if layer_type and (layer_type.id == "objects" or layer_type.id == "controllers") then
+            if layer_type and layer_type.id == "objects" then
                 local layer_color = layer_registry:getLayerColor(layer, layer_type)
                 for _, object in ipairs(layer.objects or {}) do
                     local event_id = self:getEditorObjectType(object, entry.id)

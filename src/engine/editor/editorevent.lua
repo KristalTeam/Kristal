@@ -23,6 +23,7 @@
 ---@field y number
 ---@field placement_shape "rectangle"|"point"|"region"
 ---@field scaling_mode "resize"|"scale"
+---@field runtime_type "event"|"controller"|"marker"|"path"
 ---@overload fun(data?: table, options?: table): EditorEvent
 local EditorEvent = Class()
 
@@ -33,10 +34,14 @@ EditorEvent.placement_shape = "rectangle"
 -- "resize" changes the object's actual bounds. "scale" preserves those bounds
 -- and records a visual scale when the resize handles are dragged.
 EditorEvent.scaling_mode = "resize"
+EditorEvent.runtime_type = "event"
 
 function EditorEvent:registerProperty(id, property_type, options)
     options = TableUtils.copy(options or {}, true)
     if property_type == "object_reference" and options.map_id == nil then options.map_id = self.map_id end
+    if property_type == "object_reference" and options.allowed_types ~= nil then
+        assert(type(options.allowed_types) == "table", "Object reference allowed_types must be a list")
+    end
     return self.property_set:registerProperty(id, property_type, options)
 end
 
@@ -158,7 +163,8 @@ function EditorEvent:draw(alpha)
     end
     local width, height = self:getBoundsSize()
     if marker then
-        Draw.draw(texture, 0, 0, 0, 2, 2, texture:getWidth() / 2, texture:getHeight())
+        Draw.draw(texture, width / 2, height / 2, 0, 2, 2,
+            texture:getWidth() / 2, texture:getHeight())
     elseif self.width ~= 0 or self.height ~= 0 then
         local scale_x = self.scaling_mode == "scale" and self.scale_x or 1
         local scale_y = self.scaling_mode == "scale" and self.scale_y or 1

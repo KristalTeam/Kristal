@@ -13,7 +13,7 @@ function EditorTransition:init(data, options)
     self:registerProperty("x", "number")
     self:registerProperty("y", "number")
     self:registerProperty("marker", "object_reference", {
-        marker = true, target_map_property = "map"
+        allowed_types = { "marker" }, target_map_property = "map"
     })
     self:registerProperty("facing", "choice", { choices = { "up", "down", "left", "right" } })
     self:registerProperty("sound", "asset_path", {

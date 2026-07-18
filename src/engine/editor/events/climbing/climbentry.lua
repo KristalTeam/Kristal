@@ -3,7 +3,7 @@
 local EditorClimbEntry, super = Class(EditorEvent)
 function EditorClimbEntry:init(data, options)
     super.init(self, data, options)
-    self:registerProperty("target", "object_reference", { marker = true })
+    self:registerProperty("target", "object_reference", { allowed_types = { "climbexit" } })
     self:registerProperty("solid", "boolean")
 end
 function EditorClimbEntry:createObject(map, context)

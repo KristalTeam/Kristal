@@ -47,35 +47,10 @@ function TiledMapReader:save(path, options)
 end
 
 function operations.loadMapData(self, data)
-    local object_depths = {}
     local tile_depths = {}
     local indexed_layers = {}
     local has_battle_border = false
-
-    local layers = {}
-
-    local function loadLayer(layer)
-        if layer.type ~= "group" then
-            table.insert(layers, layer)
-        else
-            for i, sublayer in ipairs(layer.layers) do
-                local sublayer_copy = TableUtils.copy(sublayer)
-                sublayer_copy.properties = TableUtils.mergeMany(layer.properties, sublayer_copy.properties)
-                if i == #layer.layers then
-                    sublayer_copy.properties.thin = sublayer.properties.thin
-                end
-                sublayer_copy.offsetx = (sublayer.offsetx or 0) + (layer.offsetx or 0)
-                sublayer_copy.offsety = (sublayer.offsety or 0) + (layer.offsety or 0)
-                sublayer_copy.parallaxx = (sublayer.parallaxx or 1) * (layer.parallaxx or 1)
-                sublayer_copy.parallaxy = (sublayer.parallaxy or 1) * (layer.parallaxy or 1)
-                loadLayer(sublayer_copy)
-            end
-        end
-    end
-
-    for _, layer in ipairs(data.layers or {}) do
-        loadLayer(TableUtils.copy(layer))
-    end
+    local layers = TiledUtils.flattenLayers(data.layers)
 
     for i, layer in ipairs(layers) do
         self.layers[layer.name] = self.next_layer
@@ -85,18 +60,11 @@ function operations.loadMapData(self, data)
         end
     end
 
-    self.object_layer = nil
     for i, layer in ipairs(layers) do
         local depth = indexed_layers[i]
         if not has_battle_border and self:isLayerType(layer, "battleborder") then
             self.battle_fader_layer = depth - (self.depth_per_layer / 2)
             has_battle_border = true
-        end
-        if layer.type == "objectgroup" and self:isLayerType(layer, "objects") then
-            table.insert(object_depths, depth)
-            if layer.properties["spawn"] then
-                self.object_layer = depth
-            end
         end
         if layer.type == "tilelayer" and not self:isLayerType(layer, "battleborder") then
             table.insert(tile_depths, depth)
@@ -106,51 +74,10 @@ function operations.loadMapData(self, data)
         end
     end
 
-    -- old behavior, ideally should not be used
-    if not self.object_layer then
-        self.object_layer = 1
-        local priority_object_layer = nil
-        local has_markers_layer = false
-        for i, layer in ipairs(layers) do
-            local depth = indexed_layers[i]
-            if layer.type == "objectgroup" then
-                if self:isLayerType(layer, "markers") then
-                    has_markers_layer = true
-                    priority_object_layer = nil
-                    if #object_depths == 0 then
-                        -- If there are no object layers, set the object depth to the marker layer's depth
-                        self.object_layer = depth
-                    else
-                        -- Otherwise, set the object depth to the closest object layer's depth
-                        local closest
-                        for _, obj_depth in ipairs(object_depths) do
-                            if not closest then
-                                closest = obj_depth
-                            elseif math.abs(depth - obj_depth) <= math.abs(depth - closest) then
-                                closest = obj_depth
-                            else
-                                break
-                            end
-                        end
-                        self.object_layer = closest or depth
-                    end
-                elseif self:getLayerClassOrName(layer):lower() == "objects_party" then
-                    priority_object_layer = depth
-                    break -- always use 'objects_party' if available
-                elseif not has_markers_layer then
-                    -- If there is no markers layer, set the object layer to the highest object layer
-                    if self:isLayerType(layer, "objects") then
-                        priority_object_layer = depth
-                    end
-                    self.object_layer = depth
-                end
-            end
-        end
-        -- If no marker layers, prioritize object layers without a custom name
-        if priority_object_layer then
-            self.object_layer = priority_object_layer
-        end
-    end
+    local spawn_layer = TiledUtils.getSpawnLayer(layers,
+        function(layer, type_id) return self:isLayerType(layer, type_id) end,
+        function(layer) return self:getLayerClassOrName(layer) end)
+    self.object_layer = spawn_layer and indexed_layers[spawn_layer] or 1
 
     -- Set the tile layer depth to the closest tile layer below the object layer
     self.tile_layer = 0
@@ -167,21 +94,11 @@ function operations.loadMapData(self, data)
 end
 
 function operations.getLayerClassOrName(self, layer)
-    if layer.class ~= nil and layer.class ~= "" then
-        return layer.class
-    end
-
-    return layer.name
+    return TiledUtils.getLayerClassOrName(layer)
 end
 
 function operations.isLayerType(self, layer, type)
-    if layer.class ~= nil and layer.class ~= "" then
-        -- If there's a defined class, check that
-        return layer.class == type
-    end
-
-    -- If there isn't a class, use the name
-    return StringUtils.startsWith(layer.name:lower(), type)
+    return TiledUtils.isLayerType(layer, type)
 end
 
 function operations.getObjectType(self, data)

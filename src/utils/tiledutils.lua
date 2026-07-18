@@ -194,4 +194,101 @@ function TiledUtils.resolveImageAsset(asset_path, source_dir)
     return false, "Unknown reason"
 end
 
+---@param layer table
+---@return string
+function TiledUtils.getLayerClassOrName(layer)
+    if layer.class ~= nil and layer.class ~= "" then return layer.class end
+    return layer.name or ""
+end
+
+---@param layer table
+---@param type_id string
+---@return boolean
+function TiledUtils.isLayerType(layer, type_id)
+    if layer.class ~= nil and layer.class ~= "" then return layer.class == type_id end
+    return StringUtils.startsWith((layer.name or ""):lower(), type_id)
+end
+
+---@param layers table[]?
+---@param track_source boolean?
+---@return table[]
+function TiledUtils.flattenLayers(layers, track_source)
+    local result = {}
+    local function append(layer, source)
+        if layer.type ~= "group" then
+            if track_source then layer._tiled_source = source end
+            table.insert(result, layer)
+            return
+        end
+        for index, sublayer in ipairs(layer.layers or {}) do
+            local sublayer_copy = TableUtils.copy(sublayer)
+            sublayer_copy.properties = TableUtils.mergeMany(layer.properties or {}, sublayer.properties or {})
+            if index == #(layer.layers or {}) then
+                sublayer_copy.properties.thin = sublayer.properties and sublayer.properties.thin
+            end
+            sublayer_copy.offsetx = (sublayer.offsetx or 0) + (layer.offsetx or 0)
+            sublayer_copy.offsety = (sublayer.offsety or 0) + (layer.offsety or 0)
+            sublayer_copy.parallaxx = (sublayer.parallaxx or 1) * (layer.parallaxx or 1)
+            sublayer_copy.parallaxy = (sublayer.parallaxy or 1) * (layer.parallaxy or 1)
+            append(sublayer_copy, source and source.layers and source.layers[index])
+        end
+    end
+    for index, layer in ipairs(layers or {}) do
+        append(TableUtils.copy(layer), track_source and layer or nil)
+    end
+    return result
+end
+
+---@param layers table[]
+---@param is_layer_type? fun(layer: table, type_id: string): boolean
+---@param get_layer_name? fun(layer: table): string
+---@return table?
+function TiledUtils.getSpawnLayer(layers, is_layer_type, get_layer_name)
+    is_layer_type = is_layer_type or TiledUtils.isLayerType
+    get_layer_name = get_layer_name or TiledUtils.getLayerClassOrName
+    local depths, object_layers = {}, {}
+    local depth, explicit = 0, nil
+    for _, layer in ipairs(layers) do
+        depths[layer] = depth
+        if layer.type == "objectgroup" and is_layer_type(layer, "objects") then
+            table.insert(object_layers, layer)
+            if layer.properties and layer.properties.spawn then explicit = layer end
+        end
+        if not (layer.properties and layer.properties.thin) then depth = depth + 1 end
+    end
+    if explicit then return explicit end
+
+    local selected, priority, has_markers = nil, nil, false
+    for _, layer in ipairs(layers) do
+        if layer.type == "objectgroup" then
+            if is_layer_type(layer, "markers") then
+                has_markers = true
+                priority = nil
+                if #object_layers == 0 then
+                    selected = layer
+                else
+                    local closest
+                    for _, object_layer in ipairs(object_layers) do
+                        if not closest
+                            or math.abs(depths[layer] - depths[object_layer])
+                                <= math.abs(depths[layer] - depths[closest]) then
+                            closest = object_layer
+                        else
+                            break
+                        end
+                    end
+                    selected = closest or layer
+                end
+            elseif get_layer_name(layer):lower() == "objects_party" then
+                priority = layer
+                break
+            elseif not has_markers then
+                if is_layer_type(layer, "objects") then priority = layer end
+                selected = layer
+            end
+        end
+    end
+    return priority or selected
+end
+
 return TiledUtils

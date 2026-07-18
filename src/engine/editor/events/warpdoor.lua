@@ -22,7 +22,7 @@ function EditorWarpDoor:init(data, options)
     })
     destinations:registerProperty("name", "string")
     destinations:registerProperty("marker", "object_reference", {
-        marker = true, target_map_property = "map", map_id = options.map_id
+        allowed_types = { "marker" }, target_map_property = "map", map_id = options.map_id
     })
     destinations:registerProperty("flag", "string")
 end

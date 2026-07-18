@@ -651,7 +651,7 @@ function Registry.createEditorDrawFX(id, data)
     return class(id, definition, data)
 end
 
---- Creates the game-side DrawFX represented by an editor/native-map assignment.
+--- Creates the game-side DrawFX represented by an editor map assignment.
 --- Custom editor DrawFX that can be saved to maps must provide create_runtime.
 function Registry.createRuntimeDrawFX(data, context)
     local id = type(data) == "table" and (data.id or data.type) or data
@@ -676,6 +676,15 @@ end
 
 function Registry.getEditorEvent(id)
     return self.editor_events and self.editor_events[id]
+end
+
+---@param id string?
+---@return "event"|"controller"|"marker"|"path"
+function Registry.getEditorObjectRuntimeType(id)
+    local event = self.getEditorEvent(id)
+    if event and event.runtime_type and event.runtime_type ~= "event" then return event.runtime_type end
+    if self.getController(id) then return "controller" end
+    return event and event.runtime_type or "event"
 end
 
 function Registry.createEditorEvent(id, data, options)
@@ -1355,7 +1364,8 @@ function Registry.initEditorEvents()
     self.editor_events = {}
 
     local builtins = {
-        savepoint = EditorSavepoint, interactable = EditorInteractable, script = EditorScriptEvent,
+        marker = EditorMarker, path = EditorPath, savepoint = EditorSavepoint,
+        interactable = EditorInteractable, script = EditorScriptEvent,
         transition = EditorTransition, npc = EditorNPC, enemy = EditorChaserEnemy,
         outline = EditorOutline, silhouette = EditorSilhouette, slidearea = EditorSlideArea,
         mirror = EditorMirrorArea, chest = EditorTreasureChest, cameratarget = EditorCameraTarget,

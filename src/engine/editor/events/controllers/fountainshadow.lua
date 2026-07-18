@@ -2,6 +2,8 @@
 ---@overload fun(data?: table, options?: table): EditorFountainShadowController
 local EditorFountainShadowController, super = Class(EditorEvent)
 
+EditorFountainShadowController.runtime_type = "controller"
+
 function EditorFountainShadowController:init(data, options)
     super.init(self, data, options)
 end
