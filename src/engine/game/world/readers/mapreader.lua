@@ -161,7 +161,10 @@ function operations.loadShapes(self, layer)
     end
 end
 
-function operations.loadMarker(self, source, layer)
+---@param source table
+---@param layer table
+---@return table
+local function createMarkerData(source, layer)
     local v = TableUtils.copy(source, true)
     v.width = v.width or 0
     v.height = v.height or 0
@@ -175,7 +178,19 @@ function operations.loadMarker(self, source, layer)
     v.center_x = v.center_x + (layer.offsetx or 0)
     v.center_y = v.center_y + (layer.offsety or 0)
     v.player_state = v.properties["player_state"] or "WALK"
+    return v
+end
+
+function operations.loadMarker(self, source, layer)
+    local v = createMarkerData(source, layer)
     if v.name ~= nil then self.markers[v.name] = v end
+    self.markers_by_id[v.id] = v
+    return v
+end
+
+function operations.loadPlayerSpawn(self, source, layer)
+    local v = createMarkerData(source, layer)
+    self.player_spawn = v
     self.markers_by_id[v.id] = v
     return v
 end
@@ -372,6 +387,8 @@ function operations.loadObjects(self, layer, depth, layer_type)
             or Registry.getEditorObjectRuntimeType(source_type)
         if runtime_type == "marker" then
             operations.loadMarker(self, source, layer)
+        elseif runtime_type == "player" then
+            operations.loadPlayerSpawn(self, source, layer)
         elseif runtime_type == "path" then
             operations.loadPath(self, source, layer)
         else
