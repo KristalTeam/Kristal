@@ -233,8 +233,8 @@ function DarkConfigMenu:registerDefaults()
 
     if not Kristal.isForcedFullscreen() then
         self:addOption(DarkConfigBooleanOption(self, "Fullscreen", function(option)
-            Kristal.Config["fullscreen"] = not Kristal.Config["fullscreen"]
-            Kristal.resetWindow()
+                                                   Kristal.Config["fullscreen"] = not Kristal.Config["fullscreen"]
+                                                   love.window.setFullscreen(Kristal.Config["fullscreen"])
             option:setEnabled(Kristal.Config["fullscreen"])
         end, Kristal.Config["fullscreen"]))
     end

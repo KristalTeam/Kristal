@@ -125,7 +125,45 @@ function love.load(args)
     local window_scale = Kristal.getWindowScale()
 
     if window_scale ~= 1 or Kristal.Config["fullscreen"] or Kristal.bordersEnabled() then
-        Kristal.resetWindow()
+        -- Partially ported from Kristal.resetWindow
+        local window_width = SCREEN_WIDTH * window_scale
+        local window_height = SCREEN_HEIGHT * window_scale
+
+        if Kristal.bordersEnabled() then
+            local border_width, border_height = Kristal.getRelativeBorderSize()
+            window_width = window_width + border_width
+            window_height = window_height + border_height
+        end
+
+        local properties = {
+            fullscreen = Kristal.Config["fullscreen"],
+            vsync = Kristal.Config["vSync"],
+        }
+
+        if Kristal.isForcedFullscreen() then
+            properties.fullscreen = true
+        end
+
+        local major, _, _, _ = love.getVersion()
+
+        if major < 12 then
+            properties.highdpi = true
+            properties.usedpiscale = false
+        end
+
+        -- Resize windows first for love.window.setFullscreen to have a correct fallback value
+        love.window.updateMode(
+            love.window.fromPixels(window_width),
+            love.window.fromPixels(window_height),
+            {fullscreen = false}
+        )
+
+        -- Set actual properties
+        love.window.updateMode(
+            love.window.fromPixels(window_width),
+            love.window.fromPixels(window_height),
+            properties
+        )
     end
 
     -- toggle vsync
@@ -607,7 +645,7 @@ function Kristal.onKeyPressed(key, is_repeat)
 
         if key == "f4" or (key == "return" and Input.alt()) then
             Kristal.Config["fullscreen"] = not Kristal.Config["fullscreen"]
-            Kristal.resetWindow()
+            love.window.setFullscreen(Kristal.Config["fullscreen"])
         elseif key == "f9" and Input.shift() then
             love.filesystem.createDirectory("screenshots")
             -- FIXME: the game might freeze when using love.system.openURL to open a file directory
