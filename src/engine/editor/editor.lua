@@ -855,6 +855,8 @@ function Editor:openMapObjectContext(selection, x, y) return self.map_interactio
 
 function Editor:startObjectReferenceDrag(control) return self.map_interaction:startObjectReferenceDrag(control) end
 
+function Editor:isObjectReferenceTargetAllowed(selection, definition) return self.map_interaction:isObjectReferenceTargetAllowed(selection, definition) end
+
 function Editor:getObjectReferenceLabel(value) return self.map_interaction:getObjectReferenceLabel(value) end
 
 function Editor:finishObjectReferenceDrag(x, y) return self.map_interaction:finishObjectReferenceDrag(x, y) end

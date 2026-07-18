@@ -679,7 +679,7 @@
       "name": "markers",
       "x": 0,
       "y": 0,
-      "type": "markers",
+        "type": "objects",
       "kind": "object",
       "alpha": 1,
       "visible": true,
@@ -689,9 +689,9 @@
       "draw_order": "topdown",
       "objects": [
         {
-          "id": 20,
-          "name": "spawn",
-          "type": "",
+            "id": 20,
+            "name": "spawn",
+            "type": "marker",
           "x": 300,
           "y": 250,
           "width": 0,
@@ -709,9 +709,9 @@
           "player_state": "WALK"
         },
         {
-          "id": 30,
-          "name": "entry",
-          "type": "",
+            "id": 30,
+            "name": "entry",
+            "type": "marker",
           "x": 760,
           "y": 240,
           "width": 0,
@@ -729,9 +729,9 @@
           "player_state": "WALK"
         },
         {
-          "id": 38,
-          "name": "entry_climb",
-          "type": "",
+            "id": 38,
+            "name": "entry_climb",
+            "type": "marker",
           "x": 740,
           "y": 1260,
           "width": 0,
@@ -755,9 +755,9 @@
           "player_state": "CLIMB"
         },
         {
-          "id": 47,
-          "name": "",
-          "type": "",
+            "id": 47,
+            "name": "",
+            "type": "marker",
           "x": 300,
           "y": 980,
           "width": 0,
@@ -775,9 +775,9 @@
           "player_state": "WALK"
         },
         {
-          "id": 49,
-          "name": "",
-          "type": "",
+            "id": 49,
+            "name": "",
+            "type": "marker",
           "x": 300,
           "y": 850,
           "width": 0,
@@ -795,9 +795,9 @@
           "player_state": "WALK"
         },
         {
-          "id": 55,
-          "name": "",
-          "type": "",
+            "id": 55,
+            "name": "",
+            "type": "marker",
           "x": 700,
           "y": 710,
           "width": 0,
@@ -1086,7 +1086,13 @@
             "shape_data": {}
           },
           "visible": true,
-          "properties": [],
+          "properties": [
+            {
+              "name": "item",
+              "type": "chooser",
+              "value": "autoaxe"
+            }
+          ],
           "center_x": 140,
           "center_y": 740
         },

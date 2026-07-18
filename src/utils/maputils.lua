@@ -59,6 +59,30 @@ function MapUtils.walkObjects(layers, callback)
     end)
 end
 
+---@param object table
+---@param legacy boolean?
+---@return string?
+function MapUtils.getObjectType(object, legacy)
+    if type(object.type) == "string" and object.type ~= "" then return object.type:lower() end
+    if legacy then
+        if type(object.class) == "string" and object.class ~= "" then return object.class:lower() end
+        if type(object.name) == "string" and object.name ~= "" then return object.name:lower() end
+    end
+end
+
+---@param type_id string?
+---@param allowed_types string[]?
+---@return boolean
+function MapUtils.isObjectTypeAllowed(type_id, allowed_types)
+    if type(allowed_types) ~= "table" or #allowed_types == 0 then return true end
+    type_id = type(type_id) == "string" and type_id:lower() or type_id
+    for _, allowed in ipairs(allowed_types) do
+        if type(allowed) == "string" then allowed = allowed:lower() end
+        if type_id == allowed then return true end
+    end
+    return false
+end
+
 function MapUtils.resolveMarkerReference(map_id, value)
     local reference = EditorObjectReference.from(value, map_id)
     map_id = reference.map_id or map_id
@@ -66,20 +90,16 @@ function MapUtils.resolveMarkerReference(map_id, value)
     local data = Registry.getMapData(map_id)
     if not data then return reference end
     local marker_id = reference.object_id
-    MapUtils.walkLayers(data.layers, function(layer)
-        local marker_layer = layer._editor_type_id == "markers" or layer.type == "markers"
-            or tostring(layer.name or ""):lower() == "markers"
-        if not marker_layer and Registry.layer_types then
-            local layer_type = Registry.layer_types:getLegacyTiledType(layer)
-            marker_layer = layer_type and layer_type.id == "markers"
+    local reader = Registry.getMapReader(map_id)
+    MapUtils.walkObjects(data.layers, function(object, layer)
+        local object_type = MapUtils.getObjectType(object, true)
+        if Registry.layer_types and reader and reader.LEGACY_FORMAT then
+            object_type = Registry.layer_types:getLegacyTiledObjectType(layer, object) or object_type
         end
-        if marker_layer then
-            for _, object in ipairs(layer.objects or {}) do
-                if tostring(object.id) == tostring(reference.object_id)
-                    or tostring(object.name) == tostring(reference.object_id) then
-                    marker_id = object.id
-                    return false
-                end
+        if object_type == "marker" then
+            if tostring(object.id) == tostring(reference.object_id)
+                or tostring(object.name) == tostring(reference.object_id) then
+                marker_id = object.id
             end
         end
     end)

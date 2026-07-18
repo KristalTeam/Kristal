@@ -291,7 +291,7 @@ function EditorTemplateRegistry.registerBuiltins(registry)
 
     register("core:map", {
         name = "Map", kind = "map", category = "Editor Data",
-        description = "Create a native Kristal map.",
+        description = "Create a new map.",
         variables = {
             variable("id", "ID", "string", "new_map", { validate = validId }),
             variable("name", "Name", "string", "New Map"),
@@ -299,7 +299,8 @@ function EditorTemplateRegistry.registerBuiltins(registry)
             variable("height", "Grid Height", "integer", 12, { minimum = 1 }),
             variable("grid_width", "Tile Width", "integer", 40, { minimum = 1 }),
             variable("grid_height", "Tile Height", "integer", 40, { minimum = 1 }),
-            variable("background_color", "Background", "color", "#00000000")
+            variable("background_color", "Background", "color", "#00000000"),
+            variable("default_layers", "Default Layers", "boolean", true)
         }
     })
     register("core:world", {
@@ -313,7 +314,7 @@ function EditorTemplateRegistry.registerBuiltins(registry)
     })
     register("core:tileset", {
         name = "Tileset", kind = "tileset", category = "Editor Data",
-        description = "Create a native Kristal tileset.",
+        description = "Create a new tileset.",
         variables = {
             variable("id", "ID", "string", "new_tileset", { validate = validId }),
             variable("name", "Name", "string", "New Tileset"),

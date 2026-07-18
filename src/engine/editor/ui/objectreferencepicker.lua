@@ -15,28 +15,27 @@
 ---@overload fun(editor: Editor, value?: any, options?: table): EditorObjectReferencePicker
 local EditorObjectReferencePicker, super = Class(EditorControl)
 
-local function isMarkerLayer(layer)
-    local type_id = layer._editor_type_id or layer.type
-    if type_id == "markers" or tostring(layer.name or ""):lower() == "markers" then return true end
-    if Registry.layer_types then
-        local layer_type = Registry.layer_types:getLegacyTiledType(layer)
-        return layer_type and layer_type.id == "markers"
+function EditorObjectReferencePicker:getObjectType(object, map_id, document, layer)
+    if document then return document:getEditorObjectType(object, map_id) end
+    local reader = Registry.getMapReader(map_id)
+    if reader and reader.LEGACY_FORMAT and layer then
+        return Registry.layer_types:getLegacyTiledObjectType(layer, object)
+            or MapUtils.getObjectType(object, true)
     end
-    return false
+    return MapUtils.getObjectType(object, reader and reader.LEGACY_FORMAT)
 end
 
-local function getObjectType(object)
-    return object.type or object.class
-        or object.properties and object.properties.type
-        or ""
+function EditorObjectReferencePicker:isObjectAllowed(object, map_id, document, layer)
+    return MapUtils.isObjectTypeAllowed(
+        self:getObjectType(object, map_id, document, layer), self.options.allowed_types)
 end
 
-local function getObjectLabel(object, object_id, marker)
+function EditorObjectReferencePicker:getObjectLabel(object, object_id, object_type)
     local name = tostring(object.name or "")
-    local object_type = tostring(getObjectType(object) or "")
+    object_type = tostring(object_type or "")
     local primary = name ~= "" and name
         or object_type ~= "" and object_type
-        or (marker and "Marker " or "Object ") .. tostring(object_id)
+        or "Object " .. tostring(object_id)
     if name ~= "" and object_type ~= "" and name ~= object_type then
         return primary .. " [" .. object_type .. "]"
     end
@@ -53,7 +52,7 @@ function EditorObjectReferencePicker:init(editor, value, options)
     self.captured_control = nil
     self.search = self:addChild(EditorSearchBar({
         editor = editor,
-        placeholder = "Search maps, objects, and markers...",
+        placeholder = "Search maps and objects...",
         on_changed = function(filter) self.tree:setFilter(filter) end,
         on_submit = function() return self:apply() end
     }))
@@ -105,27 +104,25 @@ function EditorObjectReferencePicker:populate()
         table.insert(self.tree.root.children, map_node)
 
         MapUtils.walkLayers(layers, function(layer)
-            local marker_layer = isMarkerLayer(layer)
-            if self.options.marker and not marker_layer then return end
             if not layer.objects or #layer.objects == 0 then return end
             local layer_node = self.tree:newNode("folder", tostring(layer.name or "Objects"), {
                 expanded = self.value.map_id == map_id,
                 renameable = false,
-                draggable = false,
-                badge_text = marker_layer and "markers" or nil,
-                badge_color = marker_layer and { 0.95, 0.76, 0.25, 1 } or nil
+                draggable = false
             })
             layer_node.parent = map_node
             table.insert(map_node.children, layer_node)
             for _, object in ipairs(layer.objects) do
+                local object_type = self:getObjectType(object, map_id, document, layer)
                 local object_id = document and document:getObjectId(object) or object.id or object._editor_uid
-                if object_id ~= nil then
+                if object_id ~= nil and self:isObjectAllowed(object, map_id, document, layer) then
                     local reference = EditorObjectReference(map_id, object_id)
-                    local node = self.tree:newNode("object", getObjectLabel(object, object_id, marker_layer), {
+                    local marker = object_type == "marker"
+                    local node = self.tree:newNode("object", self:getObjectLabel(object, object_id, object_type), {
                         renameable = false,
                         draggable = false,
-                        badge_text = marker_layer and "marker" or tostring(getObjectType(object) or ""),
-                        badge_color = marker_layer and { 0.95, 0.76, 0.25, 1 } or nil
+                        badge_text = tostring(object_type or ""),
+                        badge_color = marker and { 0.95, 0.76, 0.25, 1 } or nil
                     })
                     node.reference = reference
                     node.object_name = object.name

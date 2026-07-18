@@ -227,7 +227,8 @@ function EditorMapBrowser:createMap(parent)
             local document, reason = self.editor:createNewMap(values.id, values.name, {
                 width = values.width, height = values.height,
                 grid_width = values.grid_width, grid_height = values.grid_height,
-                background_color = color
+                background_color = color,
+                default_layers = values.default_layers
             })
             if not document then return false, reason end
             self:refresh()

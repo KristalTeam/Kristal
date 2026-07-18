@@ -140,11 +140,10 @@ function TiledEditorFormatConverter.convertMap(data, options)
     end
     converted.tilewidth, converted.tileheight, converted.backgroundcolor = nil, nil, nil
     local references = getTiledTilesetReferences(data)
-    local function getLegacyObjectType(object)
-        if type(object.type) == "string" and object.type ~= "" then return object.type end
-        if type(object.class) == "string" and object.class ~= "" then return object.class end
-        if type(object.name) == "string" and object.name ~= "" then return object.name end
-        return nil
+    local spawn_layer = TiledUtils.getSpawnLayer(TiledUtils.flattenLayers(converted.layers, true))
+    if spawn_layer and spawn_layer._tiled_source then
+        spawn_layer._tiled_source.properties = spawn_layer._tiled_source.properties or {}
+        spawn_layer._tiled_source.properties.spawn = true
     end
     local function convertTileObject(object)
         if not object.gid then return true end
@@ -187,9 +186,8 @@ function TiledEditorFormatConverter.convertMap(data, options)
                 layer.x = layer.offsetx or 0
                 layer.y = layer.offsety or 0
                 for _, object in ipairs(layer.objects or {}) do
-                    if layer_type.id == "objects" or layer_type.id == "controllers" then
-                        object.type = getLegacyObjectType(object) or ""
-                    end
+                    object.type = Registry.layer_types:getLegacyTiledObjectType(layer, object)
+                        or object.type or ""
                     local success, object_reason = convertTileObject(object)
                     if not success then return nil, object_reason end
                 end

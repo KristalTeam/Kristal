@@ -311,7 +311,7 @@
       "name": "markers",
       "x": 0,
       "y": 0,
-      "type": "markers",
+      "type": "objects",
       "kind": "object",
       "alpha": 1,
       "visible": true,
@@ -323,7 +323,7 @@
         {
           "id": 73,
           "name": "slide",
-          "type": "",
+          "type": "marker",
           "x": 580,
           "y": -50,
           "width": 0,
@@ -346,7 +346,7 @@
         {
           "id": 74,
           "name": "spawn",
-          "type": "",
+          "type": "marker",
           "x": 380,
           "y": 380,
           "width": 0,
@@ -363,7 +363,7 @@
         {
           "id": 95,
           "name": "",
-          "type": "",
+          "type": "marker",
           "x": 180,
           "y": 380,
           "width": 0,
@@ -380,7 +380,7 @@
         {
           "id": 101,
           "name": "entry_left",
-          "type": "",
+          "type": "marker",
           "x": 60,
           "y": 140,
           "width": 0,

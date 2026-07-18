@@ -42,7 +42,7 @@ end
 function EditorMapReader:read(data)
     local map = self.map
     local depth = map.depth_per_layer
-    local event_depths, object_depths, marker_depths, tile_depths = {}, {}, {}, {}
+    local object_depths, tile_depths = {}, {}
     local spawn_depth, battle_border_depth
     MapUtils.walkLayers(data.layers, function(layer)
         if Registry.layer_types:getLayerKind(layer) == "group" then
@@ -53,10 +53,10 @@ function EditorMapReader:read(data)
             local kind = Registry.layer_types:getLayerKind(layer)
             map.layers[layer.name] = layer_depth
             if kind == "object" then
-                table.insert(object_depths, layer_depth)
-                if type_id == "objects" then table.insert(event_depths, layer_depth) end
-                if type_id == "markers" then table.insert(marker_depths, layer_depth) end
                 if layer.properties and layer.properties.spawn then spawn_depth = layer_depth end
+                if type_id == "objects" then
+                    table.insert(object_depths, layer_depth)
+                end
             elseif kind == "tile" then
                 if type_id == "battleborder" then
                     battle_border_depth = battle_border_depth or layer_depth
@@ -72,17 +72,7 @@ function EditorMapReader:read(data)
     end)
 
     map.object_layer = spawn_depth
-    if not map.object_layer and #marker_depths > 0 and #event_depths > 0 then
-        local marker_depth = marker_depths[#marker_depths]
-        for _, event_depth in ipairs(event_depths) do
-            if not map.object_layer
-                or math.abs(marker_depth - event_depth) <= math.abs(marker_depth - map.object_layer) then
-                map.object_layer = event_depth
-            end
-        end
-    end
-    map.object_layer = map.object_layer or event_depths[#event_depths]
-        or marker_depths[#marker_depths] or object_depths[#object_depths] or 1
+    map.object_layer = map.object_layer or object_depths[#object_depths] or 1
 
     map.tile_layer = 0
     for _, tile_depth in ipairs(tile_depths) do

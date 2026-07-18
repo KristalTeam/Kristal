@@ -9,9 +9,9 @@ local function objectLoader(callback)
     end
 end
 
-local function eventLoader(group)
+local function eventLoader()
     return objectLoader(function(map, layer, depth)
-        map:loadObjects(layer, depth, group)
+        map:loadObjects(layer, depth, "events")
     end)
 end
 
@@ -92,13 +92,10 @@ local DEFAULT_TYPES = {
     { id = "folder",         name = "Folder",          kind = "group",  icon = "editor/ui/layer/default",        color = { 1, 1, 1, 1 } },
     { id = "tile",           name = "Tiles",           kind = "tile",   icon = "editor/ui/layer/tile",           color = { 0.8, 0.8, 0.82, 1 } },
     { id = "image",          name = "Image",           kind = "image",  icon = "editor/ui/layer/image",          color = { 0.8, 0.8, 0.82, 1 }, properties = imageProperties },
-    { id = "objects",        name = "Objects",         kind = "object", icon = "editor/ui/layer/objects",        color = { 1, 0, 1, 1 },       load = eventLoader("events"), properties = objectProperties },
-    { id = "controllers",    name = "Controllers",     kind = "object", icon = "editor/ui/layer/controllers",    color = { 0, 1, 0.25, 1 }, load = eventLoader("controllers") },
-    { id = "markers",        name = "Markers",         kind = "object", icon = "editor/ui/layer/markers",        color = { 0.49, 0, 1, 1 }, load = mapLoader("loadMarkers") },
+    { id = "objects",        name = "Objects",         kind = "object", icon = "editor/ui/layer/objects",        color = { 1, 0, 1, 1 },       load = eventLoader(), properties = objectProperties },
     { id = "collision",      name = "Collision",       kind = "object", icon = "editor/ui/layer/collision",      color = { 0, 0, 1, 1 },       load = mapLoader("loadCollision") },
     { id = "enemycollision", name = "Enemy Collision", kind = "object", icon = "editor/ui/layer/enemycollision", color = { 0, 1, 1, 1 },       load = mapLoader("loadEnemyCollision") },
     { id = "blockcollision", name = "Block Collision", kind = "object", icon = "editor/ui/layer/blockcollision", color = { 1, 0.35, 0, 1 },    load = mapLoader("loadBlockCollision") },
-    { id = "paths",          name = "Paths",           kind = "object", icon = "editor/ui/layer/paths",          color = { 1, 0.35, 0.85, 1 }, load = mapLoader("loadPaths") },
     { id = "battleareas",    name = "Battle Areas",    kind = "object", icon = "editor/ui/layer/battleareas",    color = { 1, 0.25, 0.25, 1 }, load = mapLoader("loadBattleAreas") },
     { id = "battleborder",   name = "Battle Border",   kind = "tile",   icon = "editor/ui/layer/default",        color = { 0.75, 0.85, 1, 1 } },
 }
@@ -205,6 +202,20 @@ function LayerTypeRegistry:getLayerKind(layer)
     return layer_type and layer_type.kind or "object"
 end
 
+---@param layer table?
+---@param layer_type table|string?
+---@return string
+function LayerTypeRegistry:getLayerIcon(layer, layer_type)
+    layer_type = type(layer_type) == "table" and layer_type
+        or self:get(layer_type or (layer and (layer._editor_type_id or layer.type)))
+    if layer_type and layer_type.id == "objects" then
+        local name = tostring(layer and layer.name or ""):lower()
+        if StringUtils.contains(name, "marker") then return "editor/ui/layer/markers" end
+        if StringUtils.contains(name, "path") then return "editor/ui/layer/paths" end
+    end
+    return layer_type and layer_type.icon or "editor/ui/layer/default"
+end
+
 function LayerTypeRegistry:initializeLayerProperties(layer, properties)
     properties:registerProperty("thin", "boolean")
     local kind = self:getKind(self:getLayerKind(layer))
@@ -230,13 +241,29 @@ function LayerTypeRegistry:getLegacyTiledType(layer)
         if isLegacyType(layer, "battleborder") then return self.types.battleborder end
         return self.types[layer.type == "tilelayer" and "tile" or "image"]
     elseif layer.type == "objectgroup" then
-        local ids = { "objects", "controllers", "markers", "collision", "enemycollision",
-            "blockcollision", "paths", "battleareas" }
+        if isLegacyType(layer, "objects") or isLegacyType(layer, "controllers")
+            or isLegacyType(layer, "markers") or isLegacyType(layer, "paths") then
+            return self.types.objects
+        end
+        local ids = { "collision", "enemycollision", "blockcollision", "battleareas" }
         for _, id in ipairs(ids) do
             if isLegacyType(layer, id) then return self.types[id] end
         end
     end
     return self.types.default
+end
+
+---@param layer table
+---@param object table
+---@return string?
+function LayerTypeRegistry:getLegacyTiledObjectType(layer, object)
+    if layer.type ~= "objectgroup" then return nil end
+    if isLegacyType(layer, "markers") then return "marker" end
+    if isLegacyType(layer, "paths") then return "path" end
+    if not isLegacyType(layer, "objects") and not isLegacyType(layer, "controllers") then return nil end
+    if type(object.type) == "string" and object.type ~= "" then return object.type end
+    if type(object.class) == "string" and object.class ~= "" then return object.class end
+    if type(object.name) == "string" and object.name ~= "" then return object.name end
 end
 
 function LayerTypeRegistry:getLayerColor(layer, layer_type)

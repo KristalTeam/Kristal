@@ -646,6 +646,13 @@ function EditorMapInteraction:startObjectReferenceDrag(control)
     return true
 end
 
+function EditorMapInteraction:isObjectReferenceTargetAllowed(selection, definition)
+    if not selection or not selection.data then return false end
+    return MapUtils.isObjectTypeAllowed(
+        selection.document:getEditorObjectType(selection.data, selection.map_id),
+        definition and definition.allowed_types)
+end
+
 function EditorMapInteraction:getObjectReferenceLabel(value)
     local self = self.editor
     local source = self.selected_map_object
@@ -680,6 +687,11 @@ function EditorMapInteraction:finishObjectReferenceDrag(x, y)
     local selection = self:getMapObjectAtScreen(x, y)
     if not selection then
         self:addWarning("Drop the reference link onto an event or shape", nil, "object_reference")
+        return nil
+    end
+    if not self:isObjectReferenceTargetAllowed(selection, drag.control.options) then
+        self:addWarning("This field only accepts object types: "
+            .. table.concat(drag.control.options.allowed_types, ", "), nil, "object_reference")
         return nil
     end
     self:clearDiagnostics("object_reference")
@@ -719,7 +731,8 @@ function EditorMapInteraction:startObjectLink(selection, property)
         source = selection,
         property_id = property.id,
         property_name = property.name,
-        property_set = property.property_set
+        property_set = property.property_set,
+        definition = property.definition
     }
     self:selectMapObject(selection)
     self:clearDiagnostics("object_link")
@@ -762,6 +775,13 @@ function EditorMapInteraction:finishObjectLink(target)
     end
     if target.document == link.source.document and target.data == link.source.data then
         if self.message_bar then self.message_bar:setStatus("The source cannot link to itself", 2.5) end
+        return true
+    end
+    if not self:isObjectReferenceTargetAllowed(target, link.definition) then
+        if self.message_bar then
+            self.message_bar:setStatus("This field only accepts object types: "
+                .. table.concat(link.definition.allowed_types, ", "), 3)
+        end
         return true
     end
     local reference = link.source.document:createObjectReference(target)

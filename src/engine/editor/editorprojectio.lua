@@ -417,6 +417,18 @@ function EditorProjectIO:createNewMap(id, name, options)
     Registry.registerMapData(id, data, EditorMapReader)
     local document = editor:createMapDocument(id)
     if not document then return nil, "Could not create an editor document" end
+    if options.default_layers then
+        document:createEditableLayer("tile", id, nil, { name = "Tiles" })
+        document:createEditableLayer("collision", id, nil, { name = "Collision" })
+        document:createEditableLayer("objects", id, nil, {
+            name = "Markers",
+            color = { 0.49, 0, 1, 1 }
+        })
+        document:createEditableLayer("objects", id, nil, {
+            name = "Objects",
+            properties = { spawn = true }
+        })
+    end
     editor.history.serial = editor.history.serial + 1
     document.history_revision = editor.history.serial
     editor:activateMapDocument(document)

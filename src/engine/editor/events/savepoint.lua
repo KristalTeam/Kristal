@@ -6,7 +6,7 @@ EditorSavepoint.scaling_mode = "scale"
 
 function EditorSavepoint:init(data, options)
     super.init(self, data, options)
-    self:registerProperty("marker", "object_reference", { marker = true })
+    self:registerProperty("marker", "object_reference", { allowed_types = { "marker" } })
     self:registerProperty("simple", "boolean")
     self:registerProperty("text_once", "string", { name = "Text Once" })
     self:registerProperty("heals", "boolean")

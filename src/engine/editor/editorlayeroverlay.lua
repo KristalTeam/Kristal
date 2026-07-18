@@ -3,7 +3,6 @@
 ---@field layer number
 ---@field layer_type table?
 ---@field layer_uid string?
----@field marker_layer boolean
 ---@field source_layer table
 ---@field visible boolean
 ---@overload fun(layer: table, layer_type?: table, depth?: number): EditorLayerOverlay
@@ -15,53 +14,10 @@ function EditorLayerOverlay:init(layer, layer_type, depth)
     self.layer = depth or 0
     self.layer_type = layer_type
     self.color = Registry.layer_types:getLayerColor(layer, layer_type)
-    self.marker_layer = layer_type and layer_type.id == "markers"
     self.visible = true
 end
 
-function EditorLayerOverlay:drawMarker(object, alpha, line_width, show_name)
-    local texture = Assets.getTexture("editor/marker")
-    if not texture then return end
-    local width, height = object.width or 0, object.height or 0
-    local rotation = math.rad(object.rotation or 0)
-    local center_x = (object.x or 0) + (self.source_layer.offsetx or 0)
-        + width / 2 * math.cos(rotation) - height / 2 * math.sin(rotation)
-    local center_y = (object.y or 0) + (self.source_layer.offsety or 0)
-        + width / 2 * math.sin(rotation) + height / 2 * math.cos(rotation)
-    local scale = line_width or 1
-    local color = self.color
-    local previous_width = love.graphics.getLineWidth()
-    love.graphics.push()
-    love.graphics.translate(center_x, center_y)
-    love.graphics.scale(scale, scale)
-    Draw.setColor(color[1] or 1, color[2] or 1, color[3] or 1, (color[4] or 1) * alpha)
-    Draw.draw(texture, 0, 0, 0, 2, 2, texture:getWidth() / 2, texture:getHeight())
-
-    local name = show_name and StringUtils.trim(tostring(object.name or "")) or ""
-    if name ~= "" then
-        local font = EditorFont.get(14)
-        local text_width, text_height = font:getWidth(name), font:getHeight()
-        local padding_x, padding_y = 5, 3
-        local plate_width = text_width + padding_x * 2
-        local plate_height = text_height + padding_y * 2
-        local plate_x = -plate_width / 2
-        local plate_y = -texture:getHeight() * 2 - plate_height - 5
-        Draw.setColor(0.035, 0.035, 0.045, 0.9 * alpha)
-        love.graphics.rectangle("fill", plate_x, plate_y, plate_width, plate_height)
-        love.graphics.setLineWidth(1)
-        Draw.setColor(color[1] or 1, color[2] or 1, color[3] or 1,
-            math.min(color[4] or 1, 0.95) * alpha)
-        love.graphics.rectangle("line", plate_x + 0.5, plate_y + 0.5,
-            plate_width - 1, plate_height - 1)
-        love.graphics.setFont(font)
-        Draw.setColor(1, 1, 1, alpha)
-        love.graphics.print(name, plate_x + padding_x, plate_y + padding_y)
-    end
-    love.graphics.pop()
-    love.graphics.setLineWidth(previous_width)
-end
-
-function EditorLayerOverlay:drawObject(object, alpha, line_width, selected)
+function EditorLayerOverlay:drawObject(object, alpha, line_width)
     local width, height = object.width or 0, object.height or 0
     local points = object.polygon or object.polyline
     love.graphics.push()
@@ -112,7 +68,6 @@ function EditorLayerOverlay:drawObject(object, alpha, line_width, selected)
     end
     love.graphics.setLineWidth(previous_width)
     love.graphics.pop()
-    if self.marker_layer then self:drawMarker(object, alpha, line_width, selected) end
 end
 
 function EditorLayerOverlay:draw(alpha, line_width, selected)
@@ -121,7 +76,7 @@ function EditorLayerOverlay:draw(alpha, line_width, selected)
     local previous_width = love.graphics.getLineWidth()
     love.graphics.setLineWidth(line_width or 1)
     for _, object in ipairs(self.source_layer.objects or {}) do
-        if object.visible ~= false then self:drawObject(object, alpha, line_width, selected) end
+        if object.visible ~= false then self:drawObject(object, alpha, line_width) end
     end
     love.graphics.setLineWidth(previous_width)
     Draw.setColor(1, 1, 1, 1)

@@ -38,8 +38,7 @@ function EditorLayersPanel:init(editor)
         on_rename = function(node, _, new_name) self:renameLayer(node.data, new_name) end,
         on_move = function(node) self:applyLayerTreeMove(node) end,
         on_drag_start = function(node)
-            local layer_type = self:getLayerType(node.data)
-            self.editor:beginDragPreview("layer", node.name, layer_type and layer_type.icon, node.data)
+            self.editor:beginDragPreview("layer", node.name, self:getLayerIcon(node.data), node.data)
         end,
         on_drag_move = function(_, list, x, y)
             local gx, gy = list:getGlobalPosition()
@@ -142,6 +141,10 @@ function EditorLayersPanel:getLayerColor(layer)
     return Registry.layer_types:getLayerColor(layer, self:getLayerType(layer))
 end
 
+function EditorLayersPanel:getLayerIcon(layer)
+    return Registry.layer_types:getLayerIcon(layer, self:getLayerType(layer))
+end
+
 function EditorLayersPanel:findLayerNode(uid)
     local found
     local function visit(parent)
@@ -167,7 +170,7 @@ function EditorLayersPanel:refreshList(selected_uid, silent)
                     container = layer._editor_kind_id == "group",
                     expanded = layer._editor_expanded ~= false,
                     data = layer,
-                    icon = layer_type and layer_type.icon,
+                    icon = self:getLayerIcon(layer),
                     color = self:getLayerColor(layer),
                     right_icons = {
                         {
@@ -343,6 +346,8 @@ function EditorLayersPanel:renameLayer(layer, value)
         if entry.layer ~= layer and entry.layer.id then used[entry.layer.id] = true end
     end
     layer.id = EditorFormat.uniqueSlug(value, used, "layer")
+    local node = self:findLayerNode(layer._editor_uid)
+    if node then node.icon = self:getLayerIcon(layer) end
     if self.selected_layer == layer then
         self.editor:setPropertiesTarget(self:getPropertiesTarget(layer), self)
     end

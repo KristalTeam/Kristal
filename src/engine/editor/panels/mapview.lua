@@ -249,7 +249,9 @@ function EditorMapView:drawObjectLinks()
         local target = self.document:findObjectAt(x2, y2, { all_layers = true })
         if target and target.data ~= source.data then
             x2, y2 = self.document:getObjectWorldCenter(target)
-            Draw.setColor(1, 0.84, 0.2, 0.95)
+            local definition = drag.definition or drag.control and drag.control.options
+            local allowed = self.editor:isObjectReferenceTargetAllowed(target, definition)
+            Draw.setColor(allowed and { 1, 0.84, 0.2, 0.95 } or { 1, 0.25, 0.25, 0.95 })
             love.graphics.circle("line", x2, y2, 7 / self.view_zoom)
         else
             Draw.setColor(0.72, 0.82, 1, 0.8)

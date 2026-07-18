@@ -2,6 +2,8 @@
 ---@overload fun(data?: table, options?: table): EditorToggleController
 local EditorToggleController, super = Class(EditorEvent)
 
+EditorToggleController.runtime_type = "controller"
+
 function EditorToggleController:init(data, options)
     super.init(self, data, options)
     self:registerProperty("flag", "string")

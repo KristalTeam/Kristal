@@ -782,7 +782,7 @@
       "name": "markers",
       "x": 0,
       "y": 0,
-      "type": "markers",
+      "type": "objects",
       "kind": "object",
       "alpha": 1,
       "visible": true,
@@ -794,7 +794,7 @@
         {
           "id": 5,
           "name": "spawn",
-          "type": "",
+          "type": "marker",
           "x": 180,
           "y": 960,
           "width": 0,
@@ -811,7 +811,7 @@
         {
           "id": 8,
           "name": "entry",
-          "type": "",
+          "type": "marker",
           "x": 40,
           "y": 960,
           "width": 0,
@@ -828,7 +828,7 @@
         {
           "id": 28,
           "name": "",
-          "type": "",
+          "type": "marker",
           "x": 440,
           "y": 980,
           "width": 0,
@@ -845,7 +845,7 @@
         {
           "id": 55,
           "name": "",
-          "type": "",
+          "type": "marker",
           "x": 1020,
           "y": 180,
           "width": 0,
@@ -862,7 +862,7 @@
         {
           "id": 59,
           "name": "",
-          "type": "",
+          "type": "marker",
           "x": 1020,
           "y": 450,
           "width": 0,
