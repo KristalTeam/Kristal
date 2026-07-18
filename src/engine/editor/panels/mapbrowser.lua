@@ -1,3 +1,4 @@
+--- Displays and manages maps in the current project.
 ---@class EditorMapBrowser : EditorControl
 ---@field editor Editor
 ---@field list EditorTreeList

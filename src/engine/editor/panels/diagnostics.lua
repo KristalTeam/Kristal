@@ -1,3 +1,4 @@
+--- Displays editor warnings and errors.
 ---@class EditorDiagnosticsPanel : EditorControl
 ---@field clip boolean
 ---@field editor Editor

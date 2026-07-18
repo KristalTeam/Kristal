@@ -1,3 +1,4 @@
+--- Edits a color value with text and a color picker.
 ---@class EditorColorInput : EditorControl
 ---@field editor Editor
 ---@field on_submit function?

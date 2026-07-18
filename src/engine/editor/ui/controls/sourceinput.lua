@@ -1,3 +1,4 @@
+--- Displays and edits source text with code-focused behavior.
 ---@class EditorSourceInput : EditorControl
 ---@field accepts_clipboard_input boolean
 ---@field buffer EditorCodeBuffer?

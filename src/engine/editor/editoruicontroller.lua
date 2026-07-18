@@ -1,3 +1,4 @@
+--- Handles/creates the main editor ui/panels.
 ---@class EditorUIController : Class
 ---@field editor Editor
 ---@overload fun(editor: Editor): EditorUIController

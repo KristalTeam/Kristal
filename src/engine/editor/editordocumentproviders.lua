@@ -1,3 +1,4 @@
+--- Stores document providers and selects one for each document.
 ---@class EditorDocumentProviders : Class
 ---@field editor Editor
 ---@field order table

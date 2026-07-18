@@ -1,3 +1,4 @@
+--- Displays a searchable picker for map object references.
 ---@class EditorObjectReferencePicker : EditorControl
 ---@field apply_button EditorButton
 ---@field cancel_button EditorButton

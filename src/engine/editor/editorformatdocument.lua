@@ -1,3 +1,4 @@
+--- Builds serializable editor format data from open documents.
 ---@class EditorFormatDocument
 local EditorFormatDocument = {}
 

@@ -1,3 +1,4 @@
+--- Registers and displays the editor menu bar.
 ---@class EditorMenuBar : Class
 ---@field button_rects table
 ---@field editor Editor

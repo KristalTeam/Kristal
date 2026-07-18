@@ -1,3 +1,4 @@
+--- Registers templates used to create editor data and project files.
 ---@class EditorTemplateRegistry
 local EditorTemplateRegistry = {}
 

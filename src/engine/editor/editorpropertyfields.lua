@@ -1,3 +1,4 @@
+--- Helper for creating common field definitions for property panels.
 ---@class EditorPropertyFields
 local EditorPropertyFields = {}
 

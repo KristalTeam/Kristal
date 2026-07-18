@@ -1,3 +1,4 @@
+--- Draws hitboxes and shapes for a layer in the editor/game preview.
 ---@class EditorLayerOverlay : Class
 ---@field color number[]
 ---@field layer number

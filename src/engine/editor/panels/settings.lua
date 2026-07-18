@@ -1,3 +1,4 @@
+--- Displays registered editor settings by page.
 ---@class EditorSettingsPanel : EditorControl
 ---@field clip boolean
 ---@field content_height number

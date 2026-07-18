@@ -1,3 +1,4 @@
+--- Loads legacy Tiled tilesets for use by maps.
 ---@class TiledTilesetReader : TilesetReader
 ---@overload fun(tileset: Tileset): TiledTilesetReader
 local TiledTilesetReader, super = Class(TilesetReader)

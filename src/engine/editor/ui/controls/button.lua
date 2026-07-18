@@ -1,3 +1,4 @@
+--- Provides a clickable editor button.
 ---@class EditorButton : EditorControl
 ---@field cursor_type string
 ---@field focusable boolean

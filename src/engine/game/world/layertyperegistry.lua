@@ -1,3 +1,4 @@
+--- Registers map layer kinds/types and loading behavior.
 ---@class LayerTypeRegistry : Class
 ---@overload fun(): LayerTypeRegistry
 local LayerTypeRegistry = Class()

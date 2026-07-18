@@ -1,3 +1,4 @@
+--- Provides shared state for documents opened in the editor.
 ---@class EditorDocument : Class
 ---@field document_provider_id string?
 ---@field editor Editor

@@ -1,3 +1,4 @@
+--- Loads editor-format tilesets for use by maps.
 ---@class EditorTilesetReader : TilesetReader
 ---@overload fun(tileset: Tileset): EditorTilesetReader
 local EditorTilesetReader, super = Class(TilesetReader)

@@ -1,3 +1,4 @@
+--- Defines how a type of document is opened and displayed.
 ---@class EditorDocumentProvider : Class
 ---@field editor Editor
 ---@field id string?

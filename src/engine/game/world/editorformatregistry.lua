@@ -1,3 +1,4 @@
+--- Registers extensions for native editor format data.
 ---@class EditorFormatRegistry : Class
 ---@overload fun(): EditorFormatRegistry
 local EditorFormatRegistry = Class()

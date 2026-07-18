@@ -1,3 +1,4 @@
+--- Provides scrolling for editor controls and panels.
 ---@class EditorScrollbar : EditorControl
 ---@field cursor_type string
 ---@field drag_offset number

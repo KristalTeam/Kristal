@@ -1,3 +1,4 @@
+--- Registers supported project file types and their icons.
 ---@class EditorFileTypeRegistry : Class
 ---@field extensions table
 ---@field names table

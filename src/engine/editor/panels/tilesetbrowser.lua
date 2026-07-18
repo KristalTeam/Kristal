@@ -1,3 +1,4 @@
+--- Displays and manages tilesets in the current project.
 ---@class EditorTilesetBrowser : EditorControl
 ---@field editor Editor
 ---@field list EditorItemList

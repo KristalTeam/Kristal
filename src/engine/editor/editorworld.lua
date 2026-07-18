@@ -1,3 +1,4 @@
+--- Stores a group of positioned maps for world editing.
 ---@class EditorWorld : Class
 ---@field __editor_property_types table
 ---@field data table

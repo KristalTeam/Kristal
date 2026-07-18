@@ -1,3 +1,4 @@
+--- Edits a reference to an object in a map.
 ---@class EditorObjectReferenceControl : EditorControl
 ---@field clip boolean
 ---@field cursor_type string

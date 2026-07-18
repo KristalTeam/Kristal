@@ -1,3 +1,4 @@
+--- Stores an editable DrawFX and its properties.
 ---@class EditorDrawFX : Class
 ---@field data table
 ---@field definition table

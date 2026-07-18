@@ -1,3 +1,4 @@
+--- Lists registered editor DrawFX that can be added to objects.
 ---@class EditorFXBrowser : EditorControl
 ---@field editor Editor
 ---@field list EditorItemList

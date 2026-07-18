@@ -1,3 +1,4 @@
+--- Provides map and tile data while a terrain rule is evaluated.
 ---@class TerrainRuleContext : Class
 ---@field center any
 ---@field get_tags any

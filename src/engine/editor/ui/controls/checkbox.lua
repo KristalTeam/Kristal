@@ -1,3 +1,4 @@
+--- Provides a labeled boolean checkbox.
 ---@class EditorCheckbox : EditorControl
 ---@field cursor_type string
 ---@field focusable boolean

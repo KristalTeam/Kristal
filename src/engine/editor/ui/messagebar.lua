@@ -1,3 +1,4 @@
+--- Displays warnings/errors/status messages.
 ---@class EditorMessageBar : Class
 ---@field entries table
 ---@field height number

@@ -1,3 +1,5 @@
+--- Defines shared operations for loading map data.\
+--- Currently implemented by the Tiled legacy set and the new Editor format set.
 ---@class MapReader : Class
 ---@overload fun(map: Map): MapReader
 local MapReader = Class()

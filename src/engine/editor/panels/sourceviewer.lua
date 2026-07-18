@@ -1,3 +1,4 @@
+--- Displays project source files and images in read-only mode.
 ---@class EditorSourceViewer : EditorControl
 ---@field active_document EditorFileDocument|EditorImageDocument|nil
 ---@field clip boolean

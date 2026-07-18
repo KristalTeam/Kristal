@@ -1,3 +1,4 @@
+--- Provides shared control/draw behavior for editor inputs/controls.
 ---@class EditorControl : Class
 ---@field children EditorControl[]
 ---@field clip boolean

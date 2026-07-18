@@ -1,3 +1,4 @@
+--- Selects tiles and tile painting options.
 ---@class EditorTilePalette : EditorControl
 ---@field allow_empty_tile_press any
 ---@field clip boolean

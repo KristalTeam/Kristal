@@ -1,3 +1,4 @@
+--- Displays and manages files in the current project.
 ---@class EditorFileBrowser : EditorControl
 ---@field editor Editor
 ---@field new_file_button EditorButton

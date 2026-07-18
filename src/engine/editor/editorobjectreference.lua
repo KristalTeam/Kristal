@@ -1,3 +1,4 @@
+--- A reference to an object. Operates cross-map, so you can reference things such as markers on another map.
 ---@class EditorObjectReference : Class
 ---@field id string|number|nil
 ---@field map string?

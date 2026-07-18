@@ -1,3 +1,4 @@
+--- Represents a group of tabbed panels in a dock space.
 ---@class EditorDockStack : Class
 ---@field active_index number
 ---@field height number

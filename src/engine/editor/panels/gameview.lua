@@ -1,3 +1,4 @@
+--- Displays and controls a game preview inside the editor.
 ---@class EditorGameView : EditorControl
 ---@field canvas love.Canvas?
 ---@field canvas_positioned boolean

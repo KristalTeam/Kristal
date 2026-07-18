@@ -1,3 +1,4 @@
+--- Displays and edits a tileset and its tiles.
 ---@class EditorTilesetPanel : EditorControl
 ---@field add_button EditorButton
 ---@field animation_clock number

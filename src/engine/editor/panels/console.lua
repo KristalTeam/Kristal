@@ -1,3 +1,4 @@
+--- Displays console output and accepts console commands.
 ---@class EditorConsolePanel : EditorControl
 ---@field editor Editor
 ---@field history_index number

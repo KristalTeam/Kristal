@@ -1,3 +1,4 @@
+--- Stores named panel layouts for the editor. Similar to programs like Premiere, with different layouts per workflow.
 ---@class EditorWorkspaceRegistry : Class
 ---@field editor Editor
 ---@field order table

@@ -1,3 +1,4 @@
+--- Saves and restores the current editor session.
 ---@class EditorSessionManager : Class
 ---@field editor Editor
 ---@overload fun(editor: Editor): EditorSessionManager
@@ -170,4 +171,3 @@ function EditorSessionManager:restoreEntryState(session, options, context_docume
 end
 
 return EditorSessionManager
-

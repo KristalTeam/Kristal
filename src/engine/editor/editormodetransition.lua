@@ -1,3 +1,4 @@
+--- Handles transitioning in/out of the editor state.
 ---@class EditorModeTransition : Class
 ---@field close_duration number
 ---@field complete boolean

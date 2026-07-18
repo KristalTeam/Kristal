@@ -1,3 +1,4 @@
+--- Displays map tools and shared editing actions.
 ---@class EditorToolbar : EditorControl
 ---@field brush_label_x number
 ---@field brush_size_down EditorButton

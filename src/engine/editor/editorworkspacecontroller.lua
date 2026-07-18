@@ -1,3 +1,4 @@
+--- Manages project switching and workspace actions.
 ---@class EditorWorkspaceController : Class
 ---@field editor Editor
 ---@overload fun(editor: Editor): EditorWorkspaceController
@@ -242,4 +243,3 @@ function EditorWorkspaceController:openDeleteWorkspacePicker()
 end
 
 return EditorWorkspaceController
-

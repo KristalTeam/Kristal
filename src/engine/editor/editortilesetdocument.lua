@@ -1,3 +1,4 @@
+--- Stores editable tileset data and tile properties.
 ---@class EditorTilesetDocument : EditorDocument
 ---@field data table
 ---@field id string?

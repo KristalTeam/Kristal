@@ -1,3 +1,6 @@
+--- Represents a map object while it is being edited.\
+--- Additionally, an EditorEvent owns the creation of the game-time event associated.\
+--- This should be used rather than the old event registry.
 ---@class EditorEvent : Class
 ---@field data table
 ---@field height number

@@ -1,3 +1,4 @@
+--- Selects terrain sets and terrain painting options.
 ---@class EditorTerrainPalette : EditorControl
 ---@field document EditorTilesetDocument?
 ---@field editor Editor

@@ -1,3 +1,4 @@
+--- Displays nested items with selection, dragging, and renaming.
 ---@class EditorTreeList : EditorControl
 ---@field clip boolean
 ---@field dragging_node any

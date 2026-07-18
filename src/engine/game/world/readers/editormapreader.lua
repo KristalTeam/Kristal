@@ -1,3 +1,4 @@
+--- Loads editor-format maps into the game world.
 ---@class EditorMapReader : MapReader
 ---@overload fun(map: Map): EditorMapReader
 local EditorMapReader, super = Class(MapReader)

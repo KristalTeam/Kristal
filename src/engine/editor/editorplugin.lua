@@ -1,3 +1,6 @@
+--- A plugin is essentially an editor library.\
+--- They can be used to hook, modify, or create new functionality within the editor.\
+--- All plugins extend from this class- unlike projects/libraries, they are not raw tables.
 ---@class EditorPlugin : Class
 ---@field __editor_plugin boolean
 ---@field id string?
