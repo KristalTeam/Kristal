@@ -90,18 +90,6 @@ local function pointSegmentDistance(x, y, x1, y1, x2, y2)
     return math.sqrt((x - closest_x) ^ 2 + (y - closest_y) ^ 2)
 end
 
-local function pointInPolygon(x, y, points)
-    local inside, previous = false, points[#points]
-    for _, point in ipairs(points) do
-        local px, py = point.x or point[1] or 0, point.y or point[2] or 0
-        local qx, qy = previous.x or previous[1] or 0, previous.y or previous[2] or 0
-        if (py > y) ~= (qy > y)
-            and x < (qx - px) * (y - py) / (qy - py) + px then inside = not inside end
-        previous = point
-    end
-    return inside
-end
-
 function EditorTilesetPanel:init(editor)
     super.init(self, 0, 0, 440, 420)
     self.editor = editor
@@ -393,14 +381,14 @@ function EditorTilesetPanel:collisionShapeContains(shape, x, y, tolerance)
         local nx, ny = (local_x - width / 2) / (width / 2), (local_y - height / 2) / (height / 2)
         return nx * nx + ny * ny <= 1
     elseif shape_type == "polygon" then
-        return pointInPolygon(local_x, local_y, shape.polygon or {})
+        return MapUtils.pointInPolygon(local_x, local_y, shape.polygon or {})
     elseif shape_type == "line" or shape_type == "polyline" then
         local points = shape.polyline or {}
         for _, edge in ipairs(MapUtils.getPolylineEdges(shape, #points)) do
             local first, second = points[edge[1]], points[edge[2]]
-            if pointSegmentDistance(local_x, local_y,
-                first.x or first[1] or 0, first.y or first[2] or 0,
-                second.x or second[1] or 0, second.y or second[2] or 0) <= tolerance then
+            local x1, y1 = MapUtils.getPointCoordinates(first)
+            local x2, y2 = MapUtils.getPointCoordinates(second)
+            if pointSegmentDistance(local_x, local_y, x1, y1, x2, y2) <= tolerance then
                 return true
             end
         end
@@ -431,7 +419,7 @@ function EditorTilesetPanel:findCollisionVertex(shape, x, y, tolerance)
     if not points then return nil end
     local local_x, local_y = self:collisionLocalPoint(shape, x, y)
     for index, point in ipairs(points) do
-        local point_x, point_y = point.x or point[1] or 0, point.y or point[2] or 0
+        local point_x, point_y = MapUtils.getPointCoordinates(point)
         if (local_x - point_x) ^ 2 + (local_y - point_y) ^ 2 <= tolerance ^ 2 then
             return index
         end
@@ -965,11 +953,7 @@ function EditorTilesetPanel:drawCollisionShape(shape, x, y, scale, selected)
     elseif shape_type == "ellipse" and width > 0 and height > 0 then
         love.graphics.ellipse("fill", width / 2, height / 2, width / 2, height / 2)
     elseif shape_type == "polygon" and #(shape.polygon or {}) >= 3 then
-        local coordinates = {}
-        for _, point in ipairs(shape.polygon) do
-            table.insert(coordinates, point.x or point[1] or 0)
-            table.insert(coordinates, point.y or point[2] or 0)
-        end
+        local coordinates = MapUtils.collectPointCoordinates(shape.polygon)
         love.graphics.polygon("fill", coordinates)
     end
     Draw.setColor(selected and { 1, 0.84, 0.24, 1 } or { 0.22, 0.88, 1, 0.9 })
@@ -980,11 +964,7 @@ function EditorTilesetPanel:drawCollisionShape(shape, x, y, scale, selected)
     elseif shape_type == "ellipse" and width > 0 and height > 0 then
         love.graphics.ellipse("line", width / 2, height / 2, width / 2, height / 2)
     elseif shape_type == "polygon" and #(shape.polygon or {}) >= 3 then
-        local coordinates = {}
-        for _, point in ipairs(shape.polygon) do
-            table.insert(coordinates, point.x or point[1] or 0)
-            table.insert(coordinates, point.y or point[2] or 0)
-        end
+        local coordinates = MapUtils.collectPointCoordinates(shape.polygon)
         love.graphics.polygon("line", coordinates)
         if selected then
             for index = 1, #coordinates, 2 do
@@ -995,13 +975,14 @@ function EditorTilesetPanel:drawCollisionShape(shape, x, y, scale, selected)
         local points = shape.polyline or {}
         for _, edge in ipairs(MapUtils.getPolylineEdges(shape, #points)) do
             local first, second = points[edge[1]], points[edge[2]]
-            love.graphics.line(first.x or first[1] or 0, first.y or first[2] or 0,
-                second.x or second[1] or 0, second.y or second[2] or 0)
+            local x1, y1 = MapUtils.getPointCoordinates(first)
+            local x2, y2 = MapUtils.getPointCoordinates(second)
+            love.graphics.line(x1, y1, x2, y2)
         end
         if selected then
             for _, point in ipairs(points) do
-                love.graphics.circle("fill", point.x or point[1] or 0,
-                    point.y or point[2] or 0, 3 / scale)
+                local point_x, point_y = MapUtils.getPointCoordinates(point)
+                love.graphics.circle("fill", point_x, point_y, 3 / scale)
             end
         end
     else

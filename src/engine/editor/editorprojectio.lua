@@ -7,39 +7,48 @@ function EditorProjectIO:init(editor)
     self.editor = editor
 end
 
-local function safeProjectId(id)
-    return tostring(id or "unknown"):gsub("[^%w%._%-]", "_")
+---@param kind string
+---@param id any
+---@return boolean valid
+---@return string? reason
+function EditorProjectIO.validateContentId(kind, id)
+    if type(id) ~= "string" or id == "" then return false, "ID is required" end
+    if id:find("\\", 1, true) then return false, "IDs must use forward slashes" end
+    if not id:match("^[%w_%-/]+$") then
+        return false, "IDs may only contain letters, numbers, underscores, dashes, and slashes"
+    end
+    if id:sub(1, 1) == "/" or id:sub(-1) == "/" then
+        return false, "IDs cannot start or end with a slash"
+    end
+    if id:find("//", 1, true) then return false, "IDs cannot contain empty path segments" end
+    for segment in id:gmatch("[^/]+") do
+        if segment == "." or segment == ".." then
+            return false, "IDs cannot contain relative path segments"
+        end
+    end
+    return true
 end
 
-local function validContentId(id)
-    return type(id) == "string" and id ~= "" and not id:find("[/\\]")
-        and id ~= "." and id ~= ".."
-end
-
-local function hasMap(id)
-    return id and (Registry.getMap(id) or Registry.getMapData(id))
-end
-
-function EditorProjectIO:isValidContentId(id)
-    local self = self.editor
-    return validContentId(id)
+function EditorProjectIO:isValidContentId(id, kind)
+    return EditorProjectIO.validateContentId(kind or "content", id)
 end
 
 function EditorProjectIO:renameWorldId(world, id)
-    local self = self.editor
+    local editor = self.editor
     id = tostring(id or ""):match("^%s*(.-)%s*$")
     if not world or id == world.id then return world ~= nil end
-    if not validContentId(id) then
-        self:addWarning("Invalid world ID '" .. id .. "'", nil, "world_id")
+    local valid, reason = EditorProjectIO.validateContentId("world", id)
+    if not valid then
+        editor:addWarning("Invalid world ID '" .. id .. "'", reason, "world_id")
         return false
     end
     local existing = Registry.getEditorWorld(id)
     if existing and existing ~= world then
-        self:addWarning("A world with ID '" .. id .. "' already exists", nil, "world_id")
+        editor:addWarning("A world with ID '" .. id .. "' already exists", nil, "world_id")
         return false
     end
     local old_id = world.id
-    local document = self:findWorldDocument(old_id)
+    local document = editor:findWorldDocument(old_id)
     Registry.editor_worlds[old_id] = nil
     world.id = id
     world.data = world.data or {}
@@ -49,16 +58,18 @@ function EditorProjectIO:renameWorldId(world, id)
         document.world.id = id
     end
     Registry.registerEditorWorld(id, world)
-    self.active_world_id = id
-    self.active_editor_world = world
-    self:clearDiagnostics("world_id")
-    if self.world_browser then self.world_browser:refresh(id) end
+    editor.active_world_id = id
+    editor.active_editor_world = world
+    editor:clearDiagnostics("world_id")
+    if editor.world_browser then editor.world_browser:refresh(id) end
     return true
 end
 
 function EditorProjectIO:getContentSavePath(kind, id)
-    local self = self.editor
-    if not validContentId(id) then return nil, "Invalid " .. kind .. " id '" .. tostring(id) .. "'" end
+    local valid, reason = EditorProjectIO.validateContentId(kind, id)
+    if not valid then
+        return nil, "Invalid " .. kind .. " id '" .. tostring(id) .. "': " .. reason
+    end
     local directory = kind == "map" and Registry.paths.maps
         or kind == "tileset" and Registry.paths.tilesets
         or kind == "world" and EditorFormat.WORLD_DIRECTORY
@@ -383,10 +394,11 @@ function EditorProjectIO:saveActiveDocument()
 end
 
 function EditorProjectIO:createNewMap(id, name, options)
-    local self = self.editor
+    local editor = self.editor
     options = options or {}
-    if not validContentId(id) then return nil, "Invalid map id" end
-    if hasMap(id) then return nil, "A map with that id already exists" end
+    local valid, reason = EditorProjectIO.validateContentId("map", id)
+    if not valid then return nil, "Invalid map id: " .. reason end
+    if Registry.hasMap(id) then return nil, "A map with that id already exists" end
     local data = {
         version = EditorFormat.MAP_FORMAT_VERSION,
         kristal_version = tostring(Kristal.Version),
@@ -403,12 +415,12 @@ function EditorProjectIO:createNewMap(id, name, options)
         __map_reader = EditorMapReader
     }
     Registry.registerMapData(id, data, EditorMapReader)
-    local document = self:createMapDocument(id)
+    local document = editor:createMapDocument(id)
     if not document then return nil, "Could not create an editor document" end
-    self.history.serial = self.history.serial + 1
-    document.history_revision = self.history.serial
-    self:activateMapDocument(document)
-    self:onHistoryChanged({ document }, false)
+    editor.history.serial = editor.history.serial + 1
+    document.history_revision = editor.history.serial
+    editor:activateMapDocument(document)
+    editor:onHistoryChanged({ document }, false)
     return document
 end
 

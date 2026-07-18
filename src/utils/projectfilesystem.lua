@@ -2,7 +2,7 @@
 local ProjectFileSystem = {}
 
 function ProjectFileSystem.normalizePath(path)
-    path = tostring(path or ""):gsub("\\", "/"):gsub("/+", "/")
+    path = FileSystemUtils.normalizeSlashes(path)
     if path == "" or path:sub(1, 1) == "/" or path:match("^%a:/") then
         return nil, "Project paths must be relative"
     end
@@ -14,11 +14,11 @@ end
 
 function ProjectFileSystem.getProjectSourceRoot()
     if not Mod or not Mod.info or not Mod.info.path then return nil, "No project is loaded" end
-    local project_path = Mod.info.path:gsub("\\", "/"):gsub("/+$", "")
+    local project_path = FileSystemUtils.normalizeSlashes(Mod.info.path):gsub("/+$", "")
     local manifest_path = project_path .. "/mod.json"
     local source_root = love.filesystem.getRealDirectory(manifest_path)
     if not source_root then return nil, "Could not locate the active project on disk" end
-    source_root = source_root:gsub("\\", "/"):gsub("/+$", "")
+    source_root = FileSystemUtils.normalizeSlashes(source_root):gsub("/+$", "")
     if source_root:lower():match("%.zip$") then
         return nil, "The active project is loaded from a ZIP archive and is read-only"
     end
@@ -51,7 +51,7 @@ function ProjectFileSystem.getRealPath(path)
     local normalized, reason = ProjectFileSystem.normalizePath(path)
     if not normalized then return nil, reason end
     if not Mod or not Mod.info or not Mod.info.path then return nil, "No project is loaded" end
-    local project_path = Mod.info.path:gsub("\\", "/"):gsub("/+$", "")
+    local project_path = FileSystemUtils.normalizeSlashes(Mod.info.path):gsub("/+$", "")
     if normalized ~= project_path and not StringUtils.startsWith(normalized, project_path .. "/") then
         return nil, "Path is outside the active project"
     end
@@ -65,7 +65,7 @@ function ProjectFileSystem.getProjectPath(path)
     local normalized, reason = ProjectFileSystem.normalizePath(path or "")
     if not normalized then return nil, reason end
     if not Mod or not Mod.info or not Mod.info.path then return nil, "No project is loaded" end
-    local project_path = Mod.info.path:gsub("\\", "/"):gsub("/+$", "")
+    local project_path = FileSystemUtils.normalizeSlashes(Mod.info.path):gsub("/+$", "")
     if normalized == project_path or StringUtils.startsWith(normalized, project_path .. "/") then
         return normalized
     end
@@ -147,7 +147,7 @@ end
 function ProjectFileSystem.remove(path)
     local normalized, reason = ProjectFileSystem.normalizePath(path)
     if not normalized then return false, reason end
-    if Mod and Mod.info and normalized == Mod.info.path:gsub("\\", "/"):gsub("/+$", "") then
+    if Mod and Mod.info and normalized == FileSystemUtils.normalizeSlashes(Mod.info.path):gsub("/+$", "") then
         return false, "The active project root cannot be removed"
     end
     local real_path

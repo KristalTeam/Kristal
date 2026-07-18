@@ -25,22 +25,6 @@
 ---@overload fun(options?: table): EditorTextInput
 local EditorTextInput, super = Class(EditorControl)
 
-local function clampCursor(value, cursor)
-    return MathUtils.clamp(cursor or (#value + 1), 1, #value + 1)
-end
-
-local function previousCodepoint(value, cursor)
-    cursor = clampCursor(value, cursor)
-    if cursor <= 1 then return 1 end
-    return utf8.offset(value, -1, cursor) or 1
-end
-
-local function nextCodepoint(value, cursor)
-    cursor = clampCursor(value, cursor)
-    if cursor > #value then return #value + 1 end
-    return utf8.offset(value, 2, cursor) or (#value + 1)
-end
-
 local function getLines(value)
     local lines, start = {}, 1
     while true do
@@ -169,7 +153,7 @@ function EditorTextInput:replaceSelection(text)
     local value = self.value:sub(1, first - 1) .. text .. self.value:sub(last)
     local cursor = first + #text
     self:setValue(value)
-    self.cursor = clampCursor(self.value, cursor)
+    self.cursor = StringUtils.clampByteCursor(self.value, cursor)
     self:clearSelection()
     self:ensureCursorVisible()
 end
@@ -194,7 +178,7 @@ function EditorTextInput:onBlur()
 end
 
 function EditorTextInput:getCursorLine(cursor)
-    cursor = clampCursor(self.value, cursor or self.cursor)
+    cursor = StringUtils.clampByteCursor(self.value, cursor or self.cursor)
     local lines = getLines(self.value)
     for index, line in ipairs(lines) do
         if cursor <= line.finish + 1 or index == #lines then return index, line, lines end
@@ -205,7 +189,8 @@ end
 function EditorTextInput:getCursorPosition(cursor)
     local index, line, lines = self:getCursorLine(cursor)
     local font = self.font or EditorFont.get(16)
-    local x = font:getWidth(self.value:sub(line.start, clampCursor(self.value, cursor or self.cursor) - 1))
+    local x = font:getWidth(self.value:sub(line.start,
+        StringUtils.clampByteCursor(self.value, cursor or self.cursor) - 1))
     return x, (index - 1) * font:getHeight(), index, line, lines
 end
 
@@ -224,7 +209,7 @@ function EditorTextInput:getCursorAt(x, y)
         local distance = math.abs(target_x - width)
         if distance < best_distance then best_cursor, best_distance = cursor, distance end
         if cursor > line.finish then break end
-        cursor = nextCodepoint(self.value, cursor)
+        cursor = StringUtils.nextCodepoint(self.value, cursor)
     end
     return best_cursor
 end
@@ -247,7 +232,7 @@ function EditorTextInput:ensureCursorVisible()
 end
 
 function EditorTextInput:moveCursor(cursor, selecting)
-    cursor = clampCursor(self.value, cursor)
+    cursor = StringUtils.clampByteCursor(self.value, cursor)
     if selecting then
         self.selection_anchor = self.selection_anchor or self.cursor
     else
@@ -259,14 +244,15 @@ end
 
 function EditorTextInput:selectWordAt(cursor)
     if #self.value == 0 then return end
-    local first, last = clampCursor(self.value, cursor), clampCursor(self.value, cursor)
+    local first = StringUtils.clampByteCursor(self.value, cursor)
+    local last = first
     while first > 1 do
-        local previous = previousCodepoint(self.value, first)
+        local previous = StringUtils.previousCodepoint(self.value, first)
         if not self.value:sub(previous, first - 1):match("[%w_]") then break end
         first = previous
     end
     while last <= #self.value do
-        local next_cursor = nextCodepoint(self.value, last)
+        local next_cursor = StringUtils.nextCodepoint(self.value, last)
         if not self.value:sub(last, next_cursor - 1):match("[%w_]") then break end
         last = next_cursor
     end
@@ -303,7 +289,7 @@ function EditorTextInput:onMouseReleased(_, _, button)
 end
 
 function EditorTextInput:onKeyPressed(key)
-    self.cursor = clampCursor(self.value, self.cursor)
+    self.cursor = StringUtils.clampByteCursor(self.value, self.cursor)
     local ctrl, shift = Input.ctrl(), Input.shift()
     if ctrl and key == "a" then self:selectAll() return true end
     if ctrl and key == "c" then
@@ -326,7 +312,7 @@ function EditorTextInput:onKeyPressed(key)
 
     if key == "backspace" then
         if not self:deleteSelection() then
-            local previous = previousCodepoint(self.value, self.cursor)
+            local previous = StringUtils.previousCodepoint(self.value, self.cursor)
             if previous < self.cursor then
                 self.selection_anchor = previous
                 self:replaceSelection("")
@@ -335,7 +321,7 @@ function EditorTextInput:onKeyPressed(key)
         return true
     elseif key == "delete" then
         if not self:deleteSelection() then
-            local next_cursor = nextCodepoint(self.value, self.cursor)
+            local next_cursor = StringUtils.nextCodepoint(self.value, self.cursor)
             if next_cursor > self.cursor then
                 self.selection_anchor = next_cursor
                 self:replaceSelection("")
@@ -344,14 +330,14 @@ function EditorTextInput:onKeyPressed(key)
         return true
     elseif key == "left" then
         local target = self:hasSelection() and not shift and select(1, self:getSelection())
-            or previousCodepoint(self.value, self.cursor)
+            or StringUtils.previousCodepoint(self.value, self.cursor)
         self:moveCursor(target, shift)
         self.preferred_x = nil
         return true
     elseif key == "right" then
         local _, selection_end = self:getSelection()
         local target = self:hasSelection() and not shift and selection_end
-            or nextCodepoint(self.value, self.cursor)
+            or StringUtils.nextCodepoint(self.value, self.cursor)
         self:moveCursor(target, shift)
         self.preferred_x = nil
         return true
@@ -391,7 +377,7 @@ function EditorTextInput:onTextInput(text)
 end
 
 function EditorTextInput:drawSelf()
-    self.cursor = clampCursor(self.value, self.cursor)
+    self.cursor = StringUtils.clampByteCursor(self.value, self.cursor)
     local font = self.font or EditorFont.get(16)
     love.graphics.setFont(font)
     Draw.setColor(0.10, 0.10, 0.12, 1)

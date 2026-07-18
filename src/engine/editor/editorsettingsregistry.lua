@@ -31,15 +31,10 @@ function EditorSettingsRegistry:registerPage(id, title, options)
     return page
 end
 
-local function settingChoices(setting)
-    if type(setting.choices) == "function" then
-        local success, choices = pcall(setting.choices, setting)
-        return success and type(choices) == "table" and choices or {}
-    end
-    return setting.choices or {}
-end
-
-local function coerce(setting, value)
+---@param setting table
+---@param value any
+---@return any value
+function EditorSettingsRegistry:coerce(setting, value)
     if setting.type == "boolean" then return value == true end
     if setting.type == "number" or setting.type == "integer" then
         value = tonumber(value)
@@ -50,8 +45,8 @@ local function coerce(setting, value)
         return value
     end
     if setting.type == "choice" then
-        for _, choice in ipairs(settingChoices(setting)) do
-            local choice_value = type(choice) == "table" and (choice.value ~= nil and choice.value or choice.id) or choice
+        for _, choice in ipairs(self:getChoices(setting)) do
+            local choice_value = EditorChoiceUtils.getValue(choice)
             if choice_value == value or tostring(choice_value) == tostring(value) then return choice_value end
         end
         return nil
@@ -70,7 +65,7 @@ end
 
 function EditorSettingsRegistry:getChoices(setting)
     if type(setting) == "string" then setting = self.settings[setting] end
-    return setting and settingChoices(setting) or {}
+    return setting and EditorChoiceUtils.resolve(setting.choices, setting) or {}
 end
 
 function EditorSettingsRegistry:registerSetting(page_id, id, definition)
@@ -91,8 +86,8 @@ function EditorSettingsRegistry:registerSetting(page_id, id, definition)
     if setting.persistent then value = self.stored_values[id] end
     if value == nil and setting.get then value = setting.get(self.editor, setting) end
     if value == nil then value = setting.default end
-    value = coerce(setting, value)
-    if value == nil then value = coerce(setting, setting.default) end
+    value = self:coerce(setting, value)
+    if value == nil then value = self:coerce(setting, setting.default) end
     setting.value = value
     self.settings[id] = setting
     table.insert(page.settings, setting)
@@ -125,7 +120,7 @@ end
 function EditorSettingsRegistry:setValue(id, value)
     local setting = self.settings[id]
     if not setting then return false end
-    value = coerce(setting, value)
+    value = self:coerce(setting, value)
     if value == nil then return false end
     local previous = self:getValue(id)
     if setting.set and setting.set(value, self.editor, setting, false) == false then return false end

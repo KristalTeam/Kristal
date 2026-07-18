@@ -227,20 +227,7 @@ function operations.createTileLayer(self, data)
 end
 
 function operations.loadTextureFromImagePath(self, filename)
-    local image_dir = "assets/sprites"
-    local success, result, final_path = TiledUtils.relativePathToAssetId(image_dir, filename, self.full_map_path)
-
-    if not success then
-        if result == "not under prefix" then
-            return false, "Image not found in \"" .. image_dir .. "\" (Got path \"" .. final_path .. "\")"
-        elseif result == "path outside root" then
-            return false, "Image path located outside Kristal (Got path \"<kristal>/" .. final_path .. "\")"
-        else
-            return false, "Unknown reason"
-        end
-    end
-
-    return true, result
+    return TiledUtils.resolveImageAsset(filename, self.full_map_path)
 end
 
 function operations.populateTilesets(self, data)

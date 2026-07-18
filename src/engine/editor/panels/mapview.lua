@@ -1170,18 +1170,15 @@ function EditorMapView:drawSelectedObject()
                 and selection.data.polyline
                 and #selection.data.polyline >= 2) then
             local points = selection.data.polygon or selection.data.polyline
-            local coordinates = {}
-            for _, point in ipairs(points) do
-                table.insert(coordinates, point.x or point[1] or 0)
-                table.insert(coordinates, point.y or point[2] or 0)
-            end
+            local coordinates = MapUtils.collectPointCoordinates(points)
             if selection.data.polygon then
                 love.graphics.polygon("line", coordinates)
             else
                 for _, edge in ipairs(MapUtils.getPolylineEdges(selection.data, #points)) do
                     local first, second = points[edge[1]], points[edge[2]]
-                    love.graphics.line(first.x or first[1] or 0, first.y or first[2] or 0,
-                        second.x or second[1] or 0, second.y or second[2] or 0)
+                    local x1, y1 = MapUtils.getPointCoordinates(first)
+                    local x2, y2 = MapUtils.getPointCoordinates(second)
+                    love.graphics.line(x1, y1, x2, y2)
                 end
             end
             if #selections == 1 then

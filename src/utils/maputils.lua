@@ -1,6 +1,45 @@
 ---@class MapUtils
 local MapUtils = {}
 
+---@param point table?
+---@return number x
+---@return number y
+function MapUtils.getPointCoordinates(point)
+    point = point or {}
+    return point.x or point[1] or 0, point.y or point[2] or 0
+end
+
+---@param points table?
+---@return number[] coordinates
+function MapUtils.collectPointCoordinates(points)
+    local result = {}
+    for _, point in ipairs(points or {}) do
+        local x, y = MapUtils.getPointCoordinates(point)
+        table.insert(result, x)
+        table.insert(result, y)
+    end
+    return result
+end
+
+---@param x number
+---@param y number
+---@param points table
+---@return boolean inside
+function MapUtils.pointInPolygon(x, y, points)
+    if #points == 0 then return false end
+    local inside, previous = false, points[#points]
+    for _, point in ipairs(points) do
+        local px, py = MapUtils.getPointCoordinates(point)
+        local qx, qy = MapUtils.getPointCoordinates(previous)
+        if (py > y) ~= (qy > y)
+            and x < (qx - px) * (y - py) / (qy - py) + px then
+            inside = not inside
+        end
+        previous = point
+    end
+    return inside
+end
+
 --- Walks a nested layer tree.
 function MapUtils.walkLayers(layers, callback, depth, parent)
     depth = depth or 0

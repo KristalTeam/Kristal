@@ -136,15 +136,15 @@ end
 
 function EditorPathInput:getPickerItems()
     local items, seen = {}, {}
-    local choices = self.options.choices
-    if type(choices) == "function" then choices = choices(self.options, self) end
+    local choices = type(self.options.choices) == "function"
+        and self.options.choices(self.options, self) or self.options.choices
     for _, choice in ipairs(type(choices) == "table" and choices or {}) do
-        local value = type(choice) == "table" and (choice.value or choice.id) or choice
+        local value = EditorChoiceUtils.getValue(choice)
         if value ~= nil and not seen[value] then
             seen[value] = true
             table.insert(items, {
                 id = value,
-                label = tostring(type(choice) == "table" and (choice.label or choice.name or value) or value),
+                label = EditorChoiceUtils.getLabel(choice),
                 data = value
             })
         end

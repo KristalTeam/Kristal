@@ -10,12 +10,6 @@ local ActorPreview, super = Class(EditorControl)
 
 local DIRECTIONS = { "down", "left", "right", "up" }
 
-local function join(first, second)
-    if not first or first == "" then return second or "" end
-    if not second or second == "" then return first end
-    return first:gsub("/+$", "") .. "/" .. second:gsub("^/+", "")
-end
-
 local function framesFor(path)
     if not path or path == "" then return nil end
     local texture = Assets.getTexture(path)
@@ -93,7 +87,7 @@ function ActorPreview:resolveAnimation(animation_id, direction)
     local animation = model and model.animations[animation_id]
     local sprite = self.owner.DataModel.getAnimationSprite(animation)
     if not sprite then return nil end
-    local path = join(self.owner:getActorField("path"), sprite)
+    local path = FileSystemUtils.join(self.owner:getActorField("path"), sprite)
     local frames, resolved, directional = directionalFrames(path, direction or self.owner.direction or "down")
     return frames, resolved, directional, animation
 end
@@ -139,7 +133,7 @@ end
 function ActorPreview:drawRawAnimation(animation, alpha, reference)
     local sprite = self.owner.DataModel.getAnimationSprite(animation)
     if not sprite then return false end
-    local frames = directionalFrames(join(self.owner:getActorField("path"), sprite),
+    local frames = directionalFrames(FileSystemUtils.join(self.owner:getActorField("path"), sprite),
         self.owner.direction or "down")
     local texture = self:getFrame(frames, animation)
     if not texture then return false end
@@ -375,7 +369,7 @@ function ActorPreview:getDirections()
     local animation = animation_id and self.owner.model.animations[animation_id]
     local sprite = self.owner.DataModel.getAnimationSprite(animation)
     if not sprite then return {} end
-    local base = join(self.owner:getActorField("path"), sprite)
+    local base = FileSystemUtils.join(self.owner:getActorField("path"), sprite)
     local directions = {}
     for _, direction in ipairs(DIRECTIONS) do
         if framesFor(base .. "/" .. direction) or framesFor(base .. "_" .. direction) then

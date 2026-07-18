@@ -1,6 +1,14 @@
 ---@class MathUtils
 local MathUtils = {}
 
+---@param value any
+---@param fallback? number
+---@return number?
+function MathUtils.parseNumber(value, fallback)
+    local result = tonumber(value)
+    return result ~= nil and result or fallback
+end
+
 function MathUtils.pointInRect(x, y, rect)
     return rect and x >= rect.x and y >= rect.y
         and x < rect.x + rect.width and y < rect.y + rect.height

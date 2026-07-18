@@ -15,8 +15,60 @@ local function splitLines(text)
     return lines
 end
 
-local function copyPosition(position)
+---@param position {line: number, column: number}
+---@return {line: number, column: number}
+function EditorCodeBuffer.copyPosition(position)
     return { line = position.line, column = position.column }
+end
+
+---@param first {line: number, column: number}?
+---@param second {line: number, column: number}?
+---@return boolean same
+function EditorCodeBuffer.samePosition(first, second)
+    return first ~= nil and second ~= nil and first.line == second.line and first.column == second.column
+end
+
+---@param line string
+---@param column number
+---@return number column
+function EditorCodeBuffer.previousColumn(line, column)
+    return StringUtils.previousCodepoint(line, column)
+end
+
+---@param line string
+---@param column number
+---@return number column
+function EditorCodeBuffer.nextColumn(line, column)
+    return StringUtils.nextCodepoint(line, column)
+end
+
+---@param line string
+---@param character number?
+---@param encoding string?
+---@return number column
+function EditorCodeBuffer.protocolCharacterToColumn(line, character, encoding)
+    character = math.max(0, character or 0)
+    if encoding ~= "utf-16" then return math.min(#line, character) + 1 end
+    local units = 0
+    for byte, codepoint in utf8.codes(line) do
+        if units >= character then return byte end
+        units = units + (codepoint > 0xFFFF and 2 or 1)
+    end
+    return #line + 1
+end
+
+---@param line string
+---@param column number
+---@param encoding string?
+---@return number character
+function EditorCodeBuffer.columnToProtocolCharacter(line, column, encoding)
+    local byte_character = math.max(0, (column or 1) - 1)
+    if encoding ~= "utf-16" then return byte_character end
+    local units = 0
+    for _, codepoint in utf8.codes(line:sub(1, byte_character)) do
+        units = units + (codepoint > 0xFFFF and 2 or 1)
+    end
+    return units
 end
 
 function EditorCodeBuffer:init(text)
@@ -85,6 +137,18 @@ function EditorCodeBuffer:offsetToPosition(offset)
     return self:getEndPosition()
 end
 
+---@param position table?
+---@param encoding string?
+---@return {line: number, column: number} position
+function EditorCodeBuffer:fromProtocolPosition(position, encoding)
+    local line = MathUtils.clamp((position and position.line or 0) + 1, 1, self:getLineCount())
+    return {
+        line = line,
+        column = EditorCodeBuffer.protocolCharacterToColumn(self:getLine(line),
+            position and position.character or 0, encoding)
+    }
+end
+
 function EditorCodeBuffer:replace(first, last, text)
     first, last = self:ordered(first, last)
     text = tostring(text or ""):gsub("\r\n", "\n"):gsub("\r", "\n")
@@ -109,8 +173,8 @@ function EditorCodeBuffer:replace(first, last, text)
         and { line = first.line, column = first.column + #inserted_lines[1] }
         or { line = first.line + #inserted_lines - 1, column = #inserted_lines[#inserted_lines] + 1 }
     return {
-        start = copyPosition(first),
-        old_end = copyPosition(last),
+        start = EditorCodeBuffer.copyPosition(first),
+        old_end = EditorCodeBuffer.copyPosition(last),
         new_end = new_end,
         inserted = text,
         removed = removed,

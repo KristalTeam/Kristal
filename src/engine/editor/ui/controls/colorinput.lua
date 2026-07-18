@@ -23,25 +23,13 @@ local function colorValue(value)
     return color and ("#" .. hex:upper()) or nil
 end
 
-local function drawCheckerboard(width, height, size)
-    size = size or 6
-    for y = 0, math.ceil(height / size) - 1 do
-        for x = 0, math.ceil(width / size) - 1 do
-            local value = (x + y) % 2 == 0 and 0.72 or 0.42
-            Draw.setColor(value, value, value, 1)
-            love.graphics.rectangle("fill", x * size, y * size,
-                math.min(size, width - x * size), math.min(size, height - y * size))
-        end
-    end
-end
-
 function ColorSwatchButton:init(on_pressed, get_color)
     button_super.init(self, "", on_pressed)
     self.get_color = get_color
 end
 
 function ColorSwatchButton:drawSelf()
-    drawCheckerboard(self.width, self.height)
+    Draw.checkerboard(0, 0, self.width, self.height, 6)
     local color = self.get_color and self.get_color()
     if color then
         Draw.setColor(color)

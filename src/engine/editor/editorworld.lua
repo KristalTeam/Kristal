@@ -52,7 +52,7 @@ end
 
 function EditorWorld:addMap(id, x, y, options)
     options = options or {}
-    if not id or not Registry.getMap(id) and not Registry.getMapData(id) then return nil end
+    if not Registry.hasMap(id) then return nil end
     local entry = self.map_lookup[id]
     if entry then
         if x ~= nil then entry.x = x end

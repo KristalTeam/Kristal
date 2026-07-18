@@ -1,5 +1,5 @@
-local DataModel = ...
----@class PartyMemberEditor : EditorControl
+local DataModel, ActorEditorDataPanel = ...
+---@class PartyMemberEditor : ActorEditorDataPanel
 ---@overload fun(editor: Editor, plugin: ActorEditorPlugin): PartyMemberEditor
 ---@field actor_buttons table
 ---@field actor_open_buttons table
@@ -33,7 +33,7 @@ local DataModel = ...
 ---@field soul_color EditorColorInput
 ---@field visual_colors table
 ---@field visual_fields table
-local PartyMemberEditor, super = Class(EditorControl)
+local PartyMemberEditor, super = Class(ActorEditorDataPanel)
 
 local MODES = {
     { id = "base", label = "Base Stats" },
@@ -41,60 +41,24 @@ local MODES = {
     { id = "visuals", label = "Visuals" }
 }
 
-local function number(value, fallback)
-    value = tonumber(value)
-    if value == nil then return fallback end
-    return value
-end
-
-local function sortedKeys(value)
-    local result = {}
-    for key in pairs(value or {}) do table.insert(result, key) end
-    table.sort(result, function(first, second)
-        if type(first) == type(second) then return first < second end
-        return tostring(first) < tostring(second)
-    end)
-    return result
-end
-
-local function labelFor(id)
-    return tostring(id):gsub("_", " "):gsub("^%l", string.upper)
-end
-
-local function fitText(font, value, max_width)
-    local text = tostring(value or "")
-    if max_width <= 0 then return "" end
-    if font:getWidth(text) <= max_width then return text end
-
-    local suffix = "..."
-    local available = max_width - font:getWidth(suffix)
-    if available <= 0 then return "" end
-
-    local cursor, last = 1, 0
-    while cursor <= #text do
-        local next_cursor = utf8.offset(text, 2, cursor) or (#text + 1)
-        if font:getWidth(text:sub(1, next_cursor - 1)) > available then break end
-        last = next_cursor - 1
-        cursor = next_cursor
-    end
-    return text:sub(1, last) .. suffix
-end
+local number = MathUtils.parseNumber
+local sortedKeys = TableUtils.getSortedKeys
+local labelFor = StringUtils.humanizeIdentifier
+local fitText = StringUtils.truncateToWidth
 
 function PartyMemberEditor:init(editor, plugin)
-    super.init(self, 0, 0, 980, 680)
-    self.editor = editor
-    self.plugin = plugin
-    self.entries = {}
-    self.models = {}
-    self.saved_signatures = {}
-    self.model = nil
-    self.selected_id = nil
+    super.init(self, editor, plugin)
+    self.panel_definition_key = "party_panel_definition"
+    self.panel_title = "Party Member Editor"
+    self.entity_name = "party member"
+    self.diagnostic_id = "party_editor"
+    self.entry_list_field = "member_list"
+    self.entry_scanner = "scanPartyMembers"
+    self.model_factory = "createPartyModel"
+    self.field_getter = "getPartyField"
+    self.field_setter = "setPartyField"
     self.selected_chapter = nil
     self.mode = "base"
-    self.field_rows = {}
-    self.mode_controls = {}
-    self.focusable = true
-    self.clip = true
 
     self.search = self:addChild(EditorSearchBar({
         editor = editor,
@@ -287,34 +251,6 @@ function PartyMemberEditor:init(editor, plugin)
     self:setMode("base")
 end
 
-function PartyMemberEditor:addModeControl(mode, control)
-    self.mode_controls[mode] = self.mode_controls[mode] or {}
-    table.insert(self.mode_controls[mode], control)
-    return self:addChild(control)
-end
-
-function PartyMemberEditor:addField(mode, label, control, compact)
-    control = self:addModeControl(mode, control)
-    table.insert(self.field_rows, {
-        mode = mode, label = label, control = control, compact = compact == true
-    })
-    return control
-end
-
-function PartyMemberEditor:getPanel()
-    return self.plugin.party_panel_definition and self.plugin.party_panel_definition.panel
-end
-
-function PartyMemberEditor:isVisibleAndDirty()
-    local panel = self:getPanel()
-    return panel and panel.visible and self:isDirty()
-end
-
-function PartyMemberEditor:isDirty()
-    for _, model in pairs(self.models) do if model.dirty then return true end end
-    return false
-end
-
 function PartyMemberEditor:captureHistoryState()
     return {
         models = DataModel.copy(self.models),
@@ -330,77 +266,16 @@ function PartyMemberEditor:restoreHistoryState(state)
     self.model = self.selected_id and self.models[self.selected_id] or nil
     self.selected_chapter = state.selected_chapter
     self:setMode(state.mode or "base")
-    self:refreshMemberList()
+    self:refreshEntryList()
     self:refreshModelControls()
     self:updateDirtyPresentation()
 end
 
-function PartyMemberEditor:performEdit(label, callback)
-    return self.editor:performHistoryEdit(label, self, function()
-        callback()
-        return true
-    end)
-end
-
-function PartyMemberEditor:refreshEntries(preserve)
-    local selected = preserve and self.selected_id
-    self.entries = DataModel.scanPartyMembers()
-    self.entry_lookup = {}
-    for _, entry in ipairs(self.entries) do self.entry_lookup[entry.id] = entry end
-    self:refreshMemberList()
-    if selected and self.entry_lookup[selected] then
-        self:selectEntryById(selected)
-    elseif self.entries[1] then
-        self:selectEntry(self.entries[1])
-    else
-        self.model, self.selected_id = nil, nil
-        self:refreshModelControls()
-    end
-end
-
-function PartyMemberEditor:refreshMemberList()
-    local items = {}
-    for _, entry in ipairs(self.entries) do
-        local model = self.models[entry.id]
-        table.insert(items, {
-            id = entry.id,
-            label = entry.id .. (model and model.dirty and " *" or ""),
-            data = entry
-        })
-    end
-    self.member_list:setItems(items)
-    if self.selected_id then
-        for index, item in ipairs(self.member_list.filtered_items) do
-            if item.id == self.selected_id then self.member_list:select(index) break end
-        end
-    end
-end
-
-function PartyMemberEditor:selectEntry(entry)
-    if not entry then return false end
-    local model = self.models[entry.id]
-    if not model then
-        local reason
-        model, reason = DataModel.createPartyModel(entry)
-        if not model then
-            self.editor:addError("Could not open party member '" .. entry.id .. "'", reason, "party_editor")
-            return false
-        end
-        self.models[entry.id] = model
-        self.saved_signatures[entry.id] = DataModel.signature(model)
-    end
-    self.editor:clearDiagnostics("party_editor")
-    self.model, self.selected_id = model, entry.id
+function PartyMemberEditor:onModelSelected(model)
     if self.selected_chapter and not model.chapters[self.selected_chapter] then
         self.selected_chapter = nil
     end
     self.selected_chapter = self.selected_chapter or sortedKeys(model.chapters)[1]
-    self:refreshModelControls()
-    return true
-end
-
-function PartyMemberEditor:selectEntryById(id)
-    return self.entry_lookup and self.entry_lookup[id] and self:selectEntry(self.entry_lookup[id]) or false
 end
 
 function PartyMemberEditor:getPartyField(key)
@@ -419,12 +294,6 @@ function PartyMemberEditor:setStat(table_key, stat, value)
     local stats = DataModel.copy(self:getPartyField(table_key) or {})
     stats[stat] = value
     return self:setPartyField(table_key, stats)
-end
-
-function PartyMemberEditor:setVectorField(key, index, value)
-    local vector = DataModel.copy(self:getPartyField(key) or { 0, 0 })
-    vector[index] = value
-    return self:setPartyField(key, vector)
 end
 
 function PartyMemberEditor:setActorLink(key, id)
@@ -540,15 +409,6 @@ function PartyMemberEditor:setChapterStat(table_key, stat, value)
     return self:setChapterField(table_key, stats)
 end
 
-function PartyMemberEditor:setMode(mode)
-    self.mode = mode
-    for id, controls in pairs(self.mode_controls) do
-        for _, control in ipairs(controls) do control.visible = id == mode end
-    end
-    for id, button in pairs(self.mode_buttons) do button.focused = id == mode end
-    self:refreshModelControls()
-end
-
 function PartyMemberEditor:refreshActorLinks()
     for _, key in ipairs({ "actor", "light_actor", "dark_transition_actor" }) do
         local id = self.model and self.model[key]
@@ -643,67 +503,6 @@ function PartyMemberEditor:refreshModelControls()
     self:refreshBaseControls()
     self:refreshChapterControls()
     self:refreshVisualControls()
-end
-
-function PartyMemberEditor:updateDirtyPresentation()
-    for id, model in pairs(self.models) do
-        model.dirty = DataModel.signature(model) ~= self.saved_signatures[id]
-    end
-    self.save_button.enabled = self.model ~= nil and self.model.dirty
-    self:refreshMemberList()
-    local panel = self:getPanel()
-    if panel then panel.title = "Party Member Editor" .. (self:isDirty() and " *" or "") end
-    local dirty = self:isDirty()
-    if dirty ~= self.last_dirty_warning then
-        self.last_dirty_warning = dirty
-        self.editor:clearDiagnostics("party_editor_unsaved")
-        if dirty then
-            self.editor:addWarning("Party member editor has unsaved changes",
-                "Use Ctrl+S while the Party Member Editor is focused, or File > Save All.",
-                "party_editor_unsaved")
-        end
-    end
-end
-
-function PartyMemberEditor:saveSelected()
-    if not self.model or not self.model.dirty then return false end
-    local saved, reason = DataModel.save(self.model)
-    if not saved then
-        self.editor:addError("Could not save party member '" .. self.model.id .. "'",
-            reason, "party_editor_save")
-        return false
-    end
-    self.editor:clearDiagnostics("party_editor_save")
-    self.saved_signatures[self.model.id] = DataModel.signature(self.model)
-    self.model.dirty = false
-    if reason then
-        self.editor:addWarning("Party member saved with a reload warning", reason, "party_editor_save")
-    end
-    if self.editor.message_bar then
-        self.editor.message_bar:setStatus("Saved party member: " .. self.model.id, 4)
-    end
-    self:updateDirtyPresentation()
-    return true
-end
-
-function PartyMemberEditor:saveAll()
-    for _, model in pairs(self.models) do
-        if model.dirty then
-            local saved, reason = DataModel.save(model)
-            if not saved then
-                self.editor:addError("Could not save party member '" .. model.id .. "'",
-                    reason, "party_editor_save")
-                return false
-            elseif reason then
-                self.editor:addWarning("Party member '" .. model.id .. "' saved with a reload warning",
-                    reason, "party_editor_save")
-            end
-            self.saved_signatures[model.id] = DataModel.signature(model)
-            model.dirty = false
-        end
-    end
-    self:updateDirtyPresentation()
-    return true
 end
 
 function PartyMemberEditor:update(dt)

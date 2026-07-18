@@ -448,6 +448,12 @@ function Registry.getMap(id)
     return self.maps[id]
 end
 
+---@param id string?
+---@return boolean exists
+function Registry.hasMap(id)
+    return id ~= nil and (Registry.getMap(id) ~= nil or Registry.getMapData(id) ~= nil)
+end
+
 ---@param id string
 ---@param world World?
 ---@param ... any

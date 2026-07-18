@@ -17,16 +17,6 @@ local function displayKeybind(value)
     return value and tostring(value) or "Unbound"
 end
 
-local function choiceLabel(registry, setting, value)
-    for _, choice in ipairs(registry:getChoices(setting)) do
-        local choice_value = type(choice) == "table" and (choice.value ~= nil and choice.value or choice.id) or choice
-        if choice_value == value then
-            return tostring(type(choice) == "table" and (choice.label or choice.name or choice_value) or choice)
-        end
-    end
-    return tostring(value or "")
-end
-
 function EditorSettingsPanel:init(editor)
     super.init(self, 0, 0, 680, 480)
     self.editor = editor
@@ -113,13 +103,13 @@ function EditorSettingsPanel:createControl(setting)
         end)
     elseif setting.type == "choice" then
         local button
-        button = EditorButton(choiceLabel(self.registry, setting, value), function()
+        local _, current_label = EditorChoiceUtils.find(self.registry:getChoices(setting), value)
+        button = EditorButton(current_label or tostring(value or ""), function()
             local items = {}
             for _, choice in ipairs(self.registry:getChoices(setting)) do
-                local choice_value = type(choice) == "table" and (choice.value ~= nil and choice.value or choice.id) or choice
-                local label = type(choice) == "table" and (choice.label or choice.name or choice_value) or choice
+                local choice_value = EditorChoiceUtils.getValue(choice)
                 table.insert(items, {
-                    label = tostring(label),
+                    label = EditorChoiceUtils.getLabel(choice),
                     checked = self.registry:getValue(setting.id) == choice_value,
                     action = function() self.registry:setValue(setting.id, choice_value) end
                 })
@@ -164,7 +154,8 @@ function EditorSettingsPanel:refreshSetting(setting)
             if setting.type == "boolean" then
                 row.control:setValue(value, true)
             elseif setting.type == "choice" then
-                row.control.label = choiceLabel(self.registry, setting, value)
+                local _, label = EditorChoiceUtils.find(self.registry:getChoices(setting), value)
+                row.control.label = label or tostring(value or "")
             elseif setting.type == "keybind" and not row.control.capturing then
                 row.control.label = displayKeybind(value)
             elseif row.control.setValue then

@@ -178,4 +178,20 @@ function TiledUtils.relativePathToAssetId(target_dir, asset_path, source_dir)
     return true, final_path:sub(1, -1 - (final_path:reverse():find("%.") or 0)), final_path
 end
 
+---@param asset_path string
+---@param source_dir string
+---@return boolean success
+---@return string result
+function TiledUtils.resolveImageAsset(asset_path, source_dir)
+    local image_dir = "assets/sprites"
+    local success, result, final_path = TiledUtils.relativePathToAssetId(image_dir, asset_path, source_dir)
+    if success then return true, result end
+    if result == "not under prefix" then
+        return false, "Image not found in \"" .. image_dir .. "\" (Got path \"" .. final_path .. "\")"
+    elseif result == "path outside root" then
+        return false, "Image path located outside Kristal (Got path \"<kristal>/" .. final_path .. "\")"
+    end
+    return false, "Unknown reason"
+end
+
 return TiledUtils

@@ -76,7 +76,7 @@ function EditorPropertyRegistry:init()
         name = "Choice", default = "", control = "choice",
         coerce = function(value, definition)
             for _, choice in ipairs(self:getChoices(definition)) do
-                local choice_value = type(choice) == "table" and (choice.value ~= nil and choice.value or choice.id) or choice
+                local choice_value = EditorChoiceUtils.getValue(choice)
                 if choice_value == value or tostring(choice_value) == tostring(value) then return choice_value end
             end
         end
@@ -313,12 +313,7 @@ function EditorPropertyRegistry:getTypes()
 end
 
 function EditorPropertyRegistry:getChoices(definition)
-    local choices = definition and definition.choices or {}
-    if type(choices) == "function" then
-        local success, result = pcall(choices, definition)
-        return success and type(result) == "table" and result or {}
-    end
-    return type(choices) == "table" and choices or {}
+    return EditorChoiceUtils.resolve(definition and definition.choices, definition)
 end
 
 function EditorPropertyRegistry:registryChoices(registry_key, options)
