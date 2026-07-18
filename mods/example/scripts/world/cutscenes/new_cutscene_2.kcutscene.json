@@ -1,0 +1,62 @@
+{
+  "format": "kristal-cutscene",
+  "version": 1,
+  "id": "new_cutscene_2",
+  "name": "New Cutscene 2",
+  "kind": "world",
+  "output": "scripts/world/cutscenes/new_cutscene_2.lua",
+  "map": "room1",
+  "context": [],
+  "cast": [],
+  "objects": [],
+  "variables": [],
+  "procedures": [],
+  "tracks": [],
+  "graphs": [
+    {
+      "id": "cutscene_start",
+      "name": "Cutscene Start",
+      "scope": "cutscene",
+      "event": "start",
+      "blocks": [
+        {
+          "id": "block_3",
+          "type": "spawn_character",
+          "inputs": {
+            "actor": "starwalker",
+            "id": "spawned",
+            "properties": [],
+            "x": 660,
+            "y": 260
+          }
+        },
+        {
+          "id": "block_4",
+          "type": "move_character",
+          "inputs": {
+            "character": "spawned",
+            "duration": 4,
+            "ease": "linear",
+            "facing": "down",
+            "keep_facing": false,
+            "wait": true,
+            "x": 320,
+            "y": 240
+          }
+        },
+        {
+          "id": "block_5",
+          "type": "text",
+          "inputs": {
+            "actor": "",
+            "portrait": "",
+            "position": "left",
+            "text": "* im the original              starwalker",
+            "wait": true
+          }
+        }
+      ]
+    }
+  ],
+  "extensions": []
+}

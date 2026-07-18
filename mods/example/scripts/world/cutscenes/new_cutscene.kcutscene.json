@@ -1,0 +1,24 @@
+{
+  "format": "kristal-cutscene",
+  "version": 1,
+  "id": "new_cutscene",
+  "name": "New Cutscene",
+  "kind": "world",
+  "output": "scripts/world/cutscenes/new_cutscene.lua",
+  "context": [],
+  "cast": [],
+  "objects": [],
+  "variables": [],
+  "procedures": [],
+  "tracks": [],
+  "graphs": [
+    {
+      "id": "cutscene_start",
+      "name": "Cutscene Start",
+      "scope": "cutscene",
+      "event": "start",
+      "blocks": []
+    }
+  ],
+  "extensions": []
+}
