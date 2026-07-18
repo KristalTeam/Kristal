@@ -1,3 +1,4 @@
+--- Displays a selectable and scrollable list of editor items.
 ---@class EditorItemList : EditorControl
 ---@field clip boolean
 ---@field dragging_item any

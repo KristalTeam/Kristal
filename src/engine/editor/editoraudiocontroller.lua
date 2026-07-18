@@ -1,3 +1,4 @@
+--- Manages editor music and preview audio.
 ---@class EditorAudioController : Class
 ---@field editor Editor
 ---@overload fun(editor: Editor): EditorAudioController
@@ -210,4 +211,3 @@ function EditorAudioController:setEditingMusicEnabled(enabled)
 end
 
 return EditorAudioController
-

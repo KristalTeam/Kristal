@@ -1,3 +1,4 @@
+--- Edits table values as a list of entries.
 ---@class EditorTableInput : EditorControl
 ---@field add_button EditorButton
 ---@field clip boolean

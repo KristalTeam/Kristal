@@ -1,3 +1,4 @@
+--- Handles map tools and pointer interaction in map views.
 ---@class EditorMapInteraction : Class
 ---@field editor Editor
 ---@overload fun(editor: Editor): EditorMapInteraction

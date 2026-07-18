@@ -1,3 +1,4 @@
+--- Provides editable single-line or multiline text input.
 ---@class EditorTextInput : EditorControl
 ---@field accepts_text_input boolean
 ---@field clip boolean

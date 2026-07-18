@@ -1,3 +1,5 @@
+--- Defines shared operations for loading tileset data.\
+--- Currently implemented by the Tiled legacy set and the new Editor format set.
 ---@class TilesetReader : Class
 ---@overload fun(tileset: Tileset): TilesetReader
 local TilesetReader = Class()

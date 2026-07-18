@@ -1,3 +1,4 @@
+--- Displays a form for creating project files and editor data.
 ---@class EditorCreationDialog : EditorControl
 ---@field editor Editor
 ---@field title string

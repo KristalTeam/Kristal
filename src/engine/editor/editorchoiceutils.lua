@@ -1,3 +1,4 @@
+--- Provides shared helpers for editor choice lists.
 ---@class EditorChoiceUtils
 local EditorChoiceUtils = {}
 

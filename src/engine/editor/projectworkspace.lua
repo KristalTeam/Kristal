@@ -1,3 +1,4 @@
+--- Provides access to project files and open file documents.
 ---@class EditorProjectWorkspace : Class
 ---@field document_order table
 ---@field documents table

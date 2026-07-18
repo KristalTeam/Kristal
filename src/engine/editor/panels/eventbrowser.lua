@@ -1,3 +1,4 @@
+--- Directory for all registered EditorEvents so you can drag/drop them in the editor.
 ---@class EditorEventBrowser : EditorControl
 ---@field editor Editor
 ---@field list EditorItemList

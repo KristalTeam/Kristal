@@ -1,3 +1,4 @@
+--- Registers terrain rules and selects tiles from them.
 ---@class TerrainRuleRegistry : Class
 ---@field condition_order table
 ---@field condition_types table

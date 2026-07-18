@@ -1,3 +1,4 @@
+--- Loads legacy Tiled maps into the game world.
 ---@class TiledMapReader : MapReader
 ---@overload fun(map: Map): TiledMapReader
 local TiledMapReader, super = Class(MapReader)

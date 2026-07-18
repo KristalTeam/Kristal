@@ -1,3 +1,4 @@
+--- Loads and saves project data used by the editor.
 ---@class EditorProjectIO : Class
 ---@field editor Editor
 ---@overload fun(editor: Editor): EditorProjectIO

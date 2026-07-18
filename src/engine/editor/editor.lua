@@ -1,3 +1,4 @@
+--- The main brain of the editor. Manages editor state and coordinates its main systems.
 ---@class Editor
 ---@field audio_controller EditorAudioController
 ---@field session_manager EditorSessionManager

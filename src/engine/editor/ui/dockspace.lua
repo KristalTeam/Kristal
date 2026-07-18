@@ -1,3 +1,4 @@
+--- Manages docked editor panels.
 ---@class EditorDockSpace : Class
 ---@field captured_control any
 ---@field context_menu any

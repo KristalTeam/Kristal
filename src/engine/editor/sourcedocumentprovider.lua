@@ -1,3 +1,5 @@
+--- Built in implementation for viewing file/image documents.\
+--- Can be replaced by things like the Code Editor plugin's writable version.
 ---@class EditorSourceDocumentProvider : EditorDocumentProvider
 ---@field viewer EditorSourceViewer
 ---@overload fun(editor: Editor, viewer: EditorSourceViewer): EditorSourceDocumentProvider

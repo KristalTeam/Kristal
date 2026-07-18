@@ -1,3 +1,4 @@
+--- Parses Lua source for highlighting and block matching.
 ---@class EditorLuaHighlighter : Class
 ---@field blocks table
 ---@field bracket_offsets table

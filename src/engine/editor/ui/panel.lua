@@ -1,3 +1,4 @@
+--- Base representation of a dockable panel in the editor.
 ---@class EditorPanel : Class
 ---@field content EditorControl?
 ---@field fixed_content_height number?

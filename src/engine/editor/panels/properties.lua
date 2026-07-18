@@ -1,3 +1,4 @@
+--- Displays properties for the current editor selection.
 ---@class EditorPropertiesPanel : EditorControl
 ---@field add_button EditorButton
 ---@field clip boolean

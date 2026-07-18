@@ -1,3 +1,4 @@
+--- Edits a list of project or asset paths.
 ---@class EditorPathListInput : EditorControl
 ---@field add_button EditorButton
 ---@field clip boolean

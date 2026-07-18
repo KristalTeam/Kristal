@@ -1,3 +1,4 @@
+--- Represents an image opened from the project workspace.
 ---@class EditorImageDocument : EditorDocument
 ---@field diagnostics table
 ---@field file_type string

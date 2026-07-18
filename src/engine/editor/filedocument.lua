@@ -1,3 +1,4 @@
+--- Represents a text file opened from the project workspace.
 ---@class EditorFileDocument : EditorDocument
 ---@field buffer EditorCodeBuffer?
 ---@field diagnostics table

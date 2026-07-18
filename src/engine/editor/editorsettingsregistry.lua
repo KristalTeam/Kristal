@@ -1,3 +1,4 @@
+--- Registers editor settings and stores their current values.
 ---@class EditorSettingsRegistry : Class
 ---@field editor Editor
 ---@field page_order table

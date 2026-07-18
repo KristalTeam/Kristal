@@ -1,3 +1,4 @@
+--- A representation of a loaded map in the editor.
 ---@class EditorMapDocument : EditorDocument
 ---@field editable_layers table
 ---@field map_lookup table<string, table>

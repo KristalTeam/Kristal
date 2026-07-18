@@ -1,3 +1,4 @@
+--- Stores property values, types, definitions, and groups for one owner.
 ---@class EditorPropertySet : Class
 ---@field definitions table
 ---@field group_order table

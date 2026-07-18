@@ -1,3 +1,4 @@
+--- Displays a searchable picker for project and asset paths.
 ---@class EditorPathPicker : EditorControl
 ---@field apply_button EditorButton
 ---@field cancel_button EditorButton

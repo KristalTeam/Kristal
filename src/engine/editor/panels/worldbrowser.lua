@@ -1,3 +1,4 @@
+--- Displays and edits worlds in the current project.
 ---@class EditorWorldBrowser : EditorControl
 ---@field add_map_button EditorButton
 ---@field edit_button EditorButton

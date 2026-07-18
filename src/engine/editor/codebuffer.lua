@@ -1,3 +1,4 @@
+--- Stores editable source text as lines and ranges.
 ---@class EditorCodeBuffer : Class
 ---@field lines table
 ---@overload fun(text?: string): EditorCodeBuffer

@@ -1,3 +1,4 @@
+--- Edits one project or asset path.
 ---@class EditorPathInput : EditorControl
 ---@field editor Editor
 ---@field input EditorTextInput

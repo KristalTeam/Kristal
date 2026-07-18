@@ -1,3 +1,4 @@
+--- Selects and draws the current editor cursor.
 ---@class EditorCursor : Class
 ---@field custom_cursors table
 ---@field custom_enabled boolean

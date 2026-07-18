@@ -1,3 +1,4 @@
+--- Displays a modal color picker for editor fields.
 ---@class EditorColorPicker : EditorControl
 ---@field alpha boolean
 ---@field alpha_mesh love.Mesh

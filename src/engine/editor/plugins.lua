@@ -1,3 +1,4 @@
+--- Handles plugins.
 ---@class EditorPlugins
 ---@field directory string
 ---@field debug_directory string

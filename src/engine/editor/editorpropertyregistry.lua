@@ -1,3 +1,4 @@
+--- Registers property types and handles their values.
 ---@class EditorPropertyRegistry : Class
 ---@field function_sources table
 ---@field last_function_error any

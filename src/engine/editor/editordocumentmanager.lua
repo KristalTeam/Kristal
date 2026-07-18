@@ -1,3 +1,4 @@
+--- Handles editor documents (opening/closing/saving etc)
 ---@class EditorDocumentManager : Class
 ---@field editor Editor
 ---@overload fun(editor: Editor): EditorDocumentManager

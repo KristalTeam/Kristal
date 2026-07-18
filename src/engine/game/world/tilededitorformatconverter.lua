@@ -1,3 +1,4 @@
+--- Converts legacy Tiled data into the editor format.
 ---@class TiledEditorFormatConverter
 local TiledEditorFormatConverter = {}
 

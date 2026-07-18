@@ -1,3 +1,4 @@
+--- Displays an image with pan and zoom controls.
 ---@class EditorImagePreview : EditorControl
 ---@field clip boolean
 ---@field document EditorImageDocument?

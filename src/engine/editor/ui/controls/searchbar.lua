@@ -1,3 +1,4 @@
+--- Provides text input for filtering editor lists.
 ---@class EditorSearchBar : EditorTextInput
 ---@overload fun(options?: table): EditorSearchBar
 local EditorSearchBar, super = Class(EditorTextInput)

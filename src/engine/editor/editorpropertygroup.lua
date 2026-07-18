@@ -1,3 +1,4 @@
+--- Describes a reusable group of related properties.
 ---@class EditorPropertyGroup : Class
 ---@field id string?
 ---@field indexed boolean

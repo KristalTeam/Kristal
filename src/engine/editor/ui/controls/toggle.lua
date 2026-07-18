@@ -1,3 +1,4 @@
+--- Provides a switch boolean control. Different from checkbox by being *snazzier*
 ---@class EditorToggle : EditorControl
 ---@field cursor_type string
 ---@field focusable boolean

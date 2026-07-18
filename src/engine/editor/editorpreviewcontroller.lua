@@ -1,3 +1,4 @@
+--- Manages the sandboxed game preview and its state.
 ---@class EditorPreviewController : Class
 ---@field editor Editor
 ---@overload fun(editor: Editor): EditorPreviewController

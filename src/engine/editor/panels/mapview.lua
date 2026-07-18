@@ -1,3 +1,4 @@
+--- Displays an editable map or editor world.
 ---@class EditorMapView : EditorGameView
 ---@field active_map_id string?
 ---@field event_paint_stroke any

@@ -1,3 +1,4 @@
+--- Finds editor-format files. Maps/Worlds/Tilesets by default.
 ---@class EditorFormatDiscovery
 local EditorFormatDiscovery = {}
 

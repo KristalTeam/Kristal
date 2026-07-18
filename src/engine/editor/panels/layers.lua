@@ -1,3 +1,4 @@
+--- Displays the layers in the active map.
 ---@class EditorLayersPanel : EditorControl
 ---@field darken_toggle EditorCheckbox
 ---@field detail_y number
