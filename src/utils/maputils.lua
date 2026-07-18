@@ -96,7 +96,7 @@ function MapUtils.resolveMarkerReference(map_id, value)
         if Registry.layer_types and reader and reader.LEGACY_FORMAT then
             object_type = Registry.layer_types:getLegacyTiledObjectType(layer, object) or object_type
         end
-        if object_type == "marker" then
+        if object_type == "marker" or object_type == "player" then
             if tostring(object.id) == tostring(reference.object_id)
                 or tostring(object.name) == tostring(reference.object_id) then
                 marker_id = object.id

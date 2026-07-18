@@ -54,9 +54,14 @@ function EditorMapReader:read(data)
             local kind = Registry.layer_types:getLayerKind(layer)
             map.layers[layer.name] = layer_depth
             if kind == "object" then
-                if layer.properties and layer.properties.spawn then spawn_depth = layer_depth end
                 if type_id == "objects" then
                     table.insert(object_depths, layer_depth)
+                    for _, object in ipairs(layer.objects or {}) do
+                        local object_type = map:getObjectType(object)
+                        if Registry.getEditorObjectRuntimeType(object_type) == "player" then
+                            spawn_depth = layer_depth
+                        end
+                    end
                 end
             elseif kind == "tile" then
                 if type_id == "battleborder" then

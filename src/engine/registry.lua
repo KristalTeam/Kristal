@@ -679,7 +679,7 @@ function Registry.getEditorEvent(id)
 end
 
 ---@param id string?
----@return "event"|"controller"|"marker"|"path"
+---@return "event"|"controller"|"marker"|"path"|"player"
 function Registry.getEditorObjectRuntimeType(id)
     local event = self.getEditorEvent(id)
     if event and event.runtime_type and event.runtime_type ~= "event" then return event.runtime_type end
@@ -1364,7 +1364,7 @@ function Registry.initEditorEvents()
     self.editor_events = {}
 
     local builtins = {
-        marker = EditorMarker, path = EditorPath, savepoint = EditorSavepoint,
+        player = EditorPlayer, marker = EditorMarker, path = EditorPath, savepoint = EditorSavepoint,
         interactable = EditorInteractable, script = EditorScriptEvent,
         transition = EditorTransition, npc = EditorNPC, enemy = EditorChaserEnemy,
         outline = EditorOutline, silhouette = EditorSilhouette, slidearea = EditorSlideArea,

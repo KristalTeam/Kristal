@@ -124,6 +124,80 @@ local function convertTiledTileLayer(layer, references)
     return split_order
 end
 
+---@param data table
+---@return table player_spawn
+function TiledEditorFormatConverter.convertPlayerSpawn(data)
+    local layers = data.layers or {}
+    local flattened = TiledUtils.flattenLayers(layers, true)
+    local target = TiledUtils.getSpawnLayer(flattened)
+    local spawn, source_layer
+    for _, layer in ipairs(flattened) do
+        if TiledUtils.isLayerType(layer, "markers") then
+            for _, object in ipairs(layer.objects or {}) do
+                if object.name == "spawn" then
+                    spawn = object
+                    source_layer = layer
+                end
+            end
+        end
+    end
+
+    if not target or Registry.layer_types:getLegacyTiledType(target).id ~= "objects" then
+        local object_layer = {
+            id = data.nextlayerid,
+            name = "Objects",
+            type = "objectgroup",
+            objects = {},
+            properties = {},
+            offsetx = 0,
+            offsety = 0
+        }
+        table.insert(layers, object_layer)
+        target = object_layer
+        data.nextlayerid = (tonumber(data.nextlayerid) or #layers) + 1
+    end
+
+    MapUtils.walkLayers(layers, function(layer)
+        if layer.properties then layer.properties.spawn = nil end
+    end)
+
+    if not spawn then
+        local next_id = tonumber(data.nextobjectid) or 1
+        MapUtils.walkObjects(layers, function(object)
+            next_id = math.max(next_id, (tonumber(object.id) or 0) + 1)
+        end)
+        spawn = {
+            id = next_id,
+            name = "Player",
+            type = "player",
+            x = (data.width or 0) * (data.grid_width or 40) / 2 - (target.offsetx or 0),
+            y = (data.height or 0) * (data.grid_height or 40) / 2 - (target.offsety or 0),
+            width = 0,
+            height = 0,
+            rotation = 0,
+            point = true,
+            visible = true,
+            properties = {}
+        }
+        local destination = target._tiled_source or target
+        destination.objects = destination.objects or {}
+        table.insert(destination.objects, spawn)
+        data.nextobjectid = next_id + 1
+        return spawn
+    end
+
+    local source = source_layer._tiled_source or source_layer
+    local destination = target._tiled_source or target
+    if source ~= destination then
+        TableUtils.removeValue(source.objects, spawn)
+        spawn.x = (spawn.x or 0) + (source_layer.offsetx or 0) - (target.offsetx or 0)
+        spawn.y = (spawn.y or 0) + (source_layer.offsety or 0) - (target.offsety or 0)
+        destination.objects = destination.objects or {}
+        table.insert(destination.objects, spawn)
+    end
+    return spawn
+end
+
 ---@return table? data
 ---@return string? error
 function TiledEditorFormatConverter.convertMap(data, options)
@@ -141,11 +215,7 @@ function TiledEditorFormatConverter.convertMap(data, options)
     end
     converted.tilewidth, converted.tileheight, converted.backgroundcolor = nil, nil, nil
     local references = getTiledTilesetReferences(data)
-    local spawn_layer = TiledUtils.getSpawnLayer(TiledUtils.flattenLayers(converted.layers, true))
-    if spawn_layer and spawn_layer._tiled_source then
-        spawn_layer._tiled_source.properties = spawn_layer._tiled_source.properties or {}
-        spawn_layer._tiled_source.properties.spawn = true
-    end
+    local player_spawn = TiledEditorFormatConverter.convertPlayerSpawn(converted)
     local function convertTileObject(object)
         if not object.gid then return true end
         local reference, packed = resolveTiledGid(object.gid, references)
@@ -187,7 +257,8 @@ function TiledEditorFormatConverter.convertMap(data, options)
                 layer.x = layer.offsetx or 0
                 layer.y = layer.offsety or 0
                 for _, object in ipairs(layer.objects or {}) do
-                    object.type = Registry.layer_types:getLegacyTiledObjectType(layer, object)
+                    object.type = object == player_spawn and "player"
+                        or Registry.layer_types:getLegacyTiledObjectType(layer, object)
                         or object.type or ""
                     local success, object_reason = convertTileObject(object)
                     if not success then return nil, object_reason end

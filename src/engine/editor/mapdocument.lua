@@ -1293,7 +1293,8 @@ function EditorMapDocument:findMarkerSelection(map_id, marker)
     for _, layer_entry in ipairs(self:getFlatEditableLayers(map_id, false)) do
         local layer = layer_entry.layer
         for _, object in ipairs(layer.objects or {}) do
-            if self:getEditorObjectType(object, map_id) == "marker"
+            local object_type = self:getEditorObjectType(object, map_id)
+            if (object_type == "marker" or object_type == "player")
                 and (tostring(object.id) == tostring(reference.object_id)
                     or tostring(object.name) == tostring(reference.object_id)) then
                 return self:getObjectSelection(map_id, layer, object)

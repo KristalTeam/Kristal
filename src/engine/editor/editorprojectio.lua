@@ -425,10 +425,10 @@ function EditorProjectIO:createNewMap(id, name, options)
             name = "Markers",
             color = { 0.49, 0, 1, 1 }
         })
-        document:createEditableLayer("objects", id, nil, {
-            name = "Objects",
-            properties = { spawn = true }
-        })
+        document:createEditableLayer("objects", id, nil, { name = "Objects" })
+        local player = document:addEditorObject("player", id,
+            data.width * data.grid_width / 2, data.height * data.grid_height / 2, { free = true })
+        if player then player.name = "Player" end
     end
     editor.history.serial = editor.history.serial + 1
     document.history_revision = editor.history.serial

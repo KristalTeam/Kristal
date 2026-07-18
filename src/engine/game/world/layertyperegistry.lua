@@ -22,10 +22,6 @@ local function mapLoader(method)
     end)
 end
 
-local function objectProperties(properties)
-    properties:registerProperty("spawn", "boolean")
-end
-
 local function imageProperties(properties)
     properties:registerProperty("speedx", "number", { name = "Speed X" })
     properties:registerProperty("speedy", "number", { name = "Speed Y" })
@@ -93,7 +89,7 @@ local DEFAULT_TYPES = {
     { id = "folder",         name = "Folder",          kind = "group",  icon = "editor/ui/layer/default",        color = { 1, 1, 1, 1 } },
     { id = "tile",           name = "Tiles",           kind = "tile",   icon = "editor/ui/layer/tile",           color = { 0.8, 0.8, 0.82, 1 } },
     { id = "image",          name = "Image",           kind = "image",  icon = "editor/ui/layer/image",          color = { 0.8, 0.8, 0.82, 1 }, properties = imageProperties },
-    { id = "objects",        name = "Objects",         kind = "object", icon = "editor/ui/layer/objects",        color = { 1, 0, 1, 1 },       load = eventLoader(), properties = objectProperties },
+    { id = "objects",        name = "Objects",         kind = "object", icon = "editor/ui/layer/objects",        color = { 1, 0, 1, 1 },       load = eventLoader() },
     { id = "collision",      name = "Collision",       kind = "object", icon = "editor/ui/layer/collision",      color = { 0, 0, 1, 1 },       load = mapLoader("loadCollision") },
     { id = "enemycollision", name = "Enemy Collision", kind = "object", icon = "editor/ui/layer/enemycollision", color = { 0, 1, 1, 1 },       load = mapLoader("loadEnemyCollision") },
     { id = "blockcollision", name = "Block Collision", kind = "object", icon = "editor/ui/layer/blockcollision", color = { 1, 0.35, 0, 1 },    load = mapLoader("loadBlockCollision") },

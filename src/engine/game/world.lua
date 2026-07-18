@@ -1086,8 +1086,8 @@ function World:loadMap(...)
 
     self:setupMap(map, unpack(args))
 
-    if self.map.markers["spawn"] then
-        local spawn = self.map.markers["spawn"]
+    local spawn = self.map.player_spawn or self.map.markers["spawn"]
+    if spawn then
         self.camera:setPosition(spawn.center_x, spawn.center_y)
     end
 

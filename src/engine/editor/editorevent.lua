@@ -26,7 +26,7 @@
 ---@field y number
 ---@field placement_shape "rectangle"|"point"|"region"
 ---@field scaling_mode "resize"|"scale"
----@field runtime_type "event"|"controller"|"marker"|"path"
+---@field runtime_type "event"|"controller"|"marker"|"path"|"player"
 ---@overload fun(data?: table, options?: table): EditorEvent
 local EditorEvent = Class()
 
