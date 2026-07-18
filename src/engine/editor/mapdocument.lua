@@ -877,7 +877,7 @@ function EditorMapDocument:getPointShapeWorldPoint(selection, index)
     if not point then return nil end
     local origin_x, origin_y = self:getObjectWorldPosition(selection)
     local rotation = math.rad(selection.data.rotation or 0)
-    local x, y = point.x or point[1] or 0, point.y or point[2] or 0
+    local x, y = MapUtils.getPointCoordinates(point)
     return origin_x + x * math.cos(rotation) - y * math.sin(rotation),
         origin_y + x * math.sin(rotation) + y * math.cos(rotation)
 end
@@ -888,7 +888,7 @@ function EditorMapDocument:normalizePointShape(selection)
     if not points or #points == 0 then return false end
     local min_x, min_y, max_x, max_y
     for _, point in ipairs(points) do
-        local x, y = point.x or point[1] or 0, point.y or point[2] or 0
+        local x, y = MapUtils.getPointCoordinates(point)
         min_x, min_y = min_x and math.min(min_x, x) or x, min_y and math.min(min_y, y) or y
         max_x, max_y = max_x and math.max(max_x, x) or x, max_y and math.max(max_y, y) or y
     end
@@ -897,8 +897,9 @@ function EditorMapDocument:normalizePointShape(selection)
         data.x = (data.x or 0) + min_x * math.cos(rotation) - min_y * math.sin(rotation)
         data.y = (data.y or 0) + min_x * math.sin(rotation) + min_y * math.cos(rotation)
         for _, point in ipairs(points) do
-            point.x = (point.x or point[1] or 0) - min_x
-            point.y = (point.y or point[2] or 0) - min_y
+            local x, y = MapUtils.getPointCoordinates(point)
+            point.x = x - min_x
+            point.y = y - min_y
             point[1], point[2] = nil, nil
         end
         max_x, max_y = max_x - min_x, max_y - min_y
@@ -1104,8 +1105,8 @@ function EditorMapDocument:findObjectAt(world_x, world_y, options)
                         local tolerance = math.max(10, thickness / 2 + 4)
                         for _, edge in ipairs(MapUtils.getPolylineEdges(object, #object.polyline)) do
                             local first, second = object.polyline[edge[1]], object.polyline[edge[2]]
-                            local x1, y1 = first.x or first[1] or 0, first.y or first[2] or 0
-                            local x2, y2 = second.x or second[1] or 0, second.y or second[2] or 0
+                            local x1, y1 = MapUtils.getPointCoordinates(first)
+                            local x2, y2 = MapUtils.getPointCoordinates(second)
                             local vx, vy = x2 - x1, y2 - y1
                             local length_squared = vx * vx + vy * vy
                             local amount = length_squared == 0 and 0

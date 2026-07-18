@@ -1,4 +1,4 @@
----@class EditorCodeInput : EditorControl
+---@class EditorCodeInput : EditorSourceInput
 ---@field accepts_text_input boolean
 ---@field block_guides table
 ---@field buffer EditorCodeBuffer?
@@ -36,49 +36,11 @@
 ---@field syntax_cache_document EditorWritableFileDocument?
 ---@field syntax_cache_version number?
 ---@overload fun(options?: table): EditorCodeInput
-local EditorCodeInput, super = Class(EditorControl)
+local EditorCodeInput, super = Class(EditorSourceInput)
 local EditorCodeCompletionPopup, EditorCodeHoverPopup = ...
 
 local COLORS = EditorLuaHighlighter.COLORS
 local TAB_WIDTH = 4
-
-local function copyPosition(position)
-    return { line = position.line, column = position.column }
-end
-
-local function samePosition(first, second)
-    return first and second and first.line == second.line and first.column == second.column
-end
-
-local function previousColumn(line, column)
-    if column <= 1 then return 1 end
-    return utf8.offset(line, -1, column) or 1
-end
-
-local function nextColumn(line, column)
-    if column > #line then return #line + 1 end
-    return utf8.offset(line, 2, column) or (#line + 1)
-end
-
-local function protocolCharacterToColumn(line, character, encoding)
-    character = math.max(0, character or 0)
-    if encoding ~= "utf-16" then return math.min(#line, character) + 1 end
-    local units = 0
-    for byte, codepoint in utf8.codes(line) do
-        if units >= character then return byte end
-        units = units + (codepoint > 0xFFFF and 2 or 1)
-    end
-    return #line + 1
-end
-
-local function protocolPositionToBuffer(buffer, position, encoding)
-    local line_index = MathUtils.clamp((position and position.line or 0) + 1, 1, buffer:getLineCount())
-    return {
-        line = line_index,
-        column = protocolCharacterToColumn(buffer:getLine(line_index),
-            position and position.character or 0, encoding)
-    }
-end
 
 local function completionText(text, insert_text_format)
     text = tostring(text or "")
@@ -92,26 +54,14 @@ end
 
 function EditorCodeInput:init(options)
     options = options or {}
-    super.init(self, options.x, options.y, options.width or 640, options.height or 400)
+    super.init(self, options)
     self.editor = options.editor
     self.code_editor = options.code_editor
     self.language_service = options.language_service
     self.font = options.font
-    self.padding_x = options.padding_x or 48
-    self.padding_y = options.padding_y or 6
-    self.document = nil
-    self.buffer = nil
-    self.cursor = { line = 1, column = 1 }
-    self.selection_anchor = nil
     self.preferred_x = nil
-    self.scroll_x, self.scroll_y = 0, 0
     self.diagnostics = {}
-    self.focusable = true
     self.accepts_text_input = true
-    self.cursor_type = "type"
-    self.focused = false
-    self.mouse_selecting = false
-    self.clip = true
     self.completion_popup = self:addChild(EditorCodeCompletionPopup())
     self.hover_popup = self:addChild(EditorCodeHoverPopup())
     self.completion_generation = 0
@@ -124,7 +74,6 @@ function EditorCodeInput:init(options)
     self.hover_explicit = false
     self.hover_mouse_x = nil
     self.hover_mouse_y = nil
-    self.lua_highlighter = EditorLuaHighlighter()
     self.syntax_cache_document = nil
     self.syntax_cache_version = nil
     self.block_guides = {}
@@ -157,8 +106,8 @@ end
 function EditorCodeInput:saveViewState()
     if not self.document then return end
     self.document.code_view = {
-        cursor = copyPosition(self.cursor),
-        selection_anchor = self.selection_anchor and copyPosition(self.selection_anchor),
+        cursor = EditorCodeBuffer.copyPosition(self.cursor),
+        selection_anchor = self.selection_anchor and EditorCodeBuffer.copyPosition(self.selection_anchor),
         scroll_x = self.scroll_x,
         scroll_y = self.scroll_y
     }
@@ -190,7 +139,7 @@ end
 
 function EditorCodeInput:getBufferPositionFromProtocol(position, encoding)
     if not self.buffer then return { line = 1, column = 1 } end
-    return protocolPositionToBuffer(self.buffer, position, encoding)
+    return self.buffer:fromProtocolPosition(position, encoding)
 end
 
 function EditorCodeInput:updateSyntaxCache()
@@ -278,23 +227,8 @@ function EditorCodeInput:onBlur()
     self:saveViewState()
 end
 
-function EditorCodeInput:hasSelection()
-    return self.selection_anchor ~= nil and not samePosition(self.selection_anchor, self.cursor)
-end
-
-function EditorCodeInput:getSelection()
-    if not self.buffer or not self:hasSelection() then return self.cursor, self.cursor end
-    return self.buffer:ordered(self.selection_anchor, self.cursor)
-end
-
 function EditorCodeInput:clearSelection()
     self.selection_anchor = nil
-end
-
-function EditorCodeInput:getSelectedText()
-    if not self.buffer then return "" end
-    local first, last = self:getSelection()
-    return self.buffer:getTextRange(first, last)
 end
 
 function EditorCodeInput:selectAll()
@@ -308,7 +242,7 @@ end
 function EditorCodeInput:setCursor(position, selecting)
     if not self.buffer then return end
     self:closeCodeAssists()
-    if selecting then self.selection_anchor = self.selection_anchor or copyPosition(self.cursor)
+    if selecting then self.selection_anchor = self.selection_anchor or EditorCodeBuffer.copyPosition(self.cursor)
     else self:clearSelection() end
     self.cursor = self.buffer:clampPosition(position)
     self:ensureCursorVisible()
@@ -316,67 +250,13 @@ end
 
 function EditorCodeInput:setProtocolCursor(line, character, encoding)
     if not self.buffer then return end
-    local line_index = MathUtils.clamp((line or 0) + 1, 1, self.buffer:getLineCount())
-    self:setCursor({
-        line = line_index,
-        column = protocolCharacterToColumn(self.buffer:getLine(line_index), character, encoding)
-    }, false)
-end
-
-function EditorCodeInput:getCursorPosition(position)
-    if not self.buffer then return 0, 0 end
-    position = self.buffer:clampPosition(position or self.cursor)
-    local font = self:getFont()
-    local line = self.buffer:getLine(position.line)
-    return font:getWidth(line:sub(1, position.column - 1)), (position.line - 1) * font:getHeight()
-end
-
-function EditorCodeInput:getCursorAt(x, y)
-    if not self.buffer then return { line = 1, column = 1 } end
-    local font = self:getFont()
-    local line_index = MathUtils.clamp(
-        math.floor((y - self.padding_y + self.scroll_y) / font:getHeight()) + 1,
-        1, self.buffer:getLineCount())
-    local line = self.buffer:getLine(line_index)
-    local target_x = x - self.padding_x + self.scroll_x
-    local best_column, best_distance = 1, math.huge
-    local column = 1
-    while column <= #line + 1 do
-        local width = font:getWidth(line:sub(1, column - 1))
-        local distance = math.abs(target_x - width)
-        if distance < best_distance then best_column, best_distance = column, distance end
-        if column > #line then break end
-        column = nextColumn(line, column)
-    end
-    return { line = line_index, column = best_column }
-end
-
-function EditorCodeInput:getMaxScrollY()
-    if not self.buffer then return 0 end
-    local font = self:getFont()
-    return math.max(0, self.buffer:getLineCount() * font:getHeight() + self.padding_y * 2 - self.height)
-end
-
-function EditorCodeInput:ensureCursorVisible()
-    if not self.buffer then return end
-    local font = self:getFont()
-    local x, y = self:getCursorPosition()
-    local available_width = math.max(1, self.width - self.padding_x - 6)
-    local available_height = math.max(font:getHeight(), self.height - self.padding_y * 2)
-    if x - self.scroll_x < 0 then self.scroll_x = x end
-    if x - self.scroll_x > available_width then self.scroll_x = x - available_width end
-    if y - self.scroll_y < 0 then self.scroll_y = y end
-    if y + font:getHeight() - self.scroll_y > available_height then
-        self.scroll_y = y + font:getHeight() - available_height
-    end
-    self.scroll_x = math.max(0, self.scroll_x)
-    self.scroll_y = MathUtils.clamp(self.scroll_y, 0, self:getMaxScrollY())
+    self:setCursor(self.buffer:fromProtocolPosition({ line = line, character = character }, encoding), false)
 end
 
 function EditorCodeInput:previousPosition(position)
     position = self.buffer:clampPosition(position)
     if position.column > 1 then
-        return { line = position.line, column = previousColumn(self.buffer:getLine(position.line), position.column) }
+        return { line = position.line, column = EditorCodeBuffer.previousColumn(self.buffer:getLine(position.line), position.column) }
     elseif position.line > 1 then
         local line = self.buffer:getLine(position.line - 1)
         return { line = position.line - 1, column = #line + 1 }
@@ -388,7 +268,7 @@ function EditorCodeInput:nextPosition(position)
     position = self.buffer:clampPosition(position)
     local line = self.buffer:getLine(position.line)
     if position.column <= #line then
-        return { line = position.line, column = nextColumn(line, position.column) }
+        return { line = position.line, column = EditorCodeBuffer.nextColumn(line, position.column) }
     elseif position.line < self.buffer:getLineCount() then
         return { line = position.line + 1, column = 1 }
     end
@@ -400,7 +280,7 @@ function EditorCodeInput:replaceSelection(text)
     local first, last = self:getSelection()
     local changed, edit = self.document:replaceRange(first, last, text)
     if not changed then return false end
-    self.cursor = copyPosition(edit.new_end)
+    self.cursor = EditorCodeBuffer.copyPosition(edit.new_end)
     self:clearSelection()
     self.preferred_x = nil
     self:ensureCursorVisible()
@@ -459,7 +339,7 @@ function EditorCodeInput:indentSelection(outdent)
     if not changed then return true end
 
     local function adjust(position)
-        local result = copyPosition(position)
+        local result = EditorCodeBuffer.copyPosition(position)
         local delta = deltas[result.line]
         if delta and result.column > 1 then result.column = math.max(1, result.column + delta) end
         return self.buffer:clampPosition(result)
@@ -475,12 +355,12 @@ function EditorCodeInput:getWordRangeAtCursor()
     local line = self.buffer:getLine(self.cursor.line)
     local first, last = self.cursor.column, self.cursor.column
     while first > 1 do
-        local previous = previousColumn(line, first)
+        local previous = EditorCodeBuffer.previousColumn(line, first)
         if not line:sub(previous, first - 1):match("[%w_]") then break end
         first = previous
     end
     while last <= #line do
-        local following = nextColumn(line, last)
+        local following = EditorCodeBuffer.nextColumn(line, last)
         if not line:sub(last, following - 1):match("[%w_]") then break end
         last = following
     end
@@ -517,13 +397,13 @@ function EditorCodeInput:requestCompletion(manual, trigger)
     self.completion_generation = self.completion_generation + 1
     local generation = self.completion_generation
     local document, version = self.document, self.document.version
-    local position = copyPosition(self.cursor)
+    local position = EditorCodeBuffer.copyPosition(self.cursor)
     self.completion_due = nil
     self:closeHover()
     local context = trigger and { triggerKind = 2, triggerCharacter = trigger } or { triggerKind = 1 }
     service:requestCompletion(document, position, context, function(result, response_error)
         if generation ~= self.completion_generation or document ~= self.document
-            or version ~= document.version or not samePosition(position, self.cursor) then return end
+            or version ~= document.version or not EditorCodeBuffer.samePosition(position, self.cursor) then return end
         if response_error then
             if manual and self.editor.message_bar then
                 self.editor.message_bar:setStatus(response_error.message or "Completion failed", 4)
@@ -567,9 +447,9 @@ function EditorCodeInput:completionEdit(item)
     text = completionText(text, format)
     local first, last
     if type(range) == "table" and type(range.start) == "table" and type(range["end"]) == "table" then
-        first = protocolPositionToBuffer(self.buffer, range.start,
+        first = self.buffer:fromProtocolPosition(range.start,
             self.language_service and self.language_service.position_encoding)
-        last = protocolPositionToBuffer(self.buffer, range["end"],
+        last = self.buffer:fromProtocolPosition(range["end"],
             self.language_service and self.language_service.position_encoding)
     else
         first, last = self:getWordRangeAtCursor()
@@ -585,9 +465,9 @@ function EditorCodeInput:acceptCompletion(index)
         local range = additional.range
         if type(range) == "table" and type(range.start) == "table" and type(range["end"]) == "table" then
             table.insert(edits, {
-                start = protocolPositionToBuffer(self.buffer, range.start,
+                start = self.buffer:fromProtocolPosition(range.start,
                     self.language_service and self.language_service.position_encoding),
-                finish = protocolPositionToBuffer(self.buffer, range["end"],
+                finish = self.buffer:fromProtocolPosition(range["end"],
                     self.language_service and self.language_service.position_encoding),
                 text = tostring(additional.newText or "")
             })
@@ -611,7 +491,7 @@ end
 function EditorCodeInput:requestHover(position, x, y, explicit)
     local service = self.language_service
     if not service or not self.document or self.document.language_id ~= "lua" then return false end
-    position = copyPosition(position or self.cursor)
+    position = EditorCodeBuffer.copyPosition(position or self.cursor)
     local token = self:getSyntaxTokenAt(position)
     if token and (token.kind == "string" or StringUtils.startsWith(token.kind, "text_command_")) then
         self.hover_generation = self.hover_generation + 1
@@ -647,12 +527,12 @@ function EditorCodeInput:selectWordAt(position)
     local line = self.buffer:getLine(position.line)
     local first, last = position.column, position.column
     while first > 1 do
-        local previous = previousColumn(line, first)
+        local previous = EditorCodeBuffer.previousColumn(line, first)
         if not line:sub(previous, first - 1):match("[%w_]") then break end
         first = previous
     end
     while last <= #line do
-        local next_column = nextColumn(line, last)
+        local next_column = EditorCodeBuffer.nextColumn(line, last)
         if not line:sub(last, next_column - 1):match("[%w_]") then break end
         last = next_column
     end
@@ -675,10 +555,10 @@ function EditorCodeInput:onMousePressed(x, y, button, presses)
         local global_x, global_y = self:getGlobalPosition()
         local items = {
             { label = "Go to Definition (F12)", action = function()
-                self.code_editor:requestDefinition(copyPosition(self.cursor))
+                self.code_editor:requestDefinition(EditorCodeBuffer.copyPosition(self.cursor))
             end },
             { label = "Find References (Shift+F12)", action = function()
-                self.code_editor:requestReferences(copyPosition(self.cursor))
+                self.code_editor:requestReferences(EditorCodeBuffer.copyPosition(self.cursor))
             end },
             { label = "Show Hover", action = function()
                 local cursor_x, cursor_y = self:getCursorPosition()
@@ -703,30 +583,16 @@ function EditorCodeInput:onMousePressed(x, y, button, presses)
     end
     if Input.ctrl() then
         self:setCursor(position, false)
-        return self.code_editor:requestDefinition(copyPosition(position))
+        return self.code_editor:requestDefinition(EditorCodeBuffer.copyPosition(position))
     end
     self:closeCodeAssists()
-    if Input.shift() then self.selection_anchor = self.selection_anchor or copyPosition(self.cursor)
-    else self.selection_anchor = copyPosition(position) end
+    if Input.shift() then self.selection_anchor = self.selection_anchor or EditorCodeBuffer.copyPosition(self.cursor)
+    else self.selection_anchor = EditorCodeBuffer.copyPosition(position) end
     self.cursor = position
     if presses and presses >= 2 then self:selectWordAt(position) end
     self.mouse_selecting = true
     self.preferred_x = nil
     self:ensureCursorVisible()
-    return true
-end
-
-function EditorCodeInput:onMouseMoved(x, y)
-    if not self.mouse_selecting or not self.buffer then return false end
-    self.cursor = self:getCursorAt(x, y)
-    self:ensureCursorVisible()
-    return true
-end
-
-function EditorCodeInput:onMouseReleased(_, _, button)
-    if button ~= 1 or not self.mouse_selecting then return false end
-    self.mouse_selecting = false
-    if samePosition(self.selection_anchor, self.cursor) then self:clearSelection() end
     return true
 end
 
@@ -753,8 +619,8 @@ function EditorCodeInput:onKeyPressed(key, is_repeat)
         end
     end
     if key == "f12" then
-        if shift then return self.code_editor:requestReferences(copyPosition(self.cursor)) end
-        return self.code_editor:requestDefinition(copyPosition(self.cursor))
+        if shift then return self.code_editor:requestReferences(EditorCodeBuffer.copyPosition(self.cursor)) end
+        return self.code_editor:requestDefinition(EditorCodeBuffer.copyPosition(self.cursor))
     end
     if shift and Input.alt() and key == "f" then
         return self.code_editor:formatActiveDocument()
@@ -795,7 +661,7 @@ function EditorCodeInput:onKeyPressed(key, is_repeat)
     if key == "backspace" then
         if self:hasSelection() then return self:replaceSelection("") end
         local previous = self:previousPosition(self.cursor)
-        if not samePosition(previous, self.cursor) then
+        if not EditorCodeBuffer.samePosition(previous, self.cursor) then
             self.selection_anchor = previous
             return self:replaceSelection("")
         end
@@ -803,7 +669,7 @@ function EditorCodeInput:onKeyPressed(key, is_repeat)
     elseif key == "delete" then
         if self:hasSelection() then return self:replaceSelection("") end
         local following = self:nextPosition(self.cursor)
-        if not samePosition(following, self.cursor) then
+        if not EditorCodeBuffer.samePosition(following, self.cursor) then
             self.selection_anchor = following
             return self:replaceSelection("")
         end
@@ -918,10 +784,10 @@ function EditorCodeInput:drawDiagnostics(line_index, line, y, font)
     for _, diagnostic in ipairs(self.diagnostics or {}) do
         local range = diagnostic.range
         if range and range.start and range["end"] and line_index == (range.start.line or 0) + 1 then
-            local first = protocolCharacterToColumn(line, range.start.character,
+            local first = EditorCodeBuffer.protocolCharacterToColumn(line, range.start.character,
                 self.document and self.document.diagnostic_encoding)
             local last = range["end"].line == range.start.line
-                and protocolCharacterToColumn(line, range["end"].character,
+                and EditorCodeBuffer.protocolCharacterToColumn(line, range["end"].character,
                     self.document and self.document.diagnostic_encoding)
                 or (#line + 1)
             local x1 = self.padding_x + font:getWidth(line:sub(1, first - 1)) - self.scroll_x

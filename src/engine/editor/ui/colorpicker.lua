@@ -26,23 +26,6 @@
 ---@overload fun(editor: Editor, value?: string|table, on_apply?: function): EditorColorPicker
 local EditorColorPicker, super = Class(EditorControl)
 
-local function pointIn(rect, x, y)
-    return x >= rect.x and y >= rect.y and x < rect.x + rect.width and y < rect.y + rect.height
-end
-
-local function checkerboard(rect, size)
-    size = size or 8
-    for row = 0, math.ceil(rect.height / size) - 1 do
-        for column = 0, math.ceil(rect.width / size) - 1 do
-            local value = (row + column) % 2 == 0 and 0.72 or 0.42
-            Draw.setColor(value, value, value, 1)
-            love.graphics.rectangle("fill", rect.x + column * size, rect.y + row * size,
-                math.min(size, rect.width - column * size),
-                math.min(size, rect.height - row * size))
-        end
-    end
-end
-
 local function newGradientMesh(vertices, usage)
     return love.graphics.newMesh(vertices, "strip", usage or "dynamic")
 end
@@ -189,9 +172,9 @@ function EditorColorPicker:onMousePressed(x, y, button, _, presses)
         return true
     end
     self:setFocus(nil)
-    if pointIn(self.sv_rect, x, y) then self.drag_mode = "sv"
-    elseif pointIn(self.hue_rect, x, y) then self.drag_mode = "hue"
-    elseif pointIn(self.alpha_rect, x, y) then self.drag_mode = "alpha"
+    if MathUtils.pointInRect(x, y, self.sv_rect) then self.drag_mode = "sv"
+    elseif MathUtils.pointInRect(x, y, self.hue_rect) then self.drag_mode = "hue"
+    elseif MathUtils.pointInRect(x, y, self.alpha_rect) then self.drag_mode = "alpha"
     elseif x < self.panel_x or y < self.panel_y
         or x >= self.panel_x + self.panel_width or y >= self.panel_y + self.panel_height then
         return self:cancel()
@@ -252,8 +235,8 @@ function EditorColorPicker:onWheelMoved()
 end
 
 function EditorColorPicker:getCursorType(x, y)
-    if pointIn(self.sv_rect, x, y) then return "crosshair" end
-    if pointIn(self.hue_rect, x, y) or pointIn(self.alpha_rect, x, y) then return "select" end
+    if MathUtils.pointInRect(x, y, self.sv_rect) then return "crosshair" end
+    if MathUtils.pointInRect(x, y, self.hue_rect) or MathUtils.pointInRect(x, y, self.alpha_rect) then return "select" end
     local target = self:getControlAt(x, y)
     return target and target.cursor_type or "default"
 end
@@ -286,14 +269,14 @@ function EditorColorPicker:drawSelf()
     love.graphics.rectangle("line", self.hue_rect.x + self.hue * self.hue_rect.width - 2,
         self.hue_rect.y - 2, 4, self.hue_rect.height + 4)
 
-    checkerboard(self.alpha_rect)
+    Draw.checkerboard(self.alpha_rect.x, self.alpha_rect.y, self.alpha_rect.width, self.alpha_rect.height)
     local color = self:getColor()
     drawGradientMesh(self.alpha_mesh, self.alpha_rect)
     Draw.setColor(1, 1, 1, 1)
     love.graphics.rectangle("line", self.alpha_rect.x + self.alpha * self.alpha_rect.width - 2,
         self.alpha_rect.y - 2, 4, self.alpha_rect.height + 4)
 
-    checkerboard(self.preview_rect)
+    Draw.checkerboard(self.preview_rect.x, self.preview_rect.y, self.preview_rect.width, self.preview_rect.height)
     Draw.setColor(color)
     love.graphics.rectangle("fill", self.preview_rect.x, self.preview_rect.y,
         self.preview_rect.width, self.preview_rect.height)

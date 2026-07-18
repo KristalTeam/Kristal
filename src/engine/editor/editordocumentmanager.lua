@@ -7,10 +7,6 @@ function EditorDocumentManager:init(editor)
     self.editor = editor
 end
 
-local function hasMap(id)
-    return id and (Registry.getMap(id) or Registry.getMapData(id))
-end
-
 function EditorDocumentManager:getNextDocumentPanelId()
     local self = self.editor
     local index = 1
@@ -20,7 +16,7 @@ end
 
 function EditorDocumentManager:createMapDocument(id, panel_id)
     local self = self.editor
-    if not hasMap(id) then return nil end
+    if not Registry.hasMap(id) then return nil end
     if type(panel_id) ~= "string" or not panel_id:match("^map_document:%d+$")
         or self.dockspace.panels[panel_id] then
         panel_id = self:getNextDocumentPanelId()
@@ -333,7 +329,7 @@ function EditorDocumentManager:setupMapDocuments(session)
         elseif type(saved_document) == "table" then
             existing = self:findMapDocument(saved_document.primary_map_id)
         end
-        if type(saved_document) == "table" and hasMap(saved_document.primary_map_id) and not existing then
+        if type(saved_document) == "table" and Registry.hasMap(saved_document.primary_map_id) and not existing then
             local document = self:createMapDocument(saved_document.primary_map_id, saved_document.panel_id)
             if document then
                 if is_world and registered_world then
@@ -350,7 +346,7 @@ function EditorDocumentManager:setupMapDocuments(session)
                 local saved_maps = type(saved_document.maps) == "table" and saved_document.maps or {}
                 for _, saved_map in ipairs(saved_maps) do
                     if type(saved_map) == "table" and saved_map.id ~= document.primary_map_id
-                        and hasMap(saved_map.id) then
+                        and Registry.hasMap(saved_map.id) then
                         document:addMap(saved_map.id,
                             type(saved_map.x) == "number" and saved_map.x or 0,
                             type(saved_map.y) == "number" and saved_map.y or 0)
@@ -367,7 +363,7 @@ function EditorDocumentManager:setupMapDocuments(session)
     end
 
     local context_document = self:findMapDocument(self.map_id)
-    if not context_document and hasMap(self.map_id) then
+    if not context_document and Registry.hasMap(self.map_id) then
         context_document = self:createMapDocument(self.map_id)
     end
     if #self.map_documents == 0 then error("Editor session has no valid map document") end
@@ -375,7 +371,7 @@ function EditorDocumentManager:setupMapDocuments(session)
     self.game_preview = EditorGameView(self, context_document or self.map_documents[1])
     self.game_view = self.game_preview
     self.live_document = nil
-    self.standalone_preview_map_id = session and hasMap(session.standalone_preview_map_id)
+    self.standalone_preview_map_id = session and Registry.hasMap(session.standalone_preview_map_id)
         and session.standalone_preview_map_id
         or (context_document or self.map_documents[1]).primary_map_id
     self.standalone_preview_document = EditorMapDocument(self, self.standalone_preview_map_id)
@@ -490,7 +486,7 @@ end
 
 function EditorDocumentManager:openMap(id)
     local self = self.editor
-    if not hasMap(id) then return false end
+    if not Registry.hasMap(id) then return false end
     local document = self:findMapDocument(id)
     if not document then document = self:createMapDocument(id) end
     return document and self:activateMapDocument(document) or false
@@ -688,4 +684,3 @@ function EditorDocumentManager:removeMapDocument(document)
 end
 
 return EditorDocumentManager
-

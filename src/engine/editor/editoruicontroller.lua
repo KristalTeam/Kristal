@@ -10,22 +10,14 @@ end
 local EDITOR_DEFAULT_WIDTH = 1280
 local EDITOR_DEFAULT_HEIGHT = 800
 
-local function fromPixels(value)
-    return love.window.fromPixels and love.window.fromPixels(value) or value
-end
-
-local function toPixels(value)
-    return love.window.toPixels and love.window.toPixels(value) or value
-end
-
 function EditorUIController:setupWindow(session)
     local self = self.editor
     local width, height, flags = love.window.getMode()
     local window_x, window_y, display = love.window.getPosition()
     local game_offset_x, game_offset_y = Kristal.getSideOffsets()
     local game_scale = Kristal.getGameScale()
-    local game_center_x = window_x + fromPixels(game_offset_x + (SCREEN_WIDTH * game_scale / 2))
-    local game_center_y = window_y + fromPixels(game_offset_y + (SCREEN_HEIGHT * game_scale / 2))
+    local game_center_x = window_x + love.window.fromPixels(game_offset_x + (SCREEN_WIDTH * game_scale / 2))
+    local game_center_y = window_y + love.window.fromPixels(game_offset_y + (SCREEN_HEIGHT * game_scale / 2))
     self.previous_window = {
         width = width,
         height = height,
@@ -56,7 +48,7 @@ function EditorUIController:setupWindow(session)
     editor_flags.resizable = true
     editor_flags.minwidth = math.min(editor_width, minimum_width)
     editor_flags.minheight = math.min(editor_height, minimum_height)
-    love.window.updateMode(fromPixels(editor_width), fromPixels(editor_height), editor_flags)
+    love.window.updateMode(love.window.fromPixels(editor_width), love.window.fromPixels(editor_height), editor_flags)
     self:centerWindow(display, desktop_width, desktop_height)
     Kristal.refreshWindowText()
     love.mouse.setVisible(true)
@@ -354,14 +346,14 @@ function EditorUIController:getGameCanvasScreenCenter()
     if not self.game_preview then
         local window_x, window_y = love.window.getPosition()
         local width, height = love.graphics.getDimensions()
-        return window_x + fromPixels(width / 2), window_y + fromPixels(height / 2)
+        return window_x + love.window.fromPixels(width / 2), window_y + love.window.fromPixels(height / 2)
     end
     local window_x, window_y = love.window.getPosition()
     local game_x, game_y = self.game_preview:getGlobalPosition()
     local canvas_center_x, canvas_center_y = self.game_preview:getCanvasDisplayCenter()
     local ui_scale = self:getUIScale()
-    return window_x + fromPixels((game_x + canvas_center_x) * ui_scale),
-        window_y + fromPixels((game_y + canvas_center_y) * ui_scale)
+    return window_x + love.window.fromPixels((game_x + canvas_center_x) * ui_scale),
+        window_y + love.window.fromPixels((game_y + canvas_center_y) * ui_scale)
 end
 
 function EditorUIController:positionGameCanvasAtScreen(screen_x, screen_y)
@@ -369,9 +361,9 @@ function EditorUIController:positionGameCanvasAtScreen(screen_x, screen_y)
     local window_x, window_y = love.window.getPosition()
     local game_x, game_y = self.game_preview:getGlobalPosition()
     local ui_scale = self:getUIScale()
-    local canvas_x = toPixels(screen_x - window_x) / ui_scale
+    local canvas_x = love.window.toPixels(screen_x - window_x) / ui_scale
         - game_x - SCREEN_WIDTH * self.game_preview.view_zoom / 2
-    local canvas_y = toPixels(screen_y - window_y) / ui_scale
+    local canvas_y = love.window.toPixels(screen_y - window_y) / ui_scale
         - game_y - SCREEN_HEIGHT * self.game_preview.view_zoom / 2
     self.game_preview:setCanvasPosition(canvas_x, canvas_y)
 end
@@ -379,8 +371,8 @@ end
 function EditorUIController:centerWindow(display, desktop_width, desktop_height)
     local self = self.editor
     local window_width, window_height = love.window.getMode()
-    local desktop_window_width = fromPixels(desktop_width)
-    local desktop_window_height = fromPixels(desktop_height)
+    local desktop_window_width = love.window.fromPixels(desktop_width)
+    local desktop_window_height = love.window.fromPixels(desktop_height)
     love.window.setPosition(
         MathUtils.round((desktop_window_width - window_width) / 2),
         MathUtils.round((desktop_window_height - window_height) / 2),
@@ -518,4 +510,3 @@ function EditorUIController:restoreLayout(layout)
 end
 
 return EditorUIController
-

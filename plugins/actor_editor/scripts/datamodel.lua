@@ -35,17 +35,23 @@ local CHAPTER_FIELDS = {
     "title", "level", "health", "stats", "lw_lv", "lw_exp", "lw_health", "lw_stats"
 }
 
-local function copy(value, seen)
+---@generic T
+---@param value T
+---@param seen? table
+---@return T copy
+function DataModel.copy(value, seen)
     if type(value) ~= "table" then return value end
     seen = seen or {}
     if seen[value] then return seen[value] end
     local result = {}
     seen[value] = result
     for key, child in pairs(value) do
-        result[copy(key, seen)] = copy(child, seen)
+        result[DataModel.copy(key, seen)] = DataModel.copy(child, seen)
     end
     return result
 end
+
+local copy = DataModel.copy
 
 local function isIdentifier(value)
     return type(value) == "string" and value:match("^[%a_][%w_]*$") ~= nil
@@ -55,18 +61,7 @@ local function quote(value)
     return string.format("%q", tostring(value))
 end
 
-local function sortedKeys(value)
-    local keys = {}
-    for key in pairs(value or {}) do table.insert(keys, key) end
-    table.sort(keys, function(first, second)
-        if type(first) == type(second) then
-            if type(first) == "number" then return first < second end
-            return tostring(first) < tostring(second)
-        end
-        return type(first) < type(second)
-    end)
-    return keys
-end
+local sortedKeys = TableUtils.getSortedKeys
 
 local function encode(value, indent, seen)
     local value_type = type(value)
@@ -108,9 +103,7 @@ local function decode(source)
     return result
 end
 
-local function trim(value)
-    return tostring(value or ""):match("^%s*(.-)%s*$")
-end
+local trim = StringUtils.trim
 
 local function getClassVariable(source)
     return source:match("local%s+([%a_][%w_]*)%s*,?[^=\n]*=%s*Class%s*%(")
@@ -518,10 +511,6 @@ function DataModel.save(model)
         return true, "Saved, but could not reload the class:\n" .. tostring(reload_reason)
     end
     return true, nil
-end
-
-function DataModel.copy(value)
-    return copy(value)
 end
 
 function DataModel.signature(model)

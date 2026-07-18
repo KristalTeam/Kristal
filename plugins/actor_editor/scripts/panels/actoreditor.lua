@@ -1,5 +1,5 @@
-local DataModel, ActorPreview = ...
----@class ActorEditor : EditorControl
+local DataModel, ActorPreview, ActorEditorDataPanel = ...
+---@class ActorEditor : ActorEditorDataPanel
 ---@overload fun(editor: Editor, plugin: ActorEditorPlugin): ActorEditor
 ---@field DataModel any
 ---@field actor_list EditorItemList
@@ -51,7 +51,7 @@ local DataModel, ActorPreview = ...
 ---@field show_reference boolean
 ---@field soul_x EditorTextInput
 ---@field soul_y EditorTextInput
-local ActorEditor, super = Class(EditorControl)
+local ActorEditor, super = Class(ActorEditorDataPanel)
 
 local MODES = {
     { id = "animation", label = "Animations" },
@@ -61,43 +61,27 @@ local MODES = {
     { id = "general", label = "General" }
 }
 
-local function number(value, fallback)
-    value = tonumber(value)
-    if value == nil then return fallback end
-    return value
-end
-
-local function sortedKeys(value)
-    local result = {}
-    for key in pairs(value or {}) do table.insert(result, key) end
-    table.sort(result, function(first, second) return tostring(first):lower() < tostring(second):lower() end)
-    return result
-end
-
-local function labelFor(id)
-    return tostring(id):gsub("_", " "):gsub("^%l", string.upper)
-end
+local number = MathUtils.parseNumber
+local sortedKeys = TableUtils.getCaseInsensitiveSortedKeys
+local labelFor = StringUtils.humanizeIdentifier
 
 function ActorEditor:init(editor, plugin)
-    super.init(self, 0, 0, 980, 680)
-    self.editor = editor
-    self.plugin = plugin
+    super.init(self, editor, plugin)
+    self.panel_definition_key = "actor_panel_definition"
+    self.panel_title = "Actor Editor"
+    self.entity_name = "actor"
+    self.diagnostic_id = "actor_editor"
+    self.entry_list_field = "actor_list"
+    self.entry_scanner = "scanActors"
+    self.model_factory = "createActorModel"
+    self.field_getter = "getActorField"
+    self.field_setter = "setActorField"
     self.DataModel = DataModel
-    self.entries = {}
-    self.models = {}
-    self.saved_signatures = {}
-    self.model = nil
-    self.selected_id = nil
     self.selected_animation = nil
     self.direction = "down"
     self.mode = "animation"
     self.show_reference = true
     self.portrait_target = "portrait"
-    self.field_rows = {}
-    self.mode_controls = {}
-    self.continuous_edit = false
-    self.focusable = true
-    self.clip = true
 
     self.search = self:addChild(EditorSearchBar({
         editor = editor,
@@ -250,33 +234,6 @@ function ActorEditor:init(editor, plugin)
     self:setMode("animation")
 end
 
-function ActorEditor:addModeControl(mode, control)
-    self.mode_controls[mode] = self.mode_controls[mode] or {}
-    table.insert(self.mode_controls[mode], control)
-    return self:addChild(control)
-end
-
-function ActorEditor:addField(mode, label, control, compact)
-    control = self:addModeControl(mode, control)
-    local row = { mode = mode, label = label, control = control, compact = compact == true }
-    table.insert(self.field_rows, row)
-    return control
-end
-
-function ActorEditor:getPanel()
-    return self.plugin.actor_panel_definition and self.plugin.actor_panel_definition.panel
-end
-
-function ActorEditor:isVisibleAndDirty()
-    local panel = self:getPanel()
-    return panel and panel.visible and self:isDirty()
-end
-
-function ActorEditor:isDirty()
-    for _, model in pairs(self.models) do if model.dirty then return true end end
-    return false
-end
-
 function ActorEditor:captureHistoryState()
     return {
         models = DataModel.copy(self.models),
@@ -296,96 +253,16 @@ function ActorEditor:restoreHistoryState(state)
     self.direction = state.direction or "down"
     self.portrait_target = state.portrait_target or "portrait"
     self:setMode(state.mode or "animation")
-    self:refreshActorList()
+    self:refreshEntryList()
     self:refreshModelControls()
     self:updateDirtyPresentation()
 end
 
-function ActorEditor:performEdit(label, callback)
-    if self.continuous_edit then
-        callback()
-        return true
-    end
-    local result
-    local performed = self.editor:performHistoryEdit(label, self, function()
-        result = callback()
-        return result ~= false
-    end)
-    return performed, result
-end
-
-function ActorEditor:beginContinuousEdit(label)
-    if self.continuous_edit then return end
-    self.continuous_edit = self.editor:beginHistoryTransaction(label, self)
-end
-
-function ActorEditor:finishContinuousEdit()
-    if not self.continuous_edit then return end
-    self.continuous_edit = false
-    self.editor:markHistoryChanged()
-    self.editor:commitHistoryTransaction()
-    self:refreshModelControls()
-end
-
-function ActorEditor:refreshEntries(preserve)
-    local selected = preserve and self.selected_id
-    self.entries = DataModel.scanActors()
-    self.entry_lookup = {}
-    for _, entry in ipairs(self.entries) do self.entry_lookup[entry.id] = entry end
-    self:refreshActorList()
-    if selected and self.entry_lookup[selected] then
-        self:selectEntryById(selected)
-    elseif self.entries[1] then
-        self:selectEntry(self.entries[1])
-    else
-        self.model, self.selected_id = nil, nil
-        self:refreshModelControls()
-    end
-end
-
-function ActorEditor:refreshActorList()
-    local items = {}
-    for _, entry in ipairs(self.entries) do
-        local model = self.models[entry.id]
-        table.insert(items, {
-            id = entry.id,
-            label = entry.id .. (model and model.dirty and " *" or ""),
-            data = entry
-        })
-    end
-    self.actor_list:setItems(items)
-    if self.selected_id then
-        for index, item in ipairs(self.actor_list.filtered_items) do
-            if item.id == self.selected_id then self.actor_list:select(index) break end
-        end
-    end
-end
-
-function ActorEditor:selectEntry(entry)
-    if not entry then return false end
-    local model = self.models[entry.id]
-    if not model then
-        local reason
-        model, reason = DataModel.createActorModel(entry)
-        if not model then
-            self.editor:addError("Could not open actor '" .. entry.id .. "'", reason, "actor_editor")
-            return false
-        end
-        self.models[entry.id] = model
-        self.saved_signatures[entry.id] = DataModel.signature(model)
-    end
-    self.editor:clearDiagnostics("actor_editor")
-    self.model, self.selected_id = model, entry.id
+function ActorEditor:onModelSelected(model)
     local animations = sortedKeys(model.animations)
     if not self.selected_animation or not model.animations[self.selected_animation] then
         self.selected_animation = animations[1]
     end
-    self:refreshModelControls()
-    return true
-end
-
-function ActorEditor:selectEntryById(id)
-    return self.entry_lookup and self.entry_lookup[id] and self:selectEntry(self.entry_lookup[id]) or false
 end
 
 function ActorEditor:getActorField(key)
@@ -399,12 +276,6 @@ function ActorEditor:setActorField(key, value, live)
     self:updateDirtyPresentation()
     if not live then self:refreshModelControls() end
     return true
-end
-
-function ActorEditor:setVectorField(key, index, value)
-    local vector = DataModel.copy(self:getActorField(key) or { 0, 0 })
-    vector[index] = value
-    return self:setActorField(key, vector)
 end
 
 function ActorEditor:setHitboxComponent(index, value)
@@ -574,14 +445,9 @@ function ActorEditor:setPortraitTarget(target)
     self.miniface_select.label = target == "miniface" and "Editing Miniface" or "Edit Miniface Offset"
 end
 
-function ActorEditor:setMode(mode)
-    self.mode = mode
+---@param mode string
+function ActorEditor:onModeChanged(mode)
     self.preview.visible = mode ~= "general"
-    for id, controls in pairs(self.mode_controls) do
-        for _, control in ipairs(controls) do control.visible = id == mode end
-    end
-    for id, button in pairs(self.mode_buttons) do button.focused = id == mode end
-    self:refreshModelControls()
 end
 
 function ActorEditor:refreshAnimationList()
@@ -648,63 +514,6 @@ function ActorEditor:refreshModelControls()
     self.flip_button.label = flip and labelFor(flip) or "None"
     self.blush_toggle:setValue(self:getActorField("can_blush") == true, true)
     self:setPortraitTarget(self.portrait_target)
-end
-
-function ActorEditor:updateDirtyPresentation()
-    for id, model in pairs(self.models) do
-        model.dirty = DataModel.signature(model) ~= self.saved_signatures[id]
-    end
-    self.save_button.enabled = self.model ~= nil and self.model.dirty
-    self:refreshActorList()
-    local panel = self:getPanel()
-    if panel then panel.title = "Actor Editor" .. (self:isDirty() and " *" or "") end
-    local dirty = self:isDirty()
-    if dirty ~= self.last_dirty_warning then
-        self.last_dirty_warning = dirty
-        self.editor:clearDiagnostics("actor_editor_unsaved")
-        if dirty then
-            self.editor:addWarning("Actor editor has unsaved changes",
-                "Use Ctrl+S while the Actor Editor is focused, or File > Save All.",
-                "actor_editor_unsaved")
-        end
-    end
-end
-
-function ActorEditor:saveSelected()
-    if not self.model or not self.model.dirty then return false end
-    local saved, reason = DataModel.save(self.model)
-    if not saved then
-        self.editor:addError("Could not save actor '" .. self.model.id .. "'", reason, "actor_editor_save")
-        return false
-    end
-    self.editor:clearDiagnostics("actor_editor_save")
-    self.saved_signatures[self.model.id] = DataModel.signature(self.model)
-    self.model.dirty = false
-    if reason then self.editor:addWarning("Actor saved with a reload warning", reason, "actor_editor_save") end
-    if self.editor.message_bar then
-        self.editor.message_bar:setStatus("Saved actor: " .. self.model.id, 4)
-    end
-    self:updateDirtyPresentation()
-    return true
-end
-
-function ActorEditor:saveAll()
-    for _, model in pairs(self.models) do
-        if model.dirty then
-            local saved, reason = DataModel.save(model)
-            if not saved then
-                self.editor:addError("Could not save actor '" .. model.id .. "'", reason, "actor_editor_save")
-                return false
-            elseif reason then
-                self.editor:addWarning("Actor '" .. model.id .. "' saved with a reload warning",
-                    reason, "actor_editor_save")
-            end
-            self.saved_signatures[model.id] = DataModel.signature(model)
-            model.dirty = false
-        end
-    end
-    self:updateDirtyPresentation()
-    return true
 end
 
 function ActorEditor:update(dt)

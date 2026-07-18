@@ -268,8 +268,8 @@ function EditorTemplateRegistry.coerce(field, value)
         return value
     end
     if field.type == "choice" then
-        for _, choice in ipairs(type(field.choices) == "function" and field.choices(field) or field.choices or {}) do
-            local choice_value = type(choice) == "table" and (choice.value ~= nil and choice.value or choice.id) or choice
+        for _, choice in ipairs(EditorChoiceUtils.resolve(field.choices, field)) do
+            local choice_value = EditorChoiceUtils.getValue(choice)
             if tostring(choice_value) == tostring(value) then return choice_value end
         end
         return nil, field.name .. " has an unknown option"
@@ -286,8 +286,7 @@ end
 function EditorTemplateRegistry.registerBuiltins(registry)
     local register = function(id, definition) registry.registerEditorTemplate(id, definition) end
     local validId = function(value)
-        return value:match("^[%w_%-/]+$") ~= nil,
-            "IDs may only contain letters, numbers, underscores, dashes, and slashes"
+        return EditorProjectIO.validateContentId("content", value)
     end
 
     register("core:map", {

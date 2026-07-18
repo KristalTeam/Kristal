@@ -23,20 +23,6 @@ local function displayPropertyValue(property_type, value)
     return Registry.editor_properties:getDisplayValue(property_type, value)
 end
 
-local function choiceValueAndLabel(choice)
-    if type(choice) ~= "table" then return choice, choice end
-    local value = choice.value ~= nil and choice.value or choice.id
-    return value, choice.label or choice.name or value
-end
-
-local function choiceLabel(choices, value)
-    for _, choice in ipairs(choices or {}) do
-        local choice_value, label = choiceValueAndLabel(choice)
-        if choice_value == value then return label end
-    end
-    return value
-end
-
 function EditorPropertiesPanel:init(editor)
     super.init(self, 0, 0, 300, 400)
     self.editor = editor
@@ -136,11 +122,13 @@ end
 function EditorPropertiesPanel:createChoiceControl(name, definition, value)
     local choices = Registry.editor_properties:getChoices(definition)
     local button
-    button = EditorButton(displayValue(choiceLabel(choices, value)), function()
+    local _, current_label = EditorChoiceUtils.find(choices, value)
+    button = EditorButton(displayValue(current_label or value), function()
         local items = {}
         choices = Registry.editor_properties:getChoices(definition)
         for _, choice in ipairs(choices) do
-            local choice_value, choice_label = choiceValueAndLabel(choice)
+            local choice_value = EditorChoiceUtils.getValue(choice)
+            local choice_label = EditorChoiceUtils.getLabel(choice)
             table.insert(items, {
                 label = tostring(choice_label),
                 checked = choice_value == self:getPropertyValue(name, definition),
@@ -246,8 +234,8 @@ function EditorPropertiesPanel:createSectionValueControl(section, definition)
         button = EditorButton(displayValue(value), function()
             local items = {}
             for _, choice in ipairs(Registry.editor_properties:getChoices(definition)) do
-                local choice_value = type(choice) == "table" and (choice.value ~= nil and choice.value or choice.id) or choice
-                table.insert(items, { label = tostring(type(choice) == "table" and (choice.label or choice.name or choice_value) or choice),
+                local choice_value = EditorChoiceUtils.getValue(choice)
+                table.insert(items, { label = EditorChoiceUtils.getLabel(choice),
                     action = function()
                         if changed(choice_value) then button.label = displayValue(choice_value) end
                     end })
@@ -290,11 +278,13 @@ function EditorPropertiesPanel:rebuild()
         local value_control
         if field.choices then
             local button
+            local _, current_label = EditorChoiceUtils.find(field.choices, field.get())
             button = self:addGeneratedControl(EditorButton(
-                displayValue(choiceLabel(field.choices, field.get())), function()
+                displayValue(current_label or field.get()), function()
                 local items = {}
                 for _, choice in ipairs(field.choices) do
-                    local choice_value, choice_label = choiceValueAndLabel(choice)
+                    local choice_value = EditorChoiceUtils.getValue(choice)
+                    local choice_label = EditorChoiceUtils.getLabel(choice)
                     table.insert(items, {
                         label = tostring(choice_label),
                         checked = choice_value == field.get(),

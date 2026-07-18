@@ -20,24 +20,6 @@ local EditorSourceInput, super = Class(EditorControl)
 
 local COLORS = EditorLuaHighlighter.COLORS
 
-local function copyPosition(position)
-    return { line = position.line, column = position.column }
-end
-
-local function samePosition(first, second)
-    return first and second and first.line == second.line and first.column == second.column
-end
-
-local function previousColumn(line, column)
-    if column <= 1 then return 1 end
-    return utf8.offset(line, -1, column) or 1
-end
-
-local function nextColumn(line, column)
-    if column > #line then return #line + 1 end
-    return utf8.offset(line, 2, column) or (#line + 1)
-end
-
 function EditorSourceInput:init(options)
     options = options or {}
     super.init(self, options.x, options.y, options.width or 640, options.height or 400)
@@ -65,8 +47,8 @@ end
 function EditorSourceInput:saveViewState()
     if not self.document then return end
     self.document.source_view = {
-        cursor = copyPosition(self.cursor),
-        selection_anchor = self.selection_anchor and copyPosition(self.selection_anchor),
+        cursor = EditorCodeBuffer.copyPosition(self.cursor),
+        selection_anchor = self.selection_anchor and EditorCodeBuffer.copyPosition(self.selection_anchor),
         scroll_x = self.scroll_x,
         scroll_y = self.scroll_y
     }
@@ -98,7 +80,7 @@ function EditorSourceInput:updateHighlighting()
 end
 
 function EditorSourceInput:hasSelection()
-    return self.selection_anchor and not samePosition(self.selection_anchor, self.cursor)
+    return self.selection_anchor and not EditorCodeBuffer.samePosition(self.selection_anchor, self.cursor)
 end
 
 function EditorSourceInput:getSelection()
@@ -121,7 +103,7 @@ end
 
 function EditorSourceInput:setCursor(position, selecting)
     if not self.buffer then return false end
-    if selecting then self.selection_anchor = self.selection_anchor or copyPosition(self.cursor)
+    if selecting then self.selection_anchor = self.selection_anchor or EditorCodeBuffer.copyPosition(self.cursor)
     else self.selection_anchor = nil end
     self.cursor = self.buffer:clampPosition(position)
     self:ensureCursorVisible()
@@ -130,22 +112,10 @@ end
 
 function EditorSourceInput:setProtocolCursor(line, character, encoding)
     if not self.buffer then return false end
-    local index = MathUtils.clamp((line or 0) + 1, 1, self.buffer:getLineCount())
-    local line_text = self.buffer:getLine(index)
-    local byte_character = character or 0
-    if encoding == "utf-16" and byte_character > 0 then
-        local units, byte = 0, 1
-        while byte <= #line_text and units < byte_character do
-            local codepoint = utf8.codepoint(line_text, byte)
-            units = units + (codepoint > 0xFFFF and 2 or 1)
-            byte = utf8.offset(line_text, 2, byte) or (#line_text + 1)
-        end
-        byte_character = byte - 1
-    end
-    return self:setCursor({
-        line = index,
-        column = MathUtils.clamp(byte_character + 1, 1, #line_text + 1)
-    }, false)
+    return self:setCursor(self.buffer:fromProtocolPosition({
+        line = line,
+        character = character
+    }, encoding), false)
 end
 
 function EditorSourceInput:getCursorPosition(position)
@@ -169,7 +139,7 @@ function EditorSourceInput:getCursorAt(x, y)
         local distance = math.abs(target_x - font:getWidth(line:sub(1, column - 1)))
         if distance < best_distance then best_column, best_distance = column, distance end
         if column > #line then break end
-        column = nextColumn(line, column)
+        column = EditorCodeBuffer.nextColumn(line, column)
     end
     return { line = line_index, column = best_column }
 end
@@ -209,19 +179,19 @@ end
 function EditorSourceInput:onMousePressed(x, y, button, presses)
     if button ~= 1 or not self.buffer then return false end
     local position = self:getCursorAt(x, y)
-    if Input.shift() then self.selection_anchor = self.selection_anchor or copyPosition(self.cursor)
-    else self.selection_anchor = copyPosition(position) end
+    if Input.shift() then self.selection_anchor = self.selection_anchor or EditorCodeBuffer.copyPosition(self.cursor)
+    else self.selection_anchor = EditorCodeBuffer.copyPosition(position) end
     self.cursor = position
     if presses and presses >= 2 then
         local line = self.buffer:getLine(position.line)
         local first, last = position.column, position.column
         while first > 1 do
-            local previous = previousColumn(line, first)
+            local previous = EditorCodeBuffer.previousColumn(line, first)
             if not line:sub(previous, first - 1):match("[%w_]") then break end
             first = previous
         end
         while last <= #line do
-            local following = nextColumn(line, last)
+            local following = EditorCodeBuffer.nextColumn(line, last)
             if not line:sub(last, following - 1):match("[%w_]") then break end
             last = following
         end
@@ -243,7 +213,7 @@ end
 function EditorSourceInput:onMouseReleased(_, _, button)
     if button ~= 1 or not self.mouse_selecting then return false end
     self.mouse_selecting = false
-    if samePosition(self.selection_anchor, self.cursor) then self.selection_anchor = nil end
+    if EditorCodeBuffer.samePosition(self.selection_anchor, self.cursor) then self.selection_anchor = nil end
     return true
 end
 
@@ -265,7 +235,7 @@ function EditorSourceInput:onKeyPressed(key)
     if key == "left" then
         if self.cursor.column > 1 then
             target = { line = self.cursor.line,
-                column = previousColumn(self.buffer:getLine(self.cursor.line), self.cursor.column) }
+                column = EditorCodeBuffer.previousColumn(self.buffer:getLine(self.cursor.line), self.cursor.column) }
         elseif self.cursor.line > 1 then
             target = { line = self.cursor.line - 1,
                 column = #self.buffer:getLine(self.cursor.line - 1) + 1 }
@@ -273,7 +243,7 @@ function EditorSourceInput:onKeyPressed(key)
     elseif key == "right" then
         local line = self.buffer:getLine(self.cursor.line)
         if self.cursor.column <= #line then
-            target = { line = self.cursor.line, column = nextColumn(line, self.cursor.column) }
+            target = { line = self.cursor.line, column = EditorCodeBuffer.nextColumn(line, self.cursor.column) }
         elseif self.cursor.line < self.buffer:getLineCount() then
             target = { line = self.cursor.line + 1, column = 1 }
         end

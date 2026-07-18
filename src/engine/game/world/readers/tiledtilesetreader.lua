@@ -92,18 +92,8 @@ function TiledTilesetReader:save(path, options)
 end
 
 function operations.loadTextureFromImagePath(tileset, filename)
-    local image_dir = "assets/sprites"
-    local success, result, final_path = TiledUtils.relativePathToAssetId(image_dir, filename, tileset.base_dir)
-
-    if not success then
-        if result == "not under prefix" then
-            return false, "Image not found in \"" .. image_dir .. "\" (Got path \"" .. final_path .. "\")"
-        elseif result == "path outside root" then
-            return false, "Image path located outside Kristal (Got path \"<kristal>/" .. final_path .. "\")"
-        else
-            return false, "Unknown reason"
-        end
-    end
+    local success, result = TiledUtils.resolveImageAsset(filename, tileset.base_dir)
+    if not success then return false, result end
 
     local texture = Assets.getTexture(result)
 

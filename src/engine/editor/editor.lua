@@ -141,10 +141,6 @@ local Editor = {
     owns_window_input = true
 }
 
-local function fromPixels(value)
-    return love.window.fromPixels and love.window.fromPixels(value) or value
-end
-
 function Editor:init()
     self.audio_controller = EditorAudioController(self)
     self.session_manager = EditorSessionManager(self)
@@ -431,8 +427,8 @@ function Editor:leave()
         if self.align_game_transition ~= false then
             local game_offset_x, game_offset_y = Kristal.getSideOffsets()
             local game_scale = Kristal.getGameScale()
-            window_x = game_center_x - fromPixels(game_offset_x + (SCREEN_WIDTH * game_scale / 2))
-            window_y = game_center_y - fromPixels(game_offset_y + (SCREEN_HEIGHT * game_scale / 2))
+            window_x = game_center_x - love.window.fromPixels(game_offset_x + (SCREEN_WIDTH * game_scale / 2))
+            window_y = game_center_y - love.window.fromPixels(game_offset_y + (SCREEN_HEIGHT * game_scale / 2))
         end
         love.window.setPosition(MathUtils.round(window_x), MathUtils.round(window_y), window.display)
     end

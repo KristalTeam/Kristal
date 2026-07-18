@@ -339,6 +339,17 @@ function TableUtils.getSortedKeys(tbl)
     return keys
 end
 
+---@param tbl table
+---@return any[]
+function TableUtils.getCaseInsensitiveSortedKeys(tbl)
+    local keys = {}
+    for key in pairs(tbl) do table.insert(keys, key) end
+    table.sort(keys, function(first, second)
+        return tostring(first):lower() < tostring(second):lower()
+    end)
+    return keys
+end
+
 function TableUtils.clearFields(tbl, fields)
     for _, field in ipairs(fields) do tbl[field] = nil end
     return tbl

@@ -7,10 +7,6 @@ function EditorPreviewController:init(editor)
     self.editor = editor
 end
 
-local function hasMap(id)
-    return id and (Registry.getMap(id) or Registry.getMapData(id))
-end
-
 function EditorPreviewController:recordGameError(phase, trace)
     local self = self.editor
     if self.game_faulted then return end
@@ -198,7 +194,7 @@ end
 function EditorPreviewController:setStandaloneGamePreviewMap(id, options)
     local self = self.editor
     options = options or {}
-    if not self:isStandaloneGamePreviewEnabled() or not hasMap(id) then return false end
+    if not self:isStandaloneGamePreviewEnabled() or not Registry.hasMap(id) then return false end
     if self.game_panel == self.game_preview_panel and self.live_document == self.standalone_preview_document
         and self.standalone_preview_map_id == id and not self.stale_runtime_maps[id]
         and not options.reload_runtime then

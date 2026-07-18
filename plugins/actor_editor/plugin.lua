@@ -54,8 +54,9 @@ function ActorEditorPlugin:onInit(editor)
     self.editor = editor
     local DataModel = self:require("scripts.datamodel")
     local ActorPreview = self:require("scripts.controls.actorpreview")
-    local ActorEditor = self:require("scripts.panels.actoreditor", DataModel, ActorPreview)
-    local PartyMemberEditor = self:require("scripts.panels.partymembereditor", DataModel)
+    local DataPanel = self:require("scripts.panels.datapanel", DataModel)
+    local ActorEditor = self:require("scripts.panels.actoreditor", DataModel, ActorPreview, DataPanel)
+    local PartyMemberEditor = self:require("scripts.panels.partymembereditor", DataModel, DataPanel)
     local DocumentProvider = self:require("scripts.documentprovider")
 
     self.actor_panel_definition = self:registerPanel("actors", "Actor Editor", function()

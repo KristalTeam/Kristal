@@ -211,7 +211,7 @@ function EditorMapBrowser:createMap(parent)
     local prefix = parent and not parent.root and nodeRegistryId(parent) or ""
     local id = prefix ~= "" and (prefix .. "/new_map") or "new_map"
     local index, candidate = 1, id
-    while Registry.getMap(candidate) or Registry.getMapData(candidate) do
+    while Registry.hasMap(candidate) do
         index = index + 1
         candidate = id .. "_" .. index
     end

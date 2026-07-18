@@ -171,13 +171,11 @@ function DialogVector:drawSelf()
 end
 
 function DialogChoice:getChoiceValue(choice)
-    if type(choice) == "table" then return choice.value ~= nil and choice.value or choice.id end
-    return choice
+    return EditorChoiceUtils.getValue(choice)
 end
 
 function DialogChoice:getChoiceLabel(choice)
-    if type(choice) == "table" then return tostring(choice.label or choice.name or self:getChoiceValue(choice)) end
-    return tostring(choice)
+    return EditorChoiceUtils.getLabel(choice)
 end
 
 function DialogChoice:updateLabel()

@@ -22,31 +22,6 @@
 local LuaLanguageService = Class()
 local EditorLSPClient, plugin = ...
 
-local function pathToUri(path)
-    path = path:gsub("\\", "/")
-    if path:match("^%a:/") then path = "/" .. path end
-    path = path:gsub("([^%w%-%._~/:])", function(character)
-        return string.format("%%%02X", character:byte())
-    end)
-    return "file://" .. path
-end
-
-local function uriToPath(uri)
-    local path = tostring(uri or ""):gsub("^file://", "")
-    path = path:gsub("%%(%x%x)", function(hex) return string.char(tonumber(hex, 16)) end)
-    if love.system.getOS() == "Windows" then
-        path = path:gsub("^/(%a:/)", "%1"):gsub("/", "\\")
-    end
-    return path
-end
-
-local function isFile(path)
-    local file = io.open(path, "rb")
-    if not file then return false end
-    file:close()
-    return true
-end
-
 local function executableFromPath(name)
     local separator = love.system.getOS() == "Windows" and ";" or ":"
     local suffixes = love.system.getOS() == "Windows" and { ".exe", ".cmd", ".bat", "" } or { "" }
@@ -54,17 +29,9 @@ local function executableFromPath(name)
         directory = directory:gsub('^"', ""):gsub('"$', "")
         for _, suffix in ipairs(suffixes) do
             local path = directory:gsub("[\\/]+$", "") .. "/" .. name .. suffix
-            if isFile(path) then return path end
+            if FileSystemUtils.isFile(path) then return path end
         end
     end
-end
-
-local function encodedCharacter(line_text, byte_character, encoding)
-    if encoding ~= "utf-16" then return byte_character end
-    local prefix = line_text:sub(1, byte_character)
-    local units = 0
-    for _, codepoint in utf8.codes(prefix) do units = units + (codepoint > 0xFFFF and 2 or 1) end
-    return units
 end
 
 local function locationRange(location)
@@ -235,7 +202,7 @@ end
 
 function LuaLanguageService:initialize()
     self.status = "initializing"
-    local root_uri = pathToUri(self.workspace.real_root)
+    local root_uri = FileSystemUtils.toFileURL(self.workspace.real_root)
     self.client:request("initialize", {
         clientInfo = { name = "Kristal Editor", version = tostring(Kristal.Version) },
         rootUri = root_uri,
@@ -282,7 +249,7 @@ function LuaLanguageService:getProtocolPosition(document, position)
     local column = MathUtils.clamp(position and position.column or 1, 1, #line + 1)
     return {
         line = line_index - 1,
-        character = encodedCharacter(line, column - 1, self.position_encoding)
+        character = EditorCodeBuffer.columnToProtocolCharacter(line, column, self.position_encoding)
     }
 end
 
@@ -292,7 +259,7 @@ function LuaLanguageService:requestAtPosition(method, document, position, params
         return nil
     end
     params = params or {}
-    params.textDocument = { uri = pathToUri(document.real_path) }
+    params.textDocument = { uri = FileSystemUtils.toFileURL(document.real_path) }
     params.position = self:getProtocolPosition(document, position)
     local request, reason = self.client:request(method, params, function(result, response_error)
         if callback then callback(result, response_error) end
@@ -338,7 +305,7 @@ function LuaLanguageService:normalizeLocations(result, options)
         local uri = location.targetUri or location.uri
         local range = locationRange(location)
         if type(uri) == "string" and type(range) == "table" and type(range.start) == "table" then
-            local path = uriToPath(uri)
+            local path = FileSystemUtils.fromFileURL(uri)
             local redirected_path, redirected_range
             if options.redirect_engine_main then
                 redirected_path, redirected_range = self.workspace:resolveEngineMainDefinition(path, range)
@@ -358,7 +325,7 @@ function LuaLanguageService:normalizeLocations(result, options)
     for _, location in ipairs(main_locations) do
         local path, range = location.redirected_path, location.redirected_range
         if not path then path, range = self.workspace:resolveEngineMainDefinition(location.path, location.range) end
-        if path then addLocation(pathToUri(path), path, range, normalized) end
+        if path then addLocation(FileSystemUtils.toFileURL(path), path, range, normalized) end
     end
     if #normalized == 0 then
         for _, location in ipairs(main_locations) do
@@ -389,7 +356,7 @@ function LuaLanguageService:requestFormatting(document, options, callback)
         return nil
     end
     local request, reason = self.client:request("textDocument/formatting", {
-        textDocument = { uri = pathToUri(document.real_path) },
+        textDocument = { uri = FileSystemUtils.toFileURL(document.real_path) },
         options = options or { tabSize = 4, insertSpaces = true }
     }, function(result, response_error)
         if callback then callback(result, response_error) end
@@ -404,7 +371,7 @@ function LuaLanguageService:openDocument(document, force)
     if self.status ~= "ready" or (document.lsp_open and not force) then return true end
     document.lsp_open = true
     self.client:notify("textDocument/didOpen", { textDocument = {
-        uri = pathToUri(document.real_path), languageId = document.language_id,
+        uri = FileSystemUtils.toFileURL(document.real_path), languageId = document.language_id,
         version = document.version, text = document:getText()
     } })
     return true
@@ -417,18 +384,18 @@ function LuaLanguageService:changeDocument(document, change)
         content_change.range = {
             start = {
                 line = change.range.start.line,
-                character = encodedCharacter(change.start_line_text or "",
-                    change.range.start.character, self.position_encoding)
+                character = EditorCodeBuffer.columnToProtocolCharacter(change.start_line_text or "",
+                    change.range.start.character + 1, self.position_encoding)
             },
             ["end"] = {
                 line = change.range["end"].line,
-                character = encodedCharacter(change.end_line_text or "",
-                    change.range["end"].character, self.position_encoding)
+                character = EditorCodeBuffer.columnToProtocolCharacter(change.end_line_text or "",
+                    change.range["end"].character + 1, self.position_encoding)
             }
         }
     end
     self.client:notify("textDocument/didChange", {
-        textDocument = { uri = pathToUri(document.real_path), version = document.version },
+        textDocument = { uri = FileSystemUtils.toFileURL(document.real_path), version = document.version },
         contentChanges = { content_change }
     })
     return true
@@ -437,7 +404,7 @@ end
 function LuaLanguageService:saveDocument(document)
     if document.language_id ~= "lua" or self.status ~= "ready" or not document.lsp_open then return false end
     self.client:notify("textDocument/didSave", {
-        textDocument = { uri = pathToUri(document.real_path) }, text = document:getText()
+        textDocument = { uri = FileSystemUtils.toFileURL(document.real_path) }, text = document:getText()
     })
     return true
 end
@@ -445,7 +412,9 @@ end
 function LuaLanguageService:closeDocument(document)
     self.open_documents[document.path] = nil
     if document.lsp_open and self.status == "ready" then
-        self.client:notify("textDocument/didClose", { textDocument = { uri = pathToUri(document.real_path) } })
+        self.client:notify("textDocument/didClose", {
+            textDocument = { uri = FileSystemUtils.toFileURL(document.real_path) }
+        })
     end
     document.lsp_open = nil
     return true
@@ -456,7 +425,7 @@ function LuaLanguageService:findDocumentByUri(uri)
         path = path:gsub("\\", "/")
         return love.system.getOS() == "Windows" and path:lower() or path
     end
-    local path = normalize(uriToPath(uri))
+    local path = normalize(FileSystemUtils.fromFileURL(uri))
     for _, document in ipairs(self.workspace.document_order) do
         if normalize(document.real_path) == path then return document end
     end
