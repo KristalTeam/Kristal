@@ -1,4 +1,12 @@
 ---@class EditorWorldBrowser : EditorControl
+---@field add_map_button EditorButton
+---@field edit_button EditorButton
+---@field editor Editor
+---@field list EditorItemList
+---@field maps_list EditorItemList
+---@field new_button EditorButton
+---@field save_button EditorButton
+---@field search EditorSearchBar
 ---@overload fun(editor: table): EditorWorldBrowser
 local EditorWorldBrowser, super = Class(EditorControl)
 

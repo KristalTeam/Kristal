@@ -1,3 +1,5 @@
+---@class EditorClimbMover : EditorEvent
+---@overload fun(data?: table, options?: table): EditorClimbMover
 local EditorClimbMover, super = Class(EditorEvent)
 
 EditorClimbMover.editor_sprite = "world/events/climb_mover"

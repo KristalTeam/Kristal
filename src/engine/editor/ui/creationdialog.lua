@@ -1,7 +1,42 @@
 ---@class EditorCreationDialog : EditorControl
+---@field editor Editor
+---@field title string
+---@field templates table[]
+---@field common_fields table[]
+---@field context table
+---@field on_create function?
+---@field on_cancel function?
+---@field template_list EditorItemList
+---@field search EditorSearchBar
+---@field form EditorControl
+---@field scrollbar EditorScrollbar
+---@field create_button EditorButton
+---@field cancel_button EditorButton
+---@field error_label DialogLabel
+---@field field_tooltip DialogFieldTooltip
+---@field inputs table<string, EditorControl>
+---@field focusables EditorControl[]
+---@field form_rows table[]
+---@field template_values table
+---@field template table?
+---@field focused_control EditorControl?
+---@field captured_control EditorControl?
+---@field error_message string?
+---@field form_scroll number
+---@field form_content_height number
+---@field panel_x number
+---@field panel_y number
+---@field panel_width number
+---@field panel_height number
 ---@overload fun(editor: Editor, options: table): EditorCreationDialog
 local EditorCreationDialog, super = Class(EditorControl)
 
+---@class DialogLabel : EditorControl
+---@field label string
+---@field description string?
+---@field header boolean
+---@field code_name string?
+---@overload fun(label: string, description?: string, header?: boolean, code_name?: string): DialogLabel
 local DialogLabel, label_super = Class(EditorControl)
 
 function DialogLabel:init(label, description, header, code_name)
@@ -24,6 +59,10 @@ function DialogLabel:drawSelf()
     end
 end
 
+---@class DialogFieldTooltip : EditorControl
+---@field code_name string?
+---@field prefix string
+---@overload fun(): DialogFieldTooltip
 local DialogFieldTooltip, tooltip_super = Class(EditorControl)
 
 function DialogFieldTooltip:init()
@@ -57,6 +96,12 @@ function DialogFieldTooltip:drawSelf()
     love.graphics.print(self.code_name, 8 + font:getWidth(self.prefix), 5)
 end
 
+---@class DialogChoice : EditorButton
+---@field field table
+---@field choices table[]
+---@field value any
+---@field on_changed function?
+---@overload fun(field: table, value?: any, on_changed?: function): DialogChoice
 local DialogChoice, choice_super = Class(EditorButton)
 
 function DialogChoice:init(field, value, on_changed)
@@ -68,6 +113,14 @@ function DialogChoice:init(field, value, on_changed)
     self:updateLabel()
 end
 
+---@class DialogVector : EditorControl
+---@field field table
+---@field size number
+---@field value table?
+---@field on_changed function?
+---@field inputs EditorTextInput[]
+---@field labels string[]
+---@overload fun(field: table, value?: table, on_changed?: function): DialogVector
 local DialogVector, vector_super = Class(EditorControl)
 
 function DialogVector:init(field, value, on_changed)

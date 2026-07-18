@@ -1,4 +1,10 @@
 ---@class EditorFileBrowser : EditorControl
+---@field editor Editor
+---@field new_file_button EditorButton
+---@field new_folder_button EditorButton
+---@field search EditorSearchBar
+---@field tree EditorTreeList
+---@field workspace EditorProjectWorkspace
 ---@overload fun(editor: Editor, workspace: EditorProjectWorkspace): EditorFileBrowser
 local EditorFileBrowser, super = Class(EditorControl)
 
@@ -400,6 +406,13 @@ function EditorFileBrowser:openContextMenu(node, tree, x, y)
     local items = {}
     if node.data.type == "file" then
         table.insert(items, { label = "Open", action = function() self:activateNode(node) end })
+        for _, item in ipairs(EditorPlugins:getFileContextMenuItems(node.data, {
+            browser = self,
+            node = node,
+            tree = tree
+        })) do
+            table.insert(items, item)
+        end
         table.insert(items, { label = "Open in VS Code", action = function() self:openInVSCode(node) end })
     end
     table.insert(items, { label = node.data.type == "directory" and "Open in File Explorer"

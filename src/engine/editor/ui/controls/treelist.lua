@@ -1,4 +1,33 @@
 ---@class EditorTreeList : EditorControl
+---@field clip boolean
+---@field dragging_node any
+---@field drop_node any
+---@field filter string
+---@field focusable boolean
+---@field focused boolean
+---@field folder_icon love.Image
+---@field icon_scale any
+---@field next_uid number
+---@field on_activate function?
+---@field on_context_menu function?
+---@field on_drag_end function?
+---@field on_drag_move function?
+---@field on_drag_outside function?
+---@field on_drag_start function?
+---@field on_move function?
+---@field on_rename function?
+---@field on_request_focus function?
+---@field on_select function?
+---@field on_toggle function?
+---@field pending_drag any
+---@field rename_input EditorTextInput
+---@field rename_node any
+---@field root table
+---@field row_height number
+---@field scroll_row number
+---@field scrollbar EditorScrollbar
+---@field selected_node any
+---@field visible_nodes table
 ---@overload fun(options?: table): EditorTreeList
 local EditorTreeList, super = Class(EditorControl)
 
@@ -92,6 +121,7 @@ function EditorTreeList:newNode(node_type, name, options)
         right_icon = options.right_icon,
         right_color = options.right_color,
         right_action = options.right_action,
+        right_icons = options.right_icons,
         renameable = options.renameable ~= false,
         draggable = options.draggable ~= false,
         uid = self.next_uid
@@ -290,7 +320,9 @@ function EditorTreeList:updateRenameBounds()
     if not index then return self:finishRename(true) end
     local entry = self.visible_nodes[index]
     local label_x = 8 + entry.depth * INDENT_WIDTH + 30
-    local right_space = self.rename_node.right_icon and self.row_height or 0
+    local right_count = self.rename_node.right_icons and #self.rename_node.right_icons
+        or self.rename_node.right_icon and 1 or 0
+    local right_space = right_count * self.row_height
     self.rename_input:setBounds(label_x - 3, self:getRowY(index) + 1,
         math.max(20, self.width - self.scrollbar.width - label_x - right_space + 1), self.row_height - 2)
 end
@@ -388,14 +420,19 @@ function EditorTreeList:onMousePressed(x, y, button, presses)
         self:toggleFolder(node)
         return true
     end
-    if node.right_icon and node.right_action then
-        local texture = Assets.getTexture(node.right_icon)
-        local icon_width = texture and (texture:getWidth()*self.icon_scale) or self.row_height
-        local icon_right = self.width - self.scrollbar.width - 6
+    local right_icons = node.right_icons or (node.right_icon and {
+        { icon = node.right_icon, color = node.right_color, action = node.right_action }
+    }) or {}
+    local icon_right = self.width - self.scrollbar.width - 6
+    for index = #right_icons, 1, -1 do
+        local item = right_icons[index]
+        local texture = item.icon and Assets.getTexture(item.icon)
+        local icon_width = texture and texture:getWidth() * self.icon_scale or self.row_height
         if x >= icon_right - icon_width and x <= icon_right then
-            node.right_action(node, self)
-            return true
+            if item.action then item.action(node, self) end
+            return item.action ~= nil
         end
+        icon_right = icon_right - self.row_height
     end
     if presses and presses >= 2 then
         if isContainer(node) then
@@ -545,15 +582,21 @@ function EditorTreeList:drawSelf()
                     math.floor(y + (self.row_height - font:getHeight()) / 2))
             end
         end
-        if node.right_icon then
-            local texture = Assets.getTexture(node.right_icon)
+        local right_icons = node.right_icons or (node.right_icon and {
+            { icon = node.right_icon, color = node.right_color }
+        }) or {}
+        local icon_right = self.width - self.scrollbar.width - 6
+        for icon_index = #right_icons, 1, -1 do
+            local item = right_icons[icon_index]
+            local texture = item.icon and Assets.getTexture(item.icon)
             local scale = self.icon_scale
             if texture then
-                local icon_x = self.width - self.scrollbar.width - texture:getWidth()*scale - 6
-                local icon_y = math.floor(y + (self.row_height - texture:getHeight()*scale) / 2)
-                Draw.setColor(node.right_color or { 0.82, 0.82, 0.85, 1 })
+                local icon_x = icon_right - texture:getWidth() * scale
+                local icon_y = math.floor(y + (self.row_height - texture:getHeight() * scale) / 2)
+                Draw.setColor(item.color or { 0.82, 0.82, 0.85, 1 })
                 Draw.draw(texture, icon_x, icon_y, 0, scale, scale)
             end
+            icon_right = icon_right - self.row_height
         end
     end
 end

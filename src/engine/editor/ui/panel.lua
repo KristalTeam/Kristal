@@ -1,4 +1,20 @@
 ---@class EditorPanel : Class
+---@field content EditorControl?
+---@field fixed_content_height number?
+---@field fixed_content_width number?
+---@field floating table?
+---@field id string
+---@field minimum_height number
+---@field minimum_width number
+---@field on_activate function?
+---@field on_remove function?
+---@field on_visibility_changed function?
+---@field preferred_height number
+---@field preferred_width number
+---@field recoverable boolean
+---@field stack EditorDockStack?
+---@field title string
+---@field visible boolean
 ---@overload fun(id: string, title: string, content?: EditorControl, options?: table): EditorPanel
 local EditorPanel = Class()
 

@@ -1,4 +1,17 @@
 ---@class EditorObjectReferencePicker : EditorControl
+---@field apply_button EditorButton
+---@field cancel_button EditorButton
+---@field captured_control EditorControl?
+---@field editor Editor
+---@field focused_control EditorControl?
+---@field options table
+---@field panel_height number
+---@field panel_width number
+---@field panel_x number
+---@field panel_y number
+---@field search EditorSearchBar
+---@field tree EditorTreeList
+---@field value EditorObjectReference?
 ---@overload fun(editor: Editor, value?: any, options?: table): EditorObjectReferencePicker
 local EditorObjectReferencePicker, super = Class(EditorControl)
 

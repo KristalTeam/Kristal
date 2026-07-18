@@ -1,4 +1,6 @@
 ---@class ExamplePluginHelpDirectory : EditorControl
+---@field plugin EditorPlugin
+---@overload fun(plugin: EditorPlugin): ExamplePluginHelpDirectory
 local HelpDirectory, super = Class(EditorControl)
 
 function HelpDirectory:init(plugin)

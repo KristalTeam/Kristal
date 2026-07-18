@@ -1,3 +1,5 @@
+---@class EditorSlideArea : EditorEvent
+---@overload fun(data?: table, options?: table): EditorSlideArea
 local EditorSlideArea, super = Class(EditorEvent)
 EditorSlideArea.placement_shape = "region"
 function EditorSlideArea:init(data, options)

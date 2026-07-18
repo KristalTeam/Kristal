@@ -1,4 +1,19 @@
 ---@class EditorModeTransition : Class
+---@field close_duration number
+---@field complete boolean
+---@field direction string?
+---@field duration number
+---@field flip_played boolean
+---@field flip_time number
+---@field handoff_reached boolean
+---@field hold_duration number
+---@field next_square number
+---@field on_complete function?
+---@field on_handoff function?
+---@field open_duration number
+---@field square_sound love.Source
+---@field square_times table
+---@field timer number
 ---@overload fun(direction: "enter"|"exit", on_handoff?: function, on_complete?: function): EditorModeTransition
 local EditorModeTransition = Class()
 

@@ -1,3 +1,5 @@
+---@class ExamplePlugin : EditorPlugin
+---@overload fun(info: table): ExamplePlugin
 local ExamplePlugin, super = Class(EditorPlugin)
 
 function ExamplePlugin:init(info)

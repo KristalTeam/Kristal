@@ -1,4 +1,11 @@
 ---@class EditorScrollbar : EditorControl
+---@field cursor_type string
+---@field drag_offset number
+---@field dragging boolean
+---@field horizontal boolean
+---@field on_changed function?
+---@field page number
+---@field value number
 ---@overload fun(options?: table): EditorScrollbar
 local EditorScrollbar, super = Class(EditorControl)
 

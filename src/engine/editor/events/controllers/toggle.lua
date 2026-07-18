@@ -1,4 +1,5 @@
 ---@class EditorToggleController : EditorEvent
+---@overload fun(data?: table, options?: table): EditorToggleController
 local EditorToggleController, super = Class(EditorEvent)
 
 function EditorToggleController:init(data, options)

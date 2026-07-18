@@ -1,3 +1,5 @@
+---@class EditorMirrorArea : EditorEvent
+---@overload fun(data?: table, options?: table): EditorMirrorArea
 local EditorMirrorArea, super = Class(EditorEvent)
 EditorMirrorArea.placement_shape = "region"
 function EditorMirrorArea:init(data, options)

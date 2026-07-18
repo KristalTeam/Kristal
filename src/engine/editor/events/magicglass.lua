@@ -1,3 +1,5 @@
+---@class EditorMagicGlass : EditorEvent
+---@overload fun(data?: table, options?: table): EditorMagicGlass
 local EditorMagicGlass, super = Class(EditorEvent)
 function EditorMagicGlass:getEditorSprite(data)
     return data.properties.new_sprite and "world/events/magical_glass_new"

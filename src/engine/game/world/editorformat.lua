@@ -155,6 +155,9 @@ EditorFormat.ORDERING = {
         "depth",
         "alpha",
         "visible",
+        "locked",
+        "tint",
+        "blend_mode",
         "parallax_x",
         "parallax_y",
         "tile_width_override",
@@ -719,6 +722,18 @@ encodeObject = function(object, context)
     return result
 end
 
+local function normalizeLayerTint(value)
+    if type(value) == "string" then return ColorUtils.tryHexToRGB(value) end
+    if type(value) ~= "table" then return nil end
+    local maximum = math.max(tonumber(value[1]) or 0, tonumber(value[2]) or 0,
+        tonumber(value[3]) or 0, tonumber(value[4]) or 0)
+    local divisor = maximum > 1 and 255 or 1
+    return { (tonumber(value[1]) or divisor) / divisor,
+        (tonumber(value[2]) or divisor) / divisor,
+        (tonumber(value[3]) or divisor) / divisor,
+        (tonumber(value[4]) or divisor) / divisor }
+end
+
 decodeLayer = function(source, context)
     local semantic_type = source.type or "default"
     local registered_type = Registry.getLayerType(semantic_type)
@@ -729,9 +744,16 @@ decodeLayer = function(source, context)
     layer._editor_kind_id = kind
     layer._editor_depth_override = layer.depth
     layer._editor_visible = layer.visible ~= false
+    layer._editor_locked = layer.locked == true
     layer.offsetx = layer.x or 0
     layer.offsety = layer.y or 0
     layer.opacity = layer.alpha == nil and 1 or layer.alpha
+    layer.blend_mode = layer.blend_mode or "normal"
+    layer.tint = normalizeLayerTint(layer.tint)
+    if layer.tint then
+        layer.tintcolor = { layer.tint[1] * 255, layer.tint[2] * 255,
+            layer.tint[3] * 255, layer.tint[4] * 255 }
+    end
     layer.parallaxx = layer.parallax_x or 1
     layer.parallaxy = layer.parallax_y or 1
     layer.repeatx = layer.repeat_x
@@ -773,9 +795,11 @@ encodeLayer = function(source, context)
     local result = copySerializable(candidate)
     TableUtils.clearFields(result, {
         "class", "offsetx", "offsety", "opacity", "parallaxx", "parallaxy", "repeatx", "repeaty",
-        "draworder", "imagewidth", "imageheight", "transparentcolor", "tintcolor", "width", "height",
+        "draworder", "imagewidth", "imageheight", "transparentcolor", "tintcolor", "blendmode",
+        "width", "height",
         "data", "encoding",
-        "_editor_uid", "_editor_visible", "_editor_depth_override", "_editor_type_id", "_editor_kind_id"
+        "_editor_uid", "_editor_visible", "_editor_locked", "_editor_depth_override",
+        "_editor_type_id", "_editor_kind_id"
     })
     result.type = source._editor_type_id or source.type or "default"
     if result.type == "tilelayer" or result.type == "imagelayer" or result.type == "objectgroup" or result.type == "group" then
@@ -789,6 +813,10 @@ encodeLayer = function(source, context)
     result.depth = source._editor_depth_override or source.depth
     result.alpha = source.alpha or source.opacity
     result.visible = source._editor_visible == nil and source.visible or source._editor_visible
+    result.locked = (source._editor_locked == nil and source.locked or source._editor_locked) and true or nil
+    result.tint = normalizeLayerTint(source.tint or source.tintcolor)
+    local blend_mode = source.blend_mode or source.blendmode
+    result.blend_mode = blend_mode ~= "normal" and blend_mode or nil
     result.parallax_x = source.parallaxx ~= nil and source.parallaxx or source.parallax_x
     result.parallax_y = source.parallaxy ~= nil and source.parallaxy or source.parallax_y
     result.draw_order = source.draw_order or source.draworder

@@ -1,4 +1,5 @@
 ---@class EditorCodeBuffer : Class
+---@field lines table
 ---@overload fun(text?: string): EditorCodeBuffer
 local EditorCodeBuffer = Class()
 

@@ -1,4 +1,8 @@
 ---@class EditorPropertyRegistry : Class
+---@field function_sources table
+---@field last_function_error any
+---@field type_order table
+---@field types table
 ---@overload fun(): EditorPropertyRegistry
 local EditorPropertyRegistry = Class()
 

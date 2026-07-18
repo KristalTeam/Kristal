@@ -1,4 +1,35 @@
 ---@class EditorTilePalette : EditorControl
+---@field allow_empty_tile_press any
+---@field clip boolean
+---@field custom_tile_drag number?
+---@field document EditorTilesetDocument?
+---@field drag_selecting boolean
+---@field draw_tile_overlay any
+---@field editor Editor
+---@field flip_x_button EditorButton
+---@field flip_y_button EditorButton
+---@field horizontal_scrollbar EditorScrollbar
+---@field maximum_zoom number
+---@field minimum_zoom number
+---@field on_selection function?
+---@field on_tile_dragged function?
+---@field on_tile_pressed function?
+---@field on_tile_released function?
+---@field random_mode boolean
+---@field random_toggle EditorCheckbox
+---@field rotate_button EditorButton
+---@field scroll_column number
+---@field scroll_row number
+---@field scroll_y number
+---@field scrollbar EditorScrollbar
+---@field selection_end number?
+---@field selection_start number?
+---@field show_tools boolean
+---@field stamp table
+---@field zoom number
+---@field zoom_in_button EditorButton
+---@field zoom_label_button EditorButton
+---@field zoom_out_button EditorButton
 ---@overload fun(editor: table, options?: table): EditorTilePalette
 local EditorTilePalette, super = Class(EditorControl)
 
@@ -239,19 +270,11 @@ function EditorTilePalette:onMousePressed(x, y, button, presses)
         return true
     end
     if id == nil then return false end
-    if button == 2 then
-        self:setSelection(id, id)
-        local global_x, global_y = self:getGlobalPosition()
-        return self.editor.dockspace:openContextMenu({
-            { label = "Place as Tile Object", action = function()
-                self.editor:setPlacementTile(self.document.id, id)
-            end }
-        }, global_x + x, global_y + y, self)
-    end
+    if button == 2 then return false end
     if button ~= 1 then return false end
     if presses and presses >= 2 then
         self:setSelection(id, id)
-        return self.editor:setPlacementTile(self.document.id, id)
+        return true
     end
     self.drag_selecting = true
     self:setSelection(id, id)

@@ -1,3 +1,5 @@
+---@class EditorChaserEnemy : EditorEvent
+---@overload fun(data?: table, options?: table): EditorChaserEnemy
 local EditorChaserEnemy, super = Class(EditorEvent)
 EditorChaserEnemy.scaling_mode = "scale"
 

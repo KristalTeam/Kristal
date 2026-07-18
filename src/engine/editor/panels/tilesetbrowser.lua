@@ -1,4 +1,8 @@
 ---@class EditorTilesetBrowser : EditorControl
+---@field editor Editor
+---@field list EditorItemList
+---@field new_button EditorButton
+---@field search EditorSearchBar
 ---@overload fun(editor: table): EditorTilesetBrowser
 local EditorTilesetBrowser, super = Class(EditorControl)
 

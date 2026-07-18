@@ -1,3 +1,5 @@
+---@class EditorQuicksave : EditorEvent
+---@overload fun(data?: table, options?: table): EditorQuicksave
 local EditorQuicksave, super = Class(EditorEvent)
 function EditorQuicksave:init(data, options)
     super.init(self, data, options)

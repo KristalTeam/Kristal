@@ -1,3 +1,5 @@
+---@class EditorForcefield : EditorEvent
+---@overload fun(data?: table, options?: table): EditorForcefield
 local EditorForcefield, super = Class(EditorEvent)
 EditorForcefield.editor_sprite = "world/events/forcefield/single"
 function EditorForcefield:init(data, options)

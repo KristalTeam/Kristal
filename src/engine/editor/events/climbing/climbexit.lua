@@ -1,3 +1,5 @@
+---@class EditorClimbExit : EditorEvent
+---@overload fun(data?: table, options?: table): EditorClimbExit
 local EditorClimbExit, super = Class(EditorEvent)
 function EditorClimbExit:init(data, options)
     super.init(self, data, options)

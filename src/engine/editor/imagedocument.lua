@@ -1,4 +1,17 @@
 ---@class EditorImageDocument : EditorDocument
+---@field diagnostics table
+---@field file_type string
+---@field height number
+---@field image love.Image
+---@field language_id string?
+---@field name string?
+---@field path string?
+---@field persistent boolean
+---@field read_only boolean
+---@field real_path string
+---@field relative_path string
+---@field width number
+---@field workspace EditorProjectWorkspace
 ---@overload fun(workspace: EditorProjectWorkspace, path: string, image: love.Image): EditorImageDocument
 local EditorImageDocument, super = Class(EditorDocument)
 

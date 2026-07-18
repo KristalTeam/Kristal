@@ -1,3 +1,5 @@
+---@class EditorCyberTrashCan : EditorEvent
+---@overload fun(data?: table, options?: table): EditorCyberTrashCan
 local EditorCyberTrashCan, super = Class(EditorEvent)
 EditorCyberTrashCan.editor_sprite = "world/events/cyber_trash"
 EditorCyberTrashCan.scaling_mode = "scale"

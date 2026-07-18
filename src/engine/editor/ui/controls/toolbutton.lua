@@ -1,4 +1,5 @@
 ---@class EditorToolButton : EditorButton
+---@field tool table
 ---@overload fun(tool: table, on_pressed?: function): EditorToolButton
 local EditorToolButton, super = Class(EditorButton)
 

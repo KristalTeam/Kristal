@@ -1,4 +1,14 @@
 ---@class EditorSettingsPanel : EditorControl
+---@field clip boolean
+---@field content_height number
+---@field editor Editor
+---@field generated_controls table
+---@field page table?
+---@field pages EditorItemList
+---@field registry EditorSettingsRegistry
+---@field rows table
+---@field scroll_y number
+---@field scrollbar EditorScrollbar
 ---@overload fun(editor: table): EditorSettingsPanel
 local EditorSettingsPanel, super = Class(EditorControl)
 

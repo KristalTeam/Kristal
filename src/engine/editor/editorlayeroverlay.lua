@@ -1,4 +1,11 @@
 ---@class EditorLayerOverlay : Class
+---@field color number[]
+---@field layer number
+---@field layer_type table?
+---@field layer_uid string?
+---@field marker_layer boolean
+---@field source_layer table
+---@field visible boolean
 ---@overload fun(layer: table, layer_type?: table, depth?: number): EditorLayerOverlay
 local EditorLayerOverlay = Class()
 

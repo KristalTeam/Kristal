@@ -1,4 +1,13 @@
 ---@class EditorLayersPanel : EditorControl
+---@field darken_toggle EditorCheckbox
+---@field detail_y number
+---@field document EditorMapDocument?
+---@field editor Editor
+---@field list EditorTreeList
+---@field map_id string?
+---@field new_button EditorButton
+---@field selected_layer table?
+---@field updating_fields boolean
 ---@overload fun(editor: table): EditorLayersPanel
 local EditorLayersPanel, super = Class(EditorControl)
 
@@ -106,6 +115,10 @@ function EditorLayersPanel:openLayerContextMenu(node, list, x, y)
         end
         table.insert(items, { label = "Rename", action = function() list:beginRename(node) end })
         table.insert(items, {
+            label = layer._editor_locked and "Unlock Layer" or "Lock Layer",
+            action = function() self:toggleLayerLock(layer) end
+        })
+        table.insert(items, {
             label = "Delete Layer",
             action = function()
                 self:selectLayer(layer)
@@ -142,7 +155,7 @@ function EditorLayersPanel:findLayerNode(uid)
     return found
 end
 
-function EditorLayersPanel:refreshList(selected_uid)
+function EditorLayersPanel:refreshList(selected_uid, silent)
     selected_uid = selected_uid or (self.selected_layer and self.selected_layer._editor_uid)
     self.list.root.children = {}
     local function append(layers, parent)
@@ -156,8 +169,17 @@ function EditorLayersPanel:refreshList(selected_uid)
                     data = layer,
                     icon = layer_type and layer_type.icon,
                     color = self:getLayerColor(layer),
-                    right_icon = layer._editor_visible == false and "editor/ui/eye_closed" or "editor/ui/eye_open",
-                    right_action = function() self:toggleLayerVisibility(layer) end
+                    right_icons = {
+                        {
+                            icon = layer._editor_locked and "editor/ui/lock_closed" or "editor/ui/lock_open",
+                            color = layer._editor_locked and { 1, 0.78, 0.28, 1 } or { 0.68, 0.68, 0.72, 1 },
+                            action = function() self:toggleLayerLock(layer) end
+                        },
+                        {
+                            icon = layer._editor_visible == false and "editor/ui/eye_closed" or "editor/ui/eye_open",
+                            action = function() self:toggleLayerVisibility(layer) end
+                        }
+                    }
                 })
             node.parent = parent
             table.insert(parent.children, node)
@@ -169,11 +191,21 @@ function EditorLayersPanel:refreshList(selected_uid)
     local selected_node = selected_uid and self:findLayerNode(selected_uid)
         or self.list.visible_nodes[1] and self.list.visible_nodes[1].node
     if selected_node then
-        self.list:selectNode(selected_node)
-        self:selectLayer(selected_node.data)
+        if silent then
+            self.list.selected_node = selected_node
+            self.selected_layer = selected_node.data
+        else
+            self.list:selectNode(selected_node)
+            self:selectLayer(selected_node.data)
+        end
     else
-        self.list:selectNode(nil)
-        self:selectLayer(nil)
+        if silent then
+            self.list.selected_node = nil
+            self.selected_layer = nil
+        else
+            self.list:selectNode(nil)
+            self:selectLayer(nil)
+        end
     end
 end
 
@@ -218,6 +250,23 @@ function EditorLayersPanel:getPropertiesTarget(layer)
         EditorPropertyFields.number(layer, "Parallax X", "parallaxx", { default = 1 }),
         EditorPropertyFields.number(layer, "Parallax Y", "parallaxy", { default = 1 })
     }
+    if layer._editor_kind_id ~= "group" then
+        table.insert(fields, EditorPropertyFields.choice(layer, "Blend Mode", "blend_mode", {
+            { value = "normal", label = "Normal" },
+            { value = "add", label = "Add" },
+            { value = "multiply", label = "Multiply" },
+            { value = "screen", label = "Screen" },
+            { value = "darken", label = "Darken" },
+            { value = "lighten", label = "Lighten" }
+        }, { default = "normal", compact = true }))
+        table.insert(fields, {
+            id = "opacity",
+            label = "Opacity",
+            compact = true,
+            get = function() return layer.opacity == nil and 1 or layer.opacity end,
+            set = function(value) return self:setLayerOpacity(layer, value) end
+        })
+    end
     if layer._editor_kind_id == "image" or (layer_type and layer_type.kind == "image") then
         table.insert(fields, 1, {
             id = "image",
@@ -247,6 +296,32 @@ function EditorLayersPanel:toggleLayerVisibility(layer)
     if not self.document or not layer then return false end
     self.editor:beginHistoryTransaction("Toggle Layer Visibility", self.document)
     self.document:setEditableLayerVisible(layer._editor_uid, layer._editor_visible == false, self.map_id)
+    self.editor:markHistoryChanged()
+    self.editor:commitHistoryTransaction()
+    self:refreshList(self.selected_layer and self.selected_layer._editor_uid)
+    return true
+end
+
+function EditorLayersPanel:toggleLayerLock(layer)
+    if not self.document or not layer then return false end
+    self.editor:beginHistoryTransaction(layer._editor_locked and "Unlock Layer" or "Lock Layer",
+        self.document)
+    layer._editor_locked = not layer._editor_locked
+    layer.locked = layer._editor_locked
+    if layer._editor_locked then
+        local remaining = {}
+        for _, selection in ipairs(self.editor:getSelectedMapObjects(self.document)) do
+            if not self.document:isLayerLocked(selection.layer, selection.map_id) then
+                table.insert(remaining, selection)
+            end
+        end
+        self.editor:selectMapObjects(remaining, remaining[1])
+        local view = self.document.map_view
+        if view and view.tile_selection
+            and self.document:isLayerLocked(view.tile_selection.layer, view.tile_selection.map_id) then
+            view.tile_selection = nil
+        end
+    end
     self.editor:markHistoryChanged()
     self.editor:commitHistoryTransaction()
     self:refreshList(self.selected_layer and self.selected_layer._editor_uid)
@@ -290,6 +365,14 @@ function EditorLayersPanel:setLayerColor(layer, value)
         self.editor:addWarning("Layer color must use #RRGGBB or #RRGGBBAA", nil, "layer_color")
         return false
     end
+end
+
+function EditorLayersPanel:setLayerOpacity(layer, value)
+    value = tonumber(value)
+    if not layer or value == nil then return false end
+    layer.opacity = MathUtils.clamp(value, 0, 1)
+    layer.alpha = layer.opacity
+    return true
 end
 
 function EditorLayersPanel:setLayerImage(layer, value)

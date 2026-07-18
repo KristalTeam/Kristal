@@ -1,4 +1,12 @@
 ---@class EditorWorld : Class
+---@field __editor_property_types table
+---@field data table
+---@field id string?
+---@field map_lookup table<string, table>
+---@field maps table
+---@field name string?
+---@field primary_map_id string?
+---@field properties table
 ---@overload fun(id?: string): EditorWorld
 local EditorWorld = Class()
 

@@ -202,6 +202,8 @@ function Object:init(x, y, width, height)
     -- Various draw properties
     self.color = { 1, 1, 1 }
     self.alpha = 1
+    -- Optional LÖVE blend mode used by editor-format layers and other draw containers.
+    self.blend_mode = nil
     self.scale_x = 1
     self.scale_y = 1
     self.rotation = 0
@@ -1682,7 +1684,13 @@ function Object:drawChildren(min_layer, max_layer)
     local oldr, oldg, oldb, olda = love.graphics.getColor()
     for _, v in ipairs(self.children) do
         if v.visible and (not min_layer or v.layer >= min_layer) and (not max_layer or v.layer < max_layer) then
+            local old_blend, old_alpha_mode
+            if v.blend_mode and v.blend_mode ~= "normal" then
+                old_blend, old_alpha_mode = love.graphics.getBlendMode()
+                love.graphics.setBlendMode(v.blend_mode)
+            end
             v:fullDraw()
+            if old_blend then love.graphics.setBlendMode(old_blend, old_alpha_mode) end
         end
     end
     Draw.setColor(oldr, oldg, oldb, olda)
@@ -1720,6 +1728,11 @@ function Object:fullDraw(no_children, dont_transform)
         RUNTIME = RUNTIME + self._runtime_draw_offset
     end
     local processing_fx, fx_transform, fx_screen = self:shouldProcessDrawFX()
+    local outer_blend, outer_alpha_mode
+    if processing_fx then
+        outer_blend, outer_alpha_mode = love.graphics.getBlendMode()
+        if outer_blend ~= "alpha" then love.graphics.setBlendMode("alpha", "alphamultiply") end
+    end
     local fx_off_x, fx_off_y = math.floor(SCREEN_WIDTH / 2 - self.width / 2), math.floor(SCREEN_HEIGHT / 2 -
         self.height / 2)
     local canvas = nil
@@ -1750,6 +1763,7 @@ function Object:fullDraw(no_children, dont_transform)
                 Draw.unlockCanvas(final_canvas)
                 final_canvas = screen_canvas
             else
+                love.graphics.setBlendMode(outer_blend, outer_alpha_mode)
                 Draw.setColor(1, 1, 1)
                 Draw.draw(final_canvas, -fx_off_x, -fx_off_y)
             end
@@ -1759,11 +1773,13 @@ function Object:fullDraw(no_children, dont_transform)
             final_canvas = self:processDrawFX(final_canvas, false)
             love.graphics.push()
             love.graphics.origin()
+            love.graphics.setBlendMode(outer_blend, outer_alpha_mode)
             Draw.setColor(1, 1, 1)
             Draw.draw(final_canvas)
             love.graphics.pop()
         end
         Draw.popCanvasLocks()
+        love.graphics.setBlendMode(outer_blend, outer_alpha_mode)
     end
     if used_timescale then
         DT = last_dt

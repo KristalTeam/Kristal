@@ -1,3 +1,11 @@
+---@class ActorPreview : EditorControl
+---@overload fun(owner: ActorEditor): ActorPreview
+---@field clip boolean
+---@field cursor_type string
+---@field drag any
+---@field focusable boolean
+---@field owner any
+---@field timer number
 local ActorPreview, super = Class(EditorControl)
 
 local DIRECTIONS = { "down", "left", "right", "up" }

@@ -1,3 +1,5 @@
+---@class EditorNPC : EditorEvent
+---@overload fun(data?: table, options?: table): EditorNPC
 local EditorNPC, super = Class(EditorEvent)
 EditorNPC.scaling_mode = "scale"
 

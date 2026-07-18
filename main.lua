@@ -346,8 +346,17 @@ IntegerMenuItemComponent = require("src.engine.ui.components.integermenuitem")
 ArrowIntegerMenuItemComponent = require("src.engine.ui.components.arrowintegermenuitem")
 LabelMenuItemComponent = require("src.engine.ui.components.labelmenuitem")
 
--- EDITOR UI SYSTEM
+-- EDITOR
 EditorFont = require("src.engine.editor.editorfont")
+EditorAudioController = require("src.engine.editor.editoraudiocontroller")
+EditorSessionManager = require("src.engine.editor.editorsessionmanager")
+EditorConfiguration = require("src.engine.editor.editorconfiguration")
+EditorDocumentManager = require("src.engine.editor.editordocumentmanager")
+EditorProjectIO = require("src.engine.editor.editorprojectio")
+EditorUIController = require("src.engine.editor.editoruicontroller")
+EditorWorkspaceController = require("src.engine.editor.editorworkspacecontroller")
+EditorMapInteraction = require("src.engine.editor.editormapinteraction")
+EditorPreviewController = require("src.engine.editor.editorpreviewcontroller")
 EditorSettingsRegistry = require("src.engine.editor.editorsettingsregistry")
 EditorTemplateRegistry = require("src.engine.editor.editortemplateregistry")
 EditorObjectReference = require("src.engine.editor.editorobjectreference")

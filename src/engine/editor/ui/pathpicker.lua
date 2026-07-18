@@ -1,4 +1,17 @@
 ---@class EditorPathPicker : EditorControl
+---@field apply_button EditorButton
+---@field cancel_button EditorButton
+---@field captured_control EditorControl?
+---@field editor Editor
+---@field focused_control EditorControl?
+---@field list EditorItemList
+---@field options table
+---@field panel_height number
+---@field panel_width number
+---@field panel_x number
+---@field panel_y number
+---@field search EditorSearchBar
+---@field value string
 ---@overload fun(editor: Editor, value?: string, items?: table, options?: table): EditorPathPicker
 local EditorPathPicker, super = Class(EditorControl)
 

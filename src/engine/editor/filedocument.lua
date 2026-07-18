@@ -1,4 +1,16 @@
 ---@class EditorFileDocument : EditorDocument
+---@field buffer EditorCodeBuffer?
+---@field diagnostics table
+---@field file_type string
+---@field language_id string?
+---@field name string?
+---@field path string?
+---@field persistent boolean
+---@field read_only boolean
+---@field real_path string
+---@field relative_path string
+---@field view_states table
+---@field workspace EditorProjectWorkspace
 ---@overload fun(workspace: EditorProjectWorkspace, path: string, contents: string, options?: table): EditorFileDocument
 local EditorFileDocument, super = Class(EditorDocument)
 

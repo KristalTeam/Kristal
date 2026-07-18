@@ -1,3 +1,5 @@
+---@class EditorClimbUnsafe : EditorEvent
+---@overload fun(data?: table, options?: table): EditorClimbUnsafe
 local EditorClimbUnsafe = Class(EditorEvent)
 EditorClimbUnsafe.placement_shape = "region"
 function EditorClimbUnsafe:createObject(map, context)

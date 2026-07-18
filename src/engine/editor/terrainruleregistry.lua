@@ -1,4 +1,11 @@
 ---@class TerrainRuleRegistry : Class
+---@field condition_order table
+---@field condition_types table
+---@field decoded_conditions table
+---@field parameter_sets table
+---@field predicate_order table
+---@field predicates table
+---@field script_cache table
 ---@overload fun(): TerrainRuleRegistry
 local TerrainRuleRegistry = Class()
 

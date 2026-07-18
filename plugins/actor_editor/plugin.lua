@@ -1,3 +1,10 @@
+---@class ActorEditorPlugin : EditorPlugin
+---@overload fun(info: table): ActorEditorPlugin
+---@field actor_editor ActorEditor
+---@field actor_panel_definition any
+---@field editor Editor
+---@field party_editor PartyMemberEditor
+---@field party_panel_definition any
 local ActorEditorPlugin, super = Class(EditorPlugin)
 
 function ActorEditorPlugin:init(info)
@@ -21,6 +28,26 @@ end
 function ActorEditorPlugin:openPartyMember(id)
     if not self:showPanel(self.party_panel_definition) then return false end
     return self.party_editor:selectEntryById(id)
+end
+
+function ActorEditorPlugin:openDataFile(kind, path)
+    local control = kind == "actor" and self.actor_editor or self.party_editor
+    local definition = kind == "actor" and self.actor_panel_definition or self.party_panel_definition
+    if not control or not definition then return false end
+
+    control:refreshEntries(true)
+    local normalized = tostring(path or ""):gsub("\\", "/")
+    for _, entry in ipairs(control.entries or {}) do
+        if tostring(entry.path or ""):gsub("\\", "/") == normalized then
+            self:showPanel(definition)
+            return control:selectEntry(entry)
+        end
+    end
+
+    self.editor:addWarning("Could not open data file in the visual editor",
+        "The file is not registered as a " .. (kind == "actor" and "Kristal actor." or "party member."),
+        "actor_editor")
+    return false
 end
 
 function ActorEditorPlugin:onInit(editor)
@@ -58,6 +85,22 @@ function ActorEditorPlugin:onInit(editor)
     })
 
     self:registerDocumentProvider("actor_data", DocumentProvider(self, editor))
+
+    self:registerFileContextProvider("actor_data", function(data)
+        if not data or data.type ~= "file" then return nil end
+        local relative = tostring(data.relative_path or ""):gsub("\\", "/"):lower()
+        if relative:match("^scripts/data/actors/.+%.lua$") then
+            return {
+                label = "Open in Actor Editor",
+                action = function() self:openDataFile("actor", data.path) end
+            }
+        elseif relative:match("^scripts/data/party/.+%.lua$") then
+            return {
+                label = "Open in Party Member Editor",
+                action = function() self:openDataFile("party", data.path) end
+            }
+        end
+    end)
 
     self:registerMenuItem("file", "save_actor_data", "Save Actor / Party Member", {
         is_enabled = function()

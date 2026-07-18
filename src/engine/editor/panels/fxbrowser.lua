@@ -1,4 +1,7 @@
 ---@class EditorFXBrowser : EditorControl
+---@field editor Editor
+---@field list EditorItemList
+---@field search EditorSearchBar
 ---@overload fun(editor: table): EditorFXBrowser
 local EditorFXBrowser, super = Class(EditorControl)
 

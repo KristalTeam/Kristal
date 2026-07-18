@@ -1,4 +1,7 @@
 ---@class EditorImagePreview : EditorControl
+---@field clip boolean
+---@field document EditorImageDocument?
+---@field enabled boolean
 ---@overload fun(): EditorImagePreview
 local EditorImagePreview, super = Class(EditorControl)
 

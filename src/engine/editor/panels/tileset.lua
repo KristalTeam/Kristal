@@ -1,4 +1,35 @@
 ---@class EditorTilesetPanel : EditorControl
+---@field add_button EditorButton
+---@field animation_clock number
+---@field animation_play_button EditorButton
+---@field animation_playing boolean
+---@field animation_preview_rect any
+---@field animation_source_tile_id string?
+---@field animation_target_tile any
+---@field collision_drag any
+---@field collision_snap boolean
+---@field collision_snap_button EditorButton
+---@field document any
+---@field editor Editor
+---@field list EditorItemList
+---@field mode string
+---@field mode_buttons table
+---@field properties EditorPropertiesPanel
+---@field selected_item any
+---@field terrain_any_button EditorButton
+---@field terrain_expansion table
+---@field terrain_is_button EditorButton
+---@field terrain_not_button EditorButton
+---@field terrain_paint_changed boolean
+---@field terrain_paint_mode string
+---@field terrain_painted_rule any
+---@field terrain_painted_slots any
+---@field terrain_rule_lookup table
+---@field tile any
+---@field tile_grid EditorTilePalette
+---@field zoom_in_button EditorButton
+---@field zoom_label_button EditorButton
+---@field zoom_out_button EditorButton
 ---@overload fun(editor: table): EditorTilesetPanel
 local EditorTilesetPanel, super = Class(EditorControl)
 

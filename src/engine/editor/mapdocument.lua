@@ -1,9 +1,18 @@
 ---@class EditorMapDocument : EditorDocument
+---@field editable_layers table
+---@field map_lookup table<string, table>
+---@field maps table
+---@field next_layer_uid number
+---@field next_object_uid number
+---@field previous_world_id string?
+---@field primary_map_id string?
+---@field selected_layers table
+---@field world EditorWorld
 ---@overload fun(editor: table, map_id?: string): EditorMapDocument
 local EditorMapDocument, super = Class(EditorDocument)
 
-local function flattenLayers(layers, result, parent)
-    result = result or {}
+local function convertLegacyLayerTree(layers, parent)
+    local result = {}
     parent = parent or {
         offsetx = 0,
         offsety = 0,
@@ -19,7 +28,11 @@ local function flattenLayers(layers, result, parent)
         layer.parallaxx = (layer.parallaxx or 1) * parent.parallaxx
         layer.parallaxy = (layer.parallaxy or 1) * parent.parallaxy
         if layer.type == "group" then
-            flattenLayers(layer.layers, result, layer)
+            local children = layer.layers
+            layer.layers = convertLegacyLayerTree(children, layer)
+            layer.offsetx, layer.offsety = 0, 0
+            layer.parallaxx, layer.parallaxy = 1, 1
+            table.insert(result, layer)
         else
             table.insert(result, layer)
         end
@@ -155,9 +168,23 @@ function EditorMapDocument:save(path, options, map_id)
 end
 
 function EditorMapDocument:adoptSavedMapData(id, data)
+    local selected_uid = self.selected_layers[id]
+    local selected_layer = selected_uid and self:findEditableLayer(selected_uid, id)
+    local selected_id = selected_layer and selected_layer.id
+    local selected_name = selected_layer and selected_layer.name
     self.editable_layers[id] = nil
     self.selected_layers[id] = nil
     self:getEditableLayers(id)
+    if selected_layer then
+        for _, entry in ipairs(self:getFlatEditableLayers(id, false)) do
+            local layer = entry.layer
+            if (selected_id and layer.id == selected_id)
+                or (not selected_id and selected_name and layer.name == selected_name) then
+                self.selected_layers[id] = layer._editor_uid
+                break
+            end
+        end
+    end
     self:invalidatePreview(id)
 end
 
@@ -169,18 +196,21 @@ function EditorMapDocument:getEditableLayers(id)
         local data = Registry.getMapData(id)
         local reader_class = Registry.getMapReader(id)
         local legacy = reader_class and reader_class.LEGACY_FORMAT
-        local layers = legacy and flattenLayers(data and data.layers or {})
+        local layers = legacy and convertLegacyLayerTree(data and data.layers or {})
             or TableUtils.copy(data and data.layers or {}, true)
         MapUtils.walkLayers(layers, function(layer)
             layer._editor_uid = self.next_layer_uid
             self.next_layer_uid = self.next_layer_uid + 1
             layer.properties = layer.properties or {}
             local layer_type = legacy
-                and Registry.layer_types:getLegacyTiledType(layer)
+                and (layer.type == "group" and Registry.getLayerType("folder")
+                    or Registry.layer_types:getLegacyTiledType(layer))
                 or Registry.getLayerType(layer._editor_type_id or layer.type or "default")
             layer._editor_type_id = layer_type and layer_type.id or "default"
             layer._editor_kind_id = layer.kind or (layer_type and layer_type.kind) or "object"
             layer._editor_visible = layer.visible ~= false
+            layer._editor_locked = layer.locked == true
+            layer.blend_mode = layer.blend_mode or layer.blendmode or "normal"
             if layer._editor_kind_id == "group" then
                 layer.layers = layer.layers or {}
                 if layer._editor_expanded == nil then layer._editor_expanded = true end
@@ -201,18 +231,28 @@ end
 
 function EditorMapDocument:getFlatEditableLayers(id, visible_only)
     local result = {}
-    local function append(layers, depth, parent, ancestors_visible)
+    local function append(layers, depth, parent, ancestors_visible, ancestors_locked)
         for _, layer in ipairs(layers or {}) do
             local visible = ancestors_visible and layer._editor_visible ~= false
-            table.insert(result, { layer = layer, depth = depth, parent = parent, visible = visible })
+            local locked = ancestors_locked or layer._editor_locked == true
+            table.insert(result, { layer = layer, depth = depth, parent = parent,
+                visible = visible, locked = locked })
             local expanded = not visible_only or layer._editor_expanded ~= false
             if expanded and layer.layers then
-                append(layer.layers, depth + 1, layer, visible)
+                append(layer.layers, depth + 1, layer, visible, locked)
             end
         end
     end
-    append(self:getEditableLayers(id), 0, nil, true)
+    append(self:getEditableLayers(id), 0, nil, true, false)
     return result
+end
+
+function EditorMapDocument:isLayerLocked(layer, id)
+    if not layer then return false end
+    for _, entry in ipairs(self:getFlatEditableLayers(id, false)) do
+        if entry.layer == layer then return entry.locked end
+    end
+    return layer._editor_locked == true
 end
 
 function EditorMapDocument:getAllEditableLayers(id)
@@ -315,7 +355,9 @@ function EditorMapDocument:createEditableLayer(type_id, id, parent_uid)
         height = data.height or 12,
         visible = true,
         _editor_visible = true,
+        _editor_locked = false,
         opacity = 1,
+        blend_mode = "normal",
         offsetx = 0,
         offsety = 0,
         parallaxx = 1,
@@ -463,8 +505,10 @@ function EditorMapDocument:getSelectedObjectLayer(id)
     local fallback
     for _, layer in ipairs(self:getAllEditableLayers(id)) do
         local layer_type = Registry.getLayerType(layer._editor_type_id)
-        if layer._editor_uid == selected and layer_type and layer_type.kind == "object" then return layer end
-        if layer_type and layer_type.kind == "object" and (not fallback or layer._editor_type_id == "objects") then
+        if layer._editor_uid == selected and layer_type and layer_type.kind == "object"
+            and not self:isLayerLocked(layer, id) then return layer end
+        if layer_type and layer_type.kind == "object" and not self:isLayerLocked(layer, id)
+            and (not fallback or layer._editor_type_id == "objects") then
             fallback = layer
         end
     end
@@ -478,8 +522,8 @@ function EditorMapDocument:getSelectedTileLayer(id)
     for _, layer in ipairs(self:getAllEditableLayers(id)) do
         local layer_type = Registry.getLayerType(layer._editor_type_id)
         if layer_type and layer_type.kind == "tile" then
-            if layer._editor_uid == selected then return layer end
-            fallback = fallback or layer
+            if layer._editor_uid == selected and not self:isLayerLocked(layer, id) then return layer end
+            if not self:isLayerLocked(layer, id) then fallback = fallback or layer end
         end
     end
     return selected == nil and fallback or nil
@@ -1039,7 +1083,7 @@ function EditorMapDocument:findObjectAt(world_x, world_y, options)
             local layer_entry = layers[layer_index]
             local layer = layer_entry.layer
             local layer_type = Registry.getLayerType(layer._editor_type_id)
-            if layer_entry.visible and layer_type and layer_type.kind == "object"
+            if layer_entry.visible and not layer_entry.locked and layer_type and layer_type.kind == "object"
                 and (options.all_layers or self:isLayerSelectable(layer, entry.id)) then
                 local x = world_x - entry.x - (layer.offsetx or 0)
                 local y = world_y - entry.y - (layer.offsety or 0)
@@ -1079,38 +1123,6 @@ function EditorMapDocument:findObjectAt(world_x, world_y, options)
             end
         end
     end
-end
-
-function EditorMapDocument:addTileObject(tileset_id, tile_id, map_id, world_x, world_y)
-    local positioned_entry = self:getMapAt(world_x, world_y)
-    map_id = map_id or (positioned_entry and positioned_entry.id) or self.primary_map_id
-    local entry = self.map_lookup[map_id]
-    local layer = self:getSelectedObjectLayer(map_id)
-    local tileset = Registry.getTileset(tileset_id)
-    if not entry or not layer then return nil, "Select an object layer before placing a tile object" end
-    if not tileset then return nil, "Unknown tileset '" .. tostring(tileset_id) .. "'" end
-    local width, height = tileset:getTileSize(tile_id)
-    local local_x = world_x - entry.x - (layer.offsetx or 0)
-    local local_y = world_y - entry.y - (layer.offsety or 0)
-    if not Input.ctrl() then
-        local grid_width, grid_height = entry.tile_width or 40, entry.tile_height or 40
-        local_x = math.floor(local_x / grid_width) * grid_width
-        local_y = math.floor(local_y / grid_height) * grid_height
-    else
-        local_x, local_y = local_x - width / 2, local_y - height / 2
-    end
-    local origin = Tileset.ORIGINS[tileset.object_alignment] or Tileset.ORIGINS.unspecified
-    local object = {
-        name = "", type = "", tileset = tileset_id, tile_id = tile_id,
-        x = local_x + origin[1] * width, y = local_y + origin[2] * height,
-        width = width, height = height, rotation = 0, visible = true,
-        properties = {}, __editor_property_types = {}
-    }
-    self:getObjectId(object)
-    layer.objects = layer.objects or {}
-    table.insert(layer.objects, object)
-    self:invalidatePreview(map_id)
-    return object, layer, map_id
 end
 
 function EditorMapDocument:getObjectLocalRect(selection)
@@ -1188,7 +1200,7 @@ function EditorMapDocument:findObjectsInRect(x1, y1, x2, y2, options)
         for _, layer_entry in ipairs(self:getFlatEditableLayers(entry.id, false)) do
             local layer = layer_entry.layer
             local layer_type = Registry.getLayerType(layer._editor_type_id)
-            if layer_entry.visible and layer_type and layer_type.kind == "object"
+            if layer_entry.visible and not layer_entry.locked and layer_type and layer_type.kind == "object"
                 and (options.all_layers or self:isLayerSelectable(layer, entry.id)) then
                 for _, object in ipairs(layer.objects or {}) do
                     if object.visible ~= false then
@@ -1391,11 +1403,13 @@ function EditorMapDocument:createPreview(entry)
             map:loadTiles(layer, layer_depth)
             local drawable = map.tile_layers[#map.tile_layers]
             drawable.visible = true
+            drawable.tile_opacity = 1
             drawable_layers[drawable] = layer._editor_uid
         elseif layer.type == "imagelayer" and layer.image then
             map:loadImage(layer, layer_depth)
             local drawable = map.image_layers[layer.name]
             drawable.visible = true
+            drawable.alpha = 1
             drawable_layers[drawable] = layer._editor_uid
         elseif layer.type == "objectgroup" then
             local layer_type = layer_registry:get(layer._editor_type_id)
@@ -1410,6 +1424,7 @@ function EditorMapDocument:createPreview(entry)
                         layer = layer,
                         layer_type = layer_type,
                         layer_color = layer_color,
+                        layer_tint = layer.tint or layer.tintcolor,
                         offset_x = layer.offsetx or 0,
                         offset_y = layer.offsety or 0,
                         map_id = entry.id,
@@ -1481,7 +1496,10 @@ function EditorMapDocument:drawPreview(entry, outline_width)
             selected = selected_uid == parent_uid
             parent_uid = preview.layer_parent[parent_uid]
         end
-        return true, (not darken or selected) and 1 or 0.35
+        local opacity = layer and (layer.opacity == nil and 1 or layer.opacity) or 1
+        local tint = layer and (layer.tint or layer.tintcolor)
+        if tint and tint[4] ~= nil then opacity = opacity * (tint[4] > 1 and tint[4] / 255 or tint[4]) end
+        return true, ((not darken or selected) and 1 or 0.35) * opacity
     end
     for index, child in ipairs(preview.root.children) do
         local uid = preview.drawable_layers[child]
@@ -1513,6 +1531,18 @@ function EditorMapDocument:drawPreview(entry, outline_width)
         return a.layer < b.layer
     end)
     for _, drawable in ipairs(drawables) do
+        local source_layer = drawable.value.layer_uid and preview.layer_lookup[drawable.value.layer_uid]
+            or drawable.object and preview.layer_lookup[preview.drawable_layers[drawable.value]]
+        local blend_mode = source_layer and source_layer.blend_mode
+        local old_blend, old_alpha_mode
+        if blend_mode and blend_mode ~= "normal" then
+            old_blend, old_alpha_mode = love.graphics.getBlendMode()
+            if blend_mode == "multiply" or blend_mode == "darken" or blend_mode == "lighten" then
+                love.graphics.setBlendMode(blend_mode, "premultiplied")
+            else
+                love.graphics.setBlendMode(blend_mode)
+            end
+        end
         if drawable.object then
             local old_alpha = drawable.value.alpha
             drawable.value.alpha = (old_alpha or 1) * drawable.alpha
@@ -1522,6 +1552,7 @@ function EditorMapDocument:drawPreview(entry, outline_width)
             drawable.value:draw(drawable.alpha, outline_width,
                 selected_uid == drawable.value.layer_uid)
         end
+        if old_blend then love.graphics.setBlendMode(old_blend, old_alpha_mode) end
     end
     for _, event in ipairs(preview.editor_events or {}) do
         local layer_visible, alpha = layerState(event.layer_uid)

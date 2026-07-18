@@ -44,6 +44,7 @@ local DEFAULT_KINDS = {
             "color",
             "depth",
             "visible",
+            "locked",
             "layers"
         }
     },

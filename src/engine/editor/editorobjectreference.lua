@@ -1,4 +1,9 @@
 ---@class EditorObjectReference : Class
+---@field id string|number|nil
+---@field map string?
+---@field map_id string?
+---@field object string|number|nil
+---@field object_id string|number|nil
 ---@overload fun(map_id?: string, object_id?: string|number): EditorObjectReference
 local EditorObjectReference = Class()
 

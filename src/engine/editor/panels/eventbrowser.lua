@@ -1,4 +1,7 @@
 ---@class EditorEventBrowser : EditorControl
+---@field editor Editor
+---@field list EditorItemList
+---@field search EditorSearchBar
 ---@overload fun(editor: table): EditorEventBrowser
 local EditorEventBrowser, super = Class(EditorControl)
 

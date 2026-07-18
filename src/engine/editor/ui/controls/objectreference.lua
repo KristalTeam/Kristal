@@ -1,4 +1,17 @@
 ---@class EditorObjectReferenceControl : EditorControl
+---@field clip boolean
+---@field cursor_type string
+---@field dragging table|false
+---@field editor Editor
+---@field focusable boolean
+---@field focused boolean
+---@field on_changed function?
+---@field open_picker_on_release boolean
+---@field options table
+---@field pending_drag boolean
+---@field press_x number?
+---@field press_y number?
+---@field value EditorObjectReference|string|table|nil
 ---@overload fun(editor: table, value?: any, options?: table): EditorObjectReferenceControl
 local EditorObjectReferenceControl, super = Class(EditorControl)
 
@@ -12,6 +25,7 @@ function EditorObjectReferenceControl:init(editor, value, options)
     self.focusable = true
     self.focused = false
     self.cursor_type = "link"
+    self.clip = true
 end
 
 function EditorObjectReferenceControl:setValue(value)

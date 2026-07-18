@@ -1,4 +1,13 @@
 ---@class EditorPathInput : EditorControl
+---@field editor Editor
+---@field input EditorTextInput
+---@field inputs table
+---@field on_submit function?
+---@field options table
+---@field path_kind string
+---@field picker_button EditorButton
+---@field preferred_height number
+---@field value string
 ---@overload fun(editor: Editor, value?: string, options?: table): EditorPathInput
 local EditorPathInput, super = Class(EditorControl)
 

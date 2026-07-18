@@ -1,4 +1,9 @@
 ---@class EditorDrawFX : Class
+---@field data table
+---@field definition table
+---@field id string?
+---@field properties table
+---@field property_set EditorPropertySet
 ---@overload fun(id: string, definition?: table, data?: table): EditorDrawFX
 local EditorDrawFX = Class()
 

@@ -1,4 +1,9 @@
 ---@class EditorDocument : Class
+---@field document_provider_id string?
+---@field editor Editor
+---@field history_revision number
+---@field open_provider_id string?
+---@field saved_history_revision number
 ---@overload fun(editor?: Editor): EditorDocument
 local EditorDocument = Class()
 

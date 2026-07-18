@@ -1,3 +1,5 @@
+---@class EditorScriptEvent : EditorEvent
+---@overload fun(data?: table, options?: table): EditorScriptEvent
 local EditorScriptEvent, super = Class(EditorEvent)
 
 EditorScriptEvent.placement_shape = "region"

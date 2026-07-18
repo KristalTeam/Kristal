@@ -1,4 +1,15 @@
 ---@class EditorWritableFileDocument : EditorFileDocument
+---@overload fun(workspace: EditorProjectWorkspace, path: string, contents?: string, options?: table): EditorWritableFileDocument
+---@field diagnostics table
+---@field next_state_id number
+---@field read_only boolean
+---@field redo_stack table
+---@field saved_hash string?
+---@field saved_state_id number
+---@field state_id number
+---@field undo_stack table
+---@field version number
+---@field writable_code_document boolean
 local EditorWritableFileDocument, super = Class(EditorFileDocument)
 
 local DEFAULT_HISTORY_LIMIT = 1000

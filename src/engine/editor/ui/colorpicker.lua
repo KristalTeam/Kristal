@@ -1,4 +1,28 @@
 ---@class EditorColorPicker : EditorControl
+---@field alpha boolean
+---@field alpha_mesh love.Mesh
+---@field alpha_rect table
+---@field apply_button EditorButton
+---@field cancel_button EditorButton
+---@field captured_control EditorControl?
+---@field drag_mode string?
+---@field editor Editor
+---@field focused_control EditorControl?
+---@field hex_input EditorTextInput
+---@field hue number
+---@field hue_mesh love.Mesh
+---@field hue_rect table
+---@field on_apply function?
+---@field panel_height number
+---@field panel_width number
+---@field panel_x number
+---@field panel_y number
+---@field preview_rect table
+---@field saturation number
+---@field saturation_mesh love.Mesh
+---@field sv_rect table
+---@field value number
+---@field value_mesh love.Mesh
 ---@overload fun(editor: Editor, value?: string|table, on_apply?: function): EditorColorPicker
 local EditorColorPicker, super = Class(EditorControl)
 

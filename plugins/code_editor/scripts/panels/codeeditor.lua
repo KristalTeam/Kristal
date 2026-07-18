@@ -1,4 +1,15 @@
 ---@class EditorCodeEditor : EditorControl
+---@field active_document EditorWritableFileDocument?
+---@field clip boolean
+---@field documents table
+---@field editor Editor
+---@field format_request number
+---@field image_preview EditorImagePreview
+---@field input EditorCodeInput
+---@field language_service LuaLanguageService?
+---@field navigation_request number
+---@field tab_rects table
+---@field workspace EditorProjectWorkspace
 ---@overload fun(editor: Editor, workspace: EditorProjectWorkspace): EditorCodeEditor
 local EditorCodeEditor, super = Class(EditorControl)
 local EditorCodeInput = ...

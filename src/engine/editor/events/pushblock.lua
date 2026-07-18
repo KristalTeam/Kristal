@@ -1,3 +1,5 @@
+---@class EditorPushBlock : EditorEvent
+---@overload fun(data?: table, options?: table): EditorPushBlock
 local EditorPushBlock, super = Class(EditorEvent)
 
 EditorPushBlock.sprite_property = "sprite"

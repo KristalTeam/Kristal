@@ -1,3 +1,5 @@
+---@class EditorTileButton : EditorEvent
+---@overload fun(data?: table, options?: table): EditorTileButton
 local EditorTileButton, super = Class(EditorEvent)
 
 EditorTileButton.sprite_property = "sprite"

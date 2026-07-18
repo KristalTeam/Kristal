@@ -1,3 +1,5 @@
+---@class EditorSpriteEvent : EditorEvent
+---@overload fun(data?: table, options?: table): EditorSpriteEvent
 local EditorSpriteEvent, super = Class(EditorEvent)
 
 EditorSpriteEvent.sprite_property = "texture"

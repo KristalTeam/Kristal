@@ -1,4 +1,8 @@
 ---@class EditorTerrainPalette : EditorControl
+---@field document EditorTilesetDocument?
+---@field editor Editor
+---@field list EditorItemList
+---@field search EditorSearchBar
 ---@overload fun(editor: table): EditorTerrainPalette
 local EditorTerrainPalette, super = Class(EditorControl)
 
@@ -21,16 +25,6 @@ function EditorTerrainPalette:init(editor)
         end,
         on_request_focus = function(control) editor.dockspace:setFocus(control) end
     }))
-    self.size_down = self:addChild(EditorButton("-", function() self:changeBrushSize(-1) end))
-    self.size_input = self:addChild(EditorTextInput({
-        editor = editor,
-        value = tostring(editor:getTerrainBrushSize()),
-        submit_feedback = false,
-        on_submit = function(value)
-            return self:setConfiguredBrushSize(value)
-        end
-    }))
-    self.size_up = self:addChild(EditorButton("+", function() self:changeBrushSize(1) end))
 end
 
 function EditorTerrainPalette:getTilePreview(tile_id)
@@ -47,25 +41,6 @@ function EditorTerrainPalette:getTilePreview(tile_id)
             love.graphics.print(tostring(tile_id), x + 3, y + 2)
         end
     end
-end
-
-function EditorTerrainPalette:setBrushSize(value)
-    value = MathUtils.clamp(MathUtils.round(tonumber(value) or 1), 1, 32)
-    if self.size_input then self.size_input:setValue(tostring(value), true) end
-end
-
-function EditorTerrainPalette:setConfiguredBrushSize(value)
-    value = tonumber(value)
-    if not value then
-        self:setBrushSize(self.editor:getTerrainBrushSize())
-        return false
-    end
-    return self.editor.settings:setValue("editing.terrain_brush_size", value)
-end
-
-function EditorTerrainPalette:changeBrushSize(amount)
-    return self.editor.settings:setValue("editing.terrain_brush_size",
-        self.editor:getTerrainBrushSize() + amount)
 end
 
 function EditorTerrainPalette:setDocument(document, refresh)
@@ -133,20 +108,13 @@ end
 
 function EditorTerrainPalette:update(dt)
     self.search:setBounds(8, 8, math.max(0, self.width - 16), 28)
-    local controls_y = math.max(44, self.height - 36)
-    self.list:setBounds(8, 44, math.max(0, self.width - 16), math.max(0, controls_y - 48))
-    self.size_down:setBounds(math.max(92, self.width - 126), controls_y + 4, 32, 28)
-    self.size_input:setBounds(math.max(128, self.width - 90), controls_y + 4, 48, 28)
-    self.size_up:setBounds(math.max(180, self.width - 38), controls_y + 4, 32, 28)
+    self.list:setBounds(8, 44, math.max(0, self.width - 16), math.max(0, self.height - 52))
     super.update(self, dt)
 end
 
 function EditorTerrainPalette:drawSelf()
     Draw.setColor(0.08, 0.08, 0.09, 1)
     love.graphics.rectangle("fill", 0, 0, self.width, self.height)
-    Draw.setColor(0.78, 0.78, 0.82, 1)
-    love.graphics.setFont(EditorFont.get(14))
-    love.graphics.print("Brush size", 8, math.max(48, self.height - 26))
     if self.document and #self.document:getTerrainSets() == 0 then
         Draw.setColor(0.55, 0.55, 0.58, 1)
         love.graphics.setFont(EditorFont.get(16))

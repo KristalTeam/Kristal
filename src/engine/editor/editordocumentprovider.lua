@@ -1,4 +1,7 @@
 ---@class EditorDocumentProvider : Class
+---@field editor Editor
+---@field id string?
+---@field priority number
 ---@overload fun(editor: Editor, options?: table): EditorDocumentProvider
 local EditorDocumentProvider = Class()
 

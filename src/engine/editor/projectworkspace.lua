@@ -1,4 +1,10 @@
 ---@class EditorProjectWorkspace : Class
+---@field document_order table
+---@field documents table
+---@field editor Editor
+---@field file_types EditorFileTypeRegistry
+---@field real_root string
+---@field virtual_root string
 ---@overload fun(editor: Editor, file_types: EditorFileTypeRegistry): EditorProjectWorkspace
 local EditorProjectWorkspace = Class()
 

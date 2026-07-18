@@ -1,4 +1,16 @@
 ---@class EditorTableInput : EditorControl
+---@field add_button EditorButton
+---@field clip boolean
+---@field editor Editor
+---@field maximum_visible_rows table
+---@field on_changed function?
+---@field on_request_focus function?
+---@field preferred_height number
+---@field row_height number
+---@field rows table
+---@field scroll_row number
+---@field scrollbar EditorScrollbar
+---@field value table
 ---@overload fun(editor: table, value?: table, options?: table): EditorTableInput
 local EditorTableInput, super = Class(EditorControl)
 

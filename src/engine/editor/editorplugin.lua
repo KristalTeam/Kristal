@@ -1,4 +1,13 @@
 ---@class EditorPlugin : Class
+---@field __editor_plugin boolean
+---@field id string?
+---@field info any
+---@field loaded_scripts table
+---@field loading_scripts table
+---@field panels table
+---@field registration_cleanups table
+---@field settings_pages table
+---@field workspaces table
 ---@overload fun(info: table): EditorPlugin
 local EditorPlugin = Class()
 

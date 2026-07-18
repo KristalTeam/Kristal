@@ -1,4 +1,17 @@
 ---@class TerrainRuleContext : Class
+---@field center any
+---@field get_tags any
+---@field get_terrain any
+---@field get_tile_id string?
+---@field layer_id string?
+---@field map_id string?
+---@field rule table
+---@field seed number
+---@field terrain table
+---@field tileset Tileset?
+---@field transform any
+---@field x number
+---@field y number
 ---@overload fun(options: table): TerrainRuleContext
 local TerrainRuleContext = Class()
 

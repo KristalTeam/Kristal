@@ -1,4 +1,10 @@
 ---@class EditorDiagnosticsPanel : EditorControl
+---@field clip boolean
+---@field editor Editor
+---@field expanded table
+---@field row_rects table
+---@field scroll_y number
+---@field scrollbar EditorScrollbar
 ---@overload fun(editor: table): EditorDiagnosticsPanel
 local EditorDiagnosticsPanel, super = Class(EditorControl)
 

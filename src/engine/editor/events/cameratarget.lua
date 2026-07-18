@@ -1,3 +1,5 @@
+---@class EditorCameraTarget : EditorEvent
+---@overload fun(data?: table, options?: table): EditorCameraTarget
 local EditorCameraTarget, super = Class(EditorEvent)
 EditorCameraTarget.placement_shape = "region"
 function EditorCameraTarget:init(data, options)
