@@ -28,6 +28,11 @@ local function drawGradientMesh(mesh, rect)
     love.graphics.draw(mesh, rect.x, rect.y, 0, rect.width, rect.height)
 end
 
+local function quantizeChannel(value)
+    local byte = math.floor(MathUtils.clamp(value, 0, 1) * 255 + 0.000001)
+    return byte / 255
+end
+
 local function newHueMesh()
     local vertices = {}
     for index = 0, 6 do
@@ -76,16 +81,20 @@ end
 
 function EditorColorPicker:getColor()
     local red, green, blue = ColorUtils.HSVToRGB(self.hue, self.saturation, self.value)
-    return { red, green, blue, self.alpha }
+    return {
+        quantizeChannel(red), quantizeChannel(green), quantizeChannel(blue),
+        quantizeChannel(self.alpha)
+    }
 end
 
 function EditorColorPicker:updateHex()
-    local red, green, blue = ColorUtils.HSVToRGB(self.hue, self.saturation, self.value)
+    local color = self:getColor()
+    local red, green, blue = color[1], color[2], color[3]
     self.alpha_mesh:setVertex(1, 0, 0, 0, 0, red, green, blue, 0)
     self.alpha_mesh:setVertex(2, 0, 1, 0, 1, red, green, blue, 0)
     self.alpha_mesh:setVertex(3, 1, 0, 1, 0, red, green, blue, 1)
     self.alpha_mesh:setVertex(4, 1, 1, 1, 1, red, green, blue, 1)
-    self.hex_input:setValue(ColorUtils.RGBAToHex(self:getColor()), true)
+    self.hex_input:setValue(ColorUtils.RGBAToHex(color), true)
 end
 
 function EditorColorPicker:setHex(value)

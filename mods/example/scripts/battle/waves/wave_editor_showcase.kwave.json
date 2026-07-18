@@ -1,0 +1,193 @@
+{
+  "format": "kristal-wave",
+  "version": 1,
+  "id": "wave_editor_showcase",
+  "name": "Wave Editor Showcase",
+  "output": "scripts/battle/waves/wave_editor_showcase.lua",
+  "duration": 6,
+  "arena": {
+    "x": 320,
+    "y": 255,
+    "width": 300,
+    "height": 180,
+    "rotation": 0
+  },
+  "soul": {
+    "x": 320,
+    "y": 255,
+    "spawn": true
+  },
+  "variables": [
+    {
+      "id": "bullet_speed",
+      "name": "Bullet Speed",
+      "type": "number",
+      "default": 4
+    }
+  ],
+  "procedures": [],
+  "objects": [
+    {
+      "id": "moving_bar",
+      "name": "Moving Bar",
+      "type": "solid",
+      "object_type": "solid",
+      "spawn_time": 0,
+      "despawn_time": 6,
+      "x": 220,
+      "y": 205,
+      "rotation": 0,
+      "scale_x": 1,
+      "scale_y": 1,
+      "filled": true,
+      "height": 14,
+      "width": 72
+    },
+    {
+      "id": "left_bullet",
+      "name": "Left Bullet",
+      "type": "bullet",
+      "bullet": "smallbullet",
+      "spawn_time": 0.25,
+      "despawn_time": 3.67,
+      "x": 170,
+      "y": 255,
+      "rotation": 0,
+      "scale_x": 1,
+      "scale_y": 1,
+      "constructor": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "right_bullet",
+      "name": "Right Bullet",
+      "type": "bullet",
+      "bullet": "smallbullet",
+      "spawn_time": 0.25,
+      "despawn_time": 5.5,
+      "x": 470,
+      "y": 285,
+      "rotation": 3.1415926535898,
+      "scale_x": 1,
+      "scale_y": 1,
+      "constructor": [
+        3.1415926535898,
+        2
+      ]
+    }
+  ],
+  "tracks": [
+    {
+      "id": "moving_bar_x",
+      "name": "Moving Bar X",
+      "target": "moving_bar",
+      "property": "x",
+      "value_type": "number",
+      "interpolation": "linear",
+      "keyframes": [
+        {
+          "id": "bar_x_start",
+          "time": 0,
+          "value": 220,
+          "interpolation": "linear"
+        },
+        {
+          "id": "bar_x_middle",
+          "time": 3,
+          "value": 348,
+          "interpolation": "linear"
+        },
+        {
+          "id": "bar_x_end",
+          "time": 6,
+          "value": 220,
+          "interpolation": "linear"
+        }
+      ],
+      "clips": []
+    },
+    {
+      "id": "arena_rotation",
+      "name": "Arena Rotation",
+      "target": "arena",
+      "property": "rotation",
+      "value_type": "number",
+      "interpolation": "linear",
+      "keyframes": [
+        {
+          "id": "arena_rotation_start",
+          "time": 0,
+          "value": 0,
+          "interpolation": "linear"
+        },
+        {
+          "id": "arena_rotation_middle",
+          "time": 3,
+          "value": 0.08,
+          "interpolation": "linear"
+        },
+        {
+          "id": "arena_rotation_end",
+          "time": 6,
+          "value": 0,
+          "interpolation": "linear"
+        }
+      ],
+      "clips": []
+    }
+  ],
+  "graphs": [
+    {
+      "id": "wave_start",
+      "name": "Wave Start",
+      "scope": "wave",
+      "event": "start",
+      "blocks": [
+        {
+          "id": "showcase_comment",
+          "type": "comment",
+          "inputs": {
+            "text": "Fire a short random stream from the right side."
+          }
+        },
+        {
+          "id": "showcase_repeat",
+          "type": "repeat_every",
+          "inputs": {
+            "count": 8,
+            "interval": 0.55
+          },
+          "children": [
+            {
+              "id": "showcase_spawn",
+              "type": "spawn_bullet",
+              "inputs": {
+                "arguments": [
+                  3.1415926535898,
+                  {
+                    "inputs": {
+                      "id": "bullet_speed"
+                    },
+                    "type": "variable"
+                  }
+                ],
+                "bullet": "smallbullet",
+                "x": 500,
+                "y": {
+                  "inputs": {
+                    "maximum": 310,
+                    "minimum": 200
+                  },
+                  "type": "random"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "extensions": []
+}
