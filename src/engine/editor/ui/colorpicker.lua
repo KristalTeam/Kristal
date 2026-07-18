@@ -54,10 +54,14 @@ function EditorColorPicker:init(editor, value, on_apply)
     }))
     self.apply_button = self:addChild(EditorButton("Apply", function() self:apply() end))
     self.cancel_button = self:addChild(EditorButton("Cancel", function() self:cancel() end))
-    self.sv_mesh = newGradientMesh({
-        { 0, 0, 0, 0, 1, 1, 1, 1 }, { 0, 1, 0, 1, 0, 0, 0, 1 },
-        { 1, 0, 1, 0, 1, 0, 0, 1 }, { 1, 1, 1, 1, 0, 0, 0, 1 }
-    })
+    self.saturation_mesh = newGradientMesh({
+        { 0, 0, 0, 0, 1, 1, 1, 1 }, { 0, 1, 0, 1, 1, 1, 1, 1 },
+        { 1, 0, 1, 0, 1, 1, 1, 0 }, { 1, 1, 1, 1, 1, 1, 1, 0 }
+    }, "static")
+    self.value_mesh = newGradientMesh({
+        { 0, 0, 0, 0, 0, 0, 0, 0 }, { 0, 1, 0, 1, 0, 0, 0, 1 },
+        { 1, 0, 1, 0, 0, 0, 0, 0 }, { 1, 1, 1, 1, 0, 0, 0, 1 }
+    }, "static")
     self.hue_mesh = newHueMesh()
     self.alpha_mesh = newGradientMesh({
         { 0, 0, 0, 0, 1, 1, 1, 0 }, { 0, 1, 0, 1, 1, 1, 1, 0 },
@@ -76,8 +80,6 @@ function EditorColorPicker:getColor()
 end
 
 function EditorColorPicker:updateHex()
-    local hue_red, hue_green, hue_blue = ColorUtils.HSVToRGB(self.hue, 1, 1)
-    self.sv_mesh:setVertex(3, 1, 0, 1, 0, hue_red, hue_green, hue_blue, 1)
     local red, green, blue = ColorUtils.HSVToRGB(self.hue, self.saturation, self.value)
     self.alpha_mesh:setVertex(1, 0, 0, 0, 0, red, green, blue, 0)
     self.alpha_mesh:setVertex(2, 0, 1, 0, 1, red, green, blue, 0)
@@ -236,7 +238,12 @@ function EditorColorPicker:drawSelf()
     Draw.setColor(0.94, 0.94, 0.97, 1)
     love.graphics.print("Choose Color", self.panel_x + 18, self.panel_y + 14)
 
-    drawGradientMesh(self.sv_mesh, self.sv_rect)
+    local hue_red, hue_green, hue_blue = ColorUtils.HSVToRGB(self.hue, 1, 1)
+    Draw.setColor(hue_red, hue_green, hue_blue, 1)
+    love.graphics.rectangle("fill", self.sv_rect.x, self.sv_rect.y,
+        self.sv_rect.width, self.sv_rect.height)
+    drawGradientMesh(self.saturation_mesh, self.sv_rect)
+    drawGradientMesh(self.value_mesh, self.sv_rect)
     Draw.setColor(1, 1, 1, 1)
     love.graphics.circle("line", self.sv_rect.x + self.saturation * self.sv_rect.width,
         self.sv_rect.y + (1 - self.value) * self.sv_rect.height, 6)

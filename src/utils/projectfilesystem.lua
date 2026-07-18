@@ -12,6 +12,19 @@ function ProjectFileSystem.normalizePath(path)
     return path
 end
 
+function ProjectFileSystem.getProjectSourceRoot()
+    if not Mod or not Mod.info or not Mod.info.path then return nil, "No project is loaded" end
+    local project_path = Mod.info.path:gsub("\\", "/"):gsub("/+$", "")
+    local manifest_path = project_path .. "/mod.json"
+    local source_root = love.filesystem.getRealDirectory(manifest_path)
+    if not source_root then return nil, "Could not locate the active project on disk" end
+    source_root = source_root:gsub("\\", "/"):gsub("/+$", "")
+    if source_root:lower():match("%.zip$") then
+        return nil, "The active project is loaded from a ZIP archive and is read-only"
+    end
+    return source_root
+end
+
 local function quoteDirectory(path)
     if love.system.getOS() == "Windows" then
         if path:find('[%%!\"]') then return nil end
@@ -42,9 +55,10 @@ function ProjectFileSystem.getRealPath(path)
     if normalized ~= project_path and not StringUtils.startsWith(normalized, project_path .. "/") then
         return nil, "Path is outside the active project"
     end
-    local real_root = love.filesystem.getRealDirectory(project_path)
-    if not real_root then return nil, "Could not locate the active project on disk" end
-    return real_root:gsub("\\", "/"):gsub("/+$", "") .. "/" .. normalized
+    local real_root
+    real_root, reason = ProjectFileSystem.getProjectSourceRoot()
+    if not real_root then return nil, reason end
+    return real_root .. "/" .. normalized
 end
 
 function ProjectFileSystem.getProjectPath(path)
