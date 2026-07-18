@@ -146,6 +146,10 @@ function EditorLayersPanel:getLayerIcon(layer)
     return Registry.layer_types:getLayerIcon(layer, self:getLayerType(layer))
 end
 
+function EditorLayersPanel:getLayerDepthText(layer)
+    return "D " .. string.format("%g", tonumber(layer and layer._editor_depth_offset) or 0)
+end
+
 function EditorLayersPanel:findLayerNode(uid)
     local found
     local function visit(parent)
@@ -160,6 +164,7 @@ function EditorLayersPanel:findLayerNode(uid)
 end
 
 function EditorLayersPanel:refreshList(selected_uid, silent)
+    if self.list.right_edit_item then self.list:finishRightItemEdit(false) end
     selected_uid = selected_uid or (self.selected_layer and self.selected_layer._editor_uid)
     self.list.root.children = {}
     local function append(layers, parent)
@@ -174,6 +179,17 @@ function EditorLayersPanel:refreshList(selected_uid, silent)
                     icon = self:getLayerIcon(layer),
                     color = self:getLayerColor(layer),
                     right_icons = {
+                        {
+                            text = self:getLayerDepthText(layer),
+                            min_width = 48,
+                            color = { 0.75, 0.75, 0.8, 1 },
+                            background_color = { 0.12, 0.12, 0.14, 0.9 },
+                            editable = true,
+                            edit_value = function()
+                                return string.format("%g", tonumber(layer._editor_depth_offset) or 0)
+                            end,
+                            on_submit = function(value) return self:setLayerDepthInline(layer, value) end
+                        },
                         {
                             icon = layer._editor_locked and "editor/ui/lock_closed" or "editor/ui/lock_open",
                             color = layer._editor_locked and { 1, 0.78, 0.28, 1 } or { 0.68, 0.68, 0.72, 1 },
@@ -245,10 +261,10 @@ function EditorLayersPanel:getPropertiesTarget(layer)
         },
         {
             id = "depth",
-            label = "Depth Override",
+            label = "Depth Offset",
             compact = true,
-            placeholder = "Automatic",
-            get = function() return layer._editor_depth_override or "" end,
+            placeholder = "0",
+            get = function() return tonumber(layer._editor_depth_offset) or 0 end,
             set = function(value, submitted) return self:setLayerDepth(layer, value, submitted) end
         },
         EditorPropertyFields.number(layer, "Parallax X", "parallaxx", { default = 1 }),
@@ -292,7 +308,14 @@ function EditorLayersPanel:getPropertiesTarget(layer)
         property_types = layer._editor_property_types,
         property_set = layer._editor_property_set,
         fields = fields,
-        on_changed = function() self:changed(false) end
+        on_changed = function(name)
+            local node = self:findLayerNode(layer._editor_uid)
+            if node then
+                node.icon = self:getLayerIcon(layer)
+                node.right_icons[1].text = self:getLayerDepthText(layer)
+            end
+            self:changed(false)
+        end
     }
 end
 
@@ -404,15 +427,39 @@ end
 
 function EditorLayersPanel:setLayerDepth(layer, value, submitted)
     if not layer then return false end
-    local depth = value == "" and false or tonumber(value)
+    local depth = value == "" and 0 or tonumber(value)
     if depth ~= nil then
-        layer._editor_depth_override = depth or nil
+        layer._editor_depth_offset = depth
+        local node = self:findLayerNode(layer._editor_uid)
+        if node then node.right_icons[1].text = self:getLayerDepthText(layer) end
         self.editor:clearDiagnostics("layer_depth")
         return true
     elseif submitted then
-        self.editor:addWarning("Layer depth override must be a number or blank", nil, "layer_depth")
+        self.editor:addWarning("Layer depth offset must be a number", nil, "layer_depth")
     end
     return false
+end
+
+function EditorLayersPanel:setLayerDepthInline(layer, value)
+    if not self.document or not layer then return false end
+    local previous = tonumber(layer._editor_depth_offset) or 0
+    self.editor:beginHistoryTransaction("Edit Layer Depth", self.document)
+    if not self:setLayerDepth(layer, value, true) then
+        self.editor:cancelHistoryTransaction()
+        return false
+    end
+    local changed = previous ~= layer._editor_depth_offset
+    if changed then
+        self:changed(false)
+        self.editor:markHistoryChanged()
+        self.editor:commitHistoryTransaction()
+    else
+        self.editor:cancelHistoryTransaction()
+    end
+    if self.selected_layer == layer then
+        self.editor:setPropertiesTarget(self:getPropertiesTarget(layer), self)
+    end
+    return true
 end
 
 function EditorLayersPanel:createLayer(type_id, parent_uid)

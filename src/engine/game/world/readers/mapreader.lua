@@ -15,8 +15,10 @@ end
 
 function operations.loadTiles(self, layer, depth)
     local tilelayer = self:createTileLayer(layer)
+    tilelayer.map_layer = true
+    tilelayer.map_layer_sort_id = tostring(layer.id or layer.name or "")
     tilelayer:setPosition(layer.offsetx or 0, layer.offsety or 0)
-    tilelayer.layer = depth
+    MapUtils.addLayerOffset(tilelayer, depth)
     tilelayer.blend_mode = layer.blend_mode or layer.blendmode
     self.world:addChild(tilelayer)
     table.insert(self.tile_layers, tilelayer)
@@ -89,11 +91,13 @@ function operations.loadImage(self, layer, depth)
         error("Map \"" .. self.data.id .. "\" failed to load image layer \"" .. layer.name .. "\"\n" .. texture_result)
     end
     local sprite = Sprite(texture_result, layer.offsetx, layer.offsety)
+    sprite.map_layer = true
+    sprite.map_layer_sort_id = tostring(layer.id or layer.name or "")
     sprite:setParallax(layer.parallaxx, layer.parallaxy)
     sprite.alpha = (layer.opacity == nil and 1 or layer.opacity)
         * (layer.tintcolor and (layer.tintcolor[4] or 255) / 255 or 1)
     sprite.blend_mode = layer.blend_mode or layer.blendmode
-    sprite.layer = depth
+    MapUtils.addLayerOffset(sprite, depth)
     if layer.tintcolor then
         sprite:setColor(layer.tintcolor[1] / 255, layer.tintcolor[2] / 255, layer.tintcolor[3] / 255)
     end
@@ -348,7 +352,7 @@ function operations.loadRuntimeObject(self, source, layer, depth, layer_type, ru
             obj:setParallax((obj.parallax_x or 1) * layer.parallaxx, (obj.parallax_y or 1) * layer.parallaxy)
             if not obj.object_id then obj.object_id = v.id end
             if not obj.unique_id then obj.unique_id = v.properties["uid"] end
-            obj.layer = depth
+            MapUtils.addLayerOffset(obj, depth)
             obj.alpha = (obj.alpha or 1) * (layer.opacity == nil and 1 or layer.opacity)
                 * (layer.tintcolor and (layer.tintcolor[4] or 255) / 255 or 1)
             obj.blend_mode = layer.blend_mode or layer.blendmode

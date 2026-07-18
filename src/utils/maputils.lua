@@ -1,6 +1,15 @@
 ---@class MapUtils
 local MapUtils = {}
 
+---@generic T : table
+---@param object T
+---@param offset number?
+---@return T object
+function MapUtils.addLayerOffset(object, offset)
+    object.layer = (object.layer or 0) + (tonumber(offset) or 0)
+    return object
+end
+
 ---@param point table?
 ---@return number x
 ---@return number y

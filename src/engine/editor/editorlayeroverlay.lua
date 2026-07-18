@@ -12,7 +12,7 @@ local EditorLayerOverlay = Class()
 function EditorLayerOverlay:init(layer, layer_type, depth)
     self.source_layer = layer
     self.layer_uid = layer._editor_uid
-    self.layer = depth or 0
+    MapUtils.addLayerOffset(self, depth)
     self.layer_type = layer_type
     self.color = Registry.layer_types:getLayerColor(layer, layer_type)
     self.visible = true

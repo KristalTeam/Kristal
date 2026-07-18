@@ -23,6 +23,9 @@
 ---@field pending_drag any
 ---@field rename_input EditorTextInput
 ---@field rename_node any
+---@field right_edit_item table?
+---@field right_edit_node table?
+---@field right_input EditorTextInput
 ---@field root table
 ---@field row_height number
 ---@field scroll_row number
@@ -102,6 +105,16 @@ function EditorTreeList:init(options)
         love.keyboard.setTextInput(false)
         if self.rename_node then self:finishRename(true, true) end
     end
+    self.right_input = self:addChild(EditorTextInput({
+        on_submit = function() return self:finishRightItemEdit(true) end,
+        on_cancel = function() self:finishRightItemEdit(false) end
+    }))
+    self.right_input.visible = false
+    self.right_input.onBlur = function(input)
+        input.focused = false
+        love.keyboard.setTextInput(false)
+        if self.right_edit_item then self:finishRightItemEdit(true, true) end
+    end
 end
 
 function EditorTreeList:newNode(node_type, name, options)
@@ -154,6 +167,7 @@ function EditorTreeList:createMap(parent, name, options)
 end
 
 function EditorTreeList:clear()
+    if self.right_edit_item then self:finishRightItemEdit(false) end
     self.root.children = {}
     self.selected_node = nil
     self.scroll_row = 0
@@ -252,6 +266,38 @@ function EditorTreeList:getRowY(index)
     return offset + (index - first) * self.row_height
 end
 
+function EditorTreeList:getRightItems(node)
+    return node.right_icons or (node.right_icon and {
+        { icon = node.right_icon, color = node.right_color, action = node.right_action }
+    }) or {}
+end
+
+function EditorTreeList:getRightItemWidth(item, font)
+    if item.text ~= nil then
+        return math.max(item.min_width or 0, font:getWidth(tostring(item.text)) + 10)
+    end
+    return self.row_height
+end
+
+function EditorTreeList:getRightItemsWidth(node, font)
+    local width = 0
+    for _, item in ipairs(self:getRightItems(node)) do
+        width = width + self:getRightItemWidth(item, font)
+    end
+    return width
+end
+
+function EditorTreeList:getRightItemBounds(node, target, font)
+    local right = self.width - self.scrollbar.width - 6
+    local items = self:getRightItems(node)
+    for index = #items, 1, -1 do
+        local item = items[index]
+        local width = self:getRightItemWidth(item, font)
+        if item == target then return right - width, width end
+        right = right - width
+    end
+end
+
 function EditorTreeList:selectNode(node)
     if node == self.root then node = nil end
     local changed = self.selected_node ~= node
@@ -290,6 +336,7 @@ function EditorTreeList:beginRename(node)
     if not node or node.renameable == false then return false end
     local index = node and self:getVisibleIndex(node)
     if not index then return false end
+    if self.right_edit_item and not self:finishRightItemEdit(true) then return false end
     self.rename_node = node
     self.rename_input:setValue(node.name, true)
     self.rename_input.cursor = #self.rename_input.value + 1
@@ -297,6 +344,47 @@ function EditorTreeList:beginRename(node)
     self:updateRenameBounds()
     self:requestFocus(self.rename_input)
     return true
+end
+
+function EditorTreeList:beginRightItemEdit(node, item)
+    if not node or not item or item.editable ~= true then return false end
+    if self.rename_node then self:finishRename(true) end
+    if self.right_edit_item and not self:finishRightItemEdit(true) then return false end
+    local value = type(item.edit_value) == "function" and item.edit_value(node, self)
+        or item.edit_value or item.text or ""
+    self.right_edit_node = node
+    self.right_edit_item = item
+    self.right_input:setValue(tostring(value), true)
+    self.right_input.cursor = #self.right_input.value + 1
+    self.right_input.visible = true
+    self:updateRightItemEditBounds()
+    self:requestFocus(self.right_input)
+    return true
+end
+
+function EditorTreeList:finishRightItemEdit(commit, from_blur)
+    local node, item = self.right_edit_node, self.right_edit_item
+    if not item then return false end
+    if commit and item.on_submit
+        and item.on_submit(self.right_input.value, node, self) == false and not from_blur then
+        return false
+    end
+    self.right_edit_node = nil
+    self.right_edit_item = nil
+    self.right_input.visible = false
+    if not from_blur then self:requestFocus(self) end
+    return true
+end
+
+function EditorTreeList:updateRightItemEditBounds()
+    if not self.right_edit_item then return end
+    local index = self:getVisibleIndex(self.right_edit_node)
+    if not index then return self:finishRightItemEdit(true) end
+    local x, width = self:getRightItemBounds(self.right_edit_node,
+        self.right_edit_item, EditorFont.get(16))
+    if not x then return self:finishRightItemEdit(false) end
+    self.right_input:setBounds(x + 1, self:getRowY(index) + 1,
+        math.max(20, width - 2), self.row_height - 2)
 end
 
 function EditorTreeList:finishRename(commit, from_blur)
@@ -321,9 +409,7 @@ function EditorTreeList:updateRenameBounds()
     if not index then return self:finishRename(true) end
     local entry = self.visible_nodes[index]
     local label_x = 8 + entry.depth * INDENT_WIDTH + 30
-    local right_count = self.rename_node.right_icons and #self.rename_node.right_icons
-        or self.rename_node.right_icon and 1 or 0
-    local right_space = right_count * self.row_height
+    local right_space = self:getRightItemsWidth(self.rename_node, EditorFont.get(16))
     self.rename_input:setBounds(label_x - 3, self:getRowY(index) + 1,
         math.max(20, self.width - self.scrollbar.width - label_x - right_space + 1), self.row_height - 2)
 end
@@ -421,19 +507,19 @@ function EditorTreeList:onMousePressed(x, y, button, presses)
         self:toggleFolder(node)
         return true
     end
-    local right_icons = node.right_icons or (node.right_icon and {
-        { icon = node.right_icon, color = node.right_color, action = node.right_action }
-    }) or {}
+    local right_icons = self:getRightItems(node)
+    local font = EditorFont.get(16)
     local icon_right = self.width - self.scrollbar.width - 6
     for index = #right_icons, 1, -1 do
         local item = right_icons[index]
-        local texture = item.icon and Assets.getTexture(item.icon)
-        local icon_width = texture and texture:getWidth() * self.icon_scale or self.row_height
-        if x >= icon_right - icon_width and x <= icon_right then
+        local item_width = self:getRightItemWidth(item, font)
+        if x >= icon_right - item_width and x <= icon_right then
+            if item.editable then return self:beginRightItemEdit(node, item) end
             if item.action then item.action(node, self) end
-            return item.action ~= nil
+            if item.action then return true end
+            break
         end
-        icon_right = icon_right - self.row_height
+        icon_right = icon_right - item_width
     end
     if presses and presses >= 2 then
         if isContainer(node) then
@@ -522,6 +608,7 @@ function EditorTreeList:update(dt)
     self.scrollbar:setBounds(self.width - self.scrollbar.width, 0, self.scrollbar.width, self.height)
     self:clampScroll()
     self:updateRenameBounds()
+    self:updateRightItemEditBounds()
     super.update(self, dt)
 end
 
@@ -574,30 +661,48 @@ function EditorTreeList:drawSelf()
 
         if node ~= self.rename_node then
             local label_x = 8 + entry.depth * INDENT_WIDTH + 30
+            local right_space = self:getRightItemsWidth(node, font)
+            local label_width = math.max(0,
+                self.width - self.scrollbar.width - 8 - right_space - label_x)
+            local badge_width = node.badge_text and font:getWidth(node.badge_text) + 4 or 0
+            local label = StringUtils.truncateToWidth(node.name, font,
+                math.max(0, label_width - badge_width))
             Draw.setColor(node.virtual and 0.62 or 0.88, node.virtual and 0.75 or 0.88,
                 node.virtual and 0.92 or 0.90, 1)
-            love.graphics.print(node.name, label_x, math.floor(y + (self.row_height - font:getHeight()) / 2))
+            love.graphics.print(label, label_x, math.floor(y + (self.row_height - font:getHeight()) / 2))
             if node.badge_text then
                 Draw.setColor(node.badge_color or { 1, 1, 1, 1 })
-                love.graphics.print(node.badge_text, label_x + font:getWidth(node.name) + 4,
+                love.graphics.print(node.badge_text, label_x + font:getWidth(label) + 4,
                     math.floor(y + (self.row_height - font:getHeight()) / 2))
             end
         end
-        local right_icons = node.right_icons or (node.right_icon and {
-            { icon = node.right_icon, color = node.right_color }
-        }) or {}
+        local right_icons = self:getRightItems(node)
         local icon_right = self.width - self.scrollbar.width - 6
         for icon_index = #right_icons, 1, -1 do
             local item = right_icons[icon_index]
+            local item_width = self:getRightItemWidth(item, font)
+            local item_left = icon_right - item_width
             local texture = item.icon and Assets.getTexture(item.icon)
             local scale = self.icon_scale
-            if texture then
-                local icon_x = icon_right - texture:getWidth() * scale
-                local icon_y = math.floor(y + (self.row_height - texture:getHeight() * scale) / 2)
-                Draw.setColor(item.color or { 0.82, 0.82, 0.85, 1 })
-                Draw.draw(texture, icon_x, icon_y, 0, scale, scale)
+            if node ~= self.right_edit_node or item ~= self.right_edit_item then
+                if item.text ~= nil then
+                    if item.background_color then
+                        Draw.setColor(item.background_color)
+                        love.graphics.rectangle("fill", item_left + 2, y + 4,
+                            math.max(0, item_width - 4), self.row_height - 8, 2, 2)
+                    end
+                    local text = tostring(item.text)
+                    Draw.setColor(item.color or { 0.82, 0.82, 0.85, 1 })
+                    love.graphics.print(text, math.floor(item_left + (item_width - font:getWidth(text)) / 2),
+                        math.floor(y + (self.row_height - font:getHeight()) / 2))
+                elseif texture then
+                    local icon_x = icon_right - texture:getWidth() * scale
+                    local icon_y = math.floor(y + (self.row_height - texture:getHeight() * scale) / 2)
+                    Draw.setColor(item.color or { 0.82, 0.82, 0.85, 1 })
+                    Draw.draw(texture, icon_x, icon_y, 0, scale, scale)
+                end
             end
-            icon_right = icon_right - self.row_height
+            icon_right = item_left
         end
     end
 end

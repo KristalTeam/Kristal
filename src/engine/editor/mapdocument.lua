@@ -199,6 +199,11 @@ function EditorMapDocument:getEditableLayers(id)
         local legacy = reader_class and reader_class.LEGACY_FORMAT
         local layers = legacy and convertLegacyLayerTree(data and data.layers or {})
             or TableUtils.copy(data and data.layers or {}, true)
+        local legacy_spawn_layer
+        if legacy then
+            local spawn_layer = TiledUtils.getSpawnLayer(TiledUtils.flattenLayers(layers, true))
+            legacy_spawn_layer = spawn_layer and (spawn_layer._tiled_source or spawn_layer)
+        end
         MapUtils.walkLayers(layers, function(layer)
             layer._editor_uid = self.next_layer_uid
             self.next_layer_uid = self.next_layer_uid + 1
@@ -224,6 +229,7 @@ function EditorMapDocument:getEditableLayers(id)
             end
             setupLayerProperties(layer)
         end)
+        if legacy then EditorFormat.assignLegacyLayerDepthOffsets(layers, legacy_spawn_layer) end
         MapUtils.walkObjects(layers, function(object)
             local object_id = tonumber(object.id)
             if object_id and object_id >= 1 and object_id % 1 == 0 then
@@ -365,6 +371,7 @@ function EditorMapDocument:createEditableLayer(type_id, id, parent_uid, options)
         visible = true,
         _editor_visible = true,
         _editor_locked = false,
+        _editor_depth_offset = tonumber(options.depth) or 0,
         opacity = 1,
         blend_mode = "normal",
         offsetx = 0,
@@ -1383,7 +1390,6 @@ function EditorMapDocument:createPreview(entry)
     local root = Object()
     local map = Map(root, data)
     map.id = entry.id
-    local depth = map.depth_per_layer
     local editor_events = {}
     local editor_overlays = {}
     local drawable_layers = {}
@@ -1397,7 +1403,7 @@ function EditorMapDocument:createPreview(entry)
         layer_lookup[layer._editor_uid] = layer
         layer_visibility[layer._editor_uid] = tree_entry.visible
         layer_parent[layer._editor_uid] = tree_entry.parent and tree_entry.parent._editor_uid or false
-        local layer_depth = layer._editor_depth_override or depth
+        local layer_depth = tonumber(layer._editor_depth_offset) or 0
         map.layers[layer.name] = layer_depth
         if layer._editor_kind_id == "group" then
             -- no-op
@@ -1437,9 +1443,6 @@ function EditorMapDocument:createPreview(entry)
             elseif layer_type then
                 table.insert(editor_overlays, EditorLayerOverlay(layer, layer_type, layer_depth))
             end
-        end
-        if layer._editor_kind_id ~= "group" and not layer.properties.thin then
-            depth = depth + map.depth_per_layer
         end
     end
     root:updateChildList()
@@ -1508,7 +1511,8 @@ function EditorMapDocument:drawPreview(entry, outline_width)
         local layer_visible, alpha = layerState(uid)
         if child.visible and child.parent == preview.root and layer_visible then
             table.insert(drawables, {
-                layer = child.layer or 0, index = index, value = child, object = true, alpha = alpha
+                layer = child.layer or 0, index = index, sort_kind = 1,
+                value = child, object = true, alpha = alpha
             })
         end
     end
@@ -1516,7 +1520,11 @@ function EditorMapDocument:drawPreview(entry, outline_width)
     for index, event in ipairs(preview.editor_events or {}) do
         local layer_visible, alpha = layerState(event.layer_uid)
         if event.visible and layer_visible then
-            table.insert(drawables, { layer = event.layer or 0, index = offset + index, value = event, alpha = alpha })
+            local _, sort_y = event:getSortPosition()
+            table.insert(drawables, {
+                layer = event.layer or 0, index = offset + index, sort_kind = 2,
+                sort_y = sort_y, value = event, alpha = alpha
+            })
         end
     end
     offset = offset + #(preview.editor_events or {})
@@ -1524,12 +1532,24 @@ function EditorMapDocument:drawPreview(entry, outline_width)
         local layer_visible, alpha = layerState(overlay.layer_uid)
         if overlay.visible and layer_visible then
             table.insert(drawables, {
-                layer = overlay.layer or 0, index = offset + index, value = overlay, alpha = alpha
+                layer = overlay.layer or 0, index = offset + index, sort_kind = 3,
+                value = overlay, alpha = alpha
             })
         end
     end
     table.sort(drawables, function(a, b)
-        if a.layer == b.layer then return a.index < b.index end
+        if a.layer == b.layer then
+            if a.sort_kind ~= b.sort_kind then return a.sort_kind < b.sort_kind end
+            if a.sort_kind == 1 then
+                local a_id = a.value.map_layer_sort_id or ""
+                local b_id = b.value.map_layer_sort_id or ""
+                if a_id ~= b_id then return a_id < b_id end
+            end
+            if a.sort_y ~= nil and b.sort_y ~= nil and math.floor(a.sort_y) ~= math.floor(b.sort_y) then
+                return math.floor(a.sort_y) < math.floor(b.sort_y)
+            end
+            return a.index < b.index
+        end
         return a.layer < b.layer
     end)
     for _, drawable in ipairs(drawables) do
