@@ -134,14 +134,13 @@ function love.load(args)
             window_width = window_width + border_width
             window_height = window_height + border_height
         end
-
+        local fullscreen = Kristal.Config["fullscreen"] -- Move fullscreen as its own variable
         local properties = {
-            fullscreen = Kristal.Config["fullscreen"],
             vsync = Kristal.Config["vSync"],
         }
 
         if Kristal.isForcedFullscreen() then
-            properties.fullscreen = true
+            fullscreen = true
         end
 
         local major, _, _, _ = love.getVersion()
@@ -155,15 +154,10 @@ function love.load(args)
         love.window.updateMode(
             love.window.fromPixels(window_width),
             love.window.fromPixels(window_height),
-            {fullscreen = false}
-        )
-
-        -- Set actual properties
-        love.window.updateMode(
-            love.window.fromPixels(window_width),
-            love.window.fromPixels(window_height),
             properties
         )
+        
+        love.window.setFullscreen(fullscreen)
     end
 
     -- toggle vsync
