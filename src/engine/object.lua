@@ -95,6 +95,8 @@
 --- \
 --- All children of an object will draw at the same visual layer as the parent. In other words, a child cannot render above an object that is higher than its parent, even if its own layer is higher.
 ---@field layer number
+---@field map_layer boolean? Whether this object is a map drawable that sorts before map objects at the same layer.
+---@field map_layer_sort_id string? Stable identity used to order equal-depth map drawables independently of editor layer order.
 ---
 ---@field collider Collider? A Collider class used to check collision with other objects.
 ---@field collidable boolean Whether the object should be able to collide with other objects.

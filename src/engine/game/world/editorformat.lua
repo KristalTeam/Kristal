@@ -742,7 +742,7 @@ decodeLayer = function(source, context)
     if not layer then return nil, reason end
     layer._editor_type_id = semantic_type
     layer._editor_kind_id = kind
-    layer._editor_depth_override = layer.depth
+    layer._editor_depth_offset = tonumber(layer.depth) or 0
     layer._editor_visible = layer.visible ~= false
     layer._editor_locked = layer.locked == true
     layer.offsetx = layer.x or 0
@@ -798,7 +798,7 @@ encodeLayer = function(source, context)
         "draworder", "imagewidth", "imageheight", "transparentcolor", "tintcolor", "blendmode",
         "width", "height",
         "data", "encoding",
-        "_editor_uid", "_editor_visible", "_editor_locked", "_editor_depth_override",
+        "_editor_uid", "_editor_visible", "_editor_locked", "_editor_depth_offset",
         "_editor_type_id", "_editor_kind_id"
     })
     result.type = source._editor_type_id or source.type or "default"
@@ -810,7 +810,7 @@ encodeLayer = function(source, context)
     result.id = EditorFormat.uniqueSlug(source.name or source.id, context.layer_ids, "layer")
     result.x = source.x or source.offsetx
     result.y = source.y or source.offsety
-    result.depth = source._editor_depth_override or source.depth
+    result.depth = tonumber(source._editor_depth_offset) or tonumber(source.depth) or 0
     result.alpha = source.alpha or source.opacity
     result.visible = source._editor_visible == nil and source.visible or source._editor_visible
     result.locked = (source._editor_locked == nil and source.locked or source._editor_locked) and true or nil
@@ -1209,6 +1209,58 @@ local function checkVersion(data, label, current_version)
         return nil, string.format("No migration is registered for %s format version %s", label:lower(), version)
     end
     return data
+end
+
+---@param source_layers table[]
+---@param anchor_layer? table
+function EditorFormat.assignLegacyLayerDepthOffsets(source_layers, anchor_layer)
+    local depth = 0.1
+    local layers = {}
+    local object_anchor, player_anchor, requested_anchor
+    MapUtils.walkLayers(source_layers, function(layer)
+        local thin = layer.properties and layer.properties.thin
+        if type(layer.properties) == "table" and type(layer.properties[1]) == "table" then
+            for index = #layer.properties, 1, -1 do
+                local property = layer.properties[index]
+                if property.name == "thin" then
+                    thin = property.value
+                    table.remove(layer.properties, index)
+                end
+            end
+        elseif layer.properties then
+            layer.properties.thin = nil
+        end
+        local kind = layer._editor_kind_id or layer.kind
+        if kind ~= "group" and layer.type ~= "group" then
+            local entry = {
+                layer = layer,
+                kind = kind,
+                automatic_depth = depth,
+                explicit_depth = tonumber(layer.depth)
+            }
+            table.insert(layers, entry)
+            if layer == anchor_layer then requested_anchor = depth end
+            local type_id = layer._editor_type_id or layer.type
+            if kind == "object" and type_id == "objects" then
+                object_anchor = depth
+                for _, object in ipairs(layer.objects or {}) do
+                    if object.type == "player" then player_anchor = depth end
+                end
+            end
+            if not thin then depth = depth + 0.1 end
+        end
+    end)
+    local anchor = requested_anchor or player_anchor or object_anchor or 0
+    for _, entry in ipairs(layers) do
+        if entry.explicit_depth ~= nil then
+            entry.layer.depth = entry.explicit_depth
+        elseif entry.kind == "tile" or entry.kind == "image" then
+            entry.layer.depth = MathUtils.round((entry.automatic_depth - anchor) * 1000) / 1000
+        else
+            entry.layer.depth = 0
+        end
+        entry.layer._editor_depth_offset = entry.layer.depth
+    end
 end
 
 function EditorFormat.migrateMap(data)

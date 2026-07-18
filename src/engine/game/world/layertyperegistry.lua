@@ -203,6 +203,11 @@ end
 ---@param layer_type table|string?
 ---@return string
 function LayerTypeRegistry:getLayerIcon(layer, layer_type)
+    local icon = layer and layer.properties and layer.properties.icon
+    if type(icon) == "string" and icon ~= "" then
+        local texture, resolved = Assets.resolveTextureReference(icon)
+        if texture then return resolved end
+    end
     layer_type = type(layer_type) == "table" and layer_type
         or self:get(layer_type or (layer and (layer._editor_type_id or layer.type)))
     if layer_type and layer_type.id == "objects" then
@@ -214,7 +219,13 @@ function LayerTypeRegistry:getLayerIcon(layer, layer_type)
 end
 
 function LayerTypeRegistry:initializeLayerProperties(layer, properties)
-    properties:registerProperty("thin", "boolean")
+    properties:registerProperty("icon", "asset_path", {
+        name = "Icon Path",
+        asset_registry = { "texture" },
+        path_root = "assets/sprites",
+        strip_extension = true,
+        placeholder = "Sprite asset ID or path"
+    })
     local kind = self:getKind(self:getLayerKind(layer))
     if kind and kind.properties then kind.properties(properties, layer, kind) end
     local layer_type = self:get(layer._editor_type_id or layer.type)

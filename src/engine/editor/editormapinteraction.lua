@@ -224,7 +224,7 @@ function EditorMapInteraction:getMapObjectPropertiesTarget(selection)
     local event_id = selection.document:getEditorObjectType(data, selection.map_id)
     local layer_type = Registry.getLayerType(selection.layer._editor_type_id)
     local editor_event = Registry.createEditorEvent(event_id, data, {
-        depth = selection.layer._editor_depth_override or 0,
+        depth = tonumber(selection.layer._editor_depth_offset) or 0,
         layer_uid = selection.layer._editor_uid,
         layer = selection.layer,
         layer_type = layer_type,

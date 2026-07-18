@@ -67,7 +67,7 @@ function EditorEvent:init(data, options)
     self:registerProperty("flagcheck", "string", { name = "Load Flag" })
     self:registerProperty("flagvalue", "value", { name = "Load Flag Value" })
     self.id = options.event_id
-    self.layer = options.depth or 0
+    MapUtils.addLayerOffset(self, options.depth)
     self.layer_uid = options.layer_uid
     self.layer_type = options.layer_type
     self.layer_color = options.layer_color or { 1, 1, 1, 1 }
@@ -117,6 +117,11 @@ function EditorEvent:getBoundsSize()
         return self.width * math.abs(self.scale_x), self.height * math.abs(self.scale_y)
     end
     return self.width, self.height
+end
+
+function EditorEvent:getSortPosition()
+    local width, height = self:getBoundsSize()
+    return self.x + width / 2, self.y + height
 end
 
 function EditorEvent:getPreviewSprite(sprite)

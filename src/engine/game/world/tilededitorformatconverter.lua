@@ -276,6 +276,7 @@ function TiledEditorFormatConverter.convertMap(data, options)
             Registry.createEditorEvent(object.type, object, { map_id = converted.id })
         end)
     end
+    EditorFormat.assignLegacyLayerDepthOffsets(converted.layers)
     return EditorFormat.migrateMap(converted)
 end
 

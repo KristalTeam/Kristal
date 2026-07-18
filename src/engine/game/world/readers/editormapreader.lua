@@ -42,14 +42,14 @@ end
 
 function EditorMapReader:read(data)
     local map = self.map
-    local depth = map.depth_per_layer
     local object_depths, tile_depths = {}, {}
-    local spawn_depth, battle_border_depth
+    local spawn_depth, battle_border_depth, maximum_depth
     MapUtils.walkLayers(data.layers, function(layer)
         if Registry.layer_types:getLayerKind(layer) == "group" then
             return layer.visible ~= false
         elseif layer.visible ~= false then
-            local layer_depth = layer._editor_depth_override or depth
+            local layer_depth = tonumber(layer._editor_depth_offset) or 0
+            maximum_depth = maximum_depth and math.max(maximum_depth, layer_depth) or layer_depth
             local type_id = layer._editor_type_id or layer.type
             local kind = Registry.layer_types:getLayerKind(layer)
             map.layers[layer.name] = layer_depth
@@ -73,19 +73,19 @@ function EditorMapReader:read(data)
             if not Kristal.callEvent(KRISTAL_EVENT.loadLayer, map, layer, layer_depth) then
                 map:loadLayer(layer, layer_depth)
             end
-            if not (layer.properties and layer.properties.thin) then depth = depth + map.depth_per_layer end
         end
     end)
 
     map.object_layer = spawn_depth
     map.object_layer = map.object_layer or object_depths[#object_depths] or 1
 
-    map.tile_layer = 0
+    local tile_layer
     for _, tile_depth in ipairs(tile_depths) do
-        if tile_depth < map.object_layer and tile_depth > map.tile_layer then
-            map.tile_layer = tile_depth
+        if tile_depth < map.object_layer and (tile_layer == nil or tile_depth > tile_layer) then
+            tile_layer = tile_depth
         end
     end
+    map.tile_layer = tile_layer or 0
     map.battle_fader_layer = battle_border_depth
         and (battle_border_depth - map.depth_per_layer / 2)
         or (map.object_layer - map.depth_per_layer / 2)
@@ -109,7 +109,7 @@ function EditorMapReader:read(data)
             object:addFX(fx, id_or_reason)
         end
     end
-    map.next_layer = depth
+    map.next_layer = (maximum_depth or 0) + map.depth_per_layer
     return true
 end
 
