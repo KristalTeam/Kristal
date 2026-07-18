@@ -1,4 +1,8 @@
 ---@class EditorFileTypeRegistry : Class
+---@field extensions table
+---@field names table
+---@field type_order table
+---@field types table
 ---@overload fun(): EditorFileTypeRegistry
 local EditorFileTypeRegistry = Class()
 

@@ -1,4 +1,10 @@
 ---@class EditorPropertySet : Class
+---@field definitions table
+---@field group_order table
+---@field groups table
+---@field order table
+---@field types table
+---@field values any
 ---@overload fun(values?: table, types?: table): EditorPropertySet
 local EditorPropertySet = Class()
 

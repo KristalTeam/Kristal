@@ -1,4 +1,5 @@
 ---@class EditorSourceDocumentProvider : EditorDocumentProvider
+---@field viewer EditorSourceViewer
 ---@overload fun(editor: Editor, viewer: EditorSourceViewer): EditorSourceDocumentProvider
 local EditorSourceDocumentProvider, super = Class(EditorDocumentProvider)
 

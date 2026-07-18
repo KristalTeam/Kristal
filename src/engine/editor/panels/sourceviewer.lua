@@ -1,4 +1,12 @@
 ---@class EditorSourceViewer : EditorControl
+---@field active_document EditorFileDocument|EditorImageDocument|nil
+---@field clip boolean
+---@field documents table
+---@field editor Editor
+---@field image_preview EditorImagePreview
+---@field input EditorSourceInput
+---@field tab_rects table
+---@field workspace EditorProjectWorkspace
 ---@overload fun(editor: Editor, workspace: EditorProjectWorkspace): EditorSourceViewer
 local EditorSourceViewer, super = Class(EditorControl)
 

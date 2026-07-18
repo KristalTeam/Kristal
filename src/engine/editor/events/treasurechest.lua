@@ -1,3 +1,5 @@
+---@class EditorTreasureChest : EditorEvent
+---@overload fun(data?: table, options?: table): EditorTreasureChest
 local EditorTreasureChest, super = Class(EditorEvent)
 EditorTreasureChest.editor_sprite = "world/events/treasure_chest"
 EditorTreasureChest.scaling_mode = "scale"

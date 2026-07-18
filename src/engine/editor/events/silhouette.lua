@@ -1,3 +1,5 @@
+---@class EditorSilhouette : EditorEvent
+---@overload fun(data?: table, options?: table): EditorSilhouette
 local EditorSilhouette, super = Class(EditorEvent)
 EditorSilhouette.placement_shape = "region"
 function EditorSilhouette:init(data, options)

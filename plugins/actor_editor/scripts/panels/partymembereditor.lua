@@ -1,4 +1,38 @@
 local DataModel = ...
+---@class PartyMemberEditor : EditorControl
+---@overload fun(editor: Editor, plugin: ActorEditorPlugin): PartyMemberEditor
+---@field actor_buttons table
+---@field actor_open_buttons table
+---@field add_chapter_button EditorButton
+---@field base_fields table
+---@field chapter_fields table
+---@field chapter_list EditorItemList
+---@field clip boolean
+---@field editor Editor
+---@field entries table
+---@field entry_lookup table
+---@field field_rows table
+---@field focusable boolean
+---@field has_act EditorCheckbox
+---@field has_spells EditorCheckbox
+---@field has_xact EditorCheckbox
+---@field last_dirty_warning any
+---@field member_list EditorItemList
+---@field mode string
+---@field mode_buttons table
+---@field mode_controls table
+---@field model any
+---@field models table
+---@field plugin EditorPlugin
+---@field refresh_button EditorButton
+---@field save_button EditorButton
+---@field saved_signatures table
+---@field search EditorSearchBar
+---@field selected_chapter any
+---@field selected_id any
+---@field soul_color EditorColorInput
+---@field visual_colors table
+---@field visual_fields table
 local PartyMemberEditor, super = Class(EditorControl)
 
 local MODES = {

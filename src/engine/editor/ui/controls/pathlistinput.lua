@@ -1,4 +1,17 @@
 ---@class EditorPathListInput : EditorControl
+---@field add_button EditorButton
+---@field clip boolean
+---@field editor Editor
+---@field maximum_visible_rows table
+---@field on_changed function?
+---@field on_request_focus function?
+---@field options table
+---@field preferred_height number
+---@field row_height number
+---@field rows table
+---@field scroll_row number
+---@field scrollbar EditorScrollbar
+---@field value string[]
 ---@overload fun(editor: Editor, value?: table|string, options?: table): EditorPathListInput
 local EditorPathListInput, super = Class(EditorControl)
 

@@ -1,4 +1,14 @@
 ---@class EditorMenuBar : Class
+---@field button_rects table
+---@field editor Editor
+---@field height number
+---@field item_rects table
+---@field items table
+---@field open_menu any
+---@field providers table
+---@field y number
+---@field width number
+---@field x number
 ---@overload fun(editor: table): EditorMenuBar
 local EditorMenuBar = Class()
 

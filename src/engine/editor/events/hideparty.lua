@@ -1,3 +1,5 @@
+---@class EditorHideParty : EditorEvent
+---@overload fun(data?: table, options?: table): EditorHideParty
 local EditorHideParty, super = Class(EditorEvent)
 EditorHideParty.placement_shape = "region"
 function EditorHideParty:init(data, options)

@@ -1,4 +1,10 @@
 ---@class EditorHistory : Class
+---@field commands table
+---@field editor Editor
+---@field index number
+---@field limit number
+---@field serial number
+---@field transaction table?
 ---@overload fun(editor: table): EditorHistory
 local EditorHistory = Class()
 

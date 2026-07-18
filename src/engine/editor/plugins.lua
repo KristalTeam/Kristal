@@ -1,4 +1,14 @@
 ---@class EditorPlugins
+---@field directory string
+---@field debug_directory string
+---@field plugins table<string, EditorPlugin>
+---@field plugin_order EditorPlugin[]
+---@field panel_definitions table[]
+---@field menu_definitions table[]
+---@field command_definitions table[]
+---@field file_context_providers table[]
+---@field event_initializers table[]
+---@field editor Editor?
 local EditorPlugins = {
     directory = "editor/plugins",
     debug_directory = "plugins",
@@ -7,6 +17,7 @@ local EditorPlugins = {
     panel_definitions = {},
     menu_definitions = {},
     command_definitions = {},
+    file_context_providers = {},
     event_initializers = {},
     editor = nil
 }
@@ -108,6 +119,21 @@ function EditorPlugin:registerFileType(id, definition)
         end
     end)
     return registered
+end
+
+function EditorPlugin:registerFileContextProvider(id, provider)
+    assert(type(id) == "string" and id ~= "", "Plugin file context providers require an id")
+    assert(type(provider) == "function", "Plugin file context providers require a callback")
+    local definition = {
+        plugin = self,
+        id = namespaced(self, "file_context", id),
+        provider = provider
+    }
+    table.insert(EditorPlugins.file_context_providers, definition)
+    self:trackRegistration(function()
+        TableUtils.removeValue(EditorPlugins.file_context_providers, definition)
+    end)
+    return definition
 end
 
 function EditorPlugin:registerFormatExtension(scope, id, definition)
@@ -397,7 +423,30 @@ function EditorPlugins:reset()
     self.panel_definitions = {}
     self.menu_definitions = {}
     self.command_definitions = {}
+    self.file_context_providers = {}
     self.event_initializers = {}
+end
+
+function EditorPlugins:getFileContextMenuItems(data, context)
+    local items = {}
+    for _, definition in ipairs(self.file_context_providers) do
+        if not definition.plugin.disabled then
+            local success, provided = xpcall(function()
+                return definition.provider(data, context)
+            end, ErrorUtils.traceback)
+            if not success then
+                self:report(self.editor,
+                    "Could not build file context menu from plugin: " .. definition.plugin.id, provided)
+            elseif type(provided) == "table" and provided.label then
+                table.insert(items, provided)
+            elseif type(provided) == "table" then
+                for _, item in ipairs(provided) do
+                    if type(item) == "table" and item.label then table.insert(items, item) end
+                end
+            end
+        end
+    end
+    return items
 end
 
 function EditorPlugins:initializeEditorEvent(event)

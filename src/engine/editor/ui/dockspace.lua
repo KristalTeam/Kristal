@@ -1,4 +1,33 @@
 ---@class EditorDockSpace : Class
+---@field captured_control any
+---@field context_menu any
+---@field dock_preview any
+---@field drag_offset_x number
+---@field drag_offset_y number
+---@field drag_source_stack any
+---@field dragging_panel any
+---@field editor Editor
+---@field floating table
+---@field floating_resize number?
+---@field focused_control any
+---@field height number
+---@field minimum_center_height number
+---@field minimum_center_width number
+---@field panel_order table
+---@field panels table
+---@field pending_drag any
+---@field region_stacks table
+---@field sizes table
+---@field splitter_drag any
+---@field splitters table
+---@field stack_serial number
+---@field stack_splitter_drag any
+---@field stack_splitters table
+---@field stacks table
+---@field theme table
+---@field y number
+---@field width number
+---@field x number
 ---@overload fun(editor: Editor): EditorDockSpace
 local EditorDockSpace = Class()
 

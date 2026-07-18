@@ -1,4 +1,9 @@
 ---@class EditorSettingsRegistry : Class
+---@field editor Editor
+---@field page_order table
+---@field pages table
+---@field settings table
+---@field stored_values table
 ---@overload fun(editor: table, stored_values?: table): EditorSettingsRegistry
 local EditorSettingsRegistry = Class()
 

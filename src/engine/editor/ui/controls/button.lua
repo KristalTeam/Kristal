@@ -1,4 +1,10 @@
 ---@class EditorButton : EditorControl
+---@field cursor_type string
+---@field focusable boolean
+---@field focused boolean
+---@field label string?
+---@field on_pressed function?
+---@field pressed boolean
 ---@overload fun(label?: string, on_pressed?: function): EditorButton
 local EditorButton, super = Class(EditorControl)
 

@@ -1,7 +1,17 @@
 ---@class EditorColorInput : EditorControl
+---@field editor Editor
+---@field on_submit function?
+---@field value string
+---@field swatch ColorSwatchButton
+---@field input EditorTextInput
+---@field inputs EditorTextInput[]
+---@field preferred_height number
 ---@overload fun(editor: Editor, value?: string|table, options?: table): EditorColorInput
 local EditorColorInput, super = Class(EditorControl)
 
+---@class ColorSwatchButton : EditorButton
+---@field get_color function?
+---@overload fun(on_pressed?: function, get_color?: function): ColorSwatchButton
 local ColorSwatchButton, button_super = Class(EditorButton)
 
 local function colorValue(value)

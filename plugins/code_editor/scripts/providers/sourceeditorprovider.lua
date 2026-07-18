@@ -1,4 +1,8 @@
 ---@class CodeEditorDocumentProvider : EditorDocumentProvider
+---@overload fun(plugin: CodeEditorPlugin, editor: Editor, panel: EditorPanel, document_class: table): CodeEditorDocumentProvider
+---@field document_class any
+---@field panel any
+---@field plugin EditorPlugin
 local CodeEditorDocumentProvider, super = Class(EditorDocumentProvider)
 
 function CodeEditorDocumentProvider:init(plugin, editor, panel, document_class)

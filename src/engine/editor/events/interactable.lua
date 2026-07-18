@@ -1,3 +1,5 @@
+---@class EditorInteractable : EditorEvent
+---@overload fun(data?: table, options?: table): EditorInteractable
 local EditorInteractable, super = Class(EditorEvent)
 
 EditorInteractable.editor_sprite = "editor/interactable"

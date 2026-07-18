@@ -1,4 +1,11 @@
 ---@class EditorCodeHoverPopup : EditorControl
+---@field clip boolean
+---@field documentation_lines table
+---@field documentation_rect any
+---@field documentation_scroll number
+---@field signature_lines table
+---@field signature_rect any
+---@field visible boolean
 ---@overload fun(): EditorCodeHoverPopup
 local EditorCodeHoverPopup, super = Class(EditorControl)
 

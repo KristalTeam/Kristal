@@ -1,4 +1,14 @@
 ---@class EditorControl : Class
+---@field children EditorControl[]
+---@field clip boolean
+---@field enabled boolean
+---@field focusable boolean
+---@field height number
+---@field parent EditorControl?
+---@field visible boolean
+---@field width number
+---@field x number
+---@field y number
 ---@overload fun(x?: number, y?: number, width?: number, height?: number): EditorControl
 local EditorControl = Class()
 

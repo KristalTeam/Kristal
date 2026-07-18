@@ -1,4 +1,8 @@
 ---@class EditorCursor : Class
+---@field custom_cursors table
+---@field custom_enabled boolean
+---@field system_cursors table
+---@field type string?
 ---@overload fun(): EditorCursor
 local EditorCursor = Class()
 

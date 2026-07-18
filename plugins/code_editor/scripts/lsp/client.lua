@@ -1,4 +1,8 @@
 ---@class EditorLSPClient : Class
+---@field handlers function?
+---@field next_id number
+---@field pending table
+---@field sender function?
 ---@overload fun(sender: function, handlers?: table): EditorLSPClient
 local EditorLSPClient = Class()
 

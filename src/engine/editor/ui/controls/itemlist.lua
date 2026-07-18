@@ -1,4 +1,26 @@
 ---@class EditorItemList : EditorControl
+---@field clip boolean
+---@field dragging_item any
+---@field filter string
+---@field filtered_items table
+---@field focusable boolean
+---@field focused boolean
+---@field items table
+---@field on_activate function?
+---@field on_context_menu function?
+---@field on_drag_end function?
+---@field on_drag_move function?
+---@field on_drag_start function?
+---@field on_rename function?
+---@field on_request_focus function?
+---@field on_select function?
+---@field pending_drag any
+---@field rename_input EditorTextInput
+---@field rename_item any
+---@field row_height number
+---@field scroll_row number
+---@field scrollbar EditorScrollbar
+---@field selected_index number?
 ---@overload fun(options?: table): EditorItemList
 local EditorItemList, super = Class(EditorControl)
 

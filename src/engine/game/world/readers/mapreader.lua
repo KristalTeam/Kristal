@@ -15,6 +15,7 @@ function operations.loadTiles(self, layer, depth)
     local tilelayer = self:createTileLayer(layer)
     tilelayer:setPosition(layer.offsetx or 0, layer.offsety or 0)
     tilelayer.layer = depth
+    tilelayer.blend_mode = layer.blend_mode or layer.blendmode
     self.world:addChild(tilelayer)
     table.insert(self.tile_layers, tilelayer)
     if self:isLayerType(layer, "battleborder") then
@@ -87,7 +88,9 @@ function operations.loadImage(self, layer, depth)
     end
     local sprite = Sprite(texture_result, layer.offsetx, layer.offsety)
     sprite:setParallax(layer.parallaxx, layer.parallaxy)
-    sprite.alpha = layer.opacity
+    sprite.alpha = (layer.opacity == nil and 1 or layer.opacity)
+        * (layer.tintcolor and (layer.tintcolor[4] or 255) / 255 or 1)
+    sprite.blend_mode = layer.blend_mode or layer.blendmode
     sprite.layer = depth
     if layer.tintcolor then
         sprite:setColor(layer.tintcolor[1] / 255, layer.tintcolor[2] / 255, layer.tintcolor[3] / 255)
@@ -336,6 +339,16 @@ function operations.loadObjects(self, layer, depth, layer_type)
                         obj.unique_id = v.properties["uid"]
                     end
                     obj.layer = depth
+                    obj.alpha = (obj.alpha or 1) * (layer.opacity == nil and 1 or layer.opacity)
+                        * (layer.tintcolor and (layer.tintcolor[4] or 255) / 255 or 1)
+                    obj.blend_mode = layer.blend_mode or layer.blendmode
+                    if layer.tintcolor then
+                        local red = (layer.tintcolor[1] or 255) / 255
+                        local green = (layer.tintcolor[2] or 255) / 255
+                        local blue = (layer.tintcolor[3] or 255) / 255
+                        obj:setColor((obj.color[1] or 1) * red, (obj.color[2] or 1) * green,
+                            (obj.color[3] or 1) * blue)
+                    end
                     obj.layer_name = layer.name
                     obj.data = v
 

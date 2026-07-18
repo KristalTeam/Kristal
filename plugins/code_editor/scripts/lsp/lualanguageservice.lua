@@ -1,4 +1,23 @@
 ---@class LuaLanguageService : Class
+---@field channel_prefix string
+---@field client EditorLSPClient
+---@field editor Editor
+---@field enabled boolean
+---@field executable string?
+---@field input love.Channel
+---@field last_error string?
+---@field last_log string?
+---@field library_roots table
+---@field open_documents table
+---@field output love.Channel
+---@field plugin EditorPlugin
+---@field position_encoding string
+---@field server_capabilities table
+---@field shutting_down boolean
+---@field status string?
+---@field stderr string
+---@field thread love.Thread?
+---@field workspace EditorProjectWorkspace
 ---@overload fun(editor: Editor, workspace: EditorProjectWorkspace): LuaLanguageService
 local LuaLanguageService = Class()
 local EditorLSPClient, plugin = ...

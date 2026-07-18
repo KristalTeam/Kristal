@@ -1,4 +1,26 @@
 ---@class EditorEvent : Class
+---@field data table
+---@field height number
+---@field id string?
+---@field layer number
+---@field layer_color number[]
+---@field layer_tint number[]
+---@field layer_type table?
+---@field layer_uid string?
+---@field map_id string?
+---@field properties table
+---@field property_set EditorPropertySet
+---@field property_types table
+---@field rotation number
+---@field scale_x number
+---@field scale_y number
+---@field sprite string?
+---@field editor_sprite string?
+---@field sprite_property string?
+---@field visible boolean
+---@field width number
+---@field x number
+---@field y number
 ---@field placement_shape "rectangle"|"point"|"region"
 ---@field scaling_mode "resize"|"scale"
 ---@overload fun(data?: table, options?: table): EditorEvent
@@ -41,6 +63,13 @@ function EditorEvent:init(data, options)
     self.layer_uid = options.layer_uid
     self.layer_type = options.layer_type
     self.layer_color = options.layer_color or { 1, 1, 1, 1 }
+    self.layer_tint = options.layer_tint or { 1, 1, 1, 1 }
+    if math.max(self.layer_tint[1] or 0, self.layer_tint[2] or 0,
+        self.layer_tint[3] or 0, self.layer_tint[4] or 0) > 1 then
+        self.layer_tint = { (self.layer_tint[1] or 255) / 255,
+            (self.layer_tint[2] or 255) / 255, (self.layer_tint[3] or 255) / 255,
+            (self.layer_tint[4] or 255) / 255 }
+    end
     self.x = (data.x or 0) + (options.offset_x or 0)
     self.y = (data.y or 0) + (options.offset_y or 0)
     self.width = data.width or 0
@@ -124,7 +153,8 @@ function EditorEvent:draw(alpha)
         local color = self.layer_color
         Draw.setColor(color[1] or 1, color[2] or 1, color[3] or 1, (color[4] or 1) * alpha)
     else
-        Draw.setColor(1, 1, 1, alpha)
+        local tint = self.layer_tint
+        Draw.setColor(tint[1] or 1, tint[2] or 1, tint[3] or 1, alpha)
     end
     local width, height = self:getBoundsSize()
     if marker then

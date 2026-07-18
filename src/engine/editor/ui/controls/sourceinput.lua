@@ -1,4 +1,20 @@
 ---@class EditorSourceInput : EditorControl
+---@field accepts_clipboard_input boolean
+---@field buffer EditorCodeBuffer?
+---@field clip boolean
+---@field cursor table
+---@field cursor_type string
+---@field document EditorFileDocument?
+---@field focusable boolean
+---@field focused boolean
+---@field highlighted_document EditorFileDocument?
+---@field lua_highlighter EditorLuaHighlighter
+---@field mouse_selecting boolean
+---@field padding_x number
+---@field padding_y number
+---@field scroll_x number
+---@field scroll_y number
+---@field selection_anchor {line: number, column: number}?
 ---@overload fun(options?: table): EditorSourceInput
 local EditorSourceInput, super = Class(EditorControl)
 

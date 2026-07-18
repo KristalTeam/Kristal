@@ -1,4 +1,10 @@
 ---@class EditorTilesetDocument : EditorDocument
+---@field data table
+---@field id string?
+---@field property_set EditorPropertySet
+---@field tile_documents table
+---@field tileset Tileset?
+---@field virtual boolean
 ---@overload fun(editor: table, id: string, tileset?: Tileset, data?: table): EditorTilesetDocument
 local EditorTilesetDocument, super = Class(EditorDocument)
 

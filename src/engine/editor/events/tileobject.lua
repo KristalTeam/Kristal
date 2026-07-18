@@ -1,4 +1,10 @@
 ---@class EditorTileObject : EditorEvent
+---@field flip_y boolean
+---@field flip_x boolean
+---@field height number
+---@field origin number[]
+---@field tile_id number?
+---@field tileset Tileset?
 ---@overload fun(data?: table, options?: table): EditorTileObject
 local EditorTileObject, super = Class(EditorEvent)
 

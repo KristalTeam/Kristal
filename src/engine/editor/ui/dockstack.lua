@@ -1,4 +1,19 @@
 ---@class EditorDockStack : Class
+---@field active_index number
+---@field height number
+---@field id string?
+---@field layout_weight number
+---@field panels table
+---@field region any
+---@field tab_rects table
+---@field tab_scroll number
+---@field tab_scroll_left_rect any
+---@field tab_scroll_right_rect any
+---@field tab_total_width number
+---@field tab_view_rect any
+---@field width number
+---@field x number
+---@field y number
 ---@overload fun(id: string): EditorDockStack
 local EditorDockStack = Class()
 

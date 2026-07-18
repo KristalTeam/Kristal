@@ -1,4 +1,56 @@
 local DataModel, ActorPreview = ...
+---@class ActorEditor : EditorControl
+---@overload fun(editor: Editor, plugin: ActorEditorPlugin): ActorEditor
+---@field DataModel any
+---@field actor_list EditorItemList
+---@field add_animation_button EditorButton
+---@field animation_delay EditorTextInput
+---@field animation_list EditorItemList
+---@field animation_loop EditorCheckbox
+---@field animation_sprite EditorTextInput
+---@field blush_toggle EditorCheckbox
+---@field clip boolean
+---@field color_input EditorColorInput
+---@field continuous_edit boolean
+---@field direction string
+---@field direction_button EditorButton
+---@field editor Editor
+---@field entries table
+---@field entry_lookup table
+---@field field_rows table
+---@field flip_button EditorButton
+---@field focusable boolean
+---@field general_fields table
+---@field hitbox_inputs table
+---@field last_dirty_warning any
+---@field miniface_path EditorPathInput
+---@field miniface_select EditorButton
+---@field miniface_x EditorTextInput
+---@field miniface_y EditorTextInput
+---@field mode string
+---@field mode_buttons table
+---@field mode_controls table
+---@field model any
+---@field models table
+---@field offset_x EditorTextInput
+---@field offset_y EditorTextInput
+---@field plugin EditorPlugin
+---@field portrait_path EditorPathInput
+---@field portrait_select EditorButton
+---@field portrait_target string
+---@field portrait_x EditorTextInput
+---@field portrait_y EditorTextInput
+---@field preview ActorPreview
+---@field reference_toggle EditorCheckbox
+---@field refresh_button EditorButton
+---@field save_button EditorButton
+---@field saved_signatures table
+---@field search EditorSearchBar
+---@field selected_animation any
+---@field selected_id any
+---@field show_reference boolean
+---@field soul_x EditorTextInput
+---@field soul_y EditorTextInput
 local ActorEditor, super = Class(EditorControl)
 
 local MODES = {

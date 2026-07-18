@@ -1,4 +1,9 @@
 ---@class EditorConsolePanel : EditorControl
+---@field editor Editor
+---@field history_index number
+---@field input EditorTextInput
+---@field scroll_row number
+---@field scrollbar EditorScrollbar
 ---@overload fun(editor: table): EditorConsolePanel
 local EditorConsolePanel, super = Class(EditorControl)
 

@@ -1,4 +1,40 @@
 ---@class EditorCodeInput : EditorControl
+---@field accepts_text_input boolean
+---@field block_guides table
+---@field buffer EditorCodeBuffer?
+---@field clip boolean
+---@field code_editor any
+---@field completion_defaults any
+---@field completion_due any
+---@field completion_generation number
+---@field completion_popup EditorCodeCompletionPopup
+---@field cursor table
+---@field cursor_type string
+---@field diagnostics table
+---@field document EditorFileDocument?
+---@field editor Editor
+---@field focusable boolean
+---@field focused boolean
+---@field font love.Font?
+---@field hover_candidate any
+---@field hover_elapsed number
+---@field hover_explicit boolean
+---@field hover_generation number
+---@field hover_mouse_x number?
+---@field hover_mouse_y number?
+---@field hover_popup EditorCodeHoverPopup
+---@field hover_requested any
+---@field language_service LuaLanguageService?
+---@field lua_highlighter EditorLuaHighlighter
+---@field mouse_selecting boolean
+---@field padding_x number
+---@field padding_y number
+---@field preferred_x number?
+---@field scroll_x number
+---@field scroll_y number
+---@field selection_anchor {line: number, column: number}?
+---@field syntax_cache_document EditorWritableFileDocument?
+---@field syntax_cache_version number?
 ---@overload fun(options?: table): EditorCodeInput
 local EditorCodeInput, super = Class(EditorControl)
 local EditorCodeCompletionPopup, EditorCodeHoverPopup = ...

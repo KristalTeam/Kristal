@@ -1,4 +1,12 @@
 ---@class EditorCodeCompletionPopup : EditorControl
+---@field clip boolean
+---@field enabled boolean
+---@field items table
+---@field maximum_rows number
+---@field row_height number
+---@field scroll number
+---@field selected number
+---@field visible boolean
 ---@overload fun(): EditorCodeCompletionPopup
 local EditorCodeCompletionPopup, super = Class(EditorControl)
 

@@ -1,3 +1,5 @@
+---@class EditorTransition : EditorEvent
+---@overload fun(data?: table, options?: table): EditorTransition
 local EditorTransition, super = Class(EditorEvent)
 
 EditorTransition.editor_sprite = "editor/transition"

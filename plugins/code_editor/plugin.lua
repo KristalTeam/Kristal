@@ -1,3 +1,9 @@
+---@class CodeEditorPlugin : EditorPlugin
+---@overload fun(info: table): CodeEditorPlugin
+---@field code_editor any
+---@field language_server_enabled boolean
+---@field language_server_path string
+---@field language_service LuaLanguageService?
 local CodeEditorPlugin, super = Class(EditorPlugin)
 
 function CodeEditorPlugin:init(info)

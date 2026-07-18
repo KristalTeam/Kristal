@@ -1,4 +1,12 @@
 ---@class EditorPropertyGroup : Class
+---@field id string?
+---@field indexed boolean
+---@field name string?
+---@field order table
+---@field owner any
+---@field primary any
+---@field properties table
+---@field registry any
 ---@overload fun(id: string, options?: table, owner?: EditorPropertySet): EditorPropertyGroup
 local EditorPropertyGroup = Class()
 

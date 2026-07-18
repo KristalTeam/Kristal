@@ -1,3 +1,5 @@
+---@class EditorSetFlagEvent : EditorEvent
+---@overload fun(data?: table, options?: table): EditorSetFlagEvent
 local EditorSetFlagEvent, super = Class(EditorEvent)
 EditorSetFlagEvent.placement_shape = "region"
 function EditorSetFlagEvent:init(data, options)

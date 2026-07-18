@@ -1,4 +1,27 @@
 ---@class EditorTextInput : EditorControl
+---@field accepts_text_input boolean
+---@field clip boolean
+---@field cursor number
+---@field cursor_type string
+---@field editor Editor?
+---@field focusable boolean
+---@field focused boolean
+---@field font love.Font?
+---@field mouse_selecting boolean
+---@field multiline boolean
+---@field on_cancel function?
+---@field on_changed function?
+---@field on_submit function?
+---@field padding number
+---@field pending_submit boolean
+---@field placeholder string?
+---@field preferred_x number?
+---@field scroll_x number
+---@field scroll_y number
+---@field selection_anchor number?
+---@field submit_feedback boolean
+---@field submitted_value string
+---@field value string
 ---@overload fun(options?: table): EditorTextInput
 local EditorTextInput, super = Class(EditorControl)
 

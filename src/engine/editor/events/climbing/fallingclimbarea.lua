@@ -1,3 +1,5 @@
+---@class EditorFallingClimbArea : EditorEvent
+---@overload fun(data?: table, options?: table): EditorFallingClimbArea
 local EditorFallingClimbArea, super = Class(EditorEvent)
 EditorFallingClimbArea.placement_shape = "region"
 function EditorFallingClimbArea:init(data, options)

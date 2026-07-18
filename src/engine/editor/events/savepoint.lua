@@ -1,3 +1,5 @@
+---@class EditorSavepoint : EditorEvent
+---@overload fun(data?: table, options?: table): EditorSavepoint
 local EditorSavepoint, super = Class(EditorEvent)
 EditorSavepoint.editor_sprite = "world/events/savepoint"
 EditorSavepoint.scaling_mode = "scale"

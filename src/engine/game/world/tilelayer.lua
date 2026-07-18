@@ -32,7 +32,8 @@ function TileLayer:init(map, data)
     end
 
     self.tile_data = data.data
-    self.tile_opacity = data.opacity or 1
+    self.tile_opacity = (data.opacity or 1)
+        * (data.tintcolor and (data.tintcolor[4] or 255) / 255 or 1)
 
     if not self.tile_data then
         self.tile_data = {}

@@ -1,4 +1,8 @@
 ---@class EditorWorkspaceRegistry : Class
+---@field editor Editor
+---@field order table
+---@field user_order table
+---@field workspaces table
 ---@overload fun(editor: Editor): EditorWorkspaceRegistry
 local EditorWorkspaceRegistry = Class()
 

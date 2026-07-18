@@ -1,4 +1,8 @@
 ---@class EditorCommandRegistry : Class
+---@field commands table
+---@field order table
+---@field provider_order table
+---@field providers table
 ---@overload fun(): EditorCommandRegistry
 local EditorCommandRegistry = Class()
 

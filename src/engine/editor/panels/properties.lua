@@ -1,4 +1,15 @@
 ---@class EditorPropertiesPanel : EditorControl
+---@field add_button EditorButton
+---@field clip boolean
+---@field content_height number
+---@field editor Editor
+---@field generated_controls table
+---@field layout_rows table
+---@field property_header_y number
+---@field scroll_y number
+---@field scrollbar EditorScrollbar
+---@field target any
+---@field target_history_started any
 ---@overload fun(editor: table): EditorPropertiesPanel
 local EditorPropertiesPanel, super = Class(EditorControl)
 

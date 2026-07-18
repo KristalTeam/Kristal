@@ -1,4 +1,11 @@
 ---@class EditorLuaHighlighter : Class
+---@field blocks table
+---@field bracket_offsets table
+---@field bracket_pairs table
+---@field keyword_lookup table
+---@field keyword_pairs table
+---@field keyword_tokens table
+---@field lines table
 ---@overload fun(text?: string): EditorLuaHighlighter
 local EditorLuaHighlighter = Class()
 

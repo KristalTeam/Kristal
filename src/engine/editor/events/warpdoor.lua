@@ -1,3 +1,5 @@
+---@class EditorWarpDoor : EditorEvent
+---@overload fun(data?: table, options?: table): EditorWarpDoor
 local EditorWarpDoor, super = Class(EditorEvent)
 EditorWarpDoor.scaling_mode = "scale"
 

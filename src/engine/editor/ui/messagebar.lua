@@ -1,4 +1,11 @@
 ---@class EditorMessageBar : Class
+---@field entries table
+---@field height number
+---@field maximum_entries number
+---@field status string?
+---@field y number
+---@field width number
+---@field x number
 ---@overload fun(): EditorMessageBar
 local EditorMessageBar = Class()
 

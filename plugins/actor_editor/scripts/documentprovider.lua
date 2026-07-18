@@ -1,3 +1,6 @@
+---@class ActorDataDocumentProvider : EditorDocumentProvider
+---@overload fun(plugin: ActorEditorPlugin, editor: Editor): ActorDataDocumentProvider
+---@field plugin EditorPlugin
 local ActorDataDocumentProvider, super = Class(EditorDocumentProvider)
 
 function ActorDataDocumentProvider:init(plugin, editor)

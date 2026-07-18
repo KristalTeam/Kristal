@@ -1,4 +1,19 @@
 ---@class EditorGameView : EditorControl
+---@field canvas love.Canvas?
+---@field canvas_positioned boolean
+---@field canvas_x number
+---@field canvas_y number
+---@field clip boolean
+---@field document EditorMapDocument?
+---@field dragging_canvas boolean
+---@field editor Editor
+---@field focus_on_wheel boolean
+---@field focusable boolean
+---@field is_game_preview boolean
+---@field maximum_zoom number
+---@field minimum_zoom number
+---@field tile_editing_mode boolean
+---@field view_zoom number
 ---@overload fun(editor?: table, document?: EditorMapDocument): EditorGameView
 local EditorGameView, super = Class(EditorControl)
 

@@ -1,4 +1,5 @@
 ---@class EditorFountainShadowController : EditorEvent
+---@overload fun(data?: table, options?: table): EditorFountainShadowController
 local EditorFountainShadowController, super = Class(EditorEvent)
 
 function EditorFountainShadowController:init(data, options)
