@@ -607,7 +607,7 @@ function Kristal.onKeyPressed(key, is_repeat)
 
         if key == "f4" or (key == "return" and Input.alt()) then
             Kristal.Config["fullscreen"] = not Kristal.Config["fullscreen"]
-            love.window.setFullscreen(Kristal.Config["fullscreen"])
+            Kristal.resetWindow()
         elseif key == "f9" and Input.shift() then
             love.filesystem.createDirectory("screenshots")
             -- FIXME: the game might freeze when using love.system.openURL to open a file directory

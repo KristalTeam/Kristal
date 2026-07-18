@@ -579,7 +579,7 @@ function MainMenuOptions:initializeOptions()
 
     if not Kristal.isForcedFullscreen() then
         self:registerConfigOption({ "general", "graphics" }, "Fullscreen", "fullscreen", function(toggled)
-            love.window.setFullscreen(toggled)
+            Kristal.resetWindow()
         end)
 
         self:registerOption(
@@ -600,8 +600,8 @@ function MainMenuOptions:initializeOptions()
                 Kristal.Config["autoWindowScale"] = not Kristal.Config["autoWindowScale"]
                 if old_scale ~= Kristal.getWindowScale() then
                     if Kristal.Config["fullscreen"] then
-                        love.window.setFullscreen(false)
                         Kristal.Config["fullscreen"] = false
+                        Kristal.resetWindow()
                     end
                     Kristal.resetWindow()
                 end
