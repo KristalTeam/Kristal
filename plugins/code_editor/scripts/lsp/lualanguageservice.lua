@@ -82,13 +82,13 @@ end
 function LuaLanguageService:findExecutable()
     local configured = StringUtils.trim(self.plugin.language_server_path or "")
     if configured ~= "" then
-        if isFile(configured) then return configured end
+        if FileSystemUtils.isFile(configured) then return configured end
         return nil, "Configured LuaLS executable does not exist: " .. configured
     end
     local managed = love.filesystem.getSaveDirectory():gsub("\\", "/")
         .. "/editor/tools/luals/current/bin/lua-language-server"
     if love.system.getOS() == "Windows" then managed = managed .. ".exe" end
-    if isFile(managed) then return managed end
+    if FileSystemUtils.isFile(managed) then return managed end
     local discovered = executableFromPath("lua-language-server")
     if discovered then return discovered end
     return nil, "LuaLS was not found. Set its executable path in Editor Settings > Language Server."
@@ -147,14 +147,14 @@ function LuaLanguageService:getSettings()
     local libraries = {}
     if engine_root then
         engine_root = engine_root:gsub("\\", "/"):gsub("/+$", "")
-        if isFile(engine_root .. "/main.lua") then
+        if FileSystemUtils.isFile(engine_root .. "/main.lua") then
             table.insert(libraries, engine_root)
         end
     end
     local executable = tostring(self.executable or ""):gsub("\\", "/")
     local server_root = executable:match("^(.*)/bin/[^/]+$")
     local love_library = server_root and (server_root .. "/meta/3rd/love2d/library") or nil
-    if love_library and isFile(love_library .. "/love.lua") then
+    if love_library and FileSystemUtils.isFile(love_library .. "/love.lua") then
         table.insert(libraries, love_library)
     end
     self.library_roots = libraries
