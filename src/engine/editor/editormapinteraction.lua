@@ -10,11 +10,19 @@ end
 
 function EditorMapInteraction:setActiveTool(id)
     local self = self.editor
-    if not self.tool_registry:get(id) then return false end
+    local tool = self.tool_registry:get(id)
+    if not tool then return false end
     if id ~= "shape" then self:cancelPolygonBuilds() end
     if id ~= "object" then self:cancelEventRegionDrags() end
     if id ~= "link" then self:cancelObjectLink(true) end
+    if tool.uses_object_selection ~= true and #(self.selected_map_objects or {}) > 0 then
+        self:selectMapObjects({})
+    end
     self.active_tool = id
+    local document = self.active_document
+    if document and document.editor_world and document.map_view and self.layers_browser then
+        self.layers_browser:setDocument(document, document.map_view:getFocusedMapId())
+    end
     if id == "terrain_brush" and self.terrain_palette_panel then
         if not self.terrain_palette_panel.visible then
             self.dockspace:setPanelVisible(self.terrain_palette_panel, true)
@@ -64,9 +72,7 @@ function EditorMapInteraction:setPlacementEvent(id)
     self:cancelPolygonBuilds()
     self:cancelEventRegionDrags()
     self.selected_event_id = id
-    self.placement_event_id = id
-    self.active_tool = "object"
-    return true
+    return self:setActiveTool("object")
 end
 
 function EditorMapInteraction:beginAssetDrag(kind, id, label)
@@ -212,7 +218,6 @@ function EditorMapInteraction:placeEvent(view, event_id, world_x, world_y)
     self:selectMapObject(selection)
     self:markHistoryChanged()
     self:commitHistoryTransaction()
-    self:setActiveTool("select")
     return true
 end
 
@@ -426,6 +431,9 @@ function EditorMapInteraction:selectMapObjects(selections, primary)
     self.selected_map_object = result[1]
     if self.selected_map_object then
         local selection = self.selected_map_object
+        if selection.document.map_view then
+            selection.document.map_view.active_map_id = selection.map_id
+        end
         selection.document:setSelectedLayer(selection.layer._editor_uid, selection.map_id)
         if self.layers_browser and self.active_document == selection.document then
             self.layers_browser:focusLayer(selection.document, selection.map_id, selection.layer)

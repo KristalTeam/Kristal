@@ -265,11 +265,11 @@ function EditorDocumentManager:rebuildTerrain(scope)
     return changed
 end
 
-function EditorDocumentManager:setSelectedTile(tile)
+function EditorDocumentManager:setSelectedTile(tile, source)
     local self = self.editor
     self.selected_tile = tile
-    if self.tile_palette then self.tile_palette:setSelectedTile(tile) end
-    if self.tileset_editor then self.tileset_editor:setTile(tile) end
+    if self.tile_palette and self.tile_palette ~= source then self.tile_palette:setSelectedTile(tile) end
+    if self.tileset_editor then self.tileset_editor:setTile(tile, source) end
 end
 
 function EditorDocumentManager:showTilesetEditor(document)
@@ -407,7 +407,7 @@ end
 function EditorDocumentManager:addMapToWorldAtScreen(id, x, y)
     local self = self.editor
     local view = self:getMapViewAt(x, y)
-    if not view then return false end
+    if not view or not view.document or not view.document.editor_world then return false end
     local local_x, local_y = view:toLocal(x, y)
     local world_x, world_y = view:getMapCoordinates(local_x, local_y)
     local primary = view.document:getPrimaryMap()
@@ -556,7 +556,11 @@ function EditorDocumentManager:activateMapDocument(document, options)
         self.dockspace:setPanelVisible(document.panel, true, document.panel.last_region or "center")
     end
     self.active_document = document
-    if self.layers_browser then self.layers_browser:setDocument(document) end
+    if self.layers_browser then
+        local map_id = document.map_view and document.map_view:getFocusedMapId()
+            or document.primary_map_id
+        self.layers_browser:setDocument(document, map_id)
+    end
     if options.select_panel ~= false and document.panel and document.panel.stack then
         document.panel.stack:setActivePanel(document.panel)
     end

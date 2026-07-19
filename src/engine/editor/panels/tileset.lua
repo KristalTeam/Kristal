@@ -270,14 +270,14 @@ function EditorTilesetPanel:resolveViewSelection(selection)
     end
 end
 
-function EditorTilesetPanel:setTile(tile)
+function EditorTilesetPanel:setTile(tile, source)
     self.tile = tile
     if self.mode == "animation" then
         self.animation_target_tile = tile
         self.animation_source_tile_id = tile and tile.id or nil
         self.animation_clock = 0
     end
-    self.tile_grid:setSelectedTile(tile)
+    if self.tile_grid ~= source then self.tile_grid:setSelectedTile(tile) end
     if self.mode ~= "tileset" then self:rebuild() end
 end
 
@@ -649,6 +649,19 @@ function EditorTilesetPanel:getItems()
     return {}
 end
 
+function EditorTilesetPanel:drawAnimationTilePreview(tile_id, x, y, width, height, alpha)
+    local tileset = self.document and self.document.tileset
+    if not tileset or tile_id == nil then return end
+    local tile_width, tile_height = tileset:getTileSize(tile_id)
+    if not tile_width or not tile_height or tile_width <= 0 or tile_height <= 0 then return end
+    local padding = math.min(2, width / 2, height / 2)
+    local scale = math.min(math.max(0, width - padding * 2) / tile_width,
+        math.max(0, height - padding * 2) / tile_height)
+    Draw.setColor(1, 1, 1, alpha or 1)
+    tileset:drawStaticTile(tile_id, x + width / 2, y + height / 2,
+        0, scale, scale, tile_width / 2, tile_height / 2)
+end
+
 function EditorTilesetPanel:refreshList(selected)
     if self.mode == "terrain" then self:ensureTerrainItemVisible(selected) end
     local items = {}
@@ -682,11 +695,7 @@ function EditorTilesetPanel:refreshList(selected)
         if self.mode == "animation" then
             local tile_id = value.tile_id or value.tileid
             list_item.preview = function(x, y, width, height, alpha)
-                Draw.setColor(1, 1, 1, alpha or 1)
-                if self.document.tileset then
-                    self.document.tileset:drawGridTile(tile_id, x, y, width, height,
-                        nil, nil, nil, true)
-                end
+                self:drawAnimationTilePreview(tile_id, x, y, width, height, alpha)
             end
         end
         if self.mode == "terrain" and value.has_children then
@@ -1654,9 +1663,8 @@ function EditorTilesetPanel:drawSelf()
         love.graphics.rectangle("fill", preview.x, preview.y, preview.width, preview.height)
         local frame_id = self:getAnimationPreviewFrame()
         if frame_id ~= nil and self.document and self.document.tileset then
-            Draw.setColor(1, 1, 1, 1)
-            self.document.tileset:drawGridTile(frame_id, preview.x, preview.y,
-                preview.width, preview.height, nil, nil, nil, true)
+            self:drawAnimationTilePreview(frame_id, preview.x, preview.y,
+                preview.width, preview.height)
         end
         Draw.setColor(0.46, 0.72, 1, 1)
         love.graphics.rectangle("line", preview.x + 0.5, preview.y + 0.5,

@@ -1,5 +1,6 @@
 --- Displays an icon button for an editor tool.
 ---@class EditorToolButton : EditorButton
+---@field on_dropdown function?
 ---@field tool table
 ---@overload fun(tool: table, on_pressed?: function): EditorToolButton
 local EditorToolButton, super = Class(EditorButton)
@@ -7,6 +8,11 @@ local EditorToolButton, super = Class(EditorButton)
 function EditorToolButton:init(tool, on_pressed)
     super.init(self, tool.short_name or tool.name, on_pressed)
     self.tool = tool
+end
+
+function EditorToolButton:onMousePressed(x, y, button)
+    if button == 2 and self.on_dropdown then return self.on_dropdown(self) end
+    return super.onMousePressed(self, x, y, button)
 end
 
 function EditorToolButton:drawSelf()
@@ -29,6 +35,13 @@ function EditorToolButton:drawSelf()
         local scale_x, scale_y = 16 / texture:getWidth(), 16 / texture:getHeight()
         Draw.draw(texture, math.floor((self.width - 16) / 2), math.floor((self.height - 16) / 2),
             0, scale_x, scale_y)
+    end
+    if self.on_dropdown then
+        local arrow = Assets.getTexture("ui/flat_arrow_down")
+        if arrow then
+            Draw.setColor(self.enabled and { 0.82, 0.82, 0.86, 1 } or { 0.38, 0.38, 0.41, 1 })
+            Draw.draw(arrow, self.width - arrow:getWidth() - 2, self.height - arrow:getHeight() - 2)
+        end
     end
 end
 

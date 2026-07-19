@@ -27,6 +27,11 @@ function EditorSourceDocumentProvider:close(document)
     return self.viewer:closeDocument(document)
 end
 
+function EditorSourceDocumentProvider:closeActive()
+    if not self.viewer.active_document then return nil end
+    return self.viewer:closeDocument(self.viewer.active_document)
+end
+
 function EditorSourceDocumentProvider:isFocused()
     return self.viewer:isFocused()
 end

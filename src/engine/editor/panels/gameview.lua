@@ -15,6 +15,7 @@
 ---@field minimum_zoom number
 ---@field tile_editing_mode boolean
 ---@field view_zoom number
+---@field zoom_reset_button EditorButton
 ---@overload fun(editor?: table, document?: EditorMapDocument): EditorGameView
 local EditorGameView, super = Class(EditorControl)
 
@@ -30,8 +31,11 @@ function EditorGameView:init(editor, document)
     self.dragging_canvas = false
     self.tile_editing_mode = false
     self.view_zoom = 1
-    self.minimum_zoom = 0.25
+    self.minimum_zoom = 0.1
     self.maximum_zoom = 4
+    self.zoom_reset_button = self:addChild(EditorButton("100%", function()
+        self:setViewZoom(1)
+    end))
     self.focusable = true
     self.focus_on_wheel = true
     self.clip = true
@@ -116,6 +120,8 @@ end
 
 function EditorGameView:update(dt)
     if not self.canvas_positioned then self:centerCanvas() end
+    self.zoom_reset_button.label = string.format("%d%%", MathUtils.round(self.view_zoom * 100))
+    self.zoom_reset_button:setBounds(6, math.max(4, self.height - 32), 58, 26)
     super.update(self, dt)
 end
 
@@ -256,19 +262,6 @@ function EditorGameView:drawTileGrid(x, y, width, height, tile_width, tile_heigh
     love.graphics.setLineWidth(previous_line_width)
 end
 
-function EditorGameView:drawScaleReadout()
-    local font = EditorFont.get(16)
-    local text = string.format("%d%%", MathUtils.round(self.view_zoom * 100))
-    local x, y = 6, self.height - font:getHeight() - 8
-    love.graphics.setFont(font)
-    Draw.setColor(0, 0, 0, 0.75)
-    love.graphics.rectangle("fill", x, y, font:getWidth(text) + 12, font:getHeight() + 8)
-    Draw.setColor(0, 0, 0, 1)
-    love.graphics.print(text, x + 7, y + 5)
-    Draw.setColor(1, 1, 1, 1)
-    love.graphics.print(text, x + 6, y + 4)
-end
-
 function EditorGameView:drawPlaybackState()
     if not self.editor or not self.editor.live_document then return end
     local owner = self.editor:getGamePreviewOwnerPanel()
@@ -391,7 +384,8 @@ function EditorGameView:onWheelMoved(x, y)
     local mouse_x, mouse_y = self.editor:getMousePosition()
     local global_x, global_y = self:getGlobalPosition()
     local anchor_x, anchor_y = mouse_x - global_x, mouse_y - global_y
-    return self:setViewZoom(self.view_zoom * (1.15 ^ y), anchor_x, anchor_y)
+    return self:setViewZoom(EditorZoomUtils.step(self.view_zoom, y,
+        self.minimum_zoom, self.maximum_zoom), anchor_x, anchor_y)
 end
 
 function EditorGameView:onKeyPressed(key, is_repeat)
@@ -445,7 +439,6 @@ function EditorGameView:drawSelf()
         love.graphics.print(text, math.floor((self.width - font:getWidth(text)) / 2),
             math.floor((self.height - font:getHeight()) / 2))
     end
-    self:drawScaleReadout()
     self:drawPlaybackState()
     Draw.setColor(1, 1, 1, 1)
 end

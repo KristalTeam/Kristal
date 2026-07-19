@@ -50,6 +50,9 @@ function EditorSessionManager:restoreDocumentView(document, state)
     if type(state.canvas_x) == "number" and type(state.canvas_y) == "number" then
         view:setCanvasPosition(state.canvas_x, state.canvas_y)
     end
+    if type(state.focused_map_id) == "string" and document.map_lookup[state.focused_map_id] then
+        view.active_map_id = state.focused_map_id
+    end
 end
 
 function EditorSessionManager:restoreGameViewState(document, state)
@@ -99,7 +102,7 @@ function EditorSessionManager:captureSession()
         document_providers = self.document_providers and self.document_providers:captureSession() or {},
         documents = {},
         layout = self:captureLayout(),
-        window = { width = love.graphics.getWidth(), height = love.graphics.getHeight() }
+        window = self.ui_controller:captureWindowState()
     }
     for _, document in ipairs(self.map_documents or {}) do
         local view = document.game_view
@@ -116,7 +119,8 @@ function EditorSessionManager:captureSession()
             view = {
                 canvas_x = view.canvas_x,
                 canvas_y = view.canvas_y,
-                zoom = view.view_zoom
+                zoom = view.view_zoom,
+                focused_map_id = view.getFocusedMapId and view:getFocusedMapId() or nil
             },
             game_view = self:captureGameViewState(document)
         }

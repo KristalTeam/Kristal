@@ -27,6 +27,31 @@ function EditorToolbar:openToolMenu(button, tools)
     return self.editor.dockspace:openContextMenu(items, x, y + button.height, button)
 end
 
+function EditorToolbar:openShapeMenu(button)
+    local items = {}
+    for _, mode in ipairs(self.editor:getShapeModes()) do
+        local shape_mode = mode.id
+        table.insert(items, {
+            label = mode.name,
+            checked = self.editor.shape_mode == shape_mode,
+            action = function() self.editor:setShapeMode(shape_mode) end
+        })
+    end
+    local x, y = button:getGlobalPosition()
+    return self.editor.dockspace:openContextMenu(items, x, y + button.height, button)
+end
+
+function EditorToolbar:getGroupTool(group_id)
+    for _, button in ipairs(self.buttons) do
+        if button.tool_group == group_id then return button.tool_id end
+    end
+end
+
+function EditorToolbar:activateGroup(group_id)
+    local tool_id = self:getGroupTool(group_id)
+    return tool_id and self.editor:setActiveTool(tool_id) or false
+end
+
 function EditorToolbar:init(editor)
     super.init(self, 0, 0, 800, 40)
     self.editor = editor
@@ -52,19 +77,7 @@ function EditorToolbar:init(editor)
         local button
         button = self:addChild(EditorToolButton(tool, function()
             if toolbar_entry.tools then
-                self:openToolMenu(button, toolbar_entry.tools)
-            elseif id == "shape" then
-                local items = {}
-                for _, mode in ipairs(editor:getShapeModes()) do
-                    local shape_mode = mode.id
-                    table.insert(items, {
-                        label = mode.name,
-                        checked = editor.shape_mode == shape_mode,
-                        action = function() editor:setShapeMode(shape_mode) end
-                    })
-                end
-                local x, y = button:getGlobalPosition()
-                editor.dockspace:openContextMenu(items, x, y + button.height, button)
+                editor:setActiveTool(button.tool_id)
             else
                 editor:setActiveTool(id)
             end
@@ -72,6 +85,11 @@ function EditorToolbar:init(editor)
         button.tool_id = id
         button.tool_group = toolbar_entry.id
         button.group_tools = toolbar_entry.tools
+        if toolbar_entry.tools then
+            button.on_dropdown = function() return self:openToolMenu(button, toolbar_entry.tools) end
+        elseif id == "shape" then
+            button.on_dropdown = function() return self:openShapeMenu(button) end
+        end
         table.insert(self.buttons, button)
     end
     self.undo_button = self:addChild(EditorToolButton({
