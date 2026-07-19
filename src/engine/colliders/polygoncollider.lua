@@ -21,6 +21,10 @@ function PolygonCollider:getColliderType()
     return CollisionRegistry.POLYGON
 end
 
+function PolygonCollider:getBounds()
+    return self.bounds_x, self.bounds_y, self.bounds_width, self.bounds_height
+end
+
 --- Gets the points of the polygon collider as a list of `{x, y}` pairs.
 ---
 --- Modifying the returned table directly will not affect the internal points of the polygon collider. To update its points,
@@ -68,39 +72,6 @@ function PolygonCollider:getPointsFor(other)
     end
 
     return local_points
-end
-
---- Gets the axis-aligned bounding box of the polygon collider.
----@return number x # The X coordinate of the bounding box.
----@return number y # The Y coordinate of the bounding box.
----@return number width # The width of the bounding box.
----@return number height # The height of the bounding box.
-function PolygonCollider:getBounds()
-    return self.bounds_x, self.bounds_y, self.bounds_width, self.bounds_height
-end
-
---- Gets the axis-aligned bounding box of the polygon collider relative to another collider.
----@param other Collider # The other collider to get the bounding box relative to.
----@return number x # The X coordinate of the bounding box relative to the other collider.
----@return number y # The Y coordinate of the bounding box relative to the other collider.
----@return number width # The width of the bounding box relative to the other collider.
----@return number height # The height of the bounding box relative to the other collider.
-function PolygonCollider:getBoundsFor(other)
-    local tf1, tf2 = other:getTransformsWith(self)
-
-    local bounds_x, bounds_y, bounds_w, bounds_h = self:getBounds()
-
-    local ul_x, ul_y = other:getLocalPoint(tf1, tf2, bounds_x, bounds_y)
-    local ur_x, ur_y = other:getLocalPoint(tf1, tf2, bounds_x + bounds_w, bounds_y)
-    local dr_x, dr_y = other:getLocalPoint(tf1, tf2, bounds_x + bounds_w, bounds_y + bounds_h)
-    local dl_x, dl_y = other:getLocalPoint(tf1, tf2, bounds_x, bounds_y + bounds_h)
-
-    local min_x = math.min(ul_x, ur_x, dr_x, dl_x)
-    local min_y = math.min(ul_y, ur_y, dr_y, dl_y)
-    local max_x = math.max(ul_x, ur_x, dr_x, dl_x)
-    local max_y = math.max(ul_y, ur_y, dr_y, dl_y)
-
-    return min_x, min_y, max_x - min_x, max_y - min_y
 end
 
 --- Draws the polygon collider outlined with the given color.

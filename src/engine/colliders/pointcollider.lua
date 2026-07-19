@@ -20,6 +20,10 @@ function PointCollider:getColliderType()
     return CollisionRegistry.POINT
 end
 
+function PointCollider:getBounds()
+    return self.x, self.y, 0, 0
+end
+
 --- Gets the coordinates of the point.
 ---@return number x # The X coordinate of the point.
 ---@return number y # The Y coordinate of the point.

@@ -26,12 +26,7 @@ function Hitbox:getColliderType()
     return CollisionRegistry.RECTANGLE
 end
 
---- Gets the axis-aligned bounding box of the hitbox.
----@return number x # The X coordinate of the bounding box.
----@return number y # The Y coordinate of the bounding box.
----@return number width # The width of the bounding box.
----@return number height # The height of the bounding box.
-function Hitbox:getRect()
+function Hitbox:getBounds()
     return self.x, self.y, self.width, self.height
 end
 
@@ -40,7 +35,7 @@ end
 ---@param y number # The Y coordinate of the bounding box.
 ---@param width number # The width of the bounding box.
 ---@param height number # The height of the bounding box.
-function Hitbox:setRect(x, y, width, height)
+function Hitbox:setBounds(x, y, width, height)
     self.x = x
     self.y = y
     self.width = width
@@ -54,7 +49,7 @@ end
 function Hitbox:getRectOrPolyFor(other)
     local tf1, tf2 = other:getTransformsWith(self)
 
-    local x, y, width, height = self:getRect()
+    local x, y, width, height = self:getBounds()
 
     local ul_x, ul_y = other:getLocalPoint(tf1, tf2, x, y)
     local ur_x, ur_y = other:getLocalPoint(tf1, tf2, x + width, y)
