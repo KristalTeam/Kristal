@@ -1180,10 +1180,11 @@ function EditorDockSpace:onMousePressed(x, y, button, presses)
 end
 
 function EditorDockSpace:onMouseMoved(x, y, dx, dy)
-    if self.context_menu and (self.captured_control == self.context_menu.search_input
-        or self.captured_control == self.context_menu.scrollbar) then
-        local local_x, local_y = self.captured_control:toLocal(x, y)
-        self.captured_control:onMouseMoved(local_x, local_y, dx, dy)
+    local captured = self.captured_control
+    if captured and self.context_menu and (captured == self.context_menu.search_input
+        or captured == self.context_menu.scrollbar) then
+        local local_x, local_y = captured:toLocal(x, y)
+        captured:onMouseMoved(local_x, local_y, dx, dy)
         return true
     end
     if self.context_menu then
@@ -1271,9 +1272,10 @@ function EditorDockSpace:onMouseMoved(x, y, dx, dy)
         self:layout()
         return true
     end
-    if self.captured_control then
-        local local_x, local_y = self.captured_control:toLocal(x, y)
-        self.captured_control:onMouseMoved(local_x, local_y, dx, dy)
+    captured = self.captured_control
+    if captured then
+        local local_x, local_y = captured:toLocal(x, y)
+        captured:onMouseMoved(local_x, local_y, dx, dy)
         return true
     end
     return false
