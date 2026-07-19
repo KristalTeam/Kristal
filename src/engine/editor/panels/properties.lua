@@ -370,7 +370,7 @@ function EditorPropertiesPanel:rebuild()
         local name_input = self:addGeneratedControl(EditorTextInput(definition.custom and {
             on_submit = function(value) self:renameProperty(name, value) end
         } or nil))
-        name_input:setValue(name, true)
+        name_input:setValue(definition.custom and name or definition.name or name, true)
         name_input.enabled = definition.custom == true and definition.unavailable ~= true
         local value_control = self:createValueControl(name, definition, value)
         value_control.enabled = definition.unavailable ~= true

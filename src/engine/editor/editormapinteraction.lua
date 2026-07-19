@@ -338,6 +338,7 @@ function EditorMapInteraction:getMapObjectPropertiesTarget(selection)
     })
     return {
         title = tile_object and "Tile Object"
+            or editor_event.editor_name
             or event_id and (StringUtils.titleCase(tostring(event_id):gsub("[/_]", " "))) or "Map Object",
         history_owner = selection.document,
         fields = fields,
