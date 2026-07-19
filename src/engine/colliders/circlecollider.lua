@@ -23,6 +23,10 @@ function CircleCollider:getColliderType()
     return CollisionRegistry.CIRCLE
 end
 
+function CircleCollider:getBounds()
+    return self.x - self.radius, self.y - self.radius, self.radius * 2, self.radius * 2
+end
+
 --- Gets the circle's center and radius.
 ---@return number x # The X coordinate of the circle's center.
 ---@return number y # The Y coordinate of the circle's center.
@@ -53,15 +57,6 @@ function CircleCollider:getCircleFor(other)
     local crx, cry = other:getLocalPoint(tf1, tf2, self.x + self.radius, self.y)
 
     return cx, cy, MathUtils.dist(cx, cy, crx, cry)
-end
-
---- Gets the axis-aligned bounding box of the circle.
----@return number x # The X coordinate of the bounding box.
----@return number y # The Y coordinate of the bounding box.
----@return number width # The width of the bounding box.
----@return number height # The height of the bounding box.
-function CircleCollider:getBounds()
-    return self.x - self.radius, self.y - self.radius, self.radius * 2, self.radius * 2
 end
 
 --- Draws the circle outlined with the given color.
