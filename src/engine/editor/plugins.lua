@@ -487,7 +487,7 @@ function EditorPlugins:report(editor, message, detail)
     print(message .. (detail and ("\n" .. detail) or ""))
 end
 
-function EditorPlugins:loadPlugin(editor, directory, folder, source)
+function EditorPlugins:loadPlugin(editor, directory, folder, source, context)
     local path = directory .. "/" .. folder
     local info_path = path .. "/plugin.json"
     if not love.filesystem.getInfo(info_path, "file") then return nil end
@@ -517,13 +517,25 @@ function EditorPlugins:loadPlugin(editor, directory, folder, source)
         end
     end
     if self.plugins[info.id] then
-        if source == "user" and self.plugins[info.id].info.source == "debug" then return nil end
-        self:report(editor, "Duplicate editor plugin id: " .. info.id, path)
-        return nil
+        local existing = self.plugins[info.id]
+        if source ~= "debug" and existing.info.source == "debug" then return nil end
+        if (source == "mod" or source == "library") and existing.info.source == "user" then
+            self.plugins[info.id] = nil
+            TableUtils.removeValue(self.plugin_order, existing)
+        else
+            self:report(editor, "Duplicate editor plugin id: " .. info.id, path)
+            return nil
+        end
     end
 
     info.path = path
     info.source = source
+    info.embedded = source == "mod" or source == "library"
+    info.container_type = context and context.container_type
+    info.project_id = context and context.project_id
+    info.library_id = context and context.library_id
+    info.project = context and context.project
+    info.library = context and context.library
     info.script_chunks = {}
     for _, script_path in ipairs(FileSystemUtils.getFilesRecursive(path, ".lua")) do
         local chunk, load_error = love.filesystem.load(path .. "/" .. script_path .. ".lua")
@@ -627,13 +639,40 @@ function EditorPlugins:initializeFormatExtensions(scope)
     return true
 end
 
-function EditorPlugins:scanDirectory(editor, directory, source)
+function EditorPlugins:scanDirectory(editor, directory, source, context)
     if not love.filesystem.getInfo(directory, "directory") then return end
     local folders = love.filesystem.getDirectoryItems(directory)
     table.sort(folders)
     for _, folder in ipairs(folders) do
         local info = love.filesystem.getInfo(directory .. "/" .. folder)
-        if info and info.type == "directory" then self:loadPlugin(editor, directory, folder, source) end
+        if info and info.type == "directory" then
+            self:loadPlugin(editor, directory, folder, source, context)
+        end
+    end
+end
+
+function EditorPlugins:scanProjectPlugins(editor)
+    if not Mod or not Mod.info then return end
+    local project_id = Mod.info.id
+    for _, library_id in ipairs(Mod.info.lib_order or {}) do
+        local library = Mod.libs and Mod.libs[library_id]
+        local library_info = library and library.info or Mod.info.libs and Mod.info.libs[library_id]
+        if library_info and library_info.path then
+            self:scanDirectory(editor, library_info.path .. "/editor/plugins", "library", {
+                container_type = "library",
+                project_id = project_id,
+                library_id = library_id,
+                project = Mod,
+                library = library
+            })
+        end
+    end
+    if Mod.info.path then
+        self:scanDirectory(editor, Mod.info.path .. "/editor/plugins", "mod", {
+            container_type = "mod",
+            project_id = project_id,
+            project = Mod
+        })
     end
 end
 
@@ -645,6 +684,7 @@ function EditorPlugins:initialize(editor)
     love.filesystem.createDirectory(self.directory)
     self:scanDirectory(editor, self.debug_directory, "debug")
     self:scanDirectory(editor, self.directory, "user")
+    self:scanProjectPlugins(editor)
     self.plugin_order = self:sortPlugins(editor)
 
     for index, plugin in ipairs(self.plugin_order) do
