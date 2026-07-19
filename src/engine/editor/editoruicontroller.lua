@@ -13,19 +13,23 @@ local EDITOR_DEFAULT_HEIGHT = 800
 
 function EditorUIController:setupWindow(session)
     local self = self.editor
-    local width, height, flags = love.window.getMode()
+    local maximized = love.window.isMaximized()
     local window_x, window_y, display = love.window.getPosition()
     local game_offset_x, game_offset_y = Kristal.getSideOffsets()
     local game_scale = Kristal.getGameScale()
     local game_center_x = window_x + love.window.fromPixels(game_offset_x + (SCREEN_WIDTH * game_scale / 2))
     local game_center_y = window_y + love.window.fromPixels(game_offset_y + (SCREEN_HEIGHT * game_scale / 2))
+    if maximized then love.window.restore() end
+    local width, height, flags = love.window.getMode()
+    window_x, window_y, display = love.window.getPosition()
     self.previous_window = {
         width = width,
         height = height,
         x = window_x,
         y = window_y,
         display = display,
-        flags = TableUtils.copy(flags, true)
+        flags = TableUtils.copy(flags, true),
+        maximized = maximized
     }
     self.previous_mouse_visible = love.mouse.isVisible()
     self.previous_mouse_cursor = love.mouse.getCursor()
@@ -51,10 +55,32 @@ function EditorUIController:setupWindow(session)
     editor_flags.minheight = math.min(editor_height, minimum_height)
     love.window.updateMode(love.window.fromPixels(editor_width), love.window.fromPixels(editor_height), editor_flags)
     self:centerWindow(display, desktop_width, desktop_height)
+    self.editor_window_width = love.graphics.getWidth()
+    self.editor_window_height = love.graphics.getHeight()
     Kristal.refreshWindowText()
     love.mouse.setVisible(true)
     love.window.setTitle((Mod and Mod.info.name or "Kristal") .. " - Editor")
+    if session and type(session.window) == "table" and session.window.maximized == true then
+        love.window.maximize()
+    end
     return game_center_x, game_center_y
+end
+
+function EditorUIController:updateWindowState()
+    local self = self.editor
+    if love.window.isMaximized() then return end
+    self.editor_window_width = love.graphics.getWidth()
+    self.editor_window_height = love.graphics.getHeight()
+end
+
+function EditorUIController:captureWindowState()
+    local self = self.editor
+    self.ui_controller:updateWindowState()
+    return {
+        width = self.editor_window_width or love.graphics.getWidth(),
+        height = self.editor_window_height or love.graphics.getHeight(),
+        maximized = love.window.isMaximized()
+    }
 end
 
 function EditorUIController:setupPanels(session)

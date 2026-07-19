@@ -68,9 +68,8 @@ function Tileset:getDrawTile(id)
     return id
 end
 
-function Tileset:drawTile(id, x, y, ...)
-    local draw_id = self:getDrawTile(id)
-    local info = self.tile_info[draw_id]
+function Tileset:drawStaticTile(id, x, y, ...)
+    local info = self.tile_info[id]
 
     if info and info.texture then
         if not info.quad then
@@ -78,9 +77,13 @@ function Tileset:drawTile(id, x, y, ...)
         else
             Draw.draw(info.texture, info.quad, x or 0, y or 0, ...)
         end
-    elseif self.texture and self.quads[draw_id] then
-        Draw.draw(self.texture, self.quads[draw_id], x or 0, y or 0, ...)
+    elseif self.texture and self.quads[id] then
+        Draw.draw(self.texture, self.quads[id], x or 0, y or 0, ...)
     end
+end
+
+function Tileset:drawTile(id, x, y, ...)
+    return self:drawStaticTile(self:getDrawTile(id), x, y, ...)
 end
 
 ---@return love.Quad quad

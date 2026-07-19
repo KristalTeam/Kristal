@@ -121,7 +121,8 @@ function EditorConfiguration:registerEditorTools()
     local editor = self.editor
     editor.tool_registry = EditorToolRegistry()
     editor.tool_registry:register("select", {
-        name = "Select", icon = "editor/ui/tool/select", keybind = "editor_tool_select"
+        name = "Select", icon = "editor/ui/tool/select", keybind = "editor_tool_select",
+        uses_object_selection = true
     })
     editor.tool_registry:register("world_select", {
         name = "World Select", short_name = "World", icon = "editor/ui/tool/world",
@@ -129,7 +130,7 @@ function EditorConfiguration:registerEditorTools()
     })
     editor.tool_registry:register("object", {
         name = "Add Object", short_name = "Object", icon = "editor/ui/tool/shape_point",
-        keybind = "editor_tool_object"
+        keybind = "editor_tool_object", uses_object_selection = true
     })
     editor.tool_registry:register("shape", {
         name = "Shape", icon = "editor/ui/tool/shape_rect", keybind = "editor_tool_shape"
@@ -183,7 +184,7 @@ function EditorConfiguration:registerEditorTools()
     })
     editor.tool_registry:register("link", {
         name = "Link Objects", short_name = "Link", icon = "editor/ui/tool/link",
-        keybind = "editor_tool_link"
+        keybind = "editor_tool_link", uses_object_selection = true
     })
     editor.active_tool = "select"
     editor.selected_event_id = nil
@@ -262,7 +263,7 @@ function EditorConfiguration:registerEditorSettings(session)
         end
     })
     editor.settings:registerSetting("appearance", "appearance.align_game_transition", {
-        name = "Align Game on Enter/Exit", type = "boolean", default = true,
+        name = "Align Game on Enter/Exit", type = "boolean", default = false,
         description = "Keep the game canvas at the same screen position while entering or leaving the editor.",
         set = function(value, editor) editor.align_game_transition = value end
     })

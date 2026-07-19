@@ -147,7 +147,7 @@ function EditorLayersPanel:getLayerIcon(layer)
 end
 
 function EditorLayersPanel:getLayerDepthText(layer)
-    return "D " .. string.format("%g", tonumber(layer and layer._editor_depth_offset) or 0)
+    return "L " .. string.format("%g", tonumber(layer and layer._editor_depth_offset) or 0)
 end
 
 function EditorLayersPanel:findLayerNode(uid)
@@ -261,7 +261,7 @@ function EditorLayersPanel:getPropertiesTarget(layer)
         },
         {
             id = "depth",
-            label = "Depth Offset",
+            label = "Layer Offset",
             compact = true,
             placeholder = "0",
             get = function() return tonumber(layer._editor_depth_offset) or 0 end,

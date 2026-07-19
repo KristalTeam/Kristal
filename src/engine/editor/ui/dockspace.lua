@@ -1,5 +1,6 @@
 --- Manages docked editor panels.
 ---@class EditorDockSpace : Class
+---@field active_panel EditorPanel?
 ---@field captured_control any
 ---@field context_menu any
 ---@field dock_preview any
@@ -78,6 +79,7 @@ function EditorDockSpace:init(editor)
     self.minimum_center_height = 120
     self.floating = {}
     self.focused_control = nil
+    self.active_panel = nil
     self.captured_control = nil
     self.pending_drag = nil
     self.dragging_panel = nil
@@ -88,6 +90,7 @@ function EditorDockSpace:init(editor)
     self.splitter_drag = nil
     self.stack_splitter_drag = nil
     self.floating_resize = nil
+    self.tab_close_mouse_button = nil
     self.context_menu = nil
     self.splitters = {}
     self.stack_splitters = {}
@@ -167,8 +170,10 @@ function EditorDockSpace:setPanelVisible(panel, visible, region)
             local _, removed_active = stack:removePanel(panel)
             local active = removed_active and stack:getActivePanel()
             if active and active.on_activate then active.on_activate(active) end
+            if self.active_panel == panel then self.active_panel = active end
         end
         self:removeFloating(panel)
+        if self.active_panel == panel then self.active_panel = nil end
         self:removeEmptySplitStacks()
         self:layout()
     end
@@ -184,8 +189,10 @@ function EditorDockSpace:unregisterPanel(panel)
         local _, removed_active = stack:removePanel(panel)
         local active = removed_active and stack:getActivePanel()
         if active and active.on_activate then active.on_activate(active) end
+        if self.active_panel == panel then self.active_panel = active end
     end
     self:removeFloating(panel)
+    if self.active_panel == panel then self.active_panel = nil end
     self.panels[panel.id] = nil
     for index, candidate in ipairs(self.panel_order) do
         if candidate == panel then table.remove(self.panel_order, index) break end
@@ -256,6 +263,8 @@ function EditorDockSpace:setFocus(control)
     if self.focused_control == control then return end
     if self.focused_control then self.focused_control:onBlur() end
     self.focused_control = control
+    local panel = self:getPanelForControl(control)
+    if panel then self.active_panel = panel end
     if control and control.focusable then control:onFocus() end
 end
 
@@ -565,7 +574,9 @@ end
 function EditorDockSpace:activateAdjacentTab(stack, direction)
     local index = MathUtils.clamp(stack.active_index + direction, 1, #stack.panels)
     if index == stack.active_index then return false end
-    stack:setActivePanel(stack.panels[index], true)
+    local panel = stack.panels[index]
+    stack:setActivePanel(panel, true)
+    self.active_panel = panel
     self:layoutStackContent(stack)
     return true
 end
@@ -585,6 +596,35 @@ function EditorDockSpace:getControlAt(x, y)
             local target = panel.content:getControlAt(x, y)
             if target then return target end
         end
+    end
+end
+
+function EditorDockSpace:getPanelForControl(control)
+    while control do
+        for _, panel in ipairs(self.panel_order) do
+            if panel.visible and panel.content == control then return panel end
+        end
+        control = control.parent
+    end
+end
+
+function EditorDockSpace:getActivePanel()
+    local focused_panel = self:getPanelForControl(self.focused_control)
+    if self:isPanelDisplayed(focused_panel) then return focused_panel end
+    if self:isPanelDisplayed(self.active_panel) then return self.active_panel end
+
+    local document_panel = self.editor.active_document and self.editor.active_document.panel
+    if self:isPanelDisplayed(document_panel) then return document_panel end
+    if self:isPanelDisplayed(self.editor.game_panel) then return self.editor.game_panel end
+
+    for index = #self.floating, 1, -1 do
+        if self:isPanelDisplayed(self.floating[index]) then return self.floating[index] end
+    end
+    local center = self.stacks.center and self.stacks.center:getActivePanel()
+    if self:isPanelDisplayed(center) then return center end
+    for _, stack in ipairs(self:getStacks()) do
+        local panel = stack:getActivePanel()
+        if self:isPanelDisplayed(panel) then return panel end
     end
 end
 
@@ -757,10 +797,11 @@ function EditorDockSpace:layoutContextMenu(menu)
     menu.selected_index = selected
     local maximum_scroll = math.max(0, #filtered - menu.maximum_rows)
     menu.scroll = MathUtils.clamp(menu.scroll or 0, 0, maximum_scroll)
-    if selected then
+    if selected and menu.ensure_selection_visible ~= false then
         if selected <= menu.scroll then menu.scroll = selected - 1 end
         if selected > menu.scroll + menu.maximum_rows then menu.scroll = selected - menu.maximum_rows end
     end
+    menu.ensure_selection_visible = false
     menu.items = {}
     local first = menu.scroll + 1
     local last = math.min(#filtered, first + menu.maximum_rows - 1)
@@ -776,7 +817,7 @@ function EditorDockSpace:layoutContextMenu(menu)
     for index, item in ipairs(menu.items) do
         item.rect = {
             x = menu_x, y = menu_y + search_height + (index - 1) * 28,
-            width = menu.width, height = 28
+            width = menu.width - (maximum_scroll > 0 and 10 or 0), height = 28
         }
     end
     menu.rect = { x = menu_x, y = menu_y, width = menu.width, height = height }
@@ -784,6 +825,13 @@ function EditorDockSpace:layoutContextMenu(menu)
         and { x = menu_x, y = menu_y, width = menu.width, height = search_height } or nil
     if menu.search_input then
         menu.search_input:setBounds(menu_x, menu_y, menu.width, search_height)
+    end
+    menu.scrollbar.visible = maximum_scroll > 0
+    if menu.scrollbar.visible then
+        menu.scrollbar.page = MathUtils.clamp(menu.maximum_rows / math.max(1, #filtered), 0, 1)
+        menu.scrollbar:setBounds(menu_x + menu.width - 10, menu_y + search_height,
+            10, row_count * 28)
+        menu.scrollbar:setValue(menu.scroll / maximum_scroll, true)
     end
     menu.empty_rect = #menu.items == 0
         and { x = menu_x, y = menu_y + search_height, width = menu.width, height = 28 } or nil
@@ -809,10 +857,23 @@ function EditorDockSpace:openContextMenu(items, x, y, owner, options)
         query = "",
         scroll = 0,
         selected_index = options.searchable == true and 1 or nil,
+        ensure_selection_visible = true,
         maximum_rows = options.maximum_rows or 12,
         submenu = nil,
         submenu_rect = nil
     }
+    menu.scrollbar = EditorScrollbar({
+        width = 10,
+        on_changed = function(value)
+            if self.context_menu ~= menu then return end
+            local maximum = math.max(0, #menu.filtered_items - menu.maximum_rows)
+            local scroll = MathUtils.round(value * maximum)
+            if scroll == menu.scroll then return end
+            menu.scroll = scroll
+            menu.ensure_selection_visible = false
+            self:layoutContextMenu(menu)
+        end
+    })
     if menu.searchable then
         menu.search_input = EditorSearchBar({
             editor = self.editor,
@@ -824,6 +885,7 @@ function EditorDockSpace:openContextMenu(items, x, y, owner, options)
                 menu.query = query
                 menu.scroll = 0
                 menu.selected_index = 1
+                menu.ensure_selection_visible = true
                 self:layoutContextMenu(menu)
             end
         })
@@ -841,6 +903,7 @@ function EditorDockSpace:closeContextMenu()
         if self.captured_control == menu.search_input then self.captured_control = nil end
         if self.focused_control == menu.search_input then self:setFocus(nil) end
     end
+    if self.captured_control == menu.scrollbar then self.captured_control = nil end
     self.context_menu = nil
     return true
 end
@@ -912,6 +975,13 @@ function EditorDockSpace:closePanelFromContext(panel)
     end
 end
 
+function EditorDockSpace:closeActivePanel()
+    local panel = self:getActivePanel()
+    if not panel then return false end
+    self:closePanelFromContext(panel)
+    return true
+end
+
 function EditorDockSpace:drawContextMenu()
     local menu = self.context_menu
     if not menu then return end
@@ -946,17 +1016,7 @@ function EditorDockSpace:drawContextMenu()
                 rect.y + math.floor((rect.height - font:getHeight()) / 2))
         end
     end
-    if #menu.filtered_items > menu.maximum_rows then
-        local list_top = menu.rect.y + (menu.searchable and 30 or 0)
-        local list_height = menu.rect.height - (menu.searchable and 30 or 0)
-        local maximum = #menu.filtered_items - menu.maximum_rows
-        local thumb_height = math.max(18, list_height * menu.maximum_rows / #menu.filtered_items)
-        local thumb_y = list_top + (list_height - thumb_height) * menu.scroll / maximum
-        love.graphics.setColor(0.18, 0.18, 0.21, 1)
-        love.graphics.rectangle("fill", menu.rect.x + menu.rect.width - 6, list_top, 6, list_height)
-        love.graphics.setColor(0.48, 0.52, 0.62, 1)
-        love.graphics.rectangle("fill", menu.rect.x + menu.rect.width - 5, thumb_y, 4, thumb_height)
-    end
+    if menu.scrollbar.visible then menu.scrollbar:draw() end
     local rect = menu.rect
     love.graphics.setColor(self.theme.border)
     love.graphics.rectangle("line", rect.x + 0.5, rect.y + 0.5, rect.width - 1, rect.height - 1)
@@ -1006,6 +1066,13 @@ function EditorDockSpace:onMousePressed(x, y, button, presses)
             end
             return true
         end
+        if button == 1 and menu.scrollbar.visible and menu.scrollbar:containsPoint(x, y) then
+            local local_x, local_y = menu.scrollbar:toLocal(x, y)
+            if menu.scrollbar:onMousePressed(local_x, local_y, button, presses) then
+                self.captured_control = menu.scrollbar
+            end
+            return true
+        end
         if button == 1 then
             local item = self:getContextMenuItemAt(x, y)
             if item and item.children then
@@ -1025,7 +1092,17 @@ function EditorDockSpace:onMousePressed(x, y, button, presses)
     if button == 2 then
         local panel = self:getTabAt(x, y)
         if panel then
+            self.active_panel = panel
             self:openPanelContextMenu(panel, x, y)
+            return true
+        end
+    end
+    if button == 3 then
+        local panel = self:getTabAt(x, y)
+        if panel then
+            self.active_panel = panel
+            self.tab_close_mouse_button = button
+            self:closePanelFromContext(panel)
             return true
         end
     end
@@ -1037,6 +1114,7 @@ function EditorDockSpace:onMousePressed(x, y, button, presses)
         end
         local resizing_panel, resize_edges, resize_cursor = self:getFloatingResizeAt(x, y)
         if resizing_panel then
+            self.active_panel = resizing_panel
             local rect = resizing_panel.floating
             self.floating_resize = {
                 panel = resizing_panel,
@@ -1074,6 +1152,7 @@ function EditorDockSpace:onMousePressed(x, y, button, presses)
         end
         local panel, rect, stack = self:getTabAt(x, y)
         if panel then
+            self.active_panel = panel
             if stack then
                 stack:setActivePanel(panel, true)
             elseif panel.on_activate then
@@ -1084,6 +1163,8 @@ function EditorDockSpace:onMousePressed(x, y, button, presses)
             return true
         end
     end
+    local panel = self:getPanelAt(x, y)
+    if panel then self.active_panel = panel end
     local target = self:getControlAt(x, y)
     if target then
         if target.focusable then self:setFocus(target) elseif self.focused_control then self:setFocus(nil) end
@@ -1099,8 +1180,8 @@ function EditorDockSpace:onMousePressed(x, y, button, presses)
 end
 
 function EditorDockSpace:onMouseMoved(x, y, dx, dy)
-    if self.context_menu and self.context_menu.search_input
-        and self.captured_control == self.context_menu.search_input then
+    if self.context_menu and (self.captured_control == self.context_menu.search_input
+        or self.captured_control == self.context_menu.scrollbar) then
         local local_x, local_y = self.captured_control:toLocal(x, y)
         self.captured_control:onMouseMoved(local_x, local_y, dx, dy)
         return true
@@ -1203,6 +1284,10 @@ function EditorDockSpace:isDockingSuppressed()
 end
 
 function EditorDockSpace:onMouseReleased(x, y, button, presses)
+    if button == self.tab_close_mouse_button then
+        self.tab_close_mouse_button = nil
+        return true
+    end
     if button == 1 and self.floating_resize then
         self.floating_resize = nil
         return true
@@ -1337,10 +1422,10 @@ function EditorDockSpace:onWheelMoved(x, y)
     if self.context_menu and pointInRect(mouse_x, mouse_y, self.context_menu.rect) then
         local menu = self.context_menu
         local maximum = math.max(0, #menu.filtered_items - menu.maximum_rows)
-        local scroll = MathUtils.clamp(menu.scroll - y, 0, maximum)
+        local scroll = MathUtils.round(MathUtils.clamp(menu.scroll - y, 0, maximum))
         if scroll ~= menu.scroll then
             menu.scroll = scroll
-            menu.selected_index = math.min(#menu.filtered_items, scroll + 1)
+            menu.ensure_selection_visible = false
             self:layoutContextMenu(menu)
         end
         return true
@@ -1379,6 +1464,7 @@ function EditorDockSpace:onKeyPressed(key, is_repeat)
                     index = ((index - 1 + direction) % count) + 1
                     if menu.filtered_items[index].enabled then
                         menu.selected_index = index
+                        menu.ensure_selection_visible = true
                         break
                     end
                 end

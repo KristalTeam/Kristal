@@ -134,6 +134,11 @@ function EditorMapView:focusMap(map_id)
     return true
 end
 
+function EditorMapView:getFocusedMapId()
+    if self.document and self.document.map_lookup[self.active_map_id] then return self.active_map_id end
+    return self.document and self.document.primary_map_id
+end
+
 function EditorMapView:selectWorldMap(entry)
     self.selected_world_map_id = entry and entry.id or nil
     self.active_map_id = entry and entry.id or self.active_map_id
@@ -174,8 +179,7 @@ function EditorMapView:drawDocument()
     love.graphics.translate(-primary.x, -primary.y)
     local selected_object = self.editor and self.editor.selected_map_object
     local active_map_id = selected_object and selected_object.document == document and selected_object.map_id
-        or self.active_map_id
-        or document.primary_map_id
+        or self:getFocusedMapId()
     for _, entry in ipairs(document.maps) do
         if entry.id ~= active_map_id then
             love.graphics.push()
@@ -197,8 +201,10 @@ function EditorMapView:drawDocument()
         if entry.width and entry.height then
             local selected = self.editor and self.editor.active_tool == "world_select"
                 and self.selected_world_map_id == entry.id
-            love.graphics.setLineWidth((selected and 3 or 2) / self.view_zoom)
-            Draw.setColor(selected and { 1, 0.84, 0.2, 0.95 } or { 1, 1, 1, 0.4 })
+            local focused = active_map_id == entry.id
+            love.graphics.setLineWidth((selected and 3 or focused and 2.5 or 2) / self.view_zoom)
+            Draw.setColor(selected and { 1, 0.84, 0.2, 0.95 }
+                or focused and { 0.45, 0.72, 1, 0.9 } or { 1, 1, 1, 0.4 })
             love.graphics.rectangle("line", entry.x, entry.y, entry.width, entry.height)
             if self.editor and self.editor.show_tile_grid then
                 self:drawTileGrid(entry.x, entry.y, entry.width, entry.height,
@@ -1506,7 +1512,38 @@ end
 
 function EditorMapView:drawPreview()
     self:drawDocument()
-    self:drawCursorAndCoordinates()
+    if self.document and self.document.editor_world then
+        self:drawWorldFocusIndicator()
+    else
+        self:drawCursorAndCoordinates()
+    end
+end
+
+function EditorMapView:drawWorldFocusIndicator()
+    local focused_map_id = self:getFocusedMapId()
+    if not focused_map_id then return end
+    local lines = { "Focused map: " .. tostring(focused_map_id) }
+    local mouse_x, mouse_y = self.editor:getMousePosition()
+    local global_x, global_y = self:getGlobalPosition()
+    local x, y = mouse_x - global_x, mouse_y - global_y
+    if love.window.hasMouseFocus() and x >= 0 and y >= 0 and x < self.width and y < self.height then
+        local map_x, map_y = self:getMapCoordinates(x, y)
+        table.insert(lines, string.format("World: (%i, %i)",
+            MathUtils.round(map_x), MathUtils.round(map_y)))
+    end
+    local font = EditorFont.get(16)
+    love.graphics.setFont(font)
+    local width = 0
+    for _, line in ipairs(lines) do width = math.max(width, font:getWidth(line)) end
+    Draw.setColor(0, 0, 0, 0.75)
+    love.graphics.rectangle("fill", 6, 6, width + 12, #lines * font:getHeight() + 8)
+    for index, line in ipairs(lines) do
+        local line_y = 10 + (index - 1) * font:getHeight()
+        Draw.setColor(0, 0, 0, 1)
+        love.graphics.print(line, 13, line_y + 1)
+        Draw.setColor(1, 1, 1, 1)
+        love.graphics.print(line, 12, line_y)
+    end
 end
 
 function EditorMapView:drawTerrainRuleDebug()
@@ -1522,9 +1559,10 @@ function EditorMapView:drawTerrainRuleDebug()
     love.graphics.setFont(font)
     local width = math.min(self.width - 16, font:getWidth(text) + 12)
     Draw.setColor(0.04, 0.04, 0.05, 0.86)
-    love.graphics.rectangle("fill", 8, 30, width, font:getHeight() + 8)
+    local top = self.document and self.document.editor_world and 52 or 30
+    love.graphics.rectangle("fill", 8, top, width, font:getHeight() + 8)
     Draw.setColor(0.82, 0.86, 0.92, 1)
-    love.graphics.printf(text, 14, 34, math.max(0, width - 12), "left")
+    love.graphics.printf(text, 14, top + 4, math.max(0, width - 12), "left")
 end
 
 function EditorMapView:drawSelf()
@@ -1532,7 +1570,6 @@ function EditorMapView:drawSelf()
     love.graphics.rectangle("fill", 0, 0, self.width, self.height)
     self:drawPreview()
     self:drawTerrainRuleDebug()
-    self:drawScaleReadout()
     Draw.setColor(1, 1, 1, 1)
 end
 
@@ -1717,7 +1754,6 @@ function EditorMapView:onMousePressed(x, y, button, presses)
         end
         if button == 1 and selecting_existing_event and selection then
             self.editor:selectMapObject(selection)
-            self.editor:setActiveTool("select")
             return true
         end
         if tool == "object" and self.editor.placement_event_id then

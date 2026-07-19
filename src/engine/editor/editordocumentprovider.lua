@@ -33,6 +33,10 @@ function EditorDocumentProvider:close(document)
     return false
 end
 
+function EditorDocumentProvider:closeActive()
+    return nil
+end
+
 function EditorDocumentProvider:isFocused()
     return false
 end

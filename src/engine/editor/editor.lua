@@ -35,6 +35,8 @@
 ---@field project_id string?
 ---@field map_id string?
 ---@field previous_window table?
+---@field editor_window_width number?
+---@field editor_window_height number?
 ---@field previous_mouse_cursor love.Cursor?
 ---@field previous_mouse_visible boolean?
 ---@field previous_lock_movement boolean?
@@ -245,7 +247,7 @@ function Editor:getSelectedTerrain() return self.document_manager:getSelectedTer
 
 function Editor:rebuildTerrain(scope) return self.document_manager:rebuildTerrain(scope) end
 
-function Editor:setSelectedTile(tile) return self.document_manager:setSelectedTile(tile) end
+function Editor:setSelectedTile(tile, source) return self.document_manager:setSelectedTile(tile, source) end
 
 function Editor:showTilesetEditor(document) return self.document_manager:showTilesetEditor(document) end
 
@@ -336,7 +338,7 @@ function Editor:enter(previous, options)
     self.world_browser:refresh(self.active_world_id)
     self.event_browser = EditorEventBrowser(self)
     self.tileset_browser = EditorTilesetBrowser(self)
-    self.tile_palette = EditorTilePalette(self)
+    self.tile_palette = EditorTilePalette(self, { activate_tile_brush = true })
     self.terrain_palette = EditorTerrainPalette(self)
     self.tileset_editor = EditorTilesetPanel(self)
     self.tile_palette.random_mode = session and session.tile_palette_random == true or false
@@ -421,6 +423,7 @@ function Editor:leave()
         game_center_x, game_center_y = self:getGameCanvasScreenCenter()
     end
     local window = self.previous_window
+    if love.window.isMaximized() then love.window.restore() end
     if window then love.window.updateMode(window.width, window.height, window.flags) end
     Kristal.refreshWindowText()
     if window then
@@ -432,6 +435,7 @@ function Editor:leave()
             window_y = game_center_y - love.window.fromPixels(game_offset_y + (SCREEN_HEIGHT * game_scale / 2))
         end
         love.window.setPosition(MathUtils.round(window_x), MathUtils.round(window_y), window.display)
+        if window.maximized then love.window.maximize() end
     end
     Kristal.setDesiredWindowTitleAndIcon()
     if self.previous_mouse_cursor then
@@ -451,6 +455,8 @@ function Editor:leave()
     self.return_to_menu_on_exit = nil
     self.pending_project_switch_id = nil
     self.previous_mouse_cursor = nil
+    self.editor_window_width = nil
+    self.editor_window_height = nil
     self.message_bar = nil
     self.map_documents = nil
     self.active_document = nil
@@ -662,6 +668,13 @@ function Editor:openWorkspacePicker() return self.workspace_controller:openWorks
 function Editor:openSaveWorkspaceDialog() return self.workspace_controller:openSaveWorkspaceDialog() end
 
 function Editor:openDeleteWorkspacePicker() return self.workspace_controller:openDeleteWorkspacePicker() end
+
+function Editor:closeActiveTab(close_panel)
+    local provider_result = self.document_providers:invokeFocused("closeActive")
+    if provider_result ~= nil then return provider_result end
+    if close_panel == false then return false end
+    return self.dockspace:closeActivePanel()
+end
 
 function Editor:undo()
     local provider_result = self.document_providers:invokeFocused("undo")
@@ -885,6 +898,7 @@ function Editor:positionGameCanvasAtScreen(screen_x, screen_y) return self.ui_co
 function Editor:centerWindow(display, desktop_width, desktop_height) return self.ui_controller:centerWindow(display, desktop_width, desktop_height) end
 
 function Editor:update()
+    self.ui_controller:updateWindowState()
     if self.document_providers then self.document_providers:broadcast("update") end
     local preview_owner = self:getGamePreviewOwnerPanel()
     if self.live_document and preview_owner
@@ -1135,6 +1149,11 @@ function Editor:onKeyPressed(key, is_repeat)
     if self.menu_bar:onKeyPressed(key) then return true end
     local focused = self.dockspace.focused_control
     local editing_text = focused and focused.accepts_text_input
+    if Input.ctrl() and not is_repeat and key == "w" then
+        self.consumed_editor_keys[key] = true
+        self:closeActiveTab(not editing_text)
+        return true
+    end
     if Input.ctrl() and not is_repeat and (key == "c" or key == "x" or key == "v") then
         self.consumed_editor_keys[key] = true
         if self.dockspace:onKeyPressed(key, is_repeat) then return true end
@@ -1329,6 +1348,7 @@ function Editor:onMouseMoved(x, y, dx, dy, istouch)
     if self.color_picker then return self.color_picker:onMouseMoved(x, y, dx, dy, istouch) end
     if self.creation_dialog then return self.creation_dialog:onMouseMoved(x, y, dx, dy, istouch) end
     self:updateGameObjectSelectionCursor(x, y)
+    if self.menu_bar:onMouseMoved(x, y, dx, dy) then return true end
     if self.dockspace:onMouseMoved(x, y, dx, dy) then return true end
     local debug_system = Kristal.DebugSystem
     if self:isGameObjectSelectionActive()

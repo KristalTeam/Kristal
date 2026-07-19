@@ -1,6 +1,7 @@
 --- Selects tiles and tile painting options.
 ---@class EditorTilePalette : EditorControl
 ---@field allow_empty_tile_press any
+---@field activate_tile_brush boolean
 ---@field clip boolean
 ---@field custom_tile_drag number?
 ---@field document EditorTilesetDocument?
@@ -45,11 +46,12 @@ function EditorTilePalette:init(editor, options)
     self.on_tile_released = options.on_tile_released
     self.draw_tile_overlay = options.draw_tile_overlay
     self.allow_empty_tile_press = options.allow_empty_tile_press
+    self.activate_tile_brush = options.activate_tile_brush == true
     self.document = nil
     self.scroll_row = 0
     self.scroll_column = 0
     self.zoom = 1
-    self.minimum_zoom = 0.25
+    self.minimum_zoom = 0.1
     self.maximum_zoom = 4
     self.random_mode = false
     self.selection_start = nil
@@ -121,8 +123,8 @@ function EditorTilePalette:setZoom(zoom, anchor_x, anchor_y)
 end
 
 function EditorTilePalette:stepZoom(direction, anchor_x, anchor_y)
-    local factor = math.sqrt(2) ^ direction
-    return self:setZoom(self.zoom * factor, anchor_x, anchor_y)
+    return self:setZoom(EditorZoomUtils.step(self.zoom, direction,
+        self.minimum_zoom, self.maximum_zoom), anchor_x, anchor_y)
 end
 
 function EditorTilePalette:resetZoom(anchor_x, anchor_y)
@@ -197,7 +199,7 @@ function EditorTilePalette:setSelection(first, last, notify)
     end
     local tile = self.document:getTile(last)
     if tile and notify ~= false then
-        self.editor:setSelectedTile(tile)
+        self.editor:setSelectedTile(tile, self)
         if self.on_selection then self.on_selection(tile, self) end
     end
     return true
@@ -273,6 +275,9 @@ function EditorTilePalette:onMousePressed(x, y, button, presses)
     if id == nil then return false end
     if button == 2 then return false end
     if button ~= 1 then return false end
+    if self.activate_tile_brush and self.editor.toolbar then
+        self.editor.toolbar:activateGroup("tile_brush")
+    end
     if presses and presses >= 2 then
         self:setSelection(id, id)
         return true

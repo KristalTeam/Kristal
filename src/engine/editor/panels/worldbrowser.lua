@@ -42,7 +42,13 @@ function EditorWorldBrowser:selectWorldMap(entry)
     local world = self.editor.active_editor_world
     if not world or not entry then return false end
     local document = self.editor:findWorldDocument(world.id)
-    if document and document.map_view then document.map_view.selected_world_map_id = entry.id end
+    if document and document.map_view then
+        document.map_view.selected_world_map_id = entry.id
+        document.map_view.active_map_id = entry.id
+        if self.editor.active_document == document and self.editor.layers_browser then
+            self.editor.layers_browser:setDocument(document, entry.id)
+        end
+    end
     self.editor:setPropertiesTarget({
         title = "World Map: " .. entry.id,
         world_id = world.id,
