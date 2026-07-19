@@ -17,6 +17,39 @@ function ColliderGroup:getColliderType()
     return CollisionRegistry.GROUP
 end
 
+function ColliderGroup:getBounds()
+    if #self.colliders == 0 then
+        return 0, 0, 0, 0
+    end
+
+    local min_x, min_y, max_x, max_y = math.huge, math.huge, -math.huge, -math.huge
+
+    for _, collider in ipairs(self.colliders) do
+        local x, y, width, height = collider:getBounds()
+
+        if collider:getOwner() == self:getOwner() then
+            min_x = math.min(min_x, x)
+            min_y = math.min(min_y, y)
+            max_x = math.max(max_x, x + width)
+            max_y = math.max(max_y, y + height)
+        else
+            local tf1, tf2 = self:getTransformsWith(collider)
+
+            local rel_ul_x, rel_ul_y = self:getLocalPoint(tf1, tf2, x, y)
+            local rel_ur_x, rel_ur_y = self:getLocalPoint(tf1, tf2, x + width, y)
+            local rel_dr_x, rel_dr_y = self:getLocalPoint(tf1, tf2, x + width, y + height)
+            local rel_dl_x, rel_dl_y = self:getLocalPoint(tf1, tf2, x, y + height)
+
+            min_x = math.min(min_x, rel_ul_x, rel_ur_x, rel_dr_x, rel_dl_x)
+            min_y = math.min(min_y, rel_ul_y, rel_ur_y, rel_dr_y, rel_dl_y)
+            max_x = math.max(max_x, rel_ul_x, rel_ur_x, rel_dr_x, rel_dl_x)
+            max_y = math.max(max_y, rel_ul_y, rel_ur_y, rel_dr_y, rel_dl_y)
+        end
+    end
+
+    return min_x, min_y, max_x - min_x, max_y - min_y
+end
+
 function ColliderGroup:setInner(inner)
     -- Set the inner property for all colliders inside the group
     for _, collider in ipairs(self.colliders) do

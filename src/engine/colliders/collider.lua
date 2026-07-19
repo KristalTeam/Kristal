@@ -34,6 +34,15 @@ function Collider:getColliderType()
     error("\"getColliderType\" not implemented for " .. TableUtils.dump(self))
 end
 
+--- Gets the axis-aligned bounding box of the collider.
+---@return number x # The X coordinate of the bounding box.
+---@return number y # The Y coordinate of the bounding box.
+---@return number width # The width of the bounding box.
+---@return number height # The height of the bounding box.
+function Collider:getBounds()
+    error("\"getBounds\" not implemented for " .. TableUtils.dump(self))
+end
+
 --- Gets the object which owns this collider.
 ---@return Object? parent # The owner of this collider, or `nil` if it has none.
 function Collider:getOwner()
@@ -128,6 +137,41 @@ function Collider:getLocalPoint(tf1, tf2, x, y)
     end
 
     return x, y
+end
+
+--- Gets the axis-aligned bounding box of the collider, transformed from one coordinate space to another.
+---@param source_tf love.Transform? # The transform of this collider relative to the common parent.
+---@param target_tf love.Transform? # The destination transform relative to the common parent.
+---@return number x # The X coordinate of the bounding box relative to the second transform.
+---@return number y # The Y coordinate of the bounding box relative to the second transform.
+---@return number width # The width of the bounding box relative to the second transform.
+---@return number height # The height of the bounding box relative to the second transform.
+function Collider:getRelativeBounds(source_tf, target_tf)
+    local bounds_x, bounds_y, bounds_w, bounds_h = self:getBounds()
+
+    local ul_x, ul_y = self:getLocalPoint(source_tf, target_tf, bounds_x, bounds_y)
+    local ur_x, ur_y = self:getLocalPoint(source_tf, target_tf, bounds_x + bounds_w, bounds_y)
+    local dr_x, dr_y = self:getLocalPoint(source_tf, target_tf, bounds_x + bounds_w, bounds_y + bounds_h)
+    local dl_x, dl_y = self:getLocalPoint(source_tf, target_tf, bounds_x, bounds_y + bounds_h)
+
+    local min_x = math.min(ul_x, ur_x, dr_x, dl_x)
+    local min_y = math.min(ul_y, ur_y, dr_y, dl_y)
+    local max_x = math.max(ul_x, ur_x, dr_x, dl_x)
+    local max_y = math.max(ul_y, ur_y, dr_y, dl_y)
+
+    return min_x, min_y, max_x - min_x, max_y - min_y
+end
+
+--- Gets the axis-aligned bounding box of the collider relative to another collider.
+---@param other Collider # The other collider to get the bounding box relative to.
+---@return number x # The X coordinate of the bounding box relative to the other collider.
+---@return number y # The Y coordinate of the bounding box relative to the other collider.
+---@return number width # The width of the bounding box relative to the other collider.
+---@return number height # The height of the bounding box relative to the other collider.
+function Collider:getBoundsFor(other)
+    local tf1, tf2 = other:getTransformsWith(self)
+
+    return self:getRelativeBounds(tf1, tf2)
 end
 
 --- Checks collision between this collider and another collider.
