@@ -3,6 +3,7 @@
 ---@field active_map_id string?
 ---@field event_paint_stroke any
 ---@field event_region_drag any
+---@field editor_event_drag table
 ---@field explosions table
 ---@field is_game_preview boolean
 ---@field is_map_view boolean
@@ -1126,6 +1127,66 @@ function EditorMapView:getResizeCursor(selection, corner)
     return math.sin(angle * 2) >= 0 and "resize_diag_l" or "resize_diag_r"
 end
 
+---@param selection table
+---@param world_x number
+---@param world_y number
+---@return number, number
+function EditorMapView:getObjectLocalCoordinates(selection, world_x, world_y)
+    local object_x, object_y = self.document:getObjectWorldPosition(selection)
+    local rotation = -math.rad(selection.data.rotation or 0)
+    local dx, dy = world_x - object_x, world_y - object_y
+    return dx * math.cos(rotation) - dy * math.sin(rotation),
+        dx * math.sin(rotation) + dy * math.cos(rotation)
+end
+
+---@param selection table
+---@return EditorEventInteractionContext
+function EditorMapView:getEditorInteractionContext(selection)
+    return {
+        document = self.document,
+        selection = selection,
+        snap = not Input.ctrl(),
+        tile_width = selection.entry.tile_width or 40,
+        tile_height = selection.entry.tile_height or 40,
+        view = self,
+        view_zoom = self.view_zoom
+    }
+end
+
+---@return table?, EditorEvent?
+function EditorMapView:getSelectedInteractionEvent()
+    local selections = self.editor and self.editor:getSelectedMapObjects(self.document) or {}
+    if #selections ~= 1 then return nil end
+    local selection = selections[1]
+    local event = self.document:getEditorEvent(selection)
+    if not event then return nil end
+    return selection, event
+end
+
+---@param world_x number
+---@param world_y number
+---@return table?, EditorEvent?, EditorEventInteraction?
+function EditorMapView:getEditorInteractionAt(world_x, world_y)
+    local selection, event = self:getSelectedInteractionEvent()
+    if not selection then return nil end
+    local local_x, local_y = self:getObjectLocalCoordinates(selection, world_x, world_y)
+    local interaction = event:getEditorInteraction(local_x, local_y,
+        self:getEditorInteractionContext(selection))
+    if interaction then return selection, event, interaction end
+end
+
+function EditorMapView:drawEditorEventSelection()
+    local selection, event = self:getSelectedInteractionEvent()
+    if not selection then return end
+    local object_x, object_y = self.document:getObjectWorldPosition(selection)
+    love.graphics.push()
+    love.graphics.translate(object_x, object_y)
+    love.graphics.rotate(math.rad(selection.data.rotation or 0))
+    event:drawEditorSelection(self:getEditorInteractionContext(selection))
+    love.graphics.pop()
+    Draw.setColor(1, 1, 1, 1)
+end
+
 function EditorMapView:openPolygonVertexContext(selection, index, x, y)
     local points = self.document:getPointShape(selection)
     local shape = StringUtils.titleCase(selection.data.shape or "polygon")
@@ -1207,6 +1268,7 @@ function EditorMapView:drawSelectedObject()
         Draw.setColor(1, 0.86, 0.2, 0.7)
         love.graphics.rectangle("line", min_x, min_y, max_x - min_x, max_y - min_y)
     end
+    self:drawEditorEventSelection()
     local handle_x, handle_y, anchor_x, anchor_y = self:getRotationHandle(selections)
     Draw.setColor(1, 0.86, 0.2, 0.8)
     love.graphics.line(anchor_x, anchor_y, handle_x, handle_y)
@@ -1560,6 +1622,25 @@ function EditorMapView:onMousePressed(x, y, button, presses)
             end
         end
         if button == 1 and tool == "select" then
+            local interaction_selection, interaction_event, interaction =
+                self:getEditorInteractionAt(world_x, world_y)
+            if interaction_selection then
+                local local_x, local_y = self:getObjectLocalCoordinates(
+                    interaction_selection, world_x, world_y)
+                local context = self:getEditorInteractionContext(interaction_selection)
+                if not interaction_event:beginEditorInteraction(
+                    interaction, local_x, local_y, context) then return true end
+                self.editor_event_drag = {
+                    selection = interaction_selection,
+                    event = interaction_event,
+                    interaction = interaction,
+                    changed = false
+                }
+                self.editor:beginHistoryTransaction(interaction.name or "Edit Object", self.document)
+                return true
+            end
+        end
+        if button == 1 and tool == "select" then
             local vertex_selection, vertex_index = self:getPolygonVertexAt(world_x, world_y)
             if vertex_selection then
                 self.polygon_vertex_drag = { selection = vertex_selection, index = vertex_index }
@@ -1785,6 +1866,18 @@ function EditorMapView:onMouseMoved(x, y, dx, dy)
         return self.editor.game_preview:onMouseMoved(x, y, dx, dy)
     end
     local world_x, world_y = self:getMapCoordinates(x, y)
+    if self.editor_event_drag then
+        local drag = self.editor_event_drag
+        local local_x, local_y = self:getObjectLocalCoordinates(drag.selection, world_x, world_y)
+        local changed = drag.event:updateEditorInteraction(drag.interaction, local_x, local_y,
+            self:getEditorInteractionContext(drag.selection))
+        if changed then
+            drag.changed = true
+            self.document:invalidatePreview(drag.selection.map_id)
+            self.editor:markHistoryChanged()
+        end
+        return true
+    end
     if self.tile_selection_drag or self.tile_shape_drag then
         return self:continueTileDrag(world_x, world_y)
     end
@@ -1913,6 +2006,21 @@ function EditorMapView:onMouseReleased(x, y, button, presses)
     if self.editor and self.editor.live_document == self.document then
         return self.editor.game_preview:onMouseReleased(x, y, button, presses)
     end
+    if button == 1 and self.editor_event_drag then
+        local drag = self.editor_event_drag
+        self.editor_event_drag = nil
+        local world_x, world_y = self:getMapCoordinates(x, y)
+        local local_x, local_y = self:getObjectLocalCoordinates(drag.selection, world_x, world_y)
+        drag.event:endEditorInteraction(drag.interaction, local_x, local_y, drag.changed,
+            self:getEditorInteractionContext(drag.selection))
+        if drag.changed then
+            self.editor:commitHistoryTransaction()
+            self.editor:selectMapObjects({ drag.selection }, drag.selection)
+        else
+            self.editor:cancelHistoryTransaction()
+        end
+        return true
+    end
     if button == 1 and (self.tile_selection_drag or self.tile_shape_drag) then
         return self:finishTileDrag()
     end
@@ -2038,6 +2146,7 @@ function EditorMapView:getCursorType(x, y)
     if self.editor and self.editor.live_document == self.document then
         return self.editor.game_preview:getCursorType(x, y)
     end
+    if self.editor_event_drag then return self.editor_event_drag.interaction.cursor or "resize_all" end
     if self.object_drag then return self.object_drag.resize_cursor or "grab" end
     if self.map_drag or self.dragging_canvas then return "grab" end
     if self.polygon_vertex_drag then return "resize_all" end
@@ -2064,6 +2173,8 @@ function EditorMapView:getCursorType(x, y)
     end
     local world_x, world_y = self:getMapCoordinates(x, y)
     if self.editor and self.editor.active_tool == "select" then
+        local _, _, interaction = self:getEditorInteractionAt(world_x, world_y)
+        if interaction then return interaction.cursor or "resize_all" end
         local resize_selection, resize_corner = self:getSelectedResizeCornerAt(world_x, world_y)
         if resize_selection then return self:getResizeCursor(resize_selection, resize_corner) end
     end
