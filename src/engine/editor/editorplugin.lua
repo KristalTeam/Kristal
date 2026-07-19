@@ -8,6 +8,8 @@
 ---@field loaded_scripts table
 ---@field loading_scripts table
 ---@field panels table
+---@field project table?
+---@field library table?
 ---@field registration_cleanups table
 ---@field settings_pages table
 ---@field workspaces table
@@ -18,6 +20,8 @@ function EditorPlugin:init(info)
     assert(type(info) == "table", "EditorPlugin requires plugin metadata")
     self.id = assert(info.id, "EditorPlugin metadata requires an id")
     self.info = info
+    self.project = info.project
+    self.library = info.library
     self.panels = {}
     self.workspaces = {}
     self.settings_pages = {}
