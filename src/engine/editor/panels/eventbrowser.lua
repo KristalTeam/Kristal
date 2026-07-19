@@ -15,8 +15,8 @@ function EditorEventBrowser:init(editor)
     }))
     self.list = self:addChild(EditorItemList({
         row_height = 48,
-        on_select = function(item) if item then self.editor:setPlacementEvent(item.id) end end,
-        on_activate = function(item) if item then self.editor:setPlacementEvent(item.id) end end,
+        on_select = function(item) self:selectEvent(item) end,
+        on_activate = function(item) self:selectEvent(item) end,
         on_drag_start = function(item) self.editor:beginAssetDrag("event", item.id, item.label) end,
         on_drag_move = function(_, list, x, y)
             local gx, gy = list:getGlobalPosition()
@@ -31,18 +31,28 @@ function EditorEventBrowser:init(editor)
     self:refresh()
 end
 
+function EditorEventBrowser:selectEvent(item)
+    if not item then return false end
+    self.editor:setPlacementEvent(item.id)
+    local description = item.data and item.data.editor_description
+    if description and self.editor.message_bar then self.editor.message_bar:setStatus(description) end
+    return true
+end
+
 function EditorEventBrowser:refresh()
     local items = {}
     for id, event in pairs(Registry.editor_events or {}) do
-        local success, preview = pcall(Registry.createEditorEvent, id, {
-            x = 0, y = 0, width = 0, height = 0, properties = {}
-        }, { layer_color = { 0.95, 0.75, 0.25, 1 } })
-        table.insert(items, {
-            id = id,
-            label = event.editor_name or event.name or StringUtils.titleCase(id:gsub("[/_]", " ")),
-            data = event,
-            preview = success and preview or nil
-        })
+        if not event.editor_hidden then
+            local success, preview = pcall(Registry.createEditorEvent, id, {
+                x = 0, y = 0, width = 0, height = 0, properties = {}
+            }, { layer_color = { 0.95, 0.75, 0.25, 1 } })
+            table.insert(items, {
+                id = id,
+                label = event.editor_name or event.name or StringUtils.titleCase(id:gsub("[/_]", " ")),
+                data = event,
+                preview = success and preview or nil
+            })
+        end
     end
     table.sort(items, function(a, b) return a.label:lower() < b.label:lower() end)
     self.list:setItems(items)

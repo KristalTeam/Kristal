@@ -1169,6 +1169,16 @@ function EditorMapDocument:getEditorObjectType(data, map_id)
     return data and MapUtils.getObjectType(data, reader and reader.LEGACY_FORMAT)
 end
 
+---@param selection table
+---@return EditorEvent?
+function EditorMapDocument:getEditorEvent(selection)
+    if not selection or selection.document ~= self then return nil end
+    local preview = self:getPreview(selection.entry)
+    for _, event in ipairs(preview and preview.editor_events or {}) do
+        if event.data == selection.data then return event end
+    end
+end
+
 function EditorMapDocument:getObjectScalingMode(selection)
     local data = selection and selection.data
     if not data or data.gid or data.tileset and data.tile_id ~= nil then return "resize" end

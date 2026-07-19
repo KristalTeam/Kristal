@@ -19,6 +19,10 @@
 ---@field scale_y number
 ---@field sprite string?
 ---@field editor_sprite string?
+---@field editor_name string?
+---@field editor_description string?
+---@field editor_hidden boolean?
+---@field runtime_event_id string?
 ---@field sprite_property string?
 ---@field visible boolean
 ---@field width number
@@ -29,6 +33,20 @@
 ---@field runtime_type "event"|"controller"|"marker"|"path"|"player"
 ---@overload fun(data?: table, options?: table): EditorEvent
 local EditorEvent = Class()
+
+---@class EditorEventInteraction
+---@field id string
+---@field cursor string?
+---@field name string?
+
+---@class EditorEventInteractionContext
+---@field document EditorMapDocument
+---@field selection table
+---@field snap boolean
+---@field tile_width number
+---@field tile_height number
+---@field view EditorMapView
+---@field view_zoom number
 
 -- Event classes may override this with "point" when their position has no
 -- bounded area, or "region" when placement should be defined by dragging.
@@ -122,6 +140,44 @@ end
 function EditorEvent:getSortPosition()
     local width, height = self:getBoundsSize()
     return self.x + width / 2, self.y + height
+end
+
+---@param context EditorEventInteractionContext
+function EditorEvent:drawEditorSelection(context)
+end
+
+---@param x number
+---@param y number
+---@param context EditorEventInteractionContext
+---@return EditorEventInteraction?
+function EditorEvent:getEditorInteraction(x, y, context)
+    return nil
+end
+
+---@param interaction EditorEventInteraction
+---@param x number
+---@param y number
+---@param context EditorEventInteractionContext
+---@return boolean
+function EditorEvent:beginEditorInteraction(interaction, x, y, context)
+    return true
+end
+
+---@param interaction EditorEventInteraction
+---@param x number
+---@param y number
+---@param context EditorEventInteractionContext
+---@return boolean
+function EditorEvent:updateEditorInteraction(interaction, x, y, context)
+    return false
+end
+
+---@param interaction EditorEventInteraction
+---@param x number
+---@param y number
+---@param changed boolean
+---@param context EditorEventInteractionContext
+function EditorEvent:endEditorInteraction(interaction, x, y, changed, context)
 end
 
 function EditorEvent:getPreviewSprite(sprite)
