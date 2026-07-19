@@ -1492,11 +1492,13 @@ function EditorMapDocument:getPreview(entry)
     return entry.preview
 end
 
-function EditorMapDocument:drawPreview(entry, outline_width)
+function EditorMapDocument:drawPreview(entry, outline_width, map_selected)
     local preview = self:getPreview(entry)
     if not preview then return false end
     local map = preview.map
-    Draw.setColor(map.bg_color or { 0, 0, 0, 0 })
+    local darken = not self.editor or self.editor.darken_unselected_layers ~= false
+    local map_alpha = darken and map_selected == false and 0.35 or 1
+    Draw.setColor(map.bg_color or { 0, 0, 0, 0 }, map_alpha)
     love.graphics.rectangle("fill", 0, 0, entry.width, entry.height)
     Draw.setColor(1, 1, 1, 1)
     local drawables = {}
@@ -1504,7 +1506,6 @@ function EditorMapDocument:drawPreview(entry, outline_width)
     local function layerState(uid)
         local layer = uid and preview.layer_lookup[uid]
         if layer and (layer._editor_visible == false or preview.layer_visibility[uid] == false) then return false, 0 end
-        local darken = not self.editor or self.editor.darken_unselected_layers ~= false
         local selected = selected_uid == nil or selected_uid == uid
         local parent_uid = uid and preview.layer_parent[uid]
         while not selected and parent_uid do
@@ -1514,7 +1515,8 @@ function EditorMapDocument:drawPreview(entry, outline_width)
         local opacity = layer and (layer.opacity == nil and 1 or layer.opacity) or 1
         local tint = layer and (layer.tint or layer.tintcolor)
         if tint and tint[4] ~= nil then opacity = opacity * (tint[4] > 1 and tint[4] / 255 or tint[4]) end
-        return true, ((not darken or selected) and 1 or 0.35) * opacity
+        local selection_alpha = not darken or map_selected == false or selected
+        return true, (selection_alpha and 1 or 0.35) * opacity * map_alpha
     end
     for index, child in ipairs(preview.root.children) do
         local uid = preview.drawable_layers[child]

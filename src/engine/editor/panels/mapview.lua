@@ -184,7 +184,7 @@ function EditorMapView:drawDocument()
         if entry.id ~= active_map_id then
             love.graphics.push()
             love.graphics.translate(entry.x, entry.y)
-            document:drawPreview(entry, 1 / self.view_zoom)
+            document:drawPreview(entry, 1 / self.view_zoom, false)
             love.graphics.pop()
         end
     end
@@ -192,7 +192,7 @@ function EditorMapView:drawDocument()
     if active_entry then
         love.graphics.push()
         love.graphics.translate(active_entry.x, active_entry.y)
-        document:drawPreview(active_entry, 1 / self.view_zoom)
+        document:drawPreview(active_entry, 1 / self.view_zoom, true)
         love.graphics.pop()
     end
     love.graphics.setLineWidth(2 / self.view_zoom)
@@ -1579,6 +1579,44 @@ function EditorMapView:onFocus()
     end
 end
 
+function EditorMapView:canManipulateObjectSelection()
+    local tool = self.editor and self.editor.tool_registry:get(self.editor.active_tool)
+    return tool and tool.uses_object_selection == true
+end
+
+function EditorMapView:beginObjectMove(selection, world_x, world_y)
+    if Input.shift() then
+        self.editor:selectMapObject(selection, true)
+        return true
+    end
+    if not self.editor:isMapObjectSelected(selection) then
+        self.editor:selectMapObject(selection)
+    end
+    local snapshots = {}
+    for _, selected in ipairs(self.editor:getSelectedMapObjects(self.document)) do
+        table.insert(snapshots, {
+            selection = selected,
+            x = selected.data.x or 0,
+            y = selected.data.y or 0,
+            width = selected.data.width or 0,
+            height = selected.data.height or 0
+        })
+    end
+    self.object_drag = {
+        selection = selection,
+        selections = snapshots,
+        resize = false,
+        start_x = world_x,
+        start_y = world_y,
+        object_x = selection.data.x or 0,
+        object_y = selection.data.y or 0,
+        width = selection.data.width or 0,
+        height = selection.data.height or 0
+    }
+    self.editor:beginHistoryTransaction("Move Objects", self.document)
+    return true
+end
+
 function EditorMapView:onMousePressed(x, y, button, presses)
     if self.editor and not self.editor.suppress_panel_activation
         and self.editor.active_document ~= self.document then
@@ -1590,6 +1628,7 @@ function EditorMapView:onMousePressed(x, y, button, presses)
     if button == 1 or button == 2 then
         local world_x, world_y = self:getMapCoordinates(x, y)
         local tool = self.editor.active_tool
+        local can_manipulate_objects = self:canManipulateObjectSelection()
         if tool == "link" then
             if button == 2 then
                 return self.editor:cancelObjectLink() or true
@@ -1658,7 +1697,7 @@ function EditorMapView:onMousePressed(x, y, button, presses)
                 return self:beginTileEdit(tool, world_x, world_y)
             end
         end
-        if button == 1 and tool == "select" then
+        if button == 1 and can_manipulate_objects then
             local interaction_selection, interaction_event, interaction =
                 self:getEditorInteractionAt(world_x, world_y)
             if interaction_selection then
@@ -1677,7 +1716,7 @@ function EditorMapView:onMousePressed(x, y, button, presses)
                 return true
             end
         end
-        if button == 1 and tool == "select" then
+        if button == 1 and can_manipulate_objects then
             local vertex_selection, vertex_index = self:getPolygonVertexAt(world_x, world_y)
             if vertex_selection then
                 self.polygon_vertex_drag = { selection = vertex_selection, index = vertex_index }
@@ -1686,7 +1725,7 @@ function EditorMapView:onMousePressed(x, y, button, presses)
                 return true
             end
         end
-        if button == 2 and tool == "select" then
+        if button == 2 and can_manipulate_objects then
             local vertex_selection, vertex_index = self:getPolygonVertexAt(world_x, world_y)
             if vertex_selection and vertex_selection.data.shape ~= "line" then
                 local global_x, global_y = self:getGlobalPosition()
@@ -1694,7 +1733,7 @@ function EditorMapView:onMousePressed(x, y, button, presses)
                     global_x + x, global_y + y)
             end
         end
-        if button == 1 and tool == "select" and self:isRotationHandleAt(world_x, world_y) then
+        if button == 1 and can_manipulate_objects and self:isRotationHandleAt(world_x, world_y) then
             local selections = self.editor:getSelectedMapObjects(self.document)
             local min_x, min_y, max_x, max_y = self:getSelectionBounds(selections)
             local center_x, center_y = (min_x + max_x) / 2, (min_y + max_y) / 2
@@ -1716,7 +1755,7 @@ function EditorMapView:onMousePressed(x, y, button, presses)
             self.editor:beginHistoryTransaction("Rotate Objects", self.document)
             return true
         end
-        if button == 1 and tool == "select" then
+        if button == 1 and can_manipulate_objects then
             local resize_selection, resize_corner = self:getSelectedResizeCornerAt(world_x, world_y)
             if resize_selection then
                 local object_x, object_y = self.document:getObjectWorldPosition(resize_selection)
@@ -1740,9 +1779,8 @@ function EditorMapView:onMousePressed(x, y, button, presses)
                 return true
             end
         end
-        local selecting_existing_event = tool == "object"
-            and self.editor.placement_event_id and not Input.alt()
-        local selection = (button == 2 or tool ~= "object" or selecting_existing_event)
+        local selecting_existing_object = tool == "object" and not Input.alt()
+        local selection = (button == 2 or tool ~= "object" or selecting_existing_object)
             and self.document:findObjectAt(world_x, world_y) or nil
         if selection then selection.view = self end
         if button == 2 then
@@ -1752,9 +1790,8 @@ function EditorMapView:onMousePressed(x, y, button, presses)
             end
             return false
         end
-        if button == 1 and selecting_existing_event and selection then
-            self.editor:selectMapObject(selection)
-            return true
+        if button == 1 and selecting_existing_object and selection then
+            return self:beginObjectMove(selection, world_x, world_y)
         end
         if tool == "object" and self.editor.placement_event_id then
             local event_class = Registry.getEditorEvent(self.editor.placement_event_id)
@@ -1840,37 +1877,8 @@ function EditorMapView:onMousePressed(x, y, button, presses)
             self.editor:selectMapObject(selection)
             return selection and self.editor:deleteSelectedMapObject(false) or true
         end
-        if selection and tool == "select" then
-            if Input.shift() then
-                self.editor:selectMapObject(selection, true)
-                return true
-            elseif not self.editor:isMapObjectSelected(selection) then
-                self.editor:selectMapObject(selection)
-            end
-            local selections = self.editor:getSelectedMapObjects(self.document)
-            local snapshots = {}
-            for _, selected in ipairs(selections) do
-                table.insert(snapshots, {
-                    selection = selected,
-                    x = selected.data.x or 0,
-                    y = selected.data.y or 0,
-                    width = selected.data.width or 0,
-                    height = selected.data.height or 0
-                })
-            end
-            self.object_drag = {
-                selection = selection,
-                selections = snapshots,
-                resize = false,
-                start_x = world_x,
-                start_y = world_y,
-                object_x = selection.data.x or 0,
-                object_y = selection.data.y or 0,
-                width = selection.data.width or 0,
-                height = selection.data.height or 0
-            }
-            self.editor:beginHistoryTransaction("Move Objects", self.document)
-            return true
+        if selection and can_manipulate_objects then
+            return self:beginObjectMove(selection, world_x, world_y)
         end
         if not selection and tool == "select" then
             local entry = self.document:getMapAt(world_x, world_y)
@@ -2193,6 +2201,19 @@ function EditorMapView:getCursorType(x, y)
         local world_x, world_y = self:getMapCoordinates(x, y)
         return self.document:getMapAt(world_x, world_y) and "grab" or "default"
     end
+    local world_x, world_y = self:getMapCoordinates(x, y)
+    if self:canManipulateObjectSelection() then
+        local _, _, interaction = self:getEditorInteractionAt(world_x, world_y)
+        if interaction then return interaction.cursor or "resize_all" end
+        local resize_selection, resize_corner = self:getSelectedResizeCornerAt(world_x, world_y)
+        if resize_selection then return self:getResizeCursor(resize_selection, resize_corner) end
+        if self:getPolygonVertexAt(world_x, world_y) then return "resize_all" end
+        if self:isRotationHandleAt(world_x, world_y) then return "resize_all" end
+        local selection = self.document:findObjectAt(world_x, world_y)
+        if selection then
+            return self.editor:isMapObjectSelected(selection) and "grab" or "select"
+        end
+    end
     if self.editor and (self.editor.active_tool == "object" or self.editor.active_tool == "shape"
         or self.editor.active_tool == "tile_brush" or self.editor.active_tool == "terrain_brush"
         or self.editor.active_tool == "tile_brush_round" or self.editor.active_tool == "tile_brush_line"
@@ -2206,19 +2227,6 @@ function EditorMapView:getCursorType(x, y)
         local world_x, world_y = self:getMapCoordinates(x, y)
         local entry = self.document:getMapAt(world_x, world_y)
         if entry and self.document:getSelectedTileLayer(entry.id) then return "crosshair" end
-    end
-    local world_x, world_y = self:getMapCoordinates(x, y)
-    if self.editor and self.editor.active_tool == "select" then
-        local _, _, interaction = self:getEditorInteractionAt(world_x, world_y)
-        if interaction then return interaction.cursor or "resize_all" end
-        local resize_selection, resize_corner = self:getSelectedResizeCornerAt(world_x, world_y)
-        if resize_selection then return self:getResizeCursor(resize_selection, resize_corner) end
-    end
-    if self.editor and self.editor.active_tool == "select" and self:getPolygonVertexAt(world_x, world_y) then
-        return "resize_all"
-    end
-    if self.editor and self.editor.active_tool == "select" and self:isRotationHandleAt(world_x, world_y) then
-        return "resize_all"
     end
     local selection = self.document:findObjectAt(world_x, world_y)
     if selection then
