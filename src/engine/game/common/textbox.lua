@@ -144,8 +144,9 @@ function Textbox:init(x, y, width, height, default_font, default_font_size, batt
         local oy = tonumber(node.arguments[3]) or 0
         if self.actor then
             local actor_ox, actor_oy = self.actor:getMinifaceOffset()
-            ox = actor_ox
-            oy = actor_oy
+            local miniface_ox, miniface_oy = self.actor:getSpecificMinifaceOffset(node.arguments[1])
+            ox = ox + actor_ox + miniface_ox
+            oy = oy + actor_oy + miniface_oy
         end
         local x_scale = tonumber(node.arguments[4]) or 2
         local y_scale = tonumber(node.arguments[5]) or 2
@@ -228,8 +229,9 @@ function Textbox:setFace(face, ox, oy)
 
     if self.actor then
         local actor_ox, actor_oy = self.actor:getPortraitOffset()
-        ox = (ox or 0) + actor_ox
-        oy = (oy or 0) + actor_oy
+        local face_ox, face_oy = self.actor:getSpecificPortraitOffset(face)
+        ox = (ox or 0) + actor_ox + face_ox
+        oy = (oy or 0) + actor_oy + face_oy
     end
     self.face:setPosition(self.face_x + (ox or 0), self.face_y + (oy or 0))
 
