@@ -3,6 +3,7 @@
 ---@field clip boolean
 ---@field dragging_node any
 ---@field drop_node any
+---@field drop_y number?
 ---@field filter string
 ---@field focusable boolean
 ---@field focused boolean
@@ -87,6 +88,7 @@ function EditorTreeList:init(options)
     self.pending_drag = nil
     self.dragging_node = nil
     self.drop_node = nil
+    self.drop_y = nil
     self.root = { type = "folder", name = "", children = {}, expanded = true, root = true }
     self.folder_icon = Assets.getTexture("editor/ui/folder")
     self.icon_scale = options.icon_scale or 2
@@ -441,7 +443,10 @@ function EditorTreeList:moveNode(node, parent, after)
     node.parent = parent
     parent.expanded = true
     local inserted = false
-    if after and after.parent == parent then
+    if after == false then
+        table.insert(parent.children, 1, node)
+        inserted = true
+    elseif after and after.parent == parent then
         for index, child in ipairs(parent.children) do
             if child == after then
                 table.insert(parent.children, index + 1, node)
@@ -462,16 +467,47 @@ function EditorTreeList:getDropPlacement(x, y, node)
     local index = self:getNodeIndexAt(y)
     local target = index and self.visible_nodes[index].node or nil
     if target == node then return nil end
-    local parent, after
+    local parent, after, insertion_y
     if not target then
         parent = self.root
+        local last = self.visible_nodes[#self.visible_nodes]
+        insertion_y = last and self:getRowY(#self.visible_nodes) + self.row_height or 1
     elseif isContainer(target) then
-        parent = target
+        local row_y = self:getRowY(index)
+        local relative_y = (y - row_y) / self.row_height
+        if relative_y >= 0.25 and relative_y <= 0.75 then
+            parent = target
+        else
+            parent = target.parent or self.root
+            if relative_y < 0.5 then
+                after = false
+                for _, sibling in ipairs(parent.children) do
+                    if sibling == target then break end
+                    if sibling ~= node then after = sibling end
+                end
+                insertion_y = row_y
+            else
+                after = target
+                insertion_y = row_y + self.row_height
+            end
+        end
     else
-        parent, after = target.parent or self.root, target
+        parent = target.parent or self.root
+        local row_y = self:getRowY(index)
+        if y < row_y + self.row_height / 2 then
+            after = false
+            for _, sibling in ipairs(parent.children) do
+                if sibling == target then break end
+                if sibling ~= node then after = sibling end
+            end
+            insertion_y = row_y
+        else
+            after = target
+            insertion_y = row_y + self.row_height
+        end
     end
     if isContainer(node) and containsNode(node, parent) then return nil end
-    return parent, after, target
+    return parent, after, insertion_y and nil or target, insertion_y
 end
 
 function EditorTreeList:getCursorType(x, y)
@@ -540,8 +576,9 @@ function EditorTreeList:onMouseMoved(x, y, dx, dy)
         if self.on_drag_start then self.on_drag_start(self.dragging_node, self) end
     end
     if self.dragging_node then
-        local _, _, target = self:getDropPlacement(x, y, self.dragging_node)
+        local _, _, target, insertion_y = self:getDropPlacement(x, y, self.dragging_node)
         self.drop_node = target
+        self.drop_y = insertion_y
         if self.on_drag_move then self.on_drag_move(self.dragging_node, self, x, y) end
         return true
     end
@@ -554,6 +591,7 @@ function EditorTreeList:onMouseReleased(x, y, button)
     self.pending_drag = nil
     self.dragging_node = nil
     self.drop_node = nil
+    self.drop_y = nil
     if not node then return false end
     local parent, after = self:getDropPlacement(x, y, node)
     if parent then
@@ -704,6 +742,11 @@ function EditorTreeList:drawSelf()
             end
             icon_right = item_left
         end
+    end
+    if self.drop_y then
+        Draw.setColor(0.42, 0.68, 1, 1)
+        love.graphics.rectangle("fill", 0, self.drop_y - 1,
+            self.width - self.scrollbar.width, 2)
     end
 end
 
