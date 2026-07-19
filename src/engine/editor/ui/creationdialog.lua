@@ -14,7 +14,7 @@
 ---@field create_button EditorButton
 ---@field cancel_button EditorButton
 ---@field error_label DialogLabel
----@field field_tooltip DialogFieldTooltip
+---@field field_tooltip EditorTooltip
 ---@field inputs table<string, EditorControl>
 ---@field focusables EditorControl[]
 ---@field form_rows table[]
@@ -58,43 +58,6 @@ function DialogLabel:drawSelf()
         Draw.setColor(0.58, 0.59, 0.64, 1)
         love.graphics.printf(self.description, 0, 25, self.width)
     end
-end
-
----@class DialogFieldTooltip : EditorControl
----@field code_name string?
----@field prefix string
----@overload fun(): DialogFieldTooltip
-local DialogFieldTooltip, tooltip_super = Class(EditorControl)
-
-function DialogFieldTooltip:init()
-    tooltip_super.init(self, 0, 0, 0, 26)
-    self.enabled = false
-    self.visible = false
-end
-
-function DialogFieldTooltip:setCodeName(code_name, x, y, maximum_width, maximum_height)
-    self.code_name = tostring(code_name)
-    local font = EditorFont.get(14)
-    local prefix = ""
-    self.prefix = prefix
-    self.width = font:getWidth(prefix .. self.code_name) + 16
-    self.x = MathUtils.clamp(x, 4, math.max(4, maximum_width - self.width - 4))
-    self.y = MathUtils.clamp(y, 4, math.max(4, maximum_height - self.height - 4))
-    self.visible = true
-end
-
-function DialogFieldTooltip:drawSelf()
-    love.graphics.setLineWidth(1)
-    Draw.setColor(0.075, 0.075, 0.09, 0.98)
-    love.graphics.rectangle("fill", 0, 0, self.width, self.height, 3)
-    Draw.setColor(0.42, 0.48, 0.62, 1)
-    love.graphics.rectangle("line", 0.5, 0.5, self.width - 1, self.height - 1, 3)
-    local font = EditorFont.get(14)
-    love.graphics.setFont(font)
-    Draw.setColor(0.68, 0.69, 0.74, 1)
-    love.graphics.print(self.prefix, 8, 5)
-    Draw.setColor(0.52, 0.72, 1, 1)
-    love.graphics.print(self.code_name, 8 + font:getWidth(self.prefix), 5)
 end
 
 ---@class DialogChoice : EditorButton
@@ -243,7 +206,7 @@ function EditorCreationDialog:init(editor, options)
     self.error_label.visible = false
     self.create_button = self:addChild(EditorButton(options.create_label or "Create", function() self:submit() end))
     self.cancel_button = self:addChild(EditorButton("Cancel", function() self:cancel() end))
-    self.field_tooltip = self:addChild(DialogFieldTooltip())
+    self.field_tooltip = self:addChild(EditorTooltip())
 
     local items = {}
     for _, definition in ipairs(self.templates) do
@@ -448,7 +411,7 @@ function EditorCreationDialog:updateFieldTooltip()
             local _, local_y = target:toLocal(mouse_x, mouse_y)
             if local_y >= 0 and local_y < 25 then
                 local dialog_x, dialog_y = self:toLocal(mouse_x, mouse_y)
-                self.field_tooltip:setCodeName(target.code_name, dialog_x + 12, dialog_y + 14,
+                self.field_tooltip:setText(target.code_name, dialog_x + 12, dialog_y + 14,
                     self.width, self.height)
             end
             return

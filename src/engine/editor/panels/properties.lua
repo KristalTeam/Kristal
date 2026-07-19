@@ -7,6 +7,7 @@
 ---@field generated_controls table
 ---@field layout_rows table
 ---@field property_header_y number
+---@field property_tooltip EditorTooltip
 ---@field scroll_y number
 ---@field scrollbar EditorScrollbar
 ---@field target any
@@ -39,6 +40,7 @@ function EditorPropertiesPanel:init(editor)
         width = 12,
         on_changed = function(value) self.scroll_y = self:getMaxScroll() * value end
     }))
+    self.property_tooltip = self:addChild(EditorTooltip())
 end
 
 function EditorPropertiesPanel:clearGeneratedControls()
@@ -423,6 +425,8 @@ function EditorPropertiesPanel:rebuild()
             })
         end
     end
+    self:removeChild(self.property_tooltip)
+    self:addChild(self.property_tooltip)
 end
 
 function EditorPropertiesPanel:getPropertyValue(name, definition)
@@ -648,6 +652,31 @@ function EditorPropertiesPanel:update(dt)
     self.scrollbar.value = max_scroll == 0 and 0 or self.scroll_y / max_scroll
     self.scrollbar:setBounds(self.width - self.scrollbar.width, 28, self.scrollbar.width, math.max(0, self.height - 28))
     super.update(self, dt)
+    self:updatePropertyTooltip()
+end
+
+function EditorPropertiesPanel:updatePropertyTooltip()
+    self.property_tooltip.visible = false
+    local mouse_x, mouse_y = self.editor:getMousePosition()
+    local panel_x, panel_y = self:getGlobalPosition()
+    for _, row in ipairs(self.layout_rows) do
+        local definition = row.definition
+        if row.kind == "property" and definition and definition.custom ~= true
+            and definition.name and definition.name ~= row.property_name
+            and row.name_input.visible and row.name_input:containsPoint(mouse_x, mouse_y) then
+            local x, y = self:toLocal(mouse_x, mouse_y)
+            self.property_tooltip:setText(row.property_name, x + 12, y + 14,
+                self.width, self.height, "Property ID: ")
+            return
+        elseif row.kind == "fx_property" and definition and definition.name ~= definition.id
+            and row.label_y and mouse_x >= panel_x and mouse_x < panel_x + self.width
+            and mouse_y >= panel_y + row.label_y and mouse_y < panel_y + row.label_y + 18 then
+            local x, y = self:toLocal(mouse_x, mouse_y)
+            self.property_tooltip:setText(definition.id, x + 12, y + 14,
+                self.width, self.height, "Property ID: ")
+            return
+        end
+    end
 end
 
 function EditorPropertiesPanel:drawSelf()
