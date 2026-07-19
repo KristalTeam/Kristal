@@ -77,6 +77,7 @@ function actor:initChapter1()
         ["pullhat"]             = {"pullhat", 0.25, true},
         ["removehood"]          = {"removehood", 0.25, false, next="walk/down"},
         ["reveal"]              = {"reveal", 0.3, false},
+        ["sing_still"]          = {"sing", math.huge, true},
         ["sing"]                = {"sing", 0.4, true},
         ["sit"]                 = {"sit", 0.1, false},
 
@@ -145,6 +146,9 @@ function actor:initChapter1()
         ["shock"] = {-17, -4},
         ["fallen"] = {-8, 20}
     }
+
+    -- The x and y offsets of the ReviveSong spotlight
+    self.spotlight_offset = { 14, -1 }
 end
 
 function actor:initChapter2()
@@ -222,7 +226,10 @@ function actor:initChapter2()
         ["hug_stop"]            = {"hug_stop", 2/9, false},
 
         ["wave_start"]          = {"wave_start", 5/30, false, next="wave_down"},
-        ["wave_down"]           = {"wave_down", 5/30, true}
+        ["wave_down"]           = {"wave_down", 5/30, true},
+
+        ["sing_ready"]          = {"sing_1", 16/30, true},
+        ["sing"]                = {"sing", 4/30, true}
     }
 
     -- Tables of sprites to change into in mirrors
@@ -305,6 +312,9 @@ function actor:initChapter2()
         ["splat"] = {-15, 21},
         ["stool"] = {-11, 18}
     }
+
+    -- The x and y offsets of the ReviveSong spotlight
+    self.spotlight_offset = { 14, -1 }
 end
 
 return actor

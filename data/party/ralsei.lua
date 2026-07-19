@@ -43,6 +43,9 @@ function character:init()
     -- Spells
     self:addSpell("pacify")
     self:addSpell("heal_prayer")
+    if Game.chapter >= 5 then
+        self:addSpell("revivesong")
+    end
 
     -- Current health (saved to the save file)
     if Game.chapter == 1 then

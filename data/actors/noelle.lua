@@ -219,6 +219,9 @@ function actor:init()
         ["head_lowered_look_left"] = {0, 0},
         ["head_lowered_look_right"] = {0, 0},
     }
+
+    -- The x and y offsets of the ReviveSong spotlight
+    self.spotlight_offset = { 0, 0 }
 end
 
 function actor:getAnimation(anim)

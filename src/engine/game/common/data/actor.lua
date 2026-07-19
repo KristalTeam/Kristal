@@ -76,6 +76,9 @@ function Actor:init()
 
     -- Table of sprite offsets (indexed by sprite name)
     self.offsets = {}
+
+    -- The x and y offsets of the ReviveSong spotlight
+    self.spotlight_offset = { 0, 0 }
 end
 
 -- Callbacks
@@ -167,6 +170,8 @@ function Actor:getMirrorSprite(sprite) return self:getMirrorSprites()[sprite] en
 function Actor:hasOffset(sprite) return self.offsets[sprite] ~= nil end
 function Actor:getOffset(sprite) return unpack(self.offsets[sprite] or { 0, 0 }) end
 function Actor:onTextSound(node, state) end
+
+function Actor:getReviveSongSpotlightOffset() return unpack(self.spotlight_offset) end
 
 -- Misc Functions
 function Actor:createSprite()
