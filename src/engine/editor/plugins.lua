@@ -8,7 +8,7 @@
 ---@field menu_definitions table[]
 ---@field command_definitions table[]
 ---@field file_context_providers table[]
----@field event_initializers table[]
+---@field object_initializers table[]
 ---@field editor Editor?
 local EditorPlugins = {
     directory = "editor/plugins",
@@ -19,7 +19,7 @@ local EditorPlugins = {
     menu_definitions = {},
     command_definitions = {},
     file_context_providers = {},
-    event_initializers = {},
+    object_initializers = {},
     editor = nil
 }
 
@@ -193,39 +193,39 @@ function EditorPlugin:registerLayerType(id, definition)
     return type_id
 end
 
-function EditorPlugin:registerEditorEventProperty(event_id, id, property_type, options)
-    return self:registerEditorEventInitializer(event_id, function(event)
-        event:registerProperty(id, property_type, options)
+function EditorPlugin:registerEditorObjectProperty(object_id, id, property_type, options)
+    return self:registerEditorObjectInitializer(object_id, function(object)
+        object:registerProperty(id, property_type, options)
     end)
 end
 
-function EditorPlugin:registerEditorEventInitializer(event_id, initializer)
-    assert(type(initializer) == "function", "EditorEvent initializers must be functions")
-    EditorPlugins.event_initializers[event_id] = EditorPlugins.event_initializers[event_id] or {}
-    table.insert(EditorPlugins.event_initializers[event_id], initializer)
+function EditorPlugin:registerEditorObjectInitializer(object_id, initializer)
+    assert(type(initializer) == "function", "EditorObject initializers must be functions")
+    EditorPlugins.object_initializers[object_id] = EditorPlugins.object_initializers[object_id] or {}
+    table.insert(EditorPlugins.object_initializers[object_id], initializer)
     self:trackRegistration(function()
-        local initializers = EditorPlugins.event_initializers[event_id]
+        local initializers = EditorPlugins.object_initializers[object_id]
         if not initializers then return end
         TableUtils.removeValue(initializers, initializer)
-        if #initializers == 0 then EditorPlugins.event_initializers[event_id] = nil end
+        if #initializers == 0 then EditorPlugins.object_initializers[object_id] = nil end
     end)
     return initializer
 end
 
-function EditorPlugin:registerEditorEvent(id, event, options)
-    if type(event) == "string" then event = self:require(event) end
+function EditorPlugin:registerEditorObject(id, object, options)
+    if type(object) == "string" then object = self:require(object) end
     options = options or {}
-    local event_id = id
-    local previous = Registry.getEditorEvent(event_id)
+    local object_id = id
+    local previous = Registry.getEditorObject(object_id)
     assert(not previous or options.replace == true,
-        "Editor event '" .. tostring(event_id) .. "' is already registered; pass replace = true to override it")
-    local previous_id = event.id
-    Registry.registerEditorEvent(event_id, event)
+        "Editor object '" .. tostring(object_id) .. "' is already registered; pass replace = true to override it")
+    local previous_id = object.id
+    Registry.registerEditorObject(object_id, object)
     self:trackRegistration(function()
-        if Registry.editor_events[event_id] == event then Registry.editor_events[event_id] = previous end
-        if event.id == event_id then event.id = previous_id end
+        if Registry.editor_objects[object_id] == object then Registry.editor_objects[object_id] = previous end
+        if object.id == object_id then object.id = previous_id end
     end)
-    return event_id
+    return object_id
 end
 
 function EditorPlugin:registerEditorDrawFX(id, definition)
@@ -425,7 +425,7 @@ function EditorPlugins:reset()
     self.menu_definitions = {}
     self.command_definitions = {}
     self.file_context_providers = {}
-    self.event_initializers = {}
+    self.object_initializers = {}
 end
 
 function EditorPlugins:getFileContextMenuItems(data, context)
@@ -450,8 +450,8 @@ function EditorPlugins:getFileContextMenuItems(data, context)
     return items
 end
 
-function EditorPlugins:initializeEditorEvent(event)
-    for _, initializer in ipairs(self.event_initializers[event.id] or {}) do initializer(event) end
+function EditorPlugins:initializeEditorObject(object)
+    for _, initializer in ipairs(self.object_initializers[object.id] or {}) do initializer(object) end
 end
 
 function EditorPlugins:clearPluginHooks(plugin)

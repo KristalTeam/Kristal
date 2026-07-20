@@ -550,7 +550,7 @@ function EditorDocumentManager:activateMapDocument(document, options)
     if not document then return false end
     if self.active_document and self.active_document ~= document then
         self:cancelPolygonBuilds()
-        self:cancelEventRegionDrags()
+        self:cancelObjectRegionDrags()
     end
     if document.panel and not document.panel.visible then
         self.dockspace:setPanelVisible(document.panel, true, document.panel.last_region or "center")

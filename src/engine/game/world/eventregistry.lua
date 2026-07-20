@@ -1,4 +1,4 @@
---- A fallback registry for legacy project events which do not define an EditorEvent.
+--- A fallback registry for legacy project events which do not define an EditorObject.
 ---@class EventRegistry : Class
 ---@overload fun(): EventRegistry
 local EventRegistry = Class()

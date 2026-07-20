@@ -103,22 +103,22 @@ function EditorUIController:setupPanels(session)
             minimum_width = 180, preferred_width = 260, recoverable = true
         }), self.maps_panel.stack)
     self.maps_panel.stack:setActivePanel(self.maps_panel)
-    self.events_panel = self.dockspace:registerPanel(EditorPanel("events", "Events", self.event_browser, {
+    self.objects_panel = self.dockspace:registerPanel(EditorPanel("objects", "Objects", self.object_browser, {
         minimum_width = 180,
         minimum_height = 160,
         preferred_width = 260,
         preferred_height = 300,
         recoverable = true
     }), "left")
-    self.dockspace:dockPanelSplit(self.events_panel, self.maps_panel.stack, "bottom")
+    self.dockspace:dockPanelSplit(self.objects_panel, self.maps_panel.stack, "bottom")
     self.fx_panel = self.dockspace:registerPanel(EditorPanel("draw_fx", "DrawFX", self.fx_browser, {
         minimum_width = 200,
         minimum_height = 180,
         preferred_width = 280,
         preferred_height = 300,
         recoverable = true
-    }), self.events_panel.stack)
-    self.events_panel.stack:setActivePanel(self.events_panel)
+    }), self.objects_panel.stack)
+    self.objects_panel.stack:setActivePanel(self.objects_panel)
     self.toolbar_panel = self.dockspace:registerPanel(EditorPanel("toolbar", "Tools", self.toolbar, {
         minimum_width = 420,
         minimum_height = 36,
@@ -233,7 +233,7 @@ function EditorUIController:setupPanels(session)
     })
     if session and type(session.layout) == "table" then
         local had_properties_panel = session.layout.panels and session.layout.panels.properties
-        local had_events_panel = session.layout.panels and session.layout.panels.events
+        local had_objects_panel = session.layout.panels and session.layout.panels.objects
         local had_tilesets_browser = session.layout.panels and session.layout.panels.tilesets_browser
         local saved_layout = TableUtils.copy(session.layout, true)
         if saved_layout.panels and saved_layout.panels.game_preview then
@@ -247,8 +247,8 @@ function EditorUIController:setupPanels(session)
         elseif not had_properties_panel then
             self.dockspace:dockPanelSplit(self.properties_panel, self.layers_panel.stack, "bottom")
         end
-        if restored and not had_events_panel and self.maps_panel.stack then
-            self.dockspace:dockPanelSplit(self.events_panel, self.maps_panel.stack, "bottom")
+        if restored and not had_objects_panel and self.maps_panel.stack then
+            self.dockspace:dockPanelSplit(self.objects_panel, self.maps_panel.stack, "bottom")
         end
         if restored and not had_tilesets_browser and self.maps_panel.stack then
             self.maps_panel.stack:setActivePanel(self.maps_panel)
@@ -267,8 +267,8 @@ function EditorUIController:setupPanels(session)
         end
         if restored and (session.version or 1) < 2 then
             if not self.fx_panel.visible then self.dockspace:setPanelVisible(self.fx_panel, true, "left") end
-            self.dockspace:dockPanel(self.fx_panel, self.events_panel.stack)
-            self.events_panel.stack:setActivePanel(self.events_panel)
+            self.dockspace:dockPanel(self.fx_panel, self.objects_panel.stack)
+            self.objects_panel.stack:setActivePanel(self.objects_panel)
             if not self.console_panel.visible then
                 self.dockspace:setPanelVisible(self.console_panel, true, "bottom")
             end
