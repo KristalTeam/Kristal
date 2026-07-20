@@ -1117,6 +1117,36 @@ function Battle:registerXAction(party, name, description, tp)
     table.insert(self.xactions, act)
 end
 
+--- Registers an additional Short X-Action for a specific party member
+---@param party         string  The id of the party member who will receive this X-Action
+---@param name          string  The name of this X-Action
+---@param description?  string  The description of this X-Action
+---@param tp?           number  The tp cost of this X-Action
+function Battle:registerShortXAction(party, name, description, tp)
+    local act = {
+        ["name"] = name,
+        ["description"] = description,
+        ["party"] = party,
+        ["color"] = { self.party[self:getPartyIndex(party)].chara:getXActColor() },
+        ["tp"] = tp or 0,
+        ["short"] = true
+    }
+
+    table.insert(self.xactions, act)
+end
+
+--- Remove an X-Action by name from a specific party member
+---@param party  string  The id of the party member who the X-Action will be removed from
+---@param name   string  The name of this X-Action
+function Battle:removeXAction(party, name)
+    for i, act in ipairs(self.xactions) do
+        if act.name == name and act.party == party then
+            table.remove(self.xactions, i)
+            break
+        end
+    end
+end
+
 --- A simple redirect to the Encounter's [`getInitialEncounterText`](lua://Encounter.getInitialEncounterText). \
 --- Here for encapsulation and hooking, if you need more complex behavior.
 ---@return string|string[] text # If a table, you should use [next] to advance the text
