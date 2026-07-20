@@ -34,6 +34,7 @@ function MainMenuCredits:init(menu)
             },
             {
                 { "GitHub Contributors", COLORS.silver },
+                "A1Asriel",
                 "Abbe",
                 "AcousticJamm",
                 "Agent 7",
@@ -41,14 +42,14 @@ function MainMenuCredits:init(menu)
                 "Archie-osu",
                 "Azrael",
                 "Bor",
-                "CosmicPikachu001",
-                "DiamondDeltahedron"
+                "CosmicPikachu001"
             }
         },
         {
             "Kristal Engine",
             {
                 { "GitHub Contributors", COLORS.silver },
+                "DiamondDeltahedron",
                 "Dobby233Liu",
                 "Elioze",
                 "Eribetra",
@@ -56,11 +57,11 @@ function MainMenuCredits:init(menu)
                 "Gabrielcito",
                 "HmmNoPls",
                 "HUECYCLES",
-                "Hyperboid",
-                "isakube"
+                "Hyperboid"
             },
             {
                 { "GitHub Contributors", COLORS.silver },
+                "isakube",
                 "J.A.R.U.",
                 "Jogla",
                 "Lionmeow",
@@ -68,14 +69,14 @@ function MainMenuCredits:init(menu)
                 "Maks7594",
                 "MaybeSamo",
                 "MCdeDaxia",
-                "MihBoss96",
-                "MrOinky"
+                "MihBoss96"
             }
         },
         {
             "Kristal Engine",
             {
                 { "GitHub Contributors", COLORS.silver },
+                "MrOinky",
                 "NakuAutumn",
                 "NelleMonelle",
                 "Nextop",
@@ -83,11 +84,11 @@ function MainMenuCredits:init(menu)
                 "prokube",
                 "rfrx",
                 "Simbel",
-                "sjl057",
-                "skarph"
+                "sjl057"
             },
             {
                 { "GitHub Contributors", COLORS.silver },
+                "skarph",
                 "SuperOfSrb2",
                 "SweetSylveon",
                 "TFLTV",
