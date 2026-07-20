@@ -131,14 +131,14 @@ function Game:enter(previous_state, save_id, save_name, fade)
     end
 end
 
---- Registers a fallback runtime constructor for a mod event which has no EditorEvent.
+--- Registers a fallback runtime constructor for a mod event which has no EditorObject.
 ---@param id string
 ---@param constructor fun(data: table):Object
 ---@return boolean registered
 function Game:registerEvent(id, constructor)
-    if Registry.getEditorEvent(id) then
+    if Registry.getEditorObject(id) then
         Kristal.Console:warn("Ignoring fallback event '" .. id
-            .. "' because an EditorEvent is already registered for that type")
+            .. "' because an EditorObject is already registered for that type")
         return false
     end
     self.event_registry:register(id, constructor)

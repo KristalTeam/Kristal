@@ -42,7 +42,7 @@ function EditorFormatDocument.buildMapData(document, map_id, options)
         return TiledEditorFormatConverter.convertMap(data, options)
     end
     MapUtils.walkObjects(data.layers, function(object)
-        Registry.createEditorEvent(object.type, object, { map_id = context.id })
+        Registry.createEditorObject(object.type, object, { map_id = context.id })
     end)
     return data
 end

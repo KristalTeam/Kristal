@@ -10,7 +10,7 @@ local function objectLoader(callback)
     end
 end
 
-local function eventLoader()
+local function objectsLayerLoader()
     return objectLoader(function(map, layer, depth)
         map:loadObjects(layer, depth, "events")
     end)
@@ -89,7 +89,7 @@ local DEFAULT_TYPES = {
     { id = "folder",         name = "Folder",          kind = "group",  icon = "editor/ui/layer/default",        color = { 1, 1, 1, 1 } },
     { id = "tile",           name = "Tiles",           kind = "tile",   icon = "editor/ui/layer/tile",           color = { 0.8, 0.8, 0.82, 1 } },
     { id = "image",          name = "Image",           kind = "image",  icon = "editor/ui/layer/image",          color = { 0.8, 0.8, 0.82, 1 }, properties = imageProperties },
-    { id = "objects",        name = "Objects",         kind = "object", icon = "editor/ui/layer/objects",        color = { 1, 0, 1, 1 },       load = eventLoader() },
+    { id = "objects",        name = "Objects",         kind = "object", icon = "editor/ui/layer/objects",        color = { 1, 0, 1, 1 },       load = objectsLayerLoader() },
     { id = "collision",      name = "Collision",       kind = "object", icon = "editor/ui/layer/collision",      color = { 0, 0, 1, 1 },       load = mapLoader("loadCollision") },
     { id = "enemycollision", name = "Enemy Collision", kind = "object", icon = "editor/ui/layer/enemycollision", color = { 0, 1, 1, 1 },       load = mapLoader("loadEnemyCollision") },
     { id = "blockcollision", name = "Block Collision", kind = "object", icon = "editor/ui/layer/blockcollision", color = { 1, 0.35, 0, 1 },    load = mapLoader("loadBlockCollision") },

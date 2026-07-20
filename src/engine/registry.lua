@@ -25,7 +25,7 @@
 ---@field legend_cutscenes table<string, function|table<string, function>>
 ---@field event_scripts table<string, function|table<string, function>>
 ---@field layer_types LayerTypeRegistry
----@field editor_events table<string, EditorEvent>
+---@field editor_objects table<string, EditorObject>
 ---@field editor_properties EditorPropertyRegistry
 ---@field editor_format_extensions EditorFormatRegistry
 ---@field terrain_rules TerrainRuleRegistry
@@ -114,7 +114,7 @@ function Registry.initialize(preload)
         Registry.initTilesets()
         Registry.initMaps()
         Registry.initLegacyEvents()
-        Registry.initEditorEvents()
+        Registry.initEditorObjects()
         Registry.initControllers()
         Registry.initShops()
         Registry.initBorders()
@@ -134,7 +134,7 @@ function Registry.saveData()
     end
     self.saved_data.map_readers = self.map_readers
     self.saved_data.layer_types = self.layer_types
-    self.saved_data.editor_events = self.editor_events
+    self.saved_data.editor_objects = self.editor_objects
     self.saved_data.editor_format_extensions = self.editor_format_extensions
     self.saved_data.terrain_rules = self.terrain_rules
     self.saved_data.editor_worlds = self.editor_worlds
@@ -151,7 +151,7 @@ function Registry.restoreData()
         end
         self.map_readers = self.saved_data.map_readers
         self.layer_types = self.saved_data.layer_types
-        self.editor_events = self.saved_data.editor_events or {}
+        self.editor_objects = self.saved_data.editor_objects or {}
         self.editor_format_extensions = self.saved_data.editor_format_extensions
             or EditorFormatRegistry()
         self.terrain_rules = self.saved_data.terrain_rules or TerrainRuleRegistry()
@@ -674,28 +674,28 @@ function Registry.getLayerTypes()
     return self.layer_types and self.layer_types:getAll() or {}
 end
 
-function Registry.getEditorEvent(id)
-    return self.editor_events and self.editor_events[id]
+function Registry.getEditorObject(id)
+    return self.editor_objects and self.editor_objects[id]
 end
 
 ---@param id string?
 ---@return "event"|"controller"|"marker"|"path"|"player"
 function Registry.getEditorObjectRuntimeType(id)
-    local event = self.getEditorEvent(id)
-    if event and event.runtime_type and event.runtime_type ~= "event" then return event.runtime_type end
+    local object = self.getEditorObject(id)
+    if object and object.runtime_type and object.runtime_type ~= "event" then return object.runtime_type end
     if self.getController(id) then return "controller" end
-    return event and event.runtime_type or "event"
+    return object and object.runtime_type or "event"
 end
 
-function Registry.createEditorEvent(id, data, options)
+function Registry.createEditorObject(id, data, options)
     local tile_object = data and (data.gid or data.tileset and data.tile_id ~= nil)
-    local event_class = self.getEditorEvent(id) or (tile_object and EditorTileObject) or EditorEvent
+    local object_class = self.getEditorObject(id) or (tile_object and EditorTileObject) or EditorObject
     options = options or {}
-    options.event_id = id
-    local event = event_class(data, options)
-    if EditorPlugins then EditorPlugins:initializeEditorEvent(event) end
-    event.property_set:normalizeObjectReferences(options.map_id)
-    return event
+    options.object_id = id
+    local object = object_class(data, options)
+    if EditorPlugins then EditorPlugins:initializeEditorObject(object) end
+    object.property_set:normalizeObjectReferences(options.map_id)
+    return object
 end
 
 ---@param id string
@@ -879,14 +879,14 @@ function Registry.registerLayerType(id, definition)
 end
 
 ---@param id string
----@param class EditorEvent
-function Registry.registerEditorEvent(id, class)
-    assert(type(id) == "string" and id ~= "", "Editor event requires a non-empty id")
-    assert(isClass(class) and class:includes(EditorEvent), "Editor event must extend EditorEvent")
-    assert(class.createObject ~= EditorEvent.createObject,
-        "Editor event '" .. id .. "' must override createObject()")
+---@param class EditorObject
+function Registry.registerEditorObject(id, class)
+    assert(type(id) == "string" and id ~= "", "Editor object requires a non-empty id")
+    assert(isClass(class) and class:includes(EditorObject), "Editor object must extend EditorObject")
+    assert(class.createObject ~= EditorObject.createObject,
+        "Editor object '" .. id .. "' must override createObject()")
     class.id = id
-    self.editor_events[id] = class
+    self.editor_objects[id] = class
 end
 
 ---@param id string
@@ -1360,27 +1360,27 @@ function Registry.initLegacyEvents()
     Kristal.callEvent(KRISTAL_EVENT.onRegisterEvents)
 end
 
-function Registry.initEditorEvents()
-    self.editor_events = {}
+function Registry.initEditorObjects()
+    self.editor_objects = {}
 
     local builtins = {
         player = EditorPlayer, marker = EditorMarker, path = EditorPath, savepoint = EditorSavepoint,
-        interactable = EditorInteractable, script = EditorScriptEvent,
+        interactable = EditorInteractable, script = EditorScriptObject,
         transition = EditorTransition, npc = EditorNPC, enemy = EditorChaserEnemy,
         outline = EditorOutline, silhouette = EditorSilhouette, slidearea = EditorSlideArea,
         mirror = EditorMirrorArea, chest = EditorTreasureChest, cameratarget = EditorCameraTarget,
-        hideparty = EditorHideParty, setflag = EditorSetFlagEvent, cybertrash = EditorCyberTrashCan,
+        hideparty = EditorHideParty, setflag = EditorSetFlagObject, cybertrash = EditorCyberTrashCan,
         forcefield = EditorForcefield, pushblock = EditorPushBlock, tilebutton = EditorTileButton,
         magicglass = EditorMagicGlass, warpdoor = EditorWarpDoor, darkfountain = EditorDarkFountain,
-        fountainfloor = EditorFountainFloor, quicksave = EditorQuicksave, sprite = EditorSpriteEvent,
+        fountainfloor = EditorFountainFloor, quicksave = EditorQuicksave, sprite = EditorSpriteObject,
         climbentry = EditorClimbEntry, climbexit = EditorClimbExit, climblanding = EditorClimbLanding,
         climbarea = EditorClimbArea, fallingclimbarea = EditorFallingClimbArea,
         climbunsafe = EditorClimbUnsafe, climbmover = EditorClimbMover,
         toggle = EditorToggleController, fountainshadow = EditorFountainShadowController
     }
-    for id, event in pairs(builtins) do self.registerEditorEvent(id, event) end
+    for id, object in pairs(builtins) do self.registerEditorObject(id, object) end
 
-    Kristal.callEvent(KRISTAL_EVENT.onRegisterEditorEvents)
+    Kristal.callEvent(KRISTAL_EVENT.onRegisterEditorObjects)
 end
 
 function Registry.initControllers()

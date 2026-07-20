@@ -13,7 +13,7 @@ function EditorMapInteraction:setActiveTool(id)
     local tool = self.tool_registry:get(id)
     if not tool then return false end
     if id ~= "shape" then self:cancelPolygonBuilds() end
-    if id ~= "object" then self:cancelEventRegionDrags() end
+    if id ~= "object" then self:cancelObjectRegionDrags() end
     if id ~= "link" then self:cancelObjectLink(true) end
     if tool.uses_object_selection ~= true and #(self.selected_map_objects or {}) > 0 then
         self:selectMapObjects({})
@@ -34,7 +34,7 @@ function EditorMapInteraction:setActiveTool(id)
             self.message_bar:setStatus("Terrain Brush: left-drag to paint, right-drag to erase")
         end
     end
-    self.placement_event_id = id == "object" and self.selected_event_id or nil
+    self.placement_object_id = id == "object" and self.selected_object_id or nil
     return true
 end
 
@@ -50,28 +50,28 @@ function EditorMapInteraction:cancelPolygonBuilds()
     return cancelled
 end
 
-function EditorMapInteraction:cancelEventRegionDrags()
+function EditorMapInteraction:cancelObjectRegionDrags()
     local self = self.editor
     local cancelled = false
     for _, document in ipairs(self.map_documents or {}) do
-        if document.map_view and document.map_view.event_region_drag then
-            document.map_view:cancelEventRegion()
+        if document.map_view and document.map_view.object_region_drag then
+            document.map_view:cancelObjectRegion()
             cancelled = true
         end
-        if document.map_view and document.map_view.event_paint_stroke then
-            document.map_view:cancelEventPaint()
+        if document.map_view and document.map_view.object_paint_stroke then
+            document.map_view:cancelObjectPaint()
             cancelled = true
         end
     end
     return cancelled
 end
 
-function EditorMapInteraction:setPlacementEvent(id)
+function EditorMapInteraction:setPlacementObject(id)
     local self = self.editor
-    if not Registry.getEditorEvent(id) then return false end
+    if not Registry.getEditorObject(id) then return false end
     self:cancelPolygonBuilds()
-    self:cancelEventRegionDrags()
-    self.selected_event_id = id
+    self:cancelObjectRegionDrags()
+    self.selected_object_id = id
     return self:setActiveTool("object")
 end
 
@@ -125,16 +125,16 @@ end
 function EditorMapInteraction:beginDragPreview(kind, label, icon, data)
     local self = self.editor
     self.drag_preview = { kind = kind, label = label, icon = icon, data = data }
-    if kind == "event" then
-        local event_class = Registry.getEditorEvent(data)
-        local point = event_class and event_class.placement_shape == "point"
+    if kind == "object" then
+        local object_class = Registry.getEditorObject(data)
+        local point = object_class and object_class.placement_shape == "point"
         local shape = point and "point" or "rectangle"
-        local success, event = pcall(Registry.createEditorEvent, data, {
+        local success, object = pcall(Registry.createEditorObject, data, {
             x = point and 0 or -20, y = point and 0 or -20, shape = shape,
             width = point and 0 or 40, height = point and 0 or 40,
             properties = {}
         }, {})
-        if success then self.drag_preview.event = event end
+        if success then self.drag_preview.object = object end
     end
     return true
 end
@@ -188,31 +188,31 @@ function EditorMapInteraction:finishAssetDrag(x, y)
     local selection, view, world_x, world_y = self:getMapObjectAtScreen(x, y)
     if drag.kind == "drawfx" then
         if not selection then
-            self:addWarning("Drop DrawFX onto an event or shape", nil, "drawfx_drop")
+            self:addWarning("Drop DrawFX onto an object or shape", nil, "drawfx_drop")
             return false
         end
         self:selectMapObject(selection)
         return self:applyDrawFXToSelection(drag.id)
-    elseif drag.kind == "event" and view then
-        local event_class = Registry.getEditorEvent(drag.id)
-        if event_class and event_class.placement_shape == "region" then
-            return self:setPlacementEvent(drag.id)
+    elseif drag.kind == "object" and view then
+        local object_class = Registry.getEditorObject(drag.id)
+        if object_class and object_class.placement_shape == "region" then
+            return self:setPlacementObject(drag.id)
         end
-        return self:placeEvent(view, drag.id, world_x, world_y)
+        return self:placeObject(view, drag.id, world_x, world_y)
     end
     return false
 end
 
-function EditorMapInteraction:placeEvent(view, event_id, world_x, world_y)
+function EditorMapInteraction:placeObject(view, object_id, world_x, world_y)
     local self = self.editor
-    self:beginHistoryTransaction("Place Event", view.document)
-    local object, layer_or_reason, map_id = view.document:addEditorObject(event_id, nil, world_x, world_y)
+    self:beginHistoryTransaction("Place Object", view.document)
+    local object, layer_or_reason, map_id = view.document:addEditorObject(object_id, nil, world_x, world_y)
     if not object then
         self:cancelHistoryTransaction()
-        self:addWarning(layer_or_reason, nil, "event_placement")
+        self:addWarning(layer_or_reason, nil, "object_placement")
         return false
     end
-    self:clearDiagnostics("event_placement")
+    self:clearDiagnostics("object_placement")
     local selection = view.document:getObjectSelection(map_id, layer_or_reason, object)
     selection.view = view
     self:selectMapObject(selection)
@@ -226,9 +226,9 @@ function EditorMapInteraction:getMapObjectPropertiesTarget(selection)
     local data = selection.data
     data.properties = data.properties or {}
     data.__editor_property_types = data.__editor_property_types or {}
-    local event_id = selection.document:getEditorObjectType(data, selection.map_id)
+    local object_id = selection.document:getEditorObjectType(data, selection.map_id)
     local layer_type = Registry.getLayerType(selection.layer._editor_type_id)
-    local editor_event = Registry.createEditorEvent(event_id, data, {
+    local editor_object = Registry.createEditorObject(object_id, data, {
         depth = tonumber(selection.layer._editor_depth_offset) or 0,
         layer_uid = selection.layer._editor_uid,
         layer = selection.layer,
@@ -324,7 +324,7 @@ function EditorMapInteraction:getMapObjectPropertiesTarget(selection)
     end
     table.insert(fields, numberField("Width", "width"))
     table.insert(fields, numberField("Height", "height"))
-    if not tile_object and editor_event.scaling_mode == "scale" then
+    if not tile_object and editor_object.scaling_mode == "scale" then
         table.insert(fields, numberField("Scale X", "scale_x"))
         table.insert(fields, numberField("Scale Y", "scale_y"))
     end
@@ -343,13 +343,13 @@ function EditorMapInteraction:getMapObjectPropertiesTarget(selection)
     })
     return {
         title = tile_object and "Tile Object"
-            or editor_event.editor_name
-            or event_id and (StringUtils.titleCase(tostring(event_id):gsub("[/_]", " "))) or "Map Object",
+            or editor_object.editor_name
+            or object_id and (StringUtils.titleCase(tostring(object_id):gsub("[/_]", " "))) or "Map Object",
         history_owner = selection.document,
         fields = fields,
         properties = data.properties,
         property_types = data.__editor_property_types,
-        property_set = editor_event.property_set,
+        property_set = editor_object.property_set,
         fx_sections = fx_sections,
         on_changed = function() selection.document:invalidatePreview(selection.map_id) end
     }
@@ -696,7 +696,7 @@ function EditorMapInteraction:finishObjectReferenceDrag(x, y)
     if not drag then return nil end
     local selection = self:getMapObjectAtScreen(x, y)
     if not selection then
-        self:addWarning("Drop the reference link onto an event or shape", nil, "object_reference")
+        self:addWarning("Drop the reference link onto an object or shape", nil, "object_reference")
         return nil
     end
     if not self:isObjectReferenceTargetAllowed(selection, drag.control.options) then
@@ -715,20 +715,20 @@ function EditorMapInteraction:getObjectLinkProperties(selection)
     local data = selection.data
     data.properties = data.properties or {}
     data.__editor_property_types = data.__editor_property_types or {}
-    local event_id = selection.document:getEditorObjectType(data, selection.map_id)
-    local success, event = pcall(Registry.createEditorEvent, event_id, data, {
+    local object_id = selection.document:getEditorObjectType(data, selection.map_id)
+    local success, object = pcall(Registry.createEditorObject, object_id, data, {
         map_id = selection.map_id
     })
-    if not success or not event then return {} end
+    if not success or not object then return {} end
     local result = {}
-    for _, definition in ipairs(event.property_set:getProperties()) do
+    for _, definition in ipairs(object.property_set:getProperties()) do
         if (definition.type == "object_reference" or definition.type == "marker_reference")
             and not definition.unavailable then
             table.insert(result, {
                 id = definition.id,
                 name = definition.name or StringUtils.titleCase(definition.id:gsub("_", " ")),
                 definition = definition,
-                property_set = event.property_set
+                property_set = object.property_set
             })
         end
     end

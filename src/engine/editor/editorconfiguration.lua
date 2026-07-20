@@ -187,7 +187,7 @@ function EditorConfiguration:registerEditorTools()
         keybind = "editor_tool_link", uses_object_selection = true
     })
     editor.active_tool = "select"
-    editor.selected_event_id = nil
+    editor.selected_object_id = nil
     editor.shape_mode = "rectangle"
     for _, registered in ipairs(editor.tool_registry:getAll()) do
         local tool = registered

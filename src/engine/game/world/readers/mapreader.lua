@@ -412,7 +412,7 @@ end
 
 function operations.loadObject(self, name, data, context)
 
-    -- Check the events
+    -- Check registered object loaders
     local loaded = Kristal.callEvent(KRISTAL_EVENT.loadObject, self.world, name, data)
     if loaded ~= nil then
         if type(loaded) == "boolean" then -- don't load the object if it returns true
@@ -424,15 +424,15 @@ function operations.loadObject(self, name, data, context)
         end
     end
 
-    local editor_event_class = Registry.getEditorEvent(name)
+    local editor_object_class = Registry.getEditorObject(name)
     local tile_object = data.gid or data.tileset and data.tile_id ~= nil
-    if editor_event_class or tile_object then
-        local editor_event = Registry.createEditorEvent(name, data, {
+    if editor_object_class or tile_object then
+        local editor_object = Registry.createEditorObject(name, data, {
             map = self,
             map_id = self.id,
             runtime = true
         })
-        return editor_event:createObject(self, context)
+        return editor_object:createObject(self, context)
     end
 
     if Game.event_registry and Game.event_registry:has(name) then
@@ -445,7 +445,7 @@ function operations.loadObject(self, name, data, context)
         return loaded
     end
 
-    Kristal.Console:warn("No event with ID '" .. tostring(name) .. "' found")
+    Kristal.Console:warn("No object with ID '" .. tostring(name) .. "' found")
 end
 
 function operations.loadController(self, name, data, context)
@@ -474,14 +474,14 @@ function operations.loadController(self, name, data, context)
             end
         end
     end
-    local editor_event_class = Registry.getEditorEvent(name)
-    if editor_event_class then
-        local editor_event = Registry.createEditorEvent(name, data, {
+    local editor_object_class = Registry.getEditorObject(name)
+    if editor_object_class then
+        local editor_object = Registry.createEditorObject(name, data, {
             map = self,
             map_id = self.id,
             runtime = true
         })
-        return editor_event:createObject(self, context)
+        return editor_object:createObject(self, context)
     end
 end
 

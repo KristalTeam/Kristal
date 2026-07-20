@@ -73,7 +73,7 @@
 ---@field active_world_id string?
 ---@field map_browser EditorMapBrowser?
 ---@field world_browser EditorWorldBrowser?
----@field event_browser EditorEventBrowser?
+---@field object_browser EditorObjectBrowser?
 ---@field tileset_browser EditorTilesetBrowser?
 ---@field tile_palette EditorTilePalette?
 ---@field terrain_palette EditorTerrainPalette?
@@ -91,7 +91,7 @@
 ---@field maps_panel EditorPanel?
 ---@field worlds_panel EditorPanel?
 ---@field tilesets_browser_panel EditorPanel?
----@field events_panel EditorPanel?
+---@field objects_panel EditorPanel?
 ---@field fx_panel EditorPanel?
 ---@field toolbar_panel EditorPanel?
 ---@field layers_panel EditorPanel?
@@ -120,8 +120,8 @@
 ---@field consumed_editor_keys table<string, boolean>?
 ---@field object_selection_cursor_x number?
 ---@field object_selection_cursor_y number?
----@field selected_event_id string?
----@field placement_event_id string?
+---@field selected_object_id string?
+---@field placement_object_id string?
 ---@field active_tool string?
 ---@field shape_mode string?
 ---@field selected_map_object table?
@@ -336,7 +336,7 @@ function Editor:enter(previous, options)
     self.active_world_id = session and session.active_world_id or nil
     self.active_editor_world = self.active_world_id and Registry.getEditorWorld(self.active_world_id) or nil
     self.world_browser:refresh(self.active_world_id)
-    self.event_browser = EditorEventBrowser(self)
+    self.object_browser = EditorObjectBrowser(self)
     self.tileset_browser = EditorTilesetBrowser(self)
     self.tile_palette = EditorTilePalette(self, { activate_tile_brush = true })
     self.terrain_palette = EditorTerrainPalette(self)
@@ -396,7 +396,7 @@ function Editor:enter(previous, options)
     end
     local context_document, restored_by_panel = self:setupMapDocuments(session)
     self.settings_browser = EditorSettingsPanel(self)
-    self.event_browser:refresh()
+    self.object_browser:refresh()
     self.fx_browser:refresh()
     self:registerMenuBar()
     EditorPlugins:applyCommands(self)
@@ -471,8 +471,8 @@ function Editor:leave()
     self.game_preview_panel = nil
     self.layers_browser = nil
     self.layers_panel = nil
-    self.event_browser = nil
-    self.events_panel = nil
+    self.object_browser = nil
+    self.objects_panel = nil
     self.tileset_documents = nil
     self.active_tileset_document = nil
     self.active_tileset_id = nil
@@ -495,8 +495,8 @@ function Editor:leave()
     self.toolbar_panel = nil
     self.tool_registry = nil
     self.active_tool = nil
-    self.selected_event_id = nil
-    self.placement_event_id = nil
+    self.selected_object_id = nil
+    self.placement_object_id = nil
     self.diagnostics_browser = nil
     self.diagnostics_panel = nil
     self.console_browser = nil
@@ -613,7 +613,7 @@ function Editor:setActiveTool(id) return self.map_interaction:setActiveTool(id) 
 
 function Editor:cancelPolygonBuilds() return self.map_interaction:cancelPolygonBuilds() end
 
-function Editor:cancelEventRegionDrags() return self.map_interaction:cancelEventRegionDrags() end
+function Editor:cancelObjectRegionDrags() return self.map_interaction:cancelObjectRegionDrags() end
 
 function Editor:beginHistoryTransaction(label, owners)
     return self.history and self.history:begin(label, owners)
@@ -807,7 +807,7 @@ function Editor:showDocumentProviderPanel(panel, control, focus) return self.doc
 
 function Editor:openDocument(document, options) return self.document_manager:openDocument(document, options) end
 
-function Editor:setPlacementEvent(id) return self.map_interaction:setPlacementEvent(id) end
+function Editor:setPlacementObject(id) return self.map_interaction:setPlacementObject(id) end
 
 function Editor:beginAssetDrag(kind, id, label) return self.map_interaction:beginAssetDrag(kind, id, label) end
 
@@ -837,7 +837,7 @@ function Editor:removeMapFromWorld(world, map_id) return self.document_manager:r
 
 function Editor:finishAssetDrag(x, y) return self.map_interaction:finishAssetDrag(x, y) end
 
-function Editor:placeEvent(view, event_id, world_x, world_y) return self.map_interaction:placeEvent(view, event_id, world_x, world_y) end
+function Editor:placeObject(view, object_id, world_x, world_y) return self.map_interaction:placeObject(view, object_id, world_x, world_y) end
 
 function Editor:getMapObjectPropertiesTarget(selection) return self.map_interaction:getMapObjectPropertiesTarget(selection) end
 
@@ -956,11 +956,11 @@ function Editor:drawEditor(canvas)
         local font = EditorFont.get(16)
         love.graphics.setFont(font)
         local preview = self.drag_preview
-        if preview.event then
+        if preview.object then
             love.graphics.push()
             love.graphics.translate(x + 18, y + 28)
-            preview.event:draw(0.55)
-            preview.event:drawBounds(0.55)
+            preview.object:draw(0.55)
+            preview.object:drawBounds(0.55)
             love.graphics.pop()
         end
         local label = preview.label or tostring(preview.data or "")
@@ -1200,7 +1200,7 @@ function Editor:onKeyPressed(key, is_repeat)
         if not cancelled_link and self.message_bar then self.message_bar:setStatus("Drag cancelled") end
         return true
     end
-    if key == "escape" and self.placement_event_id
+    if key == "escape" and self.placement_object_id
         and not editing_text then
         self:setActiveTool("select")
         return true
@@ -1244,7 +1244,7 @@ function Editor:beginExitTransition()
     end
     if not self:confirmUnsavedChanges({ message = message }) then return false end
     self:cancelPolygonBuilds()
-    self:cancelEventRegionDrags()
+    self:cancelObjectRegionDrags()
     self:saveSession()
     self.session_saved_for_exit = true
     if self.live_document then

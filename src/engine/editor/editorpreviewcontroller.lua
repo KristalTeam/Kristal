@@ -539,19 +539,19 @@ function EditorPreviewController:getGameObjectPropertiesTarget(object)
         object.editor_property_types = object.editor_property_types or {}
     end
     if data then data.__editor_property_types = data.__editor_property_types or {} end
-    local event_id
+    local object_id
     if data then
-        event_id = data.type
+        object_id = data.type
         local map = Game.world and Game.world.map
-        if map and map.reader:isLegacyFormat() and (event_id == nil or event_id == "") then
-            event_id = data.class
-            if event_id == nil or event_id == "" then event_id = data.name end
+        if map and map.reader:isLegacyFormat() and (object_id == nil or object_id == "") then
+            object_id = data.class
+            if object_id == nil or object_id == "" then object_id = data.name end
         end
     end
     local property_set
-    if event_id then
-        local success, editor_event = pcall(Registry.createEditorEvent, event_id, data, {})
-        if success and editor_event then property_set = editor_event.property_set end
+    if object_id then
+        local success, editor_object = pcall(Registry.createEditorObject, object_id, data, {})
+        if success and editor_object then property_set = editor_object.property_set end
     end
     property_set = property_set or EditorPropertySet(
         data and data.properties or object.editor_properties,
