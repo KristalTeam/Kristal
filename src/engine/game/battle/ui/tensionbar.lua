@@ -233,13 +233,32 @@ function TensionBar:drawText()
     Draw.setColor(1, 1, 1, 1)
     Draw.draw(self.tp_text, -30, 30)
 
-    local tamt = math.floor(self:getPercentageFor250(self.apparent) * 100)
+    -- TODO: Game.chapter usage!
+    local fixed_display = Game.chapter >= 5
+
+    local tamt = 0
+
+    if fixed_display then
+        tamt = math.floor((self:getPercentageFor250(self.apparent) * 100) + 0.00001)
+    else
+        tamt = math.floor(self:getPercentageFor250(self.apparent) * 100)
+    end
+
+    if tamt < 0 then
+        tamt = 0
+    end
+
     self.maxed = false
     love.graphics.setFont(self.font)
     if (tamt < 100) then
-        love.graphics.print(tostring(math.floor(self:getPercentageFor250(self.apparent) * 100)), -30, 70)
+        if fixed_display then
+            love.graphics.print(tostring(tamt), -30, 70)
+        else
+            love.graphics.print(tostring(math.floor(self:getPercentageFor250(self.apparent) * 100)), -30, 70)
+        end
         love.graphics.print("%", -25, 95)
     end
+
     if (tamt >= 100) then
         self.maxed = true
 
