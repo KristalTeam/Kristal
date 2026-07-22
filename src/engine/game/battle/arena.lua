@@ -94,10 +94,11 @@ function Arena:setShape(shape)
 
     self.area_collider = PolygonCollider(self, TableUtils.copy(shape, true))
 
-    self.collider.colliders = {}
+    local colliders = {}
     for _, v in ipairs(Utils.getPolygonEdges(self.shape)) do
-        table.insert(self.collider.colliders, LineCollider(self, v[1][1], v[1][2], v[2][1], v[2][2]))
+        table.insert(colliders, LineCollider(self, v[1][1], v[1][2], v[2][1], v[2][2]))
     end
+    self.collider:setColliders(colliders)
 end
 
 ---@param r number
@@ -244,13 +245,13 @@ function Arena:update()
     if soul and Game.battle.soul.collidable then
         Object.startCache()
         local angle_diff = self.clockwise and -(math.pi / 2) or (math.pi / 2)
-        for _, line in ipairs(self.collider.colliders) do
+        for _, line in ipairs(self.collider:getCollidersDirect()) do
             ---@cast line LineCollider
 
             local angle
-            while soul:collidesWith(line) do
+            while soul:meetsCollider(line) do
                 if not angle then
-                    local x1, y1 = self:getRelativePos(line.x, line.y, Game.battle)
+                    local x1, y1 = self:getRelativePos(line.x1, line.y1, Game.battle)
                     local x2, y2 = self:getRelativePos(line.x2, line.y2, Game.battle)
                     angle = Utils.angle(x1, y1, x2, y2)
                 end

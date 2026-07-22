@@ -192,7 +192,7 @@ function Player:interact()
     Object.startCache()
     local interactables = {}
     for _, obj in ipairs(self.world.children) do
-        if obj.onInteract and obj:collidesWith(col) then
+        if obj.onInteract and obj:meetsCollider(col) then
             local rx, ry = obj:getRelativePos(obj.width / 2, obj.height / 2, self.parent)
             table.insert(interactables, { obj = obj, dist = MathUtils.dist(self.x, self.y, rx, ry) })
         end
@@ -752,7 +752,7 @@ function Player:update()
 
     self.world.in_battle_area = false
     for _, area in ipairs(self.world.map.battle_areas) do
-        if area:collidesWith(self.collider) then
+        if area:meetsCollider(self.collider) then
             if not self.world.in_battle_area then
                 self.world.in_battle_area = true
             end

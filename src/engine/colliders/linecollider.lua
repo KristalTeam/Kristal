@@ -1,84 +1,92 @@
+--- A line segment collider used for collision detection.
 ---@class LineCollider : Collider
----@overload fun(...) : LineCollider
+---@field x1 number # The X coordinate of the first point of the line segment.
+---@field y1 number # The Y coordinate of the first point of the line segment.
+---@field x2 number # The X coordinate of the second point of the line segment.
+---@field y2 number # The Y coordinate of the second point of the line segment.
+---@overload fun(owner: Object?, x1: number, y1: number, x2: number, y2: number, mode: Collider.Mode?) : LineCollider
 local LineCollider, super = Class(Collider)
 
----@param parent Object
+---@param owner Object?
 ---@param x1 number
 ---@param y1 number
 ---@param x2 number
 ---@param y2 number
----@param mode Collider.Mode
-function LineCollider:init(parent, x1, y1, x2, y2, mode)
-    super.init(self, parent, x1, y1, mode)
+---@param mode Collider.Mode?
+function LineCollider:init(owner, x1, y1, x2, y2, mode)
+    super.init(self, owner, mode)
 
+    self.x1 = x1
+    self.y1 = y1
     self.x2 = x2
     self.y2 = y2
 end
 
-function LineCollider:collidesWith(other, symmetrical)
-    other = self:getOtherCollider(other)
-    if not self:collidableCheck(other) then return false end
-    if not self:insideCheck(other) then return false end
-
-    if other.inside then
-        return other:collidesWith(self)
-    elseif self.inside then
-        if other:includes(Hitbox) then
-            local aabb, shape = other:getShapeFor(self)
-            if aabb then
-                return self:applyInvert(other, CollisionUtil.lineRectInside(self.x, self.y, self.x2, self.y2, unpack(shape)))
-            else
-                return self:applyInvert(other, CollisionUtil.linePolygonInside(self.x, self.y, self.x2, self.y2, shape))
-            end
-        elseif other:includes(LineCollider) then
-            return self:applyInvert(other, CollisionUtil.lineLineInside(self.x, self.y, self.x2, self.y2, other:getShapeFor(self)))
-        elseif other:includes(CircleCollider) then
-            return self:applyInvert(other, CollisionUtil.lineCircleInside(self.x, self.y, self.x2, self.y2, other:getShapeFor(self)))
-        elseif other:includes(PointCollider) then
-            return self:applyInvert(other, CollisionUtil.linePointInside(self.x, self.y, self.x2, self.y2, other:getShapeFor(self)))
-        elseif other:includes(PolygonCollider) then
-            return self:applyInvert(other, CollisionUtil.linePolygonInside(self.x, self.y, self.x2, self.y2, other:getShapeFor(self)))
-        elseif other:includes(ColliderGroup) then
-            return other:collidesWith(self)
-        end
-    else
-        if other:includes(Hitbox) then
-            return other:collidesWith(self)
-        elseif other:includes(LineCollider) then
-            return self:applyInvert(other, CollisionUtil.lineLine(self.x, self.y, self.x2, self.y2, other:getShapeFor(self)))
-        elseif other:includes(CircleCollider) then
-            return self:applyInvert(other, CollisionUtil.lineCircle(self.x, self.y, self.x2, self.y2, other:getShapeFor(self)))
-        elseif other:includes(PointCollider) then
-            return self:applyInvert(other, CollisionUtil.linePoint(self.x, self.y, self.x2, self.y2, other:getShapeFor(self)))
-        elseif other:includes(PolygonCollider) then
-            return self:applyInvert(other, CollisionUtil.linePolygon(self.x, self.y, self.x2, self.y2, other:getShapeFor(self)))
-        elseif other:includes(ColliderGroup) then
-            return other:collidesWith(self)
-        end
-    end
-
-    return super.collidesWith(self, other)
+function LineCollider:getColliderType()
+    return CollisionRegistry.LINE
 end
 
-function LineCollider:getShapeFor(other)
+function LineCollider:getBounds()
+    return Utils.getLineBounds(self.x1, self.y1, self.x2, self.y2)
+end
+
+--- Gets the coordinates of the line segment.
+---@return number x1 # The X coordinate of the first point of the line segment.
+---@return number y1 # The Y coordinate of the first point of the line segment.
+---@return number x2 # The X coordinate of the second point of the line segment.
+---@return number y2 # The Y coordinate of the second point of the line segment.
+function LineCollider:getLine()
+    return self.x1, self.y1, self.x2, self.y2
+end
+
+--- Sets the coordinates of the line segment.
+---@param x1 number # The X coordinate of the first point of the line segment.
+---@param y1 number # The Y coordinate of the first point of the line segment.
+---@param x2 number # The X coordinate of the second point of the line segment.
+---@param y2 number # The Y coordinate of the second point of the line segment.
+function LineCollider:setLine(x1, y1, x2, y2)
+    self.x1 = x1
+    self.y1 = y1
+    self.x2 = x2
+    self.y2 = y2
+end
+
+--- Gets the coordinates of the line segment relative to another collider.
+---@param other Collider # The other collider to get the line segment coordinates relative to.
+---@return number x1 # The X coordinate of the first point of the line segment relative to the other collider.
+---@return number y1 # The Y coordinate of the first point of the line segment relative to the other collider.
+---@return number x2 # The X coordinate of the second point of the line segment relative to the other collider.
+---@return number y2 # The Y coordinate of the second point of the line segment relative to the other collider.
+function LineCollider:getLineFor(other)
     local tf1, tf2 = other:getTransformsWith(self)
 
-    local x1, y1 = other:getLocalPoint(tf1, tf2, self.x, self.y)
+    local x1, y1 = other:getLocalPoint(tf1, tf2, self.x1, self.y1)
     local x2, y2 = other:getLocalPoint(tf1, tf2, self.x2, self.y2)
 
     return x1, y1, x2, y2
 end
 
+--- Draws the line with the given color.
+---@param r number? # The red component of the color.
+---@param g number? # The green component of the color.
+---@param b number? # The blue component of the color.
+---@param a number? # The alpha component of the color.
 function LineCollider:draw(r, g, b, a)
     Draw.setColor(r, g, b, a)
     love.graphics.setLineWidth(1)
-    love.graphics.line(self.x, self.y, self.x2, self.y2)
+    love.graphics.line(self.x1, self.y1, self.x2, self.y2)
     Draw.setColor(1, 1, 1, 1)
 end
+
+--- Draws the line with the given color and a thick line width.
+---@param r number? # The red component of the color.
+---@param g number? # The green component of the color.
+---@param b number? # The blue component of the color.
+---@param a number? # The alpha component of the color.
 function LineCollider:drawFill(r, g, b, a)
     Draw.setColor(r, g, b, a)
     love.graphics.setLineWidth(5)
-    love.graphics.line(self.x, self.y, self.x2, self.y2)
+    love.graphics.line(self.x1, self.y1, self.x2, self.y2)
     Draw.setColor(1, 1, 1, 1)
 end
 

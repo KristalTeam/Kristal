@@ -76,7 +76,7 @@ function FallingClimbArea:update()
     local target = Game.world.player
 
     if self.breaks_on_leave then
-        if target ~= nil and (not target:collidesWith(self)) then
+        if target ~= nil and (not target:meetsObject(self)) then
             if self.dont_break == nil then
                 self.state = 2
                 should_destroy = true

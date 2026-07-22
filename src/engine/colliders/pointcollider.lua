@@ -1,70 +1,73 @@
+--- A point collider used for collision detection.
 ---@class PointCollider : Collider
----@overload fun(...) : PointCollider
+---@field x number # The X coordinate of the point.
+---@field y number # The Y coordinate of the point.
+---@overload fun(owner: Object?, x: number, y: number, mode: Collider.Mode?) : PointCollider
 local PointCollider, super = Class(Collider)
 
-function PointCollider:init(parent, x, y, mode)
-    super.init(self, parent, x, y, mode)
+---@param owner Object?
+---@param x number
+---@param y number
+---@param mode Collider.Mode?
+function PointCollider:init(owner, x, y, mode)
+    super.init(self, owner, mode)
+
+    self.x = x
+    self.y = y
 end
 
-function PointCollider:collidesWith(other)
-    other = self:getOtherCollider(other)
-    if not self:collidableCheck(other) then return false end
-    if not self:insideCheck(other) then return false end
-
-    if other.inside then
-        return other:collidesWith(self)
-    elseif self.inside then
-        if other:includes(Hitbox) then
-            local aabb, shape = other:getShapeFor(self)
-            if aabb then
-                return self:applyInvert(other, CollisionUtil.pointRectInside(self.x,self.y, unpack(shape)))
-            else
-                return self:applyInvert(other, CollisionUtil.pointPolygonInside(self.x,self.y, shape))
-            end
-        elseif other:includes(LineCollider) then
-            return self:applyInvert(other, CollisionUtil.pointLineInside(self.x,self.y, other:getShapeFor(self)))
-        elseif other:includes(CircleCollider) then
-            return self:applyInvert(other, CollisionUtil.pointCircleInside(self.x,self.y, other:getShapeFor(self)))
-        elseif other:includes(PointCollider) then
-            return self:applyInvert(other, CollisionUtil.pointPointInside(self.x,self.y, other:getShapeFor(self)))
-        elseif other:includes(PolygonCollider) then
-            return self:applyInvert(other, CollisionUtil.pointPolygonInside(self.x,self.y, other:getShapeFor(self)))
-        elseif other:includes(ColliderGroup) then
-            return other:collidesWith(self)
-        end
-    else
-        if other:includes(Hitbox) then
-            return other:collidesWith(self)
-        elseif other:includes(LineCollider) then
-            return self:applyInvert(other, CollisionUtil.pointLine(self.x,self.y, other:getShapeFor(self)))
-        elseif other:includes(CircleCollider) then
-            return self:applyInvert(other, CollisionUtil.pointCircle(self.x,self.y, other:getShapeFor(self)))
-        elseif other:includes(PointCollider) then
-            return self:applyInvert(other, CollisionUtil.pointPoint(self.x,self.y, other:getShapeFor(self)))
-        elseif other:includes(PolygonCollider) then
-            return self:applyInvert(other, CollisionUtil.pointPolygon(self.x,self.y, other:getShapeFor(self)))
-        elseif other:includes(ColliderGroup) then
-            return other:collidesWith(self)
-        end
-    end
-
-    return super.collidesWith(self, other)
+function PointCollider:getColliderType()
+    return CollisionRegistry.POINT
 end
 
-function PointCollider:getShapeFor(other)
+function PointCollider:getBounds()
+    return self.x, self.y, 0, 0
+end
+
+--- Gets the coordinates of the point.
+---@return number x # The X coordinate of the point.
+---@return number y # The Y coordinate of the point.
+function PointCollider:getPoint()
+    return self.x, self.y
+end
+
+--- Sets the coordinates of the point.
+---@param x number # The X coordinate of the point.
+---@param y number # The Y coordinate of the point.
+function PointCollider:setPoint(x, y)
+    self.x = x
+    self.y = y
+end
+
+--- Gets the coordinates of the point relative to another collider.
+---@param other Collider # The other collider to get the point relative to.
+---@return number x # The X coordinate of the point relative to the other collider.
+---@return number y # The Y coordinate of the point relative to the other collider.
+function PointCollider:getPointFor(other)
     local tf1, tf2 = other:getTransformsWith(self)
 
     return other:getLocalPoint(tf1, tf2, self.x, self.y)
 end
 
-function PointCollider:draw(r,g,b,a)
-    Draw.setColor(r,g,b,a)
+--- Draws the point with the given color.
+---@param r number? # The red component of the color.
+---@param g number? # The green component of the color.
+---@param b number? # The blue component of the color.
+---@param a number? # The alpha component of the color.
+function PointCollider:draw(r, g, b, a)
+    Draw.setColor(r, g, b, a)
     love.graphics.setPointSize(3)
     love.graphics.points(self.x, self.y)
     Draw.setColor(1, 1, 1, 1)
 end
-function PointCollider:drawFill(r,g,b,a)
-    Draw.setColor(r,g,b,a)
+
+--- Draws the point with the given color and a larger size.
+---@param r number? # The red component of the color.
+---@param g number? # The green component of the color.
+---@param b number? # The blue component of the color.
+---@param a number? # The alpha component of the color.
+function PointCollider:drawFill(r, g, b, a)
+    Draw.setColor(r, g, b, a)
     love.graphics.setPointSize(5)
     love.graphics.points(self.x, self.y)
     Draw.setColor(1, 1, 1, 1)

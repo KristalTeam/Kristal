@@ -1044,12 +1044,53 @@ end
 ---@return number height # The height of the bounds.
 ---
 function Utils.getPolygonBounds(points)
-    local min_x, min_y, max_x, max_y
-    for _, point in ipairs(points) do
-        min_x, min_y = math.min(min_x or point[1], point[1]), math.min(min_y or point[2], point[2])
-        max_x, max_y = math.max(max_x or point[1], point[1]), math.max(max_y or point[2], point[2])
+    if #points == 0 then
+        return 0, 0, 0, 0
     end
+
+    local min_x, min_y = math.huge, math.huge
+    local max_x, max_y = -math.huge, -math.huge
+
+    for _, point in ipairs(points) do
+        local x, y = point[1], point[2]
+
+        min_x, min_y = math.min(min_x, x), math.min(min_y, y)
+        max_x, max_y = math.max(max_x, x), math.max(max_y, y)
+    end
+
     return min_x, min_y, (max_x - min_x), (max_y - min_y)
+end
+
+--- Returns the bounding box of a line segment.
+---@param x1 number # The X coordinate of the first point of the line segment.
+---@param y1 number # The Y coordinate of the first point of the line segment.
+---@param x2 number # The X coordinate of the second point of the line segment.
+---@param y2 number # The Y coordinate of the second point of the line segment.
+---@return number x # The X coordinate of the bounding box.
+---@return number y # The Y coordinate of the bounding box.
+---@return number width # The width of the bounding box.
+---@return number height # The height of the bounding box.
+function Utils.getLineBounds(x1, y1, x2, y2)
+    local min_x = math.min(x1, x2)
+    local min_y = math.min(y1, y2)
+    local max_x = math.max(x1, x2)
+    local max_y = math.max(y1, y2)
+
+    return min_x, min_y, max_x - min_x, max_y - min_y
+end
+
+--- Returns the bounding box of a circle.
+---@param x number # The X coordinate of the center of the circle.
+---@param y number # The Y coordinate of the center of the circle.
+---@param radius number # The radius of the circle.
+---@return number x # The X coordinate of the bounding box.
+---@return number y # The Y coordinate of the bounding box.
+---@return number width # The width of the bounding box.
+---@return number height # The height of the bounding box.
+function Utils.getCircleBounds(x, y, radius)
+    local diameter = radius * 2
+
+    return x - radius, y - radius, diameter, diameter
 end
 
 ---
@@ -1773,10 +1814,10 @@ function Utils.colliderFromShape(parent, data, x, y, properties)
     properties = properties or {}
 
     -- Optional properties for collider behaviour
-    -- "outside" is the same as enabling both "inverted" and "inside"
+    -- "outside" is the same as enabling both "inverted" and "inner"
     local mode = {
         invert = properties["inverted"] or properties["outside"] or false,
-        inside = properties["inside"] or properties["outside"] or false
+        inner = properties["inner"] or properties["inside"] or properties["outside"] or false
     }
 
     local current_hitbox

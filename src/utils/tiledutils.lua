@@ -205,10 +205,10 @@ function TiledUtils.colliderFromShape(parent, data, x, y, properties)
     properties = properties or {}
 
     -- Optional properties for collider behaviour
-    -- "outside" is the same as enabling both "inverted" and "inside"
+    -- "outside" is the same as enabling both "inverted" and "inner"
     local mode = {
         invert = properties["inverted"] or properties["outside"] or false,
-        inside = properties["inside"] or properties["outside"] or false
+        inner = properties["inner"] or properties["inside"] or properties["outside"] or false
     }
 
     local current_hitbox
