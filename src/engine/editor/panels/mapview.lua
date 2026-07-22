@@ -17,6 +17,7 @@
 ---@field shape_drag table
 ---@field tile_selection any
 ---@field tile_selection_drag any
+---@field tile_selection_move any
 ---@field tile_shape_drag any
 ---@field tile_stroke table
 ---@overload fun(editor?: table, document?: EditorMapDocument): EditorMapView
@@ -56,6 +57,7 @@ function EditorMapView:init(editor, document)
     self.explosions = {}
     self.tile_selection = nil
     self.tile_selection_drag = nil
+    self.tile_selection_move = nil
     self.tile_shape_drag = nil
 end
 
@@ -504,6 +506,100 @@ function EditorMapView:getTileSelectionMode()
     return "replace"
 end
 
+function EditorMapView:getTileSelectionCells(selection, column_offset, row_offset)
+    local cells = {}
+    column_offset, row_offset = column_offset or 0, row_offset or 0
+    for key in pairs(selection and selection.cells or {}) do
+        local column, row = key:match("^(-?%d+):(-?%d+)$")
+        if column and row then
+            table.insert(cells, { tonumber(column) + column_offset, tonumber(row) + row_offset })
+        end
+    end
+    return cells
+end
+
+function EditorMapView:beginTileSelectionMove(world_x, world_y)
+    if Input.shift() or Input.ctrl() then return false end
+    local target = self:getTileEditTarget(world_x, world_y)
+    local selection = self:getTileSelection(target)
+    if not selection or not selection.cells[tileKey(target.column, target.row)] then return false end
+    local min_column, min_row, max_column, max_row
+    for _, cell in ipairs(self:getTileSelectionCells(selection)) do
+        min_column = math.min(min_column or cell[1], cell[1])
+        min_row = math.min(min_row or cell[2], cell[2])
+        max_column = math.max(max_column or cell[1], cell[1])
+        max_row = math.max(max_row or cell[2], cell[2])
+    end
+    if not min_column then return false end
+    self.tile_selection_move = {
+        selection = selection,
+        target = target,
+        start_column = target.column,
+        start_row = target.row,
+        column_offset = 0,
+        row_offset = 0,
+        min_column = min_column,
+        min_row = min_row,
+        max_column = max_column,
+        max_row = max_row
+    }
+    return true
+end
+
+function EditorMapView:continueTileSelectionMove(world_x, world_y)
+    local drag = self.tile_selection_move
+    if not drag then return false end
+    local target = self:getTileEditTarget(world_x, world_y)
+    if target and target.map_id == drag.target.map_id and target.layer == drag.target.layer then
+        drag.column_offset = MathUtils.clamp(target.column - drag.start_column,
+            -drag.min_column, drag.target.width - drag.max_column - 1)
+        drag.row_offset = MathUtils.clamp(target.row - drag.start_row,
+            -drag.min_row, drag.target.height - drag.max_row - 1)
+    end
+    return true
+end
+
+function EditorMapView:finishTileSelectionMove()
+    local drag = self.tile_selection_move
+    self.tile_selection_move = nil
+    if not drag then return false end
+    if drag.column_offset == 0 and drag.row_offset == 0 then return true end
+    local cells = self:getTileSelectionCells(drag.selection)
+    local values = {}
+    for _, cell in ipairs(cells) do
+        table.insert(values, {
+            column = cell[1], row = cell[2],
+            value = self.document:getEncodedTile(drag.target.layer, cell[1], cell[2], drag.target.map_id)
+        })
+    end
+    self.editor:beginHistoryTransaction("Move Selected Tiles", self.document)
+    local changed = false
+    for _, value in ipairs(values) do
+        if self.document:setEncodedTile(drag.target.layer, value.column, value.row, 0,
+            drag.target.map_id, true) then changed = true end
+    end
+    local moved = {}
+    for _, value in ipairs(values) do
+        local column, row = value.column + drag.column_offset, value.row + drag.row_offset
+        if self.document:setEncodedTile(drag.target.layer, column, row, value.value,
+            drag.target.map_id, true) then changed = true end
+        moved[tileKey(column, row)] = true
+    end
+    drag.selection.cells = moved
+    if changed then
+        self.document:invalidatePreview(drag.target.map_id)
+        self.editor:markHistoryChanged()
+        self.editor:commitHistoryTransaction()
+        if self.editor.message_bar then
+            self.editor.message_bar:setStatus(string.format("Moved %d selected tile%s",
+                #values, #values == 1 and "" or "s"))
+        end
+    else
+        self.editor:cancelHistoryTransaction()
+    end
+    return true
+end
+
 function EditorMapView:selectMatchingTiles(target, connected)
     local value = self.document:getEncodedTile(target.layer, target.column, target.row, target.map_id)
     local cells, visited = {}, {}
@@ -565,12 +661,7 @@ function EditorMapView:drawTileSelection()
     local width, height = self.document:getTileLayerGridSize(selection.layer, selection.map_id)
     local target = { entry = entry, map_id = selection.map_id, layer = selection.layer,
         width = width, height = height }
-    local cells = {}
-    for key in pairs(selection.cells) do
-        local column, row = key:match("^(-?%d+):(-?%d+)$")
-        table.insert(cells, { tonumber(column), tonumber(row) })
-    end
-    self:drawTileCells(target, cells, 0.10)
+    self:drawTileCells(target, self:getTileSelectionCells(selection), 0.10)
 end
 
 function EditorMapView:getTileDragCells(drag)
@@ -595,6 +686,12 @@ function EditorMapView:getTileDragCells(drag)
 end
 
 function EditorMapView:drawTileToolPreview()
+    local move = self.tile_selection_move
+    if move then
+        self:drawTileCells(move.target, self:getTileSelectionCells(move.selection,
+            move.column_offset, move.row_offset), 0.24)
+        return
+    end
     local drag = self.tile_selection_drag or self.tile_shape_drag
     if not drag then return end
     local cells = self:getTileDragCells(drag)
@@ -1322,7 +1419,41 @@ function EditorMapView:drawShapePreview()
         end
         return
     end
-    local drag = self.object_region_drag or self.shape_drag
+    local drag = self.shape_drag
+    if drag then
+        local x, y = math.min(drag.start_x, drag.current_x), math.min(drag.start_y, drag.current_y)
+        local width, height = math.abs(drag.current_x - drag.start_x), math.abs(drag.current_y - drag.start_y)
+        Draw.setColor(0.3, 0.9, 0.62, 0.18)
+        if drag.shape == "ellipse" then
+            love.graphics.ellipse("fill", x + width / 2, y + height / 2, width / 2, height / 2)
+        else
+            love.graphics.rectangle("fill", x, y, width, height)
+        end
+        love.graphics.setLineWidth(2 / self.view_zoom)
+        Draw.setColor(0.48, 1, 0.72, 1)
+        if drag.shape == "ellipse" then
+            love.graphics.ellipse("line", x + width / 2, y + height / 2, width / 2, height / 2)
+        else
+            love.graphics.rectangle("line", x, y, width, height)
+        end
+        local handle = 5 / self.view_zoom
+        for _, point in ipairs({ { x, y }, { x + width, y }, { x, y + height }, { x + width, y + height } }) do
+            love.graphics.rectangle("fill", point[1] - handle / 2, point[2] - handle / 2, handle, handle)
+        end
+        local font = EditorFont.get(12)
+        local scale = 1 / self.view_zoom
+        local label = string.format("%d x %d", MathUtils.round(width), MathUtils.round(height))
+        local label_width, label_height = font:getWidth(label) * scale, font:getHeight() * scale
+        local label_x, label_y = x, y - label_height - 6 * scale
+        love.graphics.setFont(font)
+        Draw.setColor(0.03, 0.05, 0.04, 0.86)
+        love.graphics.rectangle("fill", label_x - 3 * scale, label_y - 2 * scale,
+            label_width + 6 * scale, label_height + 4 * scale)
+        Draw.setColor(0.72, 1, 0.82, 1)
+        love.graphics.print(label, label_x, label_y, 0, scale, scale)
+        return
+    end
+    drag = self.object_region_drag
     if not drag then return end
     local x, y = math.min(drag.start_x, drag.current_x), math.min(drag.start_y, drag.current_y)
     local width, height = math.abs(drag.current_x - drag.start_x), math.abs(drag.current_y - drag.start_y)
@@ -1675,6 +1806,10 @@ function EditorMapView:onMousePressed(x, y, button, presses)
             or tool == "tile_brush_round" or tool == "tile_fill") then
             return self:beginTileEdit(tool, world_x, world_y)
         end
+        if button == 1 and (tool == "tile_select_rect" or tool == "tile_select_wand"
+            or tool == "tile_select_same") and self:beginTileSelectionMove(world_x, world_y) then
+            return true
+        end
         if button == 1 and (tool == "tile_brush_line" or tool == "tile_shape_rect"
             or tool == "tile_shape_ellipse" or tool == "tile_select_rect" or tool == "tile_stamp") then
             return self:beginTileDrag(tool, world_x, world_y)
@@ -1819,7 +1954,15 @@ function EditorMapView:onMousePressed(x, y, button, presses)
         elseif tool == "shape" and self.editor.shape_mode ~= "point"
             and self.editor.shape_mode ~= "line" and self.editor.shape_mode ~= "polygon"
             and self.editor.shape_mode ~= "polyline" then
-            self.shape_drag = { shape = self.editor.shape_mode, start_x = world_x, start_y = world_y,
+            local entry = self.document:getMapAt(world_x, world_y) or self.document:getPrimaryMap()
+            if not self.document:getSelectedShapeLayer(entry.id) then
+                self.editor:addWarning("Select an object layer before creating a " .. self.editor.shape_mode,
+                    nil, "shape_placement")
+                return true
+            end
+            world_x, world_y = self:snapToMapGrid(entry, world_x, world_y)
+            self.shape_drag = { shape = self.editor.shape_mode, map_id = entry.id,
+                start_x = world_x, start_y = world_y,
                 current_x = world_x, current_y = world_y }
             self.editor:beginHistoryTransaction("Create Shape", self.document)
             return true
@@ -1850,7 +1993,7 @@ function EditorMapView:onMousePressed(x, y, button, presses)
             local entry = build and self.document.map_lookup[build.map_id]
                 or self.document:getMapAt(world_x, world_y) or self.document:getPrimaryMap()
             if not build then
-                if not self.document:getSelectedObjectLayer(entry.id) then
+                if not self.document:getSelectedShapeLayer(entry.id) then
                     self.editor:addWarning("Select an object layer before creating a " .. shape,
                         nil, "shape_placement")
                     return true
@@ -1922,6 +2065,7 @@ function EditorMapView:onMouseMoved(x, y, dx, dy)
         end
         return true
     end
+    if self.tile_selection_move then return self:continueTileSelectionMove(world_x, world_y) end
     if self.tile_selection_drag or self.tile_shape_drag then
         return self:continueTileDrag(world_x, world_y)
     end
@@ -1948,6 +2092,8 @@ function EditorMapView:onMouseMoved(x, y, dx, dy)
         return true
     end
     if self.shape_drag then
+        local entry = self.document.map_lookup[self.shape_drag.map_id]
+        if entry then world_x, world_y = self:snapToMapGrid(entry, world_x, world_y) end
         self.shape_drag.current_x, self.shape_drag.current_y = world_x, world_y
         return true
     end
@@ -2065,6 +2211,7 @@ function EditorMapView:onMouseReleased(x, y, button, presses)
         end
         return true
     end
+    if button == 1 and self.tile_selection_move then return self:finishTileSelectionMove() end
     if button == 1 and (self.tile_selection_drag or self.tile_shape_drag) then
         return self:finishTileDrag()
     end
@@ -2117,12 +2264,7 @@ function EditorMapView:onMouseReleased(x, y, button, presses)
         self.shape_drag = nil
         local x1, y1 = math.min(drag.start_x, drag.current_x), math.min(drag.start_y, drag.current_y)
         local x2, y2 = math.max(drag.start_x, drag.current_x), math.max(drag.start_y, drag.current_y)
-        local entry = self.document:getMapAt(x1, y1) or self.document:getPrimaryMap()
-        local tile_width, tile_height = entry.tile_width or 40, entry.tile_height or 40
-        if not Input.ctrl() then
-            x1, y1 = MathUtils.round(x1 / tile_width) * tile_width, MathUtils.round(y1 / tile_height) * tile_height
-            x2, y2 = MathUtils.round(x2 / tile_width) * tile_width, MathUtils.round(y2 / tile_height) * tile_height
-        end
+        local entry = self.document.map_lookup[drag.map_id] or self.document:getPrimaryMap()
         local object, layer_or_reason, map_id = self.document:addShapeObject(drag.shape, entry.id, x1, y1, x2 - x1, y2 - y1)
         if object then
             local selection = self.document:getObjectSelection(map_id, layer_or_reason, object)
@@ -2195,6 +2337,7 @@ function EditorMapView:getCursorType(x, y)
     if self.map_drag or self.dragging_canvas then return "grab" end
     if self.polygon_vertex_drag then return "resize_all" end
     if self.rotation_drag then return "resize_all" end
+    if self.tile_selection_move then return "grab" end
     if self.tile_stroke or self.tile_selection_drag or self.tile_shape_drag then return "crosshair" end
     if self.editor and self.editor.active_tool == "link" then return "link" end
     if self.editor and self.editor.active_tool == "world_select" then
@@ -2202,6 +2345,12 @@ function EditorMapView:getCursorType(x, y)
         return self.document:getMapAt(world_x, world_y) and "grab" or "default"
     end
     local world_x, world_y = self:getMapCoordinates(x, y)
+    if self.editor and (self.editor.active_tool == "tile_select_rect"
+        or self.editor.active_tool == "tile_select_wand" or self.editor.active_tool == "tile_select_same") then
+        local target = self:getTileEditTarget(world_x, world_y)
+        local tile_selection = self:getTileSelection(target)
+        if tile_selection and tile_selection.cells[tileKey(target.column, target.row)] then return "grab" end
+    end
     if self:canManipulateObjectSelection() then
         local _, _, interaction = self:getEditorInteractionAt(world_x, world_y)
         if interaction then return interaction.cursor or "resize_all" end

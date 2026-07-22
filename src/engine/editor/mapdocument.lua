@@ -530,6 +530,20 @@ function EditorMapDocument:getSelectedObjectLayer(id)
     return selected == nil and fallback or nil
 end
 
+function EditorMapDocument:getSelectedShapeLayer(id)
+    id = id or self.primary_map_id
+    local selected = self:getSelectedLayer(id)
+    local fallback
+    for _, layer in ipairs(self:getAllEditableLayers(id)) do
+        local layer_type = Registry.getLayerType(layer._editor_type_id)
+        if layer_type and layer_type.kind == "object" then
+            if layer._editor_uid == selected and not self:isLayerLocked(layer, id) then return layer end
+            if not self:isLayerLocked(layer, id) then fallback = fallback or layer end
+        end
+    end
+    return selected == nil and fallback or nil
+end
+
 function EditorMapDocument:getSelectedTileLayer(id)
     id = id or self.primary_map_id
     local selected = self:getSelectedLayer(id)
@@ -752,7 +766,7 @@ function EditorMapDocument:addShapeObject(shape, map_id, world_x, world_y, width
     local positioned_entry = self:getMapAt(world_x, world_y)
     map_id = map_id or (positioned_entry and positioned_entry.id) or self.primary_map_id
     local entry = self.map_lookup[map_id]
-    local layer = self:getSelectedObjectLayer(map_id)
+    local layer = self:getSelectedShapeLayer(map_id)
     if not entry or not layer then return nil, "Select an object layer before creating a shape" end
     local local_x = world_x - entry.x - (layer.offsetx or 0)
     local local_y = world_y - entry.y - (layer.offsety or 0)
@@ -787,7 +801,7 @@ function EditorMapDocument:addPointShapeObject(shape, map_id, points)
     local positioned_entry = self:getMapAt(points[1].x, points[1].y)
     map_id = map_id or (positioned_entry and positioned_entry.id) or self.primary_map_id
     local entry = self.map_lookup[map_id]
-    local layer = self:getSelectedObjectLayer(map_id)
+    local layer = self:getSelectedShapeLayer(map_id)
     if not entry or not layer then return nil, "Select an object layer before creating a " .. shape end
     local min_x, min_y, max_x, max_y = points[1].x, points[1].y, points[1].x, points[1].y
     for _, point in ipairs(points) do
