@@ -4,6 +4,7 @@
 ---
 ---@class Soul : Object
 ---
+---@field can_graze         boolean         Whether the soul is able to graze bullets
 ---@field graze_tp_factor   number          A multiplier for the TP earned from grazing by the soul (Defaults to `1`, plus the sum of all party members effective `graze_tp` stats, capped at `3`)
 ---@field graze_time_factor number          A multiplier for the wave time depleted from grazing by the soul (Defaults to `1`, plus the sum of all party members effective `graze_time` stats, capped at `3`)
 ---@field graze_size_factor  number          A multiplier for the size of the soul's graze hitbox (Defaults to `1`, plus the sum of all party members effective `graze_size` stats, capped at `3`)
@@ -68,6 +69,7 @@ function Soul:init(x, y, color)
 
     self.layer = BATTLE_LAYERS["soul"]
 
+    self.can_graze = true
     self.graze_tp_factor   = 1
     self.graze_time_factor = 1
     self.graze_size_factor = 1
@@ -420,6 +422,11 @@ function Soul:onSquished(solid)
     solid:onSquished(self)
 end
 
+---@return boolean
+function Soul:canGraze()
+    return self.can_graze
+end
+
 --- *(Override)* Called when the soul grazes something.
 ---@param bullet Bullet
 ---@param old_graze boolean
@@ -502,7 +509,7 @@ function Soul:update()
             table.insert(collided_bullets, bullet)
         end
         if not Game:hasInvulnerability() then
-            if bullet:canGraze() and bullet:collidesWith(self.graze_collider) then
+            if self:canGraze() and bullet:canGraze() and bullet:collidesWith(self.graze_collider) then
                 local old_graze = bullet.grazed
                 if bullet.grazed then
                     Game:giveTension(bullet:getGrazeTension() * DT * self.graze_tp_factor)
