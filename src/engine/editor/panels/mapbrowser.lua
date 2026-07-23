@@ -6,19 +6,12 @@
 ---@field new_map_button EditorButton
 ---@field search EditorSearchBar
 ---@field tree EditorTreeList
+---@field folder_nodes table<string, table>
 ---@overload fun(editor: table): EditorMapBrowser
 local EditorMapBrowser, super = Class(EditorControl)
 
-local function uniqueName(parent, base)
-    local used = {}
-    for _, child in ipairs(parent.children) do used[child.name:lower()] = true end
-    if not used[base:lower()] then return base end
-    local index = 2
-    while used[(base .. " " .. index):lower()] do index = index + 1 end
-    return base .. " " .. index
-end
-
 local function nodeRegistryId(node)
+    if node and node.registry_id then return node.registry_id end
     local parts = {}
     local current = node
     while current and not current.root do
@@ -31,6 +24,7 @@ end
 function EditorMapBrowser:init(editor)
     super.init(self, 0, 0, 240, 400)
     self.editor = editor
+    self.folder_nodes = {}
     self.search = self:addChild(EditorSearchBar({
         placeholder = "Search maps...",
         on_changed = function(value) self.tree:setFilter(value) end
@@ -40,7 +34,7 @@ function EditorMapBrowser:init(editor)
     self.tree = self:addChild(EditorTreeList({
         on_select = function(node) self:selectNode(node) end,
         on_activate = function(node) self:activateNode(node) end,
-        on_rename = function(node) self:renamedNode(node) end,
+        on_rename = function(node, old_name) self:renamedNode(node, old_name) end,
         on_drag_start = function(node)
             self.editor:beginDragPreview(node.type, node.name,
                 node.type == "folder" and "editor/ui/folder" or "editor/ui/layer/default", node.registry_id)
@@ -69,7 +63,7 @@ function EditorMapBrowser:selectNode(node)
     end
     node.editor_properties = node.editor_properties or {}
     node.editor_property_types = node.editor_property_types or {}
-    local data = node.registry_id and Registry.getMapData(node.registry_id)
+    local data = node.type == "map" and node.registry_id and Registry.getMapData(node.registry_id)
     if data then
         data.properties = data.properties or {}
         data.__editor_property_types = data.__editor_property_types or {}
@@ -87,7 +81,7 @@ function EditorMapBrowser:selectNode(node)
         property_set:registerProperty("light", "boolean")
         property_set:registerProperty("border", "string")
     end
-    local reader_class = node.registry_id and Registry.getMapReader(node.registry_id)
+    local reader_class = node.type == "map" and node.registry_id and Registry.getMapReader(node.registry_id)
     local fields = {
         {
             label = "Name",
@@ -103,6 +97,8 @@ function EditorMapBrowser:selectNode(node)
             set = function() return false end,
             readonly = true
         })
+    end
+    if node.type == "map" and node.registry_id then
         table.insert(fields, {
             label = "Format",
             get = function() return reader_class and reader_class.LEGACY_FORMAT and "Legacy Tiled" or "Editor" end,
@@ -133,6 +129,45 @@ function EditorMapBrowser:renamedNode(node, old_name)
             return
         end
     end
+    if node.type == "folder" and node.registry_id then
+        local name = StringUtils.trim(node.name)
+        local valid, reason = self.editor:isValidContentId(name)
+        if name:find("/", 1, true) or name:find("\\", 1, true) then
+            valid, reason = false, "Folder names cannot contain path separators"
+        end
+        local old_id = node.registry_id
+        local parent_id = node.parent and not node.parent.root and nodeRegistryId(node.parent) or ""
+        local new_id = parent_id ~= "" and (parent_id .. "/" .. name) or name
+        if not valid then
+            node.name = old_name
+            self.editor:addWarning("Could not rename map folder", reason, "map_folders")
+            self:refresh({ select_folder = old_id })
+            return
+        end
+        if new_id ~= old_id then
+            local source = self:getMapDirectory() .. "/" .. old_id
+            local items = ProjectFileSystem.getDirectoryItems(source)
+            if items and #items > 0 then
+                node.name = old_name
+                self.editor:addWarning("Could not rename map folder",
+                    "Non-empty map folders cannot be renamed without also changing their map IDs",
+                    "map_folders")
+                self:refresh({ select_folder = old_id })
+                return
+            end
+            local moved
+            moved, reason = ProjectFileSystem.rename(source, self:getMapDirectory() .. "/" .. new_id)
+            if not moved then
+                node.name = old_name
+                self.editor:addError("Could not rename map folder", reason, "map_folders")
+                self:refresh({ select_folder = old_id })
+                return
+            end
+            self.editor:clearDiagnostics("map_folders")
+            self:refresh({ select_folder = new_id })
+            return
+        end
+    end
     self:selectNode(node)
 end
 
@@ -158,26 +193,67 @@ function EditorMapBrowser:getRegisteredMapIds()
     return ids
 end
 
+function EditorMapBrowser:getMapDirectory()
+    return Mod.info.path .. "/scripts/" .. Registry.paths.maps
+end
+
+function EditorMapBrowser:getFilesystemFolderIds(directory, prefix, result)
+    directory = directory or self:getMapDirectory()
+    prefix = prefix or ""
+    result = result or {}
+    local items = ProjectFileSystem.getDirectoryItems(directory)
+    if not items then return result end
+    for _, item in ipairs(items) do
+        local path = directory .. "/" .. item
+        local info = ProjectFileSystem.getInfo(path)
+        if info and info.type == "directory" then
+            local id = prefix ~= "" and (prefix .. "/" .. item) or item
+            result[id] = true
+            self:getFilesystemFolderIds(path, id, result)
+        end
+    end
+    return result
+end
+
 function EditorMapBrowser:refresh(options)
     options = options or {}
     local previous_node = self.tree.selected_node
-    local previous_id = previous_node and previous_node.registry_id
+    local previous_id = previous_node and previous_node.type == "map" and previous_node.registry_id
     local previous_folder = previous_node and previous_node.type == "folder"
         and nodeRegistryId(previous_node) or nil
     self.tree:clear()
     local folders = { [""] = self.tree.root }
     local maps = {}
-    for _, id in ipairs(self:getRegisteredMapIds()) do
+    local folder_ids = self:getFilesystemFolderIds()
+    local registered_ids = self:getRegisteredMapIds()
+    for _, id in ipairs(registered_ids) do
         local parts = StringUtils.split(id, "/", true)
-        local parent, path = self.tree.root, ""
+        local path = ""
         for index = 1, #parts - 1 do
             local name = parts[index]
             path = path == "" and name or (path .. "/" .. name)
-            if not folders[path] then
-                folders[path] = self.tree:createFolder(parent, name, { virtual = false })
-            end
-            parent = folders[path]
+            folder_ids[path] = true
         end
+    end
+    local ordered_folders = {}
+    for id in pairs(folder_ids) do table.insert(ordered_folders, id) end
+    table.sort(ordered_folders, function(a, b)
+        local a_depth = select(2, a:gsub("/", ""))
+        local b_depth = select(2, b:gsub("/", ""))
+        return a_depth == b_depth and a:lower() < b:lower() or a_depth < b_depth
+    end)
+    for _, id in ipairs(ordered_folders) do
+        local parent_id = id:match("^(.*)/[^/]+$") or ""
+        local parent = folders[parent_id] or self.tree.root
+        folders[id] = self.tree:createFolder(parent, id:match("([^/]+)$"), {
+            registry_id = id,
+            virtual = false
+        })
+    end
+    for _, id in ipairs(registered_ids) do
+        local parts = StringUtils.split(id, "/", true)
+        local parent_id = id:match("^(.*)/[^/]+$") or ""
+        local parent = folders[parent_id] or self.tree.root
         local reader_class = Registry.getMapReader(id)
         local legacy_format = reader_class and reader_class.LEGACY_FORMAT == true
         local node = self.tree:createMap(parent, parts[#parts] or id, {
@@ -188,9 +264,11 @@ function EditorMapBrowser:refresh(options)
         })
         maps[id] = node
     end
+    self.folder_nodes = folders
     self.tree:sort()
     local current_id = previous_id or not previous_folder and Game.world and Game.world.map and Game.world.map.id
-    local selected_node = current_id and maps[current_id] or previous_folder and folders[previous_folder]
+    local selected_node = options.select_folder and folders[options.select_folder]
+        or current_id and maps[current_id] or previous_folder and folders[previous_folder]
     if selected_node then
         if options.silent then
             self.tree.selected_node = selected_node
@@ -202,7 +280,21 @@ end
 
 function EditorMapBrowser:createFolder(parent)
     parent = parent or self.tree:getInsertionParent()
-    local node = self.tree:createFolder(parent, uniqueName(parent, "New Folder"), { virtual = true })
+    local parent_id = parent and not parent.root and nodeRegistryId(parent) or ""
+    local base = parent_id ~= "" and (parent_id .. "/new_folder") or "new_folder"
+    local id, index = base, 1
+    while self.folder_nodes[id] or ProjectFileSystem.getInfo(self:getMapDirectory() .. "/" .. id) do
+        index = index + 1
+        id = base .. "_" .. index
+    end
+    local created, reason = ProjectFileSystem.createProjectDirectory(self:getMapDirectory() .. "/" .. id)
+    if not created then
+        self.editor:addError("Could not create map folder", reason, "map_folders")
+        return false
+    end
+    self.editor:clearDiagnostics("map_folders")
+    self:refresh({ select_folder = id })
+    local node = self.folder_nodes[id]
     self.tree:beginRename(node)
     return node
 end
@@ -263,9 +355,6 @@ function EditorMapBrowser:openNodeContextMenu(node, tree, x, y)
             })
         end
         table.insert(items, { label = "Rename", action = function() tree:beginRename(node) end })
-        if node.virtual then
-            table.insert(items, { label = "Remove", action = function() tree:removeNode(node) end })
-        end
     end
     local global_x, global_y = tree:getGlobalPosition()
     self.editor.dockspace:openContextMenu(items, global_x + x, global_y + y, tree)
