@@ -81,12 +81,14 @@ function EditorMapDocument:captureHistoryState()
     local maps = {}
     local map_format_extensions = {}
     for _, entry in ipairs(self.maps) do
+        local data = Registry.getMapData(entry.id)
         table.insert(maps, {
             id = entry.id, x = entry.x, y = entry.y,
             explicit_companion = entry.explicit_companion == true,
-            primary = entry.id == self.primary_map_id
+            primary = entry.id == self.primary_map_id,
+            map_width = data and data.width,
+            map_height = data and data.height
         })
-        local data = Registry.getMapData(entry.id)
         if data then
             map_format_extensions[entry.id] = {
                 extensions = TableUtils.copy(data.extensions or {}, true),
@@ -123,6 +125,11 @@ function EditorMapDocument:restoreHistoryState(state)
     world.__editor_property_types = TableUtils.copy(state.world_property_types or {}, true)
     world.virtual = state.world_virtual
     for _, saved in ipairs(state.maps or {}) do
+        local data = Registry.getMapData(saved.id)
+        if data then
+            data.width = saved.map_width or data.width
+            data.height = saved.map_height or data.height
+        end
         local entry = world:addMap(saved.id, saved.x, saved.y, {
             explicit_companion = saved.explicit_companion
         })
@@ -319,6 +326,7 @@ function EditorMapDocument:setEditableLayerVisible(uid, visible, id)
     if not layer then return false end
     layer._editor_visible = visible ~= false
     layer.visible = layer._editor_visible
+    self:invalidatePreview(id)
     return true
 end
 
@@ -495,6 +503,71 @@ end
 
 function EditorMapDocument:setMapPosition(id, x, y)
     return self.world:setMapPosition(id, x, y)
+end
+
+function EditorMapDocument:resizeTileLayer(layer, old_map_width, old_map_height, width, height)
+    local old_width = math.max(0, tonumber(layer.width) or old_map_width)
+    local old_height = math.max(0, tonumber(layer.height) or old_map_height)
+    local new_width = (layer.width == nil or old_width == old_map_width) and width or old_width
+    local new_height = (layer.height == nil or old_height == old_map_height) and height or old_height
+    if old_width == new_width and old_height == new_height then return false end
+
+    if layer.chunks then
+        local size = EditorFormat.CHUNK_SIZE
+        for chunk_index = #layer.chunks, 1, -1 do
+            local chunk = layer.chunks[chunk_index]
+            chunk.tile_data = chunk.tile_data or {}
+            local occupied = false
+            for index = 1, size * size do
+                local column = (chunk.x or 0) + ((index - 1) % size)
+                local row = (chunk.y or 0) + math.floor((index - 1) / size)
+                if column < 0 or row < 0 or column >= new_width or row >= new_height then
+                    chunk.tile_data[index] = 0
+                elseif chunk.tile_data[index] and chunk.tile_data[index] ~= 0 then
+                    occupied = true
+                end
+            end
+            if not occupied then table.remove(layer.chunks, chunk_index) end
+        end
+    elseif type(layer.data) == "table" then
+        local resized = {}
+        for index = 1, new_width * new_height do resized[index] = 0 end
+        for row = 0, math.min(old_height, new_height) - 1 do
+            for column = 0, math.min(old_width, new_width) - 1 do
+                resized[column + row * new_width + 1] =
+                    layer.data[column + row * old_width + 1] or 0
+            end
+        end
+        layer.data = resized
+    end
+    if layer.width ~= nil then layer.width = new_width end
+    if layer.height ~= nil then layer.height = new_height end
+    return true
+end
+
+function EditorMapDocument:resizeMap(id, width, height)
+    id = id or self.primary_map_id
+    local data = Registry.getMapData(id)
+    local entry = self.map_lookup[id]
+    if not data or not entry then return false, "Unknown map '" .. tostring(id) .. "'" end
+    width = math.max(1, math.floor(tonumber(width) or 0))
+    height = math.max(1, math.floor(tonumber(height) or 0))
+    local old_width = math.max(1, math.floor(tonumber(data.width) or 1))
+    local old_height = math.max(1, math.floor(tonumber(data.height) or 1))
+    if width == old_width and height == old_height then return false end
+
+    for _, layer in ipairs(self:getAllEditableLayers(id)) do
+        local layer_type = Registry.getLayerType(layer._editor_type_id)
+        if layer_type and layer_type.kind == "tile" then
+            self:resizeTileLayer(layer, old_width, old_height, width, height)
+        end
+    end
+    data.width, data.height = width, height
+    local tile_width, tile_height = self:getTileLayerCellSize(nil, id)
+    entry.width, entry.height = width * tile_width, height * tile_height
+    entry.tile_width, entry.tile_height = tile_width, tile_height
+    self:invalidatePreview(id)
+    return true
 end
 
 function EditorMapDocument:removeMap(id)
