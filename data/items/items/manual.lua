@@ -48,7 +48,7 @@ function item:init()
 end
 
 function item:onWorldUse(target)
-    Game.world:showText("* (You tried to read the manual,\nbut it was so dense it made\nyour head spin...)")
+    Game.world:showText("* (You tried to read the manual,[wait:5]\nbut it was so dense it made\nyour head spin...)")
     return false
 end
 
