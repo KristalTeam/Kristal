@@ -84,7 +84,9 @@ function actor:init(style)
         ["jump_ball_slow"]      = {"ball", 4/30, true},
 
         ["diagonal_kick_right"] = {"diagonal_kick_right", 4/30, false},
-        ["diagonal_kick_left"] = {"diagonal_kick_left", 4/30, false}
+        ["diagonal_kick_left"]  = {"diagonal_kick_left", 4/30, false},
+
+        ["pirouette"]           = {"pirouette", 4/30, true}
     }
 
     if susie_style == 1 then
@@ -221,6 +223,10 @@ function actor:init(style)
 
         ["diagonal_kick_right"] = {-5, -1},
         ["diagonal_kick_left"] = {-3, -1},
+
+        ["pirouette"] = {-3, -1},
+
+        ["splat"] = {-8, 18},
     }
 end
 
