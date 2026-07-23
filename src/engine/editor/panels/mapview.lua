@@ -8,6 +8,7 @@
 ---@field is_game_preview boolean
 ---@field is_map_view boolean
 ---@field map_drag table
+---@field map_resize_drag table
 ---@field object_drag table
 ---@field polygon_build any
 ---@field polygon_vertex_drag table
@@ -59,6 +60,7 @@ function EditorMapView:init(editor, document)
     self.tile_selection_drag = nil
     self.tile_selection_move = nil
     self.tile_shape_drag = nil
+    self.map_resize_drag = nil
 end
 
 function EditorMapView:setCanvas() end
@@ -214,6 +216,7 @@ function EditorMapView:drawDocument()
             end
         end
     end
+    self:drawMapResizeHandles()
     self:drawTileSelection()
     self:drawTileToolPreview()
     self:drawObjectLinks()
@@ -504,6 +507,79 @@ function EditorMapView:getTileSelectionMode()
     if Input.ctrl() then return "subtract" end
     if Input.shift() then return "add" end
     return "replace"
+end
+
+function EditorMapView:getResizableMap()
+    if not self.editor or not self.document then return nil end
+    if self.editor.active_tool == "world_select" then
+        return self.document.map_lookup[self.selected_world_map_id]
+    end
+end
+
+function EditorMapView:getMapResizeHandleAt(world_x, world_y)
+    local entry = self.map_resize_drag and self.map_resize_drag.entry or self:getResizableMap()
+    if not entry then return nil end
+    local width = self.map_resize_drag and self.map_resize_drag.width * (entry.tile_width or 40)
+        or entry.width
+    local height = self.map_resize_drag and self.map_resize_drag.height * (entry.tile_height or 40)
+        or entry.height
+    if not width or not height then return nil end
+    local distance = 10 / self.view_zoom
+    local right, bottom = entry.x + width, entry.y + height
+    if math.abs(world_x - right) <= distance and math.abs(world_y - bottom) <= distance then
+        return entry, "se"
+    end
+    if math.abs(world_x - right) <= distance
+        and math.abs(world_y - (entry.y + height / 2)) <= distance then
+        return entry, "e"
+    end
+    if math.abs(world_x - (entry.x + width / 2)) <= distance
+        and math.abs(world_y - bottom) <= distance then
+        return entry, "s"
+    end
+end
+
+function EditorMapView:getMapResizeCursor(handle)
+    if handle == "e" then return "resize_hori" end
+    if handle == "s" then return "resize_vert" end
+    return "resize_diag_l"
+end
+
+function EditorMapView:drawMapResizeHandles()
+    local drag = self.map_resize_drag
+    local entry = drag and drag.entry or self:getResizableMap()
+    if not entry then return end
+    local tile_width, tile_height = entry.tile_width or 40, entry.tile_height or 40
+    local width = drag and drag.width * tile_width or entry.width
+    local height = drag and drag.height * tile_height or entry.height
+    if not width or not height then return end
+
+    love.graphics.setLineWidth(2 / self.view_zoom)
+    Draw.setColor(drag and { 1, 0.84, 0.2, 0.95 } or { 0.45, 0.72, 1, 0.95 })
+    love.graphics.rectangle("line", entry.x, entry.y, width, height)
+    local size = 8 / self.view_zoom
+    love.graphics.rectangle("fill", entry.x + width - size / 2,
+        entry.y + height / 2 - size / 2, size, size)
+    love.graphics.rectangle("fill", entry.x + width / 2 - size / 2,
+        entry.y + height - size / 2, size, size)
+    love.graphics.rectangle("fill", entry.x + width - size / 2,
+        entry.y + height - size / 2, size, size)
+
+    if drag then
+        local text = string.format("%d × %d", drag.width, drag.height)
+        local font = EditorFont.get(14)
+        local text_width = font:getWidth(text)
+        love.graphics.push()
+        love.graphics.translate(entry.x + width, entry.y + height)
+        love.graphics.scale(1 / self.view_zoom)
+        Draw.setColor(0.04, 0.04, 0.05, 0.9)
+        love.graphics.rectangle("fill", -text_width - 12, -font:getHeight() - 12,
+            text_width + 12, font:getHeight() + 8)
+        Draw.setColor(1, 0.9, 0.45, 1)
+        love.graphics.setFont(font)
+        love.graphics.print(text, -text_width - 6, -font:getHeight() - 8)
+        love.graphics.pop()
+    end
 end
 
 function EditorMapView:getTileSelectionCells(selection, column_offset, row_offset)
@@ -1760,6 +1836,22 @@ function EditorMapView:onMousePressed(x, y, button, presses)
         local world_x, world_y = self:getMapCoordinates(x, y)
         local tool = self.editor.active_tool
         local can_manipulate_objects = self:canManipulateObjectSelection()
+        if button == 1 and tool == "world_select" then
+            local entry, handle = self:getMapResizeHandleAt(world_x, world_y)
+            if entry then
+                local data = Registry.getMapData(entry.id) or {}
+                self.map_resize_drag = {
+                    entry = entry,
+                    handle = handle,
+                    width = math.max(1, math.floor(tonumber(data.width)
+                        or entry.width / (entry.tile_width or 40))),
+                    height = math.max(1, math.floor(tonumber(data.height)
+                        or entry.height / (entry.tile_height or 40)))
+                }
+                self.editor:beginHistoryTransaction("Resize Map", self.document)
+                return true
+            end
+        end
         if tool == "link" then
             if button == 2 then
                 return self.editor:cancelObjectLink() or true
@@ -2053,6 +2145,24 @@ function EditorMapView:onMouseMoved(x, y, dx, dy)
         return self.editor.game_preview:onMouseMoved(x, y, dx, dy)
     end
     local world_x, world_y = self:getMapCoordinates(x, y)
+    if self.map_resize_drag then
+        local drag = self.map_resize_drag
+        local tile_width, tile_height = drag.entry.tile_width or 40, drag.entry.tile_height or 40
+        if drag.handle == "e" or drag.handle == "se" then
+            drag.width = math.max(1,
+                MathUtils.round((world_x - drag.entry.x) / tile_width))
+        end
+        if drag.handle == "s" or drag.handle == "se" then
+            drag.height = math.max(1,
+                MathUtils.round((world_y - drag.entry.y) / tile_height))
+        end
+        if self.editor.message_bar then
+            self.editor.message_bar:setStatus(string.format(
+                "Resize Map: %d × %d tiles (%d × %d px)",
+                drag.width, drag.height, drag.width * tile_width, drag.height * tile_height))
+        end
+        return true
+    end
     if self.object_interaction_drag then
         local drag = self.object_interaction_drag
         local local_x, local_y = self:getObjectLocalCoordinates(drag.selection, world_x, world_y)
@@ -2196,6 +2306,22 @@ function EditorMapView:onMouseReleased(x, y, button, presses)
     if self.editor and self.editor.live_document == self.document then
         return self.editor.game_preview:onMouseReleased(x, y, button, presses)
     end
+    if button == 1 and self.map_resize_drag then
+        local drag = self.map_resize_drag
+        self.map_resize_drag = nil
+        if self.document:resizeMap(drag.entry.id, drag.width, drag.height) then
+            self.tile_selection = nil
+            self.editor:markHistoryChanged()
+            self.editor:commitHistoryTransaction()
+            if self.editor.message_bar then
+                self.editor.message_bar:setStatus(string.format(
+                    "Resized map '%s' to %d × %d tiles", drag.entry.id, drag.width, drag.height))
+            end
+        else
+            self.editor:cancelHistoryTransaction()
+        end
+        return true
+    end
     if button == 1 and self.object_interaction_drag then
         local drag = self.object_interaction_drag
         self.object_interaction_drag = nil
@@ -2332,6 +2458,7 @@ function EditorMapView:getCursorType(x, y)
     if self.editor and self.editor.live_document == self.document then
         return self.editor.game_preview:getCursorType(x, y)
     end
+    if self.map_resize_drag then return self:getMapResizeCursor(self.map_resize_drag.handle) end
     if self.object_interaction_drag then return self.object_interaction_drag.interaction.cursor or "resize_all" end
     if self.object_drag then return self.object_drag.resize_cursor or "grab" end
     if self.map_drag or self.dragging_canvas then return "grab" end
@@ -2342,9 +2469,13 @@ function EditorMapView:getCursorType(x, y)
     if self.editor and self.editor.active_tool == "link" then return "link" end
     if self.editor and self.editor.active_tool == "world_select" then
         local world_x, world_y = self:getMapCoordinates(x, y)
+        local _, handle = self:getMapResizeHandleAt(world_x, world_y)
+        if handle then return self:getMapResizeCursor(handle) end
         return self.document:getMapAt(world_x, world_y) and "grab" or "default"
     end
     local world_x, world_y = self:getMapCoordinates(x, y)
+    local _, map_resize_handle = self:getMapResizeHandleAt(world_x, world_y)
+    if map_resize_handle then return self:getMapResizeCursor(map_resize_handle) end
     if self.editor and (self.editor.active_tool == "tile_select_rect"
         or self.editor.active_tool == "tile_select_wand" or self.editor.active_tool == "tile_select_same") then
         local target = self:getTileEditTarget(world_x, world_y)
