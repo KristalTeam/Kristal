@@ -20,6 +20,7 @@
 ---@field terrain_any_button EditorButton
 ---@field terrain_expansion table
 ---@field terrain_is_button EditorButton
+---@field terrain_none_button EditorButton
 ---@field terrain_not_button EditorButton
 ---@field terrain_paint_changed boolean
 ---@field terrain_paint_mode string
@@ -142,6 +143,9 @@ function EditorTilesetPanel:init(editor)
     end))
     self.terrain_not_button = self:addChild(EditorButton("NOT", function()
         self:setTerrainPaintMode("not")
+    end))
+    self.terrain_none_button = self:addChild(EditorButton("NONE", function()
+        self:setTerrainPaintMode("none")
     end))
     self.terrain_any_button = self:addChild(EditorButton("ANY", function()
         self:setTerrainPaintMode("any")
@@ -736,12 +740,13 @@ function EditorTilesetPanel:rebuild()
 end
 
 function EditorTilesetPanel:setTerrainPaintMode(mode)
-    if mode ~= "is" and mode ~= "not" and mode ~= "any" then return false end
+    if mode ~= "is" and mode ~= "not" and mode ~= "none" and mode ~= "any" then return false end
     self.terrain_paint_mode = mode
     if self.editor.message_bar then
         local descriptions = {
             is = "Terrain atlas IS: painted neighbor slots must use the selected terrain",
             ["not"] = "Terrain atlas NOT: painted neighbor slots must not use the selected terrain",
+            none = "Terrain atlas NONE: painted neighbor slots must be empty",
             any = "Terrain atlas ANY: clear painted neighbor requirements"
         }
         self.editor.message_bar:setStatus(descriptions[mode])
@@ -828,11 +833,13 @@ function EditorTilesetPanel:paintTerrainRuleSlot(tile_id, x, y, palette)
             changed = rule ~= nil
         end
         if rule then
+            local terrain_id = self.terrain_paint_mode == "none" and 0 or variant.id
+            local operator = self.terrain_paint_mode == "none" and "is" or self.terrain_paint_mode
             local existing = self.document:getTerrainConditionAt(rule, slot.x, slot.y, "terrain")
-            if not existing or existing.terrain ~= variant.id
-                or (existing.operator or "is") ~= self.terrain_paint_mode then changed = true end
+            if not existing or existing.terrain ~= terrain_id
+                or (existing.operator or "is") ~= operator then changed = true end
             self.document:setTerrainNeighbor(rule, slot.x, slot.y,
-                variant.id, self.terrain_paint_mode)
+                terrain_id, operator)
         end
     end
     if not rule then return false end
@@ -1598,13 +1605,16 @@ function EditorTilesetPanel:update(dt)
     local terrain_tools = self.mode == "terrain"
     self.terrain_is_button.visible = terrain_tools
     self.terrain_not_button.visible = terrain_tools
+    self.terrain_none_button.visible = terrain_tools
     self.terrain_any_button.visible = terrain_tools
     if terrain_tools then
-        self.terrain_is_button:setBounds(104, toolbar_y, 42, 28)
-        self.terrain_not_button:setBounds(150, toolbar_y, 48, 28)
-        self.terrain_any_button:setBounds(202, toolbar_y, 48, 28)
+        self.terrain_is_button:setBounds(104, toolbar_y, 34, 28)
+        self.terrain_not_button:setBounds(142, toolbar_y, 42, 28)
+        self.terrain_none_button:setBounds(188, toolbar_y, 48, 28)
+        self.terrain_any_button:setBounds(240, toolbar_y, 42, 28)
         self.terrain_is_button.focused = self.terrain_paint_mode == "is"
         self.terrain_not_button.focused = self.terrain_paint_mode == "not"
+        self.terrain_none_button.focused = self.terrain_paint_mode == "none"
         self.terrain_any_button.focused = self.terrain_paint_mode == "any"
     end
     local collision_tools = self.mode == "collision"
