@@ -499,10 +499,12 @@ function EditorMapInteraction:copySelectedMapObjects(silent)
     if #selected == 0 then return false end
     local objects = {}
     for _, selection in ipairs(selected) do
+        local object_type = selection.document:getEditorObjectType(selection.data, selection.map_id)
         table.insert(objects, {
             data = TableUtils.copy(selection.data, true),
             document = selection.document,
-            map_id = selection.map_id
+            map_id = selection.map_id,
+            registered_object = Registry.getEditorObject(object_type) ~= nil
         })
     end
     self.map_object_clipboard = { objects = objects, paste_count = 0, cut = false }
@@ -532,9 +534,21 @@ function EditorMapInteraction:pasteMapObjects()
     local view = document.map_view
     local map_id = view and view.active_map_id or document.primary_map_id
     if not document.map_lookup[map_id] then map_id = document.primary_map_id end
-    local layer = document:getSelectedObjectLayer(map_id)
+    local contains_registered_objects = false
+    for _, stored in ipairs(clipboard.objects) do
+        if stored.registered_object then
+            contains_registered_objects = true
+            break
+        end
+    end
+    local layer = contains_registered_objects and document:getSelectedObjectLayer(map_id)
+        or document:getSelectedShapeLayer(map_id)
     if not layer then
-        if self.message_bar then self.message_bar:setStatus("Select an object layer before pasting") end
+        if self.message_bar then
+            self.message_bar:setStatus(contains_registered_objects
+                and "Select an Objects layer before pasting registered objects"
+                or "Select an object-kind layer before pasting shapes")
+        end
         return false
     end
     local first_cut_paste = clipboard.cut == true
