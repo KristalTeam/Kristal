@@ -198,28 +198,13 @@ function PlayerClimbState:queueExit(settings)
     self.afterimage_timer = 0
 end
 
---- A (somewhat hacky) method to check if an object is overlapping the player, without counting perfectly overlapping edges.
----
----@param obj Object The class of object to check for overlap with.
----@return boolean is_overlapping
-function PlayerClimbState:isOverlappingInstance(obj)
-    local obj_left, obj_top = obj:getRelativePos(0, 0, Game.world)
-    local obj_right, obj_bottom = obj:getRelativePos(obj.width, obj.height, Game.world)
-
-    local player_left, player_top = self.player:getRelativePos(0, 0, Game.world)
-    local player_right, player_bottom = self.player:getRelativePos(self.player.width, self.player.height, Game.world)
-
-    return player_right > obj_left and player_left < obj_right and player_bottom > obj_top and player_top < obj_bottom
-end
-
---- A (somewhat hacky) method to check for any world objects overlapping the player, without counting perfectly overlapping edges.
----
+--- Gets a list of every world object of the given type currently colliding with the player.
 ---@generic T : Object
----@param x? number The x position to check for overlap. Defaults to the player's current x position.
----@param y? number The y position to check for overlap. Defaults to the player's current y position.
----@param object T The class of object to check for overlap with.
----@return T[] objects A list of objects that are overlapping the player.
-function PlayerClimbState:getOverlappingObjects(x, y, object)
+---@param object T The class of object to check for collisions with.
+---@param x? number The x position to check for collisions. Defaults to the player's current x position.
+---@param y? number The y position to check for collisions. Defaults to the player's current y position.
+---@return T[] objects A list of objects that are colliding with the player.
+function PlayerClimbState:getOverlappingObjects(object, x, y)
     x = x or self.player.x
     y = y or self.player.y
 
@@ -232,60 +217,91 @@ function PlayerClimbState:getOverlappingObjects(x, y, object)
     local objects = {}
 
     Object.startCache()
-    for _, obj in ipairs(Game.world.children) do
-        if obj:includes(object) then
-            if self:isOverlappingInstance(obj) then
+    for _, obj in ipairs(Game.stage:getObjects(object)) do
+        if obj.parent == Game.world then
+            if obj:collidesWith(self.player) then
                 table.insert(objects, obj)
             end
         end
     end
-
     Object.endCache()
 
     self.player.x = old_x
     self.player.y = old_y
+
     return objects
 end
 
---- A (somewhat hacky) method to check if the player is overlapping a world object's bounds, without counting perfectly overlapping edges.
----
+--- Checks if any world object of the given type is currently colliding with the player, returning the first one found.
 ---@generic T : Object
----@param x? number The x position to check for overlap. Defaults to the player's current x position.
----@param y? number The y position to check for overlap. Defaults to the player's current y position.
----@param object T The class of object to check for overlap with.
+---@param object T The class of object to check for collisions with.
+---@param x? number The x position to check for collisions. Defaults to the player's current x position.
+---@param y? number The y position to check for collisions. Defaults to the player's current y position.
 ---@return boolean is_overlapping
----@return T? object The object that the player is overlapping, if any.
----@overload fun(x: number, y: number, object: T): (true, Event)
-function PlayerClimbState:isOverlappingObjectBounds(x, y, object)
+---@return T? object The object that the player is colliding with, if any.
+function PlayerClimbState:isOverlappingObject(object, x, y)
+    x = x or self.player.x
+    y = y or self.player.y
 
-    local overlapping_objects = self:getOverlappingObjects(x, y, object)
-    if #overlapping_objects > 0 then
-        return true, overlapping_objects[1]
-    else
-        return false, nil
-    end
-end
+    local old_x = self.player.x
+    local old_y = self.player.y
 
---- A (somewhat hacky) method to check if the player is overlapping a ClimbArea, or a child of ClimbArea, without counting perfectly overlapping edges.
----
----@generic T : ClimbArea
----@param x? number The x position to check for overlap. Defaults to the player's current x position.
----@param y? number The y position to check for overlap. Defaults to the player's current y position.
----@param object T The class of object to check for overlap with.
----@return boolean is_overlapping
----@return T? object The object that the player is overlapping, if any.
----@overload fun(x: number, y: number, object: T): (true, Event)
-function PlayerClimbState:isOverlappingClimbable(x, y, object)
+    self.player.x = x
+    self.player.y = y
 
-    local overlapping_objects = self:getOverlappingObjects(x, y, object)
+    local found_obj = nil
 
-    for i, obj in ipairs(overlapping_objects) do
-        if obj:isClimbable() then
-            return true, obj
+    Object.startCache()
+    for _, obj in ipairs(Game.stage:getObjects(object)) do
+        if obj.parent == Game.world then
+            if obj:collidesWith(self.player) then
+                found_obj = obj
+                break
+            end
         end
     end
+    Object.endCache()
 
-    return false, nil
+    self.player.x = old_x
+    self.player.y = old_y
+
+    return found_obj ~= nil, found_obj
+end
+
+--- Checks if any ClimbArea, or a given child of ClimbArea, is currently colliding with the player, returning the first one found.
+---@generic T : ClimbArea
+---@param object T The class of object to check for collisions with.
+---@param x? number The x position to check for collisions. Defaults to the player's current x position.
+---@param y? number The y position to check for collisions. Defaults to the player's current y position.
+---@return boolean is_overlapping
+---@return T? object The object that the player is colliding with, if any.
+function PlayerClimbState:isOverlappingClimbable(object, x, y)
+    x = x or self.player.x
+    y = y or self.player.y
+
+    local old_x = self.player.x
+    local old_y = self.player.y
+
+    self.player.x = x
+    self.player.y = y
+
+    local found_obj = nil
+
+    Object.startCache()
+    for _, obj in ipairs(Game.stage:getObjects(object)) do
+        if obj.parent == Game.world then
+            if obj:isClimbable() and obj:collidesWith(self.player) then
+                found_obj = obj
+                break
+            end
+        end
+    end
+    Object.endCache()
+
+    self.player.x = old_x
+    self.player.y = old_y
+
+    return found_obj ~= nil, found_obj
 end
 
 ---@param time integer The amount of time (in frames) that it takes the player to attempt to re-grab the wall. Defaults to 20. Common values are 10, 15, 20, 24, 30, 34, and 80.
@@ -505,7 +521,7 @@ function PlayerClimbState:chargeClimbCharge()
         self.player:setColor(ColorUtils.mergeColor(COLORS.white, COLORS.teal, 0.4 + (math.floor(math.sin(self.charge_timer)) * 0.4)))
 
         if self.charge_afterimage_timer >= 8 then
-            local afterimage = self.player.parent:addChild(Sprite(self.player.sprite:getTexture(), self.player.x, self.player.y))
+            local afterimage = Sprite(self.player.sprite:getTexture(), self.player.x, self.player.y)
             afterimage.alpha = 0.3
             afterimage:setScale(2)
             afterimage:fadeOutSpeedAndRemove(0.1)
@@ -515,6 +531,7 @@ function PlayerClimbState:chargeClimbCharge()
             local scale_x, scale_y = self.player:getScale()
             afterimage.graphics.grow_x = 0.2 / scale_x
             afterimage.graphics.grow_y = 0.2 / scale_y
+            self.player.parent:addChild(afterimage)
         end
     end
 
@@ -715,7 +732,7 @@ function PlayerClimbState:updateClimbFall()
             self.grab_x = self.last_x + (MathUtils.round((self.player.x - self.last_x) / 40) * 40)
             self.grab_y = self.last_y + (MathUtils.round((self.player.y - self.last_y) / 40) * 40)
 
-            if self:isOverlappingClimbable(self.grab_x, self.grab_y, ClimbArea) then
+            if self:isOverlappingClimbable(ClimbArea, self.grab_x, self.grab_y) then
                 self.grab_state = 1
                 self.direction = "down"
                 self.fall_state = 0
@@ -915,7 +932,7 @@ end
 ---@private
 function PlayerClimbState:checkClimbAreaExists()
     if self.neutral_state == 1 and (not NOCLIP) then
-        local found, obj = self:isOverlappingClimbable(self.player.x, self.player.y, ClimbArea)
+        local found, obj = self:isOverlappingClimbable(ClimbArea, self.player.x, self.player.y)
         if not found then
             self:fall(20)
         end
@@ -941,7 +958,7 @@ function PlayerClimbState:handleClimbIdle()
         self.last_x = self.player.x
         self.last_y = self.player.y
 
-        if not self:isOverlappingObjectBounds(nil, nil, ClimbUnsafe) then
+        if not self:isOverlappingObject(ClimbUnsafe) then
             self.last_safe_x = self.player.x
             self.last_safe_y = self.player.y
         end
@@ -972,7 +989,7 @@ function PlayerClimbState:handleClimbIdle()
                 self.momentum = self.momentum * (0.5 ^ DTMULT)
             end
 
-            local found_exit, exit = self:isOverlappingObjectBounds(nil, nil, ClimbExit)
+            local found_exit, exit = self:isOverlappingObject(ClimbExit)
             if found_exit and exit:canExit() then
                 ---@cast exit ClimbExit
 
@@ -1085,7 +1102,7 @@ function PlayerClimbState:initClimbMove()
         local finalclimbx = self.player.x + testxclimb
         local finalclimbx2 = (self.player.x + testxclimb) - self.climbing_x_dir
 
-        local found_exit, exit = self:isOverlappingObjectBounds(finalclimbx2, (self.player.y + testyclimb) - self.climbing_y_dir, ClimbExit)
+        local found_exit, exit = self:isOverlappingObject(ClimbExit, finalclimbx2, (self.player.y + testyclimb) - self.climbing_y_dir)
         if found_exit and exit:canExit() then
             ---@cast exit ClimbExit
 
@@ -1110,7 +1127,7 @@ function PlayerClimbState:initClimbMove()
             break
         end
 
-        if self:isOverlappingClimbable(finalclimbx, self.player.y + testyclimb, ClimbArea) or NOCLIP then
+        if self:isOverlappingClimbable(ClimbArea, finalclimbx, self.player.y + testyclimb) or NOCLIP then
             self.climbing_x_dir = testxclimb
             self.climbing_y_dir = testyclimb
             Assets.playSound("wing", 0.6, 1.1 + MathUtils.random(0.1))
@@ -1247,7 +1264,7 @@ function PlayerClimbState:updateClimbMove()
         end
 
         if self.afterimage_timer >= 1 then
-            local afterimage = self.player.parent:addChild(Sprite(self.player.sprite:getTexture(), self.player.x, self.player.y + self.player.sprite.y * 2))
+            local afterimage = Sprite(self.player.sprite:getTexture(), self.player.x, self.player.y + self.player.sprite.y * 2)
             afterimage:setScale(2)
             afterimage:setOrigin(0.5)
             afterimage.alpha = 0.2
@@ -1260,7 +1277,7 @@ function PlayerClimbState:updateClimbMove()
         local check_x = self.player.x - MathUtils.clamp(self.climbing_x_dir, -40, 40)
         local check_y = self.player.y - MathUtils.clamp(self.climbing_y_dir, -40, 40)
 
-        local found_exit, exit = self:isOverlappingObjectBounds(check_x, check_y, ClimbExit)
+        local found_exit, exit = self:isOverlappingObject(ClimbExit, check_x, check_y)
 
         local use_exit = nil
 
@@ -1332,7 +1349,7 @@ end
 ---@private
 function PlayerClimbState:checkClimbMove()
     if self.check_move then
-        local found, obj = self:isOverlappingClimbable(nil, nil, ClimbArea)
+        local found, obj = self:isOverlappingClimbable(ClimbArea)
 
         if found then
             ---@cast obj ClimbArea
@@ -1498,7 +1515,7 @@ function PlayerClimbState:drawReticleHint()
         local py = self.player.y
 
         for i = 1, count do
-            local found_exit, exit = self:isOverlappingObjectBounds(px, py, ClimbExit)
+            local found_exit, exit = self:isOverlappingObject(ClimbExit, px, py)
             if found_exit and exit:canExit() then
                 ---@cast exit ClimbExit
                 if exit:getExitDirection() == self.direction then
@@ -1517,7 +1534,7 @@ function PlayerClimbState:drawReticleHint()
                 px = self.player.x - (40 * i)
             end
 
-            if self:isOverlappingClimbable(px, py, ClimbArea) or NOCLIP then
+            if self:isOverlappingClimbable(ClimbArea, px, py) or NOCLIP then
                 found = i
             end
         end

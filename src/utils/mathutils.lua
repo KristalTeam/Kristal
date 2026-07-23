@@ -177,6 +177,20 @@ function MathUtils.lerpPoint(x1, y1, x2, y2, t)
 end
 
 ---
+--- Performs an inverse lerp, returning the percentage (from 0 to 1) that a value is between two numbers.
+---
+---@param a number     # The start value of the range.
+---@param b number     # The end value of the range.
+---@param value number # The value to check.
+---@return number t # The percentage (from 0 to 1) that the value is between the specified range.
+function MathUtils.inverseLerp(a, b, value)
+    if a == b then
+        return 0
+    end
+    return (value - a) / (b - a)
+end
+
+---
 --- Maps a value between a specified range to its equivalent position in a new range. \
 --- Does not automatically clamp.
 ---

@@ -76,41 +76,23 @@ function Collider:getPointFor(other, x, y)
     end
 end
 
-function Collider:getLocalPointsWith(other, ...)
-    local tf1, tf2 = self:getTransformsWith(other)
-    return self:getLocalPoints(tf1, tf2, ...)
-end
+--- Gets a single point relative to a target transformation.
+---@param tf1 love.Transform? # The transformation of the source collider relative to the common parent.
+---@param tf2 love.Transform? # The transformation of the target collider relative to the common parent.
+---@param x number # The X coordinate of the point to be transformed.
+---@param y number # The Y coordinate of the point to be transformed.
+---@return number local_x # The transformed X coordinate.
+---@return number local_y # The transformed Y coordinate.
+function Collider:getLocalPoint(tf1, tf2, x, y)
+    if tf2 ~= nil then
+        x, y = tf2:transformPoint(x, y)
+    end
 
-function Collider:getLocalPoints(tf1,tf2, ...)
-    local points = {...}
-    if type(points[1]) == "table" then
-        points = TableUtils.copy(points[1])
+    if tf1 ~= nil then
+        x, y = tf1:inverseTransformPoint(x, y)
     end
-    if type(points[1]) == "table" then
-        if tf2 then
-            for i,point in ipairs(points) do
-                points[i] = {tf2:transformPoint(point[1], point[2])}
-            end
-        end
-        if tf1 then
-            for i,point in ipairs(points) do
-                points[i] = {tf1:inverseTransformPoint(point[1], point[2])}
-            end
-        end
-        return points
-    else
-        if tf2 then
-            for i = 1, #points, 2 do
-                points[i], points[i+1] = tf2:transformPoint(points[i], points[i+1])
-            end
-        end
-        if tf1 then
-            for i = 1, #points, 2 do
-                points[i], points[i+1] = tf1:inverseTransformPoint(points[i], points[i+1])
-            end
-        end
-        return unpack(points)
-    end
+
+    return x, y
 end
 
 function Collider:collidesWith(other)

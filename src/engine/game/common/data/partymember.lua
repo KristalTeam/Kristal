@@ -416,7 +416,7 @@ end
 --- Sets this party member's health value
 ---@param health number
 function PartyMember:setHealth(health)
-    if INVINCIBILITY then
+    if INVINCIBILITY and health < self:getHealth() then
         return
     end
 
@@ -542,6 +542,16 @@ function PartyMember:addSpell(spell)
         spell = Registry.createSpell(spell)
     end
     table.insert(self.spells, spell)
+end
+
+--- Inserts a spell to this party member's set of available spells at `index` position
+---@param index number
+---@param spell string|Spell
+function PartyMember:insertSpell(index, spell)
+    if type(spell) == "string" then
+        spell = Registry.createSpell(spell)
+    end
+    table.insert(self.spells, index, spell)
 end
 
 --- Removes a spell from this party member's available spells

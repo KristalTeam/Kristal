@@ -9,7 +9,7 @@
 ---@field glass_colliders   Collider[]
 ---@field tile_alphas       number[]
 ---
----@field collider          ColliderGroup
+---@field collider          Hitbox
 ---
 ---@overload fun(...) : MagicGlass
 local MagicGlass, super = Class(Event)
@@ -39,25 +39,53 @@ function MagicGlass:init(x, y, shape, properties)
         end
     end
 
-    self.collider = ColliderGroup(self, self.glass_colliders)
+    self.collider = Hitbox(self, 0, 0, self.width, self.height)
+end
+
+--- Updates the alpha of a magic glass tile based on whether it is colliding with any objects.
+---@param index integer # The index of the magic glass tile being updated.
+---@param colliding Object[] # A list of objects currently colliding with this magic glass tile.
+function MagicGlass:updateGlassAlpha(index, colliding)
+    if #colliding > 0 then
+        self.tile_alphas[index] = 1
+    else
+        self.tile_alphas[index] = MathUtils.clamp(MathUtils.lerp(self.tile_alphas[index], 0, 0.125 * DTMULT), 0, 1)
+    end
+end
+
+--- Gets a list of all objects in the stage that should reveal magic glass on collision.
+---@return Object[] # A list of objects that should reveal magic glass on collision.
+function MagicGlass:getGlassRevealingObjects()
+    return Game.stage:getObjects(Character)
 end
 
 function MagicGlass:update()
     Object.startCache()
-    for i, collider in ipairs(self.glass_colliders) do
-        local any_collided = false
-        for _, char in ipairs(Game.stage:getObjects(Character)) do
-            if collider:collidesWith(char) then
-                any_collided = true
-                break
-            end
-        end
-        if any_collided then
-            self.tile_alphas[i] = 1
-        else
-            self.tile_alphas[i] = MathUtils.clamp(MathUtils.lerp(self.tile_alphas[i], 0, 0.125 * DTMULT), 0, 1)
+
+    local valid_objs = {}
+
+    for _, obj in ipairs(self:getGlassRevealingObjects()) do
+        if obj:collidesWith(self.collider) then
+            table.insert(valid_objs, obj)
         end
     end
+
+    local collided = {}
+
+    for i, collider in ipairs(self.glass_colliders) do
+        for _, obj in ipairs(valid_objs) do
+            if collider:collidesWith(obj) then
+                table.insert(collided, obj)
+            end
+        end
+
+        self:updateGlassAlpha(i, collided)
+
+        if #collided > 0 then
+            collided = {}
+        end
+    end
+
     Object.endCache()
 
     super.update(self)

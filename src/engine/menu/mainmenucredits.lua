@@ -30,7 +30,7 @@ function MainMenuCredits:init(menu)
                 "Temmie Chang",
                 "DELTARUNE team",
                 "",
-                "",
+                ""
             },
             {
                 { "GitHub Contributors", COLORS.silver },
@@ -62,32 +62,34 @@ function MainMenuCredits:init(menu)
             {
                 { "GitHub Contributors", COLORS.silver },
                 "J.A.R.U.",
+                "Jogla",
                 "Lionmeow",
                 "Luna",
                 "Maks7594",
                 "MaybeSamo",
                 "MCdeDaxia",
-                "MrOinky",
-                "NakuAutumn",
-                "NelleMonelle"
+                "MihBoss96",
+                "MrOinky"
             }
         },
         {
             "Kristal Engine",
             {
                 { "GitHub Contributors", COLORS.silver },
+                "NakuAutumn",
+                "NelleMonelle",
                 "Nextop",
                 "nightpool",
                 "prokube",
                 "rfrx",
                 "Simbel",
                 "sjl057",
-                "skarph",
-                "SuperOfSrb2",
-                "SweetSylveon"
+                "skarph"
             },
             {
                 { "GitHub Contributors", COLORS.silver },
+                "SuperOfSrb2",
+                "SweetSylveon",
                 "TFLTV",
                 "TheSkerch",
                 "Verozity",

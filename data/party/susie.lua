@@ -42,8 +42,13 @@ function character:init()
         self:addSpell("ultimate_heal")
     elseif Game.chapter == 3 then
         self:addSpell("ultra_heal")
-    elseif Game.chapter >= 4 then
+    elseif Game.chapter == 4 then
         self:addSpell("ok_heal")
+    elseif Game.chapter >= 5 then
+        -- DIFFERENCE: In DELTARUNE, starting from a new file in Chapter 5 doesn't properly give you BetterHeal.
+        -- It's probably best that's the exception, not the rule...
+        self:addSpell("better_heal")
+        self:addSpell("scythemare")
     end
 
     -- Current health (saved to the save file)

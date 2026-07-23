@@ -190,7 +190,7 @@ function Object:init(x, y, width, height)
 
     -- Save the previous position
     self.last_x = self.x
-    self.last_x = self.y
+    self.last_y = self.y
 
     -- Initialize this object's size
     self.width = width or 0
@@ -1306,7 +1306,6 @@ function Object:removeFX(id)
 end
 
 function Object:applyTransformTo(transform, floor_x, floor_y)
-    Utils.pushPerformance("Object#applyTransformTo")
     if not floor_x then
         transform:translate(self.x, self.y)
     else
@@ -1369,14 +1368,11 @@ function Object:applyTransformTo(transform, floor_x, floor_y)
             transform:translate(MathUtils.floorToMultiple(shake_x, floor_x), MathUtils.floorToMultiple(shake_y, floor_y))
         end
     end
-    Utils.popPerformance()
 end
 
 function Object:createTransform()
-    Utils.pushPerformance("Object#createTransform")
     local transform = love.math.newTransform()
     self:applyTransformTo(transform)
-    Utils.popPerformance()
     return transform
 end
 

@@ -54,7 +54,7 @@ function MainMenuModError:draw()
     local y = 128
 
     if moderrors > 0 then
-        Draw.printShadow({"The following mods have invalid ", {196, 196, 196}, "mod.json", {255, 255, 255}, " files:"}, -1, y, 2, "center", 640)
+        Draw.printShadow({"The following projects have invalid ", {196, 196, 196}, "mod.json", {255, 255, 255}, " files:"}, -1, y, 2, "center", 640)
 
         y = y + 64
 
@@ -68,7 +68,7 @@ function MainMenuModError:draw()
     end
 
     if liberrors > 0 then
-        Draw.printShadow({"The following mods use invalid ", {196, 196, 196}, "lib.json", {255, 255, 255}, " files:"}, -1, y, 2, "center", 640)
+        Draw.printShadow({"The following projects use invalid ", {196, 196, 196}, "lib.json", {255, 255, 255}, " files:"}, -1, y, 2, "center", 640)
 
         y = y + 64
 

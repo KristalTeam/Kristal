@@ -20,7 +20,12 @@ function Hitbox:collidesWith(other)
         return other:collidesWith(self)
     elseif self.inside then
         if other:includes(Hitbox) then
-            return self:applyInvert(other, CollisionUtil.rectPolygonInside(self.x,self.y,self.width,self.height, other:getShapeFor(self)))
+            local aabb, shape = other:getShapeFor(self)
+            if aabb then
+                return self:applyInvert(other, CollisionUtil.rectRectInside(self.x,self.y,self.width,self.height, unpack(shape)))
+            else
+                return self:applyInvert(other, CollisionUtil.rectPolygonInside(self.x,self.y,self.width,self.height, shape))
+            end
         elseif other:includes(LineCollider) then
             return self:applyInvert(other, CollisionUtil.rectLineInside(self.x,self.y,self.width,self.height, other:getShapeFor(self)))
         elseif other:includes(CircleCollider) then
@@ -34,7 +39,12 @@ function Hitbox:collidesWith(other)
         end
     else
         if other:includes(Hitbox) then
-            return self:applyInvert(other, CollisionUtil.rectPolygon(self.x,self.y,self.width,self.height, other:getShapeFor(self)))
+            local aabb, shape = other:getShapeFor(self)
+            if aabb then
+                return self:applyInvert(other, CollisionUtil.rectRect(self.x,self.y,self.width,self.height, unpack(shape)))
+            else
+                return self:applyInvert(other, CollisionUtil.rectPolygon(self.x,self.y,self.width,self.height, shape))
+            end
         elseif other:includes(LineCollider) then
             return self:applyInvert(other, CollisionUtil.rectLine(self.x,self.y,self.width,self.height, other:getShapeFor(self)))
         elseif other:includes(CircleCollider) then
@@ -51,15 +61,31 @@ function Hitbox:collidesWith(other)
     return super.collidesWith(self, other)
 end
 
--- Note: returns polygon
+--- Gets this collider's shape as a rectangle or polygon (depending on transformation) for the given other collider.
+---@param other Collider # The other collider to get the shape for.
+---@return boolean aabb # `true` if the shape is a rectangle, `false` if it is a polygon.
+---@return [number, number, number, number]|number[][] shape # The shape of the collider as a list of points or vertices.
 function Hitbox:getShapeFor(other)
-    local points = {
-        {self.x, self.y},
-        {self.x+self.width, self.y},
-        {self.x+self.width, self.y+self.height},
-        {self.x, self.y+self.height}
+    local tf1, tf2 = other:getTransformsWith(self)
+
+    local ul_x, ul_y = other:getLocalPoint(tf1, tf2, self.x, self.y)
+    local ur_x, ur_y = other:getLocalPoint(tf1, tf2, self.x + self.width, self.y)
+    local dr_x, dr_y = other:getLocalPoint(tf1, tf2, self.x + self.width, self.y + self.height)
+    local dl_x, dl_y = other:getLocalPoint(tf1, tf2, self.x, self.y + self.height)
+
+    if ul_y == ur_y and ul_x == dl_x then
+        local min_x, min_y = math.min(ul_x, dr_x), math.min(ul_y, dr_y)
+        local max_x, max_y = math.max(ul_x, dr_x), math.max(ul_y, dr_y)
+
+        return true, {min_x, min_y, max_x - min_x, max_y - min_y}
+    end
+
+    return false, {
+        {ul_x, ul_y},
+        {ur_x, ur_y},
+        {dr_x, dr_y},
+        {dl_x, dl_y}
     }
-    return other:getLocalPointsWith(self, points)
 end
 
 function Hitbox:draw(r,g,b,a)

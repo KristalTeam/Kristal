@@ -15,8 +15,10 @@ function Console:init()
 
     self.history = {}
 
+    self.read_offset = 0
+
     self:push("Welcome to [color:cyan]KRISTAL[color:reset]! This is the debug console.")
-    self:push("You can enter Lua here to be ran! Use [color:gray]clear()[color:reset] to clear the console.")
+    self:push("You can enter Lua here to be ran! Use [color:gray]help()[color:reset] to open the help menu.")
     self:push("")
 
     self.command_history = {}
@@ -34,6 +36,16 @@ end
 
 function Console:update()
     self.env:update()
+
+    local delta = Input.getScrollDeltaY()
+
+    if delta ~= 0 then
+        -- Specifically mouse wheel is clamped
+
+        self.read_offset = self.read_offset - delta
+        self.read_offset = math.max(self.read_offset, -#self.history + self.height)
+        self.read_offset = math.min(self.read_offset, 0)
+    end
 end
 
 function Console:createEnv()
@@ -60,12 +72,41 @@ function Console:createEnv()
         self:log(print_string)
     end
 
+    function env.help()
+        self:push("[color:cyan]KRISTAL[color:reset] help menu:")
+        self:push("[color:yellow]Commands:")
+        self:push("clear() [color:gray]- Clears the console.")
+        self:push("stack() [color:gray]- Shows the stack traceback.")
+        self:push("move([color:yellow]int[color:reset]) [color:gray]- Move the cursor [color:yellow]int[color:gray] amount of lines.")
+        self:push("moveTo([color:yellow]int[color:reset]) [color:gray]- Move the cursor to line [color:yellow]int[color:gray].")
+        self:push("resetPos() [color:gray]- Move the cursor to the last line.")
+        self:push("giveItem([color:yellow]str[color:reset]) [color:gray]- Attempts to give item with ID [color:yellow]str[color:gray].")
+        self:push("")
+        self:push("[color:yellow]Controls:")
+        self:push("Arrow keys / scroll wheel [color:gray]- Move cursor.")
+        self:push("Up/Down [color:gray]- Move through command history.")
+        self:push("Ctrl + Up/Down [color:gray]- Scroll the console.")
+        self:push("Shift + Enter [color:gray]- New line.")
+    end
+
     function env.clear()
         self.history = {}
     end
 
     function env.stack()
         self:warn(debug.traceback())
+    end
+
+    function env.move(amt)
+        self.read_offset = self.read_offset + (amt or 0)
+    end
+
+    function env.moveTo(line)
+        self.read_offset = -#self.history + (line or 0)
+    end
+
+    function env.resetPos()
+        self.read_offset = 0
     end
 
     function env.giveItem(str)
@@ -110,6 +151,10 @@ function Console:open()
 end
 
 function Console:onUpLimit()
+    if Input.ctrl() then
+        self.read_offset = self.read_offset - 1
+        return
+    end
     if #self.command_history == 0 then return end
     if self.history_index > 1 then
         self.history_index = self.history_index - 1
@@ -121,6 +166,10 @@ function Console:onUpLimit()
 end
 
 function Console:onDownLimit()
+    if Input.ctrl() then
+        self.read_offset = self.read_offset + 1
+        return
+    end
     if #self.command_history == 0 then return end
     if self.history_index == #self.command_history + 1 then
         -- Empty
@@ -136,6 +185,7 @@ end
 
 function Console:onSubmit()
     self:run(self.input)
+    self.env.resetPos()
 end
 
 function Console:close()
@@ -144,25 +194,40 @@ function Console:close()
     TextInput.endInput()
 end
 
-function Console:print(text, x, y)
+function Console:print(text, x, y, align)
     if text == nil then
         return
     end
+    align = align or 'left'
 
     local x_offset = 0
+
+    if align == 'right' then
+        love.graphics.setColor(1, 0, 1, 1)
+        x = SCREEN_WIDTH - x
+        for _, line in ipairs(text) do
+            x_offset = x_offset + self.font:getWidth(line)
+            x = x - self.font:getWidth(line)
+        end
+    end
 
     for _, line in ipairs(text) do
         Draw.setColor(self.color)
         if type(line) == "table" then
             self.color = line
         else
+            if align == 'right' then
+                x_offset = x_offset - self.font:getWidth(line)
+            end
             self:printOutlined(line, x + x_offset, y)
-            x_offset = x_offset + self.font:getWidth(line)
+            if align == 'left' then
+                x_offset = x_offset + self.font:getWidth(line)
+            end
         end
     end
 end
 
-function Console:printOutlined(text, x, y)
+function Console:printOutlined(text, x, y )
     if y < 0 then
         return
     end
@@ -182,15 +247,17 @@ end
 
 function Console:draw()
     if not self.is_open then return end
+
+    local line_height = 18
     love.graphics.setFont(self.font)
 
     Draw.setColor(0, 0, 0, 0.4)
-    love.graphics.rectangle("fill", 0, 0, 640, 480)
+    love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, 480)
 
-    local input_pos = (self.height + 1) * 16
+    local input_pos = (self.height + 1) * line_height
 
     Draw.setColor(0, 0, 0, 0.6)
-    love.graphics.rectangle("fill", 0, 0, 640, self.height * 16)
+    love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, (self.height) * line_height)
 
     Draw.setColor(1, 1, 1, 1)
 
@@ -204,14 +271,18 @@ function Console:draw()
     end
 
     for line = #self.history - self.height, #self.history do
-        self:print(self.history[line] or { "" }, 8, y_offset * 16)
+        self:print(self.history[line + self.read_offset] or { COLORS.gray, "~" }, 8, y_offset * line_height)
         y_offset = y_offset + 1
     end
+
+    self.color = {1, 1, 1, 1}
+    self:print({("Line %d of %d"):format(# self.history + self.read_offset, #self.history)}, 8, y_offset * line_height, 'right')
+    --y_offset = y_offset + 1
 
     self.color = { 1, 1, 1, 1 }
 
     Draw.setColor(0, 0, 0, 0.6)
-    love.graphics.rectangle("fill", 0, input_pos, 640, #self.input * 16)
+    love.graphics.rectangle("fill", 0, input_pos, SCREEN_WIDTH, #self.input * line_height)
 
     TextInput.draw({
         prefix_width = self.font:getWidth("> "),
