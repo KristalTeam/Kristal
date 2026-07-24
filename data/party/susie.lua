@@ -52,48 +52,48 @@ function character:init()
     end
 
     -- Current health (saved to the save file)
-    if Game.chapter == 1 then
+    if Game:getConfig("partyStats") == 1 then
         self.health = 110
-    elseif Game.chapter == 2 then
+    elseif Game:getConfig("partyStats") == 2 then
         self.health = 140
-    elseif Game.chapter == 3 then
+    elseif Game:getConfig("partyStats") == 3 then
         self.health = 190
-    elseif Game.chapter == 4 then
+    elseif Game:getConfig("partyStats") == 4 then
         self.health = 230
-    elseif Game.chapter >= 5 then
+    elseif Game:getConfig("partyStats") >= 5 then
         self.health = 290
     end
 
     -- Base stats (saved to the save file)
-    if Game.chapter == 1 then
+    if Game:getConfig("partyStats") == 1 then
         self.stats = {
             health = 110,
             attack = 14,
             defense = 2,
             magic = 1
         }
-    elseif Game.chapter == 2 then
+    elseif Game:getConfig("partyStats") == 2 then
         self.stats = {
             health = 140,
             attack = 16,
             defense = 2,
             magic = 1
         }
-    elseif Game.chapter == 3 then
+    elseif Game:getConfig("partyStats") == 3 then
         self.stats = {
             health = 190,
             attack = 18,
             defense = 2,
             magic = 2
         }
-    elseif Game.chapter == 4 then
+    elseif Game:getConfig("partyStats") == 4 then
         self.stats = {
             health = 230,
             attack = 22,
             defense = 2,
             magic = 3
         }
-    elseif Game.chapter >= 5 then
+    elseif Game:getConfig("partyStats") >= 5 then
         self.stats = {
             health = 290,
             attack = 22,
@@ -102,27 +102,27 @@ function character:init()
         }
     end
     -- Max stats from level-ups
-    if Game.chapter == 1 then
+    if Game:getConfig("partyStats") == 1 then
         self.max_stats = {
             health = 140
         }
-    elseif Game.chapter == 2 then
+    elseif Game:getConfig("partyStats") == 2 then
         self.max_stats = {
             health = 190
         }
-    elseif Game.chapter == 3 then
+    elseif Game:getConfig("partyStats") == 3 then
         self.max_stats = {
             health = 240,
             attack = 20,
             magic = 4
         }
-    elseif Game.chapter == 4 then
+    elseif Game:getConfig("partyStats") == 4 then
         self.max_stats = {
             health = 290,
             attack = 24,
             magic = 5
         }
-    elseif Game.chapter >= 5 then
+    elseif Game:getConfig("partyStats") >= 5 then
         self.max_stats = {
             health = 340,
             attack = 24,

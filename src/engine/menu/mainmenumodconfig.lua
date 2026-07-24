@@ -212,6 +212,7 @@ function MainMenuModConfig:registerOptions()
     self:registerOption("growStrongerChara", "Grow Stronger Character", "The character who grows stronger if they're in the party", "selection", { nil, false, "kris", "ralsei", "susie", "noelle" }) -- unhardcode
     self:registerOption("susieStyle", "Susie Style", "What sprite set Susie should use", "selection", { nil, 1, 2 })
     self:registerOption("ralseiStyle", "Ralsei Style", "What sprite set Ralsei should use", "selection", { nil, 1, 2 })
+    self:registerOption("partyStats", "Party Stats", "Which chapter to base party member's stats off of", "selection", { nil, 1, 2, 3, 4, 5 })
     self:registerOption("oldTensionBar", "Old Tension Bar", "Whether the Tension Bar uses blocky corners or not.", "selection", { nil, true, false })
     self:registerOption("oldUIPositions", "Old UI Positions", "Whether to use Chapter 1 positions of UI elements or not.", "selection", { nil, true, false })
     self:registerOption("oldGameOver", "Old Game Over", "Whether to use Chapter 1 game over or not.", "selection", { nil, true, false })
