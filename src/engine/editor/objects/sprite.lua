@@ -4,6 +4,12 @@ local EditorSpriteObject, super = Class(EditorObject)
 
 EditorSpriteObject.sprite_property = "texture"
 EditorSpriteObject.scaling_mode = "scale"
+EditorSpriteObject.sprite_alignment = "top_left"
+
+function EditorSpriteObject:getSpriteScale()
+    return self.properties.scalex or 2, self.properties.scaley or 2
+end
+
 function EditorSpriteObject:init(data, options)
     super.init(self, data, options)
     self:registerProperty("texture", "asset_path", {

@@ -18,6 +18,7 @@
 ---@field scale_x number
 ---@field scale_y number
 ---@field sprite string?
+---@field sprite_alignment "center"|"top_left"
 ---@field editor_sprite string?
 ---@field editor_name string?
 ---@field editor_description string?
@@ -56,6 +57,7 @@ EditorObject.placement_shape = "rectangle"
 -- and records a visual scale when the resize handles are dragged.
 EditorObject.scaling_mode = "resize"
 EditorObject.runtime_type = "event"
+EditorObject.sprite_alignment = "center"
 
 function EditorObject:registerProperty(id, property_type, options)
     options = TableUtils.copy(options or {}, true)
@@ -201,6 +203,36 @@ function EditorObject:getPreviewSprite(sprite)
     return nil
 end
 
+function EditorObject:getSpriteScale()
+    return 2, 2
+end
+
+function EditorObject:getPreviewSpriteScale()
+    local scale_x, scale_y = self:getSpriteScale()
+    if self.scaling_mode == "scale" then
+        scale_x = scale_x * self.scale_x
+        scale_y = scale_y * self.scale_y
+    end
+    return scale_x, scale_y
+end
+
+function EditorObject:adoptSpriteBounds(property_id)
+    if not self.sprite_property or property_id ~= self.sprite_property then return false end
+    if self.data.shape == "point" or self.data.point == true or self.data.ellipse == true
+        or self.data.polygon or self.data.polyline then return false end
+    self.sprite = self:getPreviewSprite()
+    local frames = self.sprite and Assets.getFramesOrTexture(self.sprite)
+    local texture = frames and frames[1]
+    if not texture then return false end
+    local scale_x, scale_y = self:getSpriteScale()
+    local width = texture:getWidth() * math.abs(scale_x)
+    local height = texture:getHeight() * math.abs(scale_y)
+    if self.data.width == width and self.data.height == height then return false end
+    self.data.width, self.data.height = width, height
+    self.width, self.height = width, height
+    return true
+end
+
 function EditorObject:getTexture()
     local frames = self.sprite and Assets.getFramesOrTexture(self.sprite)
     if frames and frames[1] then return frames[1], false end
@@ -226,16 +258,17 @@ function EditorObject:draw(alpha)
         Draw.setColor(tint[1] or 1, tint[2] or 1, tint[3] or 1, alpha)
     end
     local width, height = self:getBoundsSize()
+    local scale_x, scale_y = self:getPreviewSpriteScale()
     if marker then
         Draw.draw(texture, width / 2, height / 2, 0, 2, 2,
             texture:getWidth() / 2, texture:getHeight())
+    elseif self.sprite_alignment == "top_left" then
+        Draw.draw(texture, 0, 0, 0, scale_x, scale_y)
     elseif self.width ~= 0 or self.height ~= 0 then
-        local scale_x = self.scaling_mode == "scale" and self.scale_x or 1
-        local scale_y = self.scaling_mode == "scale" and self.scale_y or 1
-        Draw.draw(texture, width / 2, height / 2, 0, 2 * scale_x, 2 * scale_y,
+        Draw.draw(texture, width / 2, height / 2, 0, scale_x, scale_y,
             texture:getWidth() / 2, texture:getHeight() / 2)
     else
-        Draw.draw(texture, 0, 0, 0, 2, 2)
+        Draw.draw(texture, 0, 0, 0, scale_x, scale_y)
     end
     love.graphics.pop()
     Draw.setColor(1, 1, 1, 1)
