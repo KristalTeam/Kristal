@@ -294,6 +294,40 @@ function Assets.getTexture(path)
     return self.data.texture[path]
 end
 
+---Resolves either an asset id or a path-shaped sprite reference through the
+---merged engine/library/project texture registry.
+---@param reference string
+---@return love.Image? texture
+---@return string? id
+function Assets.resolveTextureReference(reference)
+    if type(reference) ~= "string" or reference == "" then return nil end
+    local normalized = reference:gsub("\\", "/"):gsub("^%./", "")
+    local candidates, seen = {}, {}
+    local function add(candidate)
+        candidate = candidate and candidate:gsub("^/+", "")
+        if not candidate or candidate == "" or seen[candidate] then return end
+        seen[candidate] = true
+        table.insert(candidates, candidate)
+        local without_extension = candidate:gsub("%.[^%./]+$", "")
+        if without_extension ~= candidate and not seen[without_extension] then
+            seen[without_extension] = true
+            table.insert(candidates, without_extension)
+        end
+    end
+
+    add(normalized)
+    local marker = "assets/sprites/"
+    local marker_start = normalized:find(marker, 1, true)
+    if marker_start then add(normalized:sub(marker_start + #marker)) end
+    if StringUtils.startsWith(normalized, "sprites/") then add(normalized:sub(9)) end
+
+    for _, id in ipairs(candidates) do
+        local texture = self.getTexture(id)
+        if texture then return texture, id end
+    end
+    return nil
+end
+
 ---@param path string
 ---@return love.ImageData
 function Assets.getTextureData(path)

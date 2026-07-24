@@ -16,36 +16,9 @@ local TiledUtils = {}
 ---@return number x
 ---@return number x
 ---@return Marker? data
+---@deprecated Use `MapUtils.parseMarkerProperty` instead.
 function TiledUtils.parseMarkerProperty(obj, target, name)
-    if type(target) == "table" then
-        ---@cast target Position|Marker|TiledObjectRef
-        if target.center_x ~= nil and target.center_y ~= nil then
-            -- This is marker data.
-            return target.center_x, target.center_y, target
-        elseif target.id ~= nil then
-            -- This is a Tiled object reference.
-            ---@cast target TiledObjectRef
-
-            if not Game.world.map:hasMarker(target) then
-                error(string.format("%s at (%d, %d) has invalid position property \"%s\"", ClassUtils.getClassName(obj), obj.x, obj.y, name))
-            end
-
-            return Game.world.map:getMarker(target)
-        elseif target[1] ~= nil and target[2] ~= nil then
-            -- This is a position table.
-            return target[1], target[2], nil
-        else
-            error(string.format("%s at (%d, %d) has invalid position property \"%s\"", ClassUtils.getClassName(obj), obj.x, obj.y, name))
-        end
-    end
-
-    -- Not a table, could be a string or a number (a marker reference)
-
-    if not Game.world.map:hasMarker(target) then
-        error(string.format("%s at (%d, %d) has invalid position property \"%s\"", ClassUtils.getClassName(obj), obj.x, obj.y, name))
-    end
-
-    return Game.world.map:getMarker(target)
+    return MapUtils.parseMarkerProperty(obj, target, name)
 end
 
 ---
@@ -74,25 +47,9 @@ end
 ---@param properties table # The properties table of a Tiled event's data.
 ---@return table result    # The list of property values found.
 ---
+---@deprecated Use `MapUtils.parsePropertyList` instead.
 function TiledUtils.parsePropertyList(id, properties)
-    properties = properties or {}
-    if properties[id] then
-        if type(properties[id]) == "table" and TableUtils.isArray(properties[id]) then
-            -- New Tiled list property. Use as-is.
-            return properties[id]
-        end
-        -- Numberless property found, return it as the only value in the list
-        return { properties[id] }
-    else
-        local result = {}
-        -- Loop through properties with an increasing number suffix
-        local i = 1
-        while properties[id .. i] do
-            table.insert(result, properties[id .. i])
-            i = i + 1
-        end
-        return result
-    end
+    return MapUtils.parsePropertyList(id, properties)
 end
 
 ---
@@ -106,38 +63,9 @@ end
 ---@param properties table # The properties table of a Tiled event's data.
 ---@return table result    # The list of property values found.
 ---
+---@deprecated Use `MapUtils.parsePropertyMultiList` instead.
 function TiledUtils.parsePropertyMultiList(id, properties)
-    if type(properties[id]) == "table" and TableUtils.isArray(properties[id]) then
-        -- New Tiled list properties.
-        for _,v in ipairs(properties[id]) do
-            -- If it's not all nested lists, make it a nested list.
-            if not (type(v) == "table" and TableUtils.isArray(v)) then
-                return { properties[id] }
-            end
-        end
-        -- Use as-is.
-        return properties[id]
-    end
-    local single_list = TiledUtils.parsePropertyList(id, properties)
-    if #single_list > 0 then
-        -- If a shallower list was found (e.g. "id1", "id2" instead of "id1_1", "id1_2"),
-        -- return it as the only value in the list.
-        return { single_list }
-    else
-        local result = {}
-        local i = 1
-        while properties[id .. i .. "_1"] do
-            local list = {}
-            local j = 1
-            while properties[id .. i .. "_" .. j] do
-                table.insert(list, properties[id .. i .. "_" .. j])
-                j = j + 1
-            end
-            table.insert(result, list)
-            i = i + 1
-        end
-        return result
-    end
+    return MapUtils.parsePropertyMultiList(id, properties)
 end
 
 ---
@@ -152,26 +80,9 @@ end
 ---@return boolean inverted   # Whether the result of the check should be inverted.
 ---@return any value          # The value that the flag should be compared to.
 ---
+---@deprecated Use `MapUtils.parseFlagProperties` instead.
 function TiledUtils.parseFlagProperties(flag, inverted, value, default_value, properties)
-    properties = properties or {}
-
-    local result_inverted = false
-    local result_flag = nil
-    local result_value = default_value
-
-    if properties[flag] then
-        -- If the flag property starts with an exclamation mark, the result should
-        -- be inverted and the flag name should be the rest of the string.
-        result_inverted, result_flag = StringUtils.startsWith(properties[flag], "!")
-    end
-    if properties[inverted] then
-        result_inverted = not result_inverted
-    end
-    if properties[value] then
-        result_value = properties[value]
-    end
-
-    return result_flag, result_inverted, result_value
+    return MapUtils.parseFlagProperties(flag, inverted, value, default_value, properties)
 end
 
 ---
@@ -183,11 +94,9 @@ end
 ---@return boolean flip_y    # Whether the tile should be flipped vertically.
 ---@return boolean flip_diag # Whether the tile should be flipped diagonally.
 ---
+---@deprecated Use `MapUtils.unpackTileGid` instead.
 function TiledUtils.parseTileGid(id)
-    return bit.band(id, 0x0FFFFFFF),
-        bit.band(id, 0x80000000) ~= 0,
-        bit.band(id, 0x40000000) ~= 0,
-        bit.band(id, 0x20000000) ~= 0
+    return MapUtils.unpackTileGid(id)
 end
 
 ---
@@ -200,56 +109,16 @@ end
 ---@param properties? table  # A table defining additional properties for the collider.
 ---@return Collider collider # The new Collider instance.
 ---
+---@deprecated Use `MapUtils.colliderFromShape` instead.
 function TiledUtils.colliderFromShape(parent, data, x, y, properties)
-    x, y = x or 0, y or 0
-    properties = properties or {}
-
-    -- Optional properties for collider behaviour
-    -- "outside" is the same as enabling both "inverted" and "inside"
-    local mode = {
-        invert = properties["inverted"] or properties["outside"] or false,
-        inside = properties["inside"] or properties["outside"] or false
-    }
-
-    local current_hitbox
-    if data.shape == "rectangle" then
-        -- For rectangles, create a Hitbox using the rectangle's dimensions
-        current_hitbox = Hitbox(parent, x, y, data.width, data.height, mode)
-
-    elseif data.shape == "polyline" then
-        -- For polylines, create a ColliderGroup using a series of LineColliders
-        local line_colliders = {}
-
-        -- Loop through each pair of points in the polyline
-        for i = 1, #data.polyline - 1 do
-            local j = i + 1
-            -- Create a LineCollider using the current and next point of the polyline
-            local x1, y1 = x + data.polyline[i].x, y + data.polyline[i].y
-            local x2, y2 = x + data.polyline[j].x, y + data.polyline[j].y
-            table.insert(line_colliders, LineCollider(parent, x1, y1, x2, y2, mode))
-        end
-
-        current_hitbox = ColliderGroup(parent, line_colliders)
-
-    elseif data.shape == "polygon" then
-        -- For polygons, create a PolygonCollider using the polygon's points
-        local points = {}
-
-        for i = 1, #data.polygon do
-            -- Convert points from the format {[x] = x, [y] = y} to {x, y}
-            table.insert(points, { x + data.polygon[i].x, y + data.polygon[i].y })
-        end
-
-        current_hitbox = PolygonCollider(parent, points, mode)
-    end
-
-    if properties["enabled"] == false then
-        current_hitbox.collidable = false
-    end
-
-    return current_hitbox
+    return MapUtils.colliderFromShape(parent, data, x, y, properties)
 end
-
+--- Resolves explicit polyline point-index connections, falling back to a
+--- conventional consecutive path when no topology is stored.
+---@deprecated Use `MapUtils.getPolylineEdges` instead.
+function TiledUtils.getPolylineEdges(data, point_count)
+    return MapUtils.getPolylineEdges(data, point_count)
+end
 ---@alias TiledUtils.PathFailReason
 ---| "not under prefix"
 ---| "path outside root"
@@ -307,6 +176,119 @@ function TiledUtils.relativePathToAssetId(target_dir, asset_path, source_dir)
 
     -- Strip extension
     return true, final_path:sub(1, -1 - (final_path:reverse():find("%.") or 0)), final_path
+end
+
+---@param asset_path string
+---@param source_dir string
+---@return boolean success
+---@return string result
+function TiledUtils.resolveImageAsset(asset_path, source_dir)
+    local image_dir = "assets/sprites"
+    local success, result, final_path = TiledUtils.relativePathToAssetId(image_dir, asset_path, source_dir)
+    if success then return true, result end
+    if result == "not under prefix" then
+        return false, "Image not found in \"" .. image_dir .. "\" (Got path \"" .. final_path .. "\")"
+    elseif result == "path outside root" then
+        return false, "Image path located outside Kristal (Got path \"<kristal>/" .. final_path .. "\")"
+    end
+    return false, "Unknown reason"
+end
+
+---@param layer table
+---@return string
+function TiledUtils.getLayerClassOrName(layer)
+    if layer.class ~= nil and layer.class ~= "" then return layer.class end
+    return layer.name or ""
+end
+
+---@param layer table
+---@param type_id string
+---@return boolean
+function TiledUtils.isLayerType(layer, type_id)
+    if layer.class ~= nil and layer.class ~= "" then return layer.class == type_id end
+    return StringUtils.startsWith((layer.name or ""):lower(), type_id)
+end
+
+---@param layers table[]?
+---@param track_source boolean?
+---@return table[]
+function TiledUtils.flattenLayers(layers, track_source)
+    local result = {}
+    local function append(layer, source)
+        if layer.type ~= "group" then
+            if track_source then layer._tiled_source = source end
+            table.insert(result, layer)
+            return
+        end
+        for index, sublayer in ipairs(layer.layers or {}) do
+            local sublayer_copy = TableUtils.copy(sublayer)
+            sublayer_copy.properties = TableUtils.mergeMany(layer.properties or {}, sublayer.properties or {})
+            if index == #(layer.layers or {}) then
+                sublayer_copy.properties.thin = sublayer.properties and sublayer.properties.thin
+            end
+            sublayer_copy.offsetx = (sublayer.offsetx or 0) + (layer.offsetx or 0)
+            sublayer_copy.offsety = (sublayer.offsety or 0) + (layer.offsety or 0)
+            sublayer_copy.parallaxx = (sublayer.parallaxx or 1) * (layer.parallaxx or 1)
+            sublayer_copy.parallaxy = (sublayer.parallaxy or 1) * (layer.parallaxy or 1)
+            append(sublayer_copy, source and source.layers and source.layers[index])
+        end
+    end
+    for index, layer in ipairs(layers or {}) do
+        append(TableUtils.copy(layer), track_source and layer or nil)
+    end
+    return result
+end
+
+---@param layers table[]
+---@param is_layer_type? fun(layer: table, type_id: string): boolean
+---@param get_layer_name? fun(layer: table): string
+---@return table?
+function TiledUtils.getSpawnLayer(layers, is_layer_type, get_layer_name)
+    is_layer_type = is_layer_type or TiledUtils.isLayerType
+    get_layer_name = get_layer_name or TiledUtils.getLayerClassOrName
+    local depths, object_layers = {}, {}
+    local depth, explicit = 0, nil
+    for _, layer in ipairs(layers) do
+        depths[layer] = depth
+        if layer.type == "objectgroup" and is_layer_type(layer, "objects") then
+            table.insert(object_layers, layer)
+            if layer.properties and layer.properties.spawn then explicit = layer end
+        end
+        if not (layer.properties and layer.properties.thin) then depth = depth + 1 end
+    end
+    if explicit then return explicit end
+
+    local selected, priority, has_markers = nil, nil, false
+    for _, layer in ipairs(layers) do
+        if layer.type == "objectgroup" then
+            if is_layer_type(layer, "markers") then
+                has_markers = true
+                priority = nil
+                if #object_layers == 0 then
+                    selected = layer
+                else
+                    local closest
+                    for _, object_layer in ipairs(object_layers) do
+                        if not closest
+                            or math.abs(depths[layer] - depths[object_layer])
+                                <= math.abs(depths[layer] - depths[closest]) then
+                            closest = object_layer
+                        else
+                            break
+                        end
+                    end
+                    selected = closest or layer
+                end
+            elseif get_layer_name(layer):lower() == "objects_party" then
+                priority = layer
+                break
+            elseif not has_markers then
+                if is_layer_type(layer, "objects") then priority = layer end
+                selected = layer
+            end
+        end
+    end
+    return priority or selected
 end
 
 return TiledUtils

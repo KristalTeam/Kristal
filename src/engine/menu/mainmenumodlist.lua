@@ -91,6 +91,7 @@ function MainMenuModList:onKeyPressed(key, is_repeat)
     if Input.isCancel(key) then
         Assets.stopAndPlaySound("ui_move")
 
+        self.menu.editor_project_selection = false
         self.menu:setState("TITLE")
         self.menu.title_screen:selectOption("play")
         return true
@@ -105,7 +106,11 @@ function MainMenuModList:onKeyPressed(key, is_repeat)
 
             elseif mod then
                 Assets.stopAndPlaySound("ui_select")
-                if (mod["useSaves"] == "has_saves" and Kristal.hasAnySaves(mod.id))
+                if self.menu.editor_project_selection then
+                    if not Kristal.loadModIntoEditor(mod.id) then
+                        error("Failed to load mod for editor: " .. mod.id)
+                    end
+                elseif (mod["useSaves"] == "has_saves" and Kristal.hasAnySaves(mod.id))
                 or (mod["useSaves"] ~= "has_saves" and mod["useSaves"])
                 or (mod["useSaves"] == nil and not mod["encounter"]) then
                     self.menu:setState("FILESELECT")

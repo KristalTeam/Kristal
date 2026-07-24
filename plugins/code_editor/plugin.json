@@ -1,0 +1,7 @@
+{
+    "id": "code_editor",
+    "name": "Kristal Code Editor",
+    "version": "1.0.0",
+    "description": "Source editing and Lua Language Server integration for the Kristal editor.",
+    "author": "Vesselbound"
+}
