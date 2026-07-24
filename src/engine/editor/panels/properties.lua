@@ -553,7 +553,7 @@ function EditorPropertiesPanel:setPropertyValue(name, value, definition)
         property_types[name] = property_type
     end
     self.editor:clearDiagnostics("property_value")
-    self:notifyChanged("properties")
+    self:notifyChanged(name)
     self:finishTargetHistory(true)
     return true
 end
