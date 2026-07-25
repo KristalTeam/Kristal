@@ -555,7 +555,7 @@
       "y": 0,
       "type": "objects",
       "kind": "object",
-      "depth": 0,
+      "depth": -0.1,
       "alpha": 1,
       "visible": true,
       "parallax_x": 1,

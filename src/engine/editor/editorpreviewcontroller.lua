@@ -510,69 +510,11 @@ function EditorPreviewController:clearGameObjectSelection()
     if debug_system.state ~= "IDLE" then debug_system:closeMenu() end
     if debug_system.context then debug_system.context:close() end
     debug_system:unselectObject()
-    self:clearPropertiesTarget(self)
     debug_system:clearSelectionEnvironment(self)
     self.object_selection_cursor_x = nil
     self.object_selection_cursor_y = nil
     self.object_selection_mouse_buttons = {}
     return true
-end
-
-function EditorPreviewController:getGameObjectPropertiesTarget(object)
-    local self = self.editor
-    local function numberField(label, key)
-        return EditorPropertyFields.number(object, label, key, {
-            on_invalid = function()
-                self:addWarning(label .. " must be a number", nil, "object_property")
-            end,
-            on_set = function(value)
-                if object.data then object.data[key] = value end
-                self:clearDiagnostics("object_property")
-            end
-        })
-    end
-    local data = object.data
-    if data then
-        data.properties = data.properties or {}
-    else
-        object.editor_properties = object.editor_properties or {}
-        object.editor_property_types = object.editor_property_types or {}
-    end
-    if data then data.__editor_property_types = data.__editor_property_types or {} end
-    local object_id
-    if data then
-        object_id = data.type
-        local map = Game.world and Game.world.map
-        if map and map.reader:isLegacyFormat() and (object_id == nil or object_id == "") then
-            object_id = data.class
-            if object_id == nil or object_id == "" then object_id = data.name end
-        end
-    end
-    local property_set
-    if object_id then
-        local success, editor_object = pcall(Registry.createEditorObject, object_id, data, {})
-        if success and editor_object then property_set = editor_object.property_set end
-    end
-    property_set = property_set or EditorPropertySet(
-        data and data.properties or object.editor_properties,
-        data and data.__editor_property_types or object.editor_property_types)
-    return {
-        title = ClassUtils.getClassName(object) or "Game Object",
-        fields = {
-            numberField("X", "x"),
-            numberField("Y", "y"),
-            numberField("Width", "width"),
-            numberField("Height", "height"),
-            numberField("Layer", "layer")
-        },
-        properties = data and data.properties or object.editor_properties,
-        property_types = data and data.__editor_property_types or object.editor_property_types,
-        property_set = property_set,
-        on_changed = function()
-            self:addWarning("Game object property changes affect only the current preview",
-                nil, "object_property_preview")
-        end
-    }
 end
 
 function EditorPreviewController:isGameObjectSelectionActive()
@@ -617,7 +559,6 @@ function EditorPreviewController:handleGameObjectSelectionMousePressed(x, y, but
     local object = debug_system:detectObject(game_x, game_y)
     if object then
         debug_system:selectObject(object)
-        self:setPropertiesTarget(self:getGameObjectPropertiesTarget(object), self)
         if button == 1 then
             debug_system.grabbing = true
             local screen_x, screen_y = object:getScreenPos()
@@ -628,7 +569,6 @@ function EditorPreviewController:handleGameObjectSelectionMousePressed(x, y, but
         end
     else
         debug_system:unselectObject()
-        self:clearPropertiesTarget(self)
     end
     self.object_selection_mouse_buttons[button] = true
     return true

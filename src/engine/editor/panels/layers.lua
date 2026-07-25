@@ -21,10 +21,10 @@ function EditorLayersPanel:init(editor)
     self.updating_fields = false
     self.detail_y = 0
 
-    self.darken_toggle = self:addChild(EditorCheckbox("Darken Unselected",
+    self.darken_toggle = self:addChild(EditorCheckbox("Darken Unselected Layers",
         editor.darken_unselected_layers ~= false, function(value)
-            if editor.settings and editor.settings:getSetting("appearance.darken_unselected") then
-                editor.settings:setValue("appearance.darken_unselected", value)
+            if editor.settings and editor.settings:getSetting("appearance.darken_unselected_layers") then
+                editor.settings:setValue("appearance.darken_unselected_layers", value)
             else
                 editor.darken_unselected_layers = value
             end
@@ -239,6 +239,15 @@ function EditorLayersPanel:selectLayer(layer)
     self.selected_layer = layer
     if self.document then
         self.document:setSelectedLayer(layer and layer._editor_uid or nil, self.map_id)
+    end
+    local layer_type = layer and self:getLayerType(layer)
+    local layer_kind = layer_type and layer_type.kind
+    local view = self.document and self.document.map_view
+    if layer_kind == "tile" then
+        self.editor:selectMapObjects({})
+    elseif view then
+        view.tile_selection = nil
+        view.tile_paste_preview = nil
     end
     if layer then
         self.editor:setPropertiesTarget(self:getPropertiesTarget(layer), self)

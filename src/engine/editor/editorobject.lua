@@ -25,6 +25,7 @@
 ---@field editor_hidden boolean?
 ---@field runtime_object_id string?
 ---@field sprite_property string?
+---@field sprite_properties string[]?
 ---@field visible boolean
 ---@field width number
 ---@field x number
@@ -217,7 +218,8 @@ function EditorObject:getPreviewSpriteScale()
 end
 
 function EditorObject:adoptSpriteBounds(property_id)
-    if not self.sprite_property or property_id ~= self.sprite_property then return false end
+    if property_id ~= self.sprite_property
+        and not TableUtils.contains(self.sprite_properties or {}, property_id) then return false end
     if self.data.shape == "point" or self.data.point == true or self.data.ellipse == true
         or self.data.polygon or self.data.polyline then return false end
     self.sprite = self:getPreviewSprite()
