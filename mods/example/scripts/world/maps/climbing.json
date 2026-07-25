@@ -15,6 +15,7 @@
       "y": 0,
       "type": "tile",
       "kind": "tile",
+      "depth": 0,
       "alpha": 1,
       "visible": true,
       "parallax_x": 1,
@@ -165,6 +166,7 @@
       "y": 0,
       "type": "collision",
       "kind": "object",
+      "depth": 0,
       "alpha": 0.5,
       "visible": true,
       "parallax_x": 1,
@@ -436,6 +438,7 @@
       "y": 0,
       "type": "objects",
       "kind": "object",
+      "depth": 0,
       "alpha": 1,
       "visible": true,
       "parallax_x": 1,
@@ -784,6 +787,7 @@
       "y": 0,
       "type": "objects",
       "kind": "object",
+      "depth": 0,
       "alpha": 1,
       "visible": true,
       "parallax_x": 1,
@@ -885,6 +889,7 @@
       "y": 0,
       "type": "objects",
       "kind": "object",
+      "depth": 0,
       "alpha": 1,
       "visible": true,
       "parallax_x": 1,
@@ -1161,6 +1166,37 @@
             }
           ],
           "opacity": 1
+        },
+        {
+          "id": 145,
+          "name": "npc",
+          "type": "npc",
+          "x": 280,
+          "y": 920,
+          "width": 40,
+          "height": 40,
+          "shape": {
+            "type": "rectangle",
+            "shape_data": {}
+          },
+          "visible": true,
+          "properties": [
+            {
+              "name": "actor",
+              "type": "chooser",
+              "value": "lauren"
+            },
+            {
+              "name": "talksprite",
+              "type": "string",
+              "value": "talk"
+            },
+            {
+              "name": "cutscene",
+              "type": "script_path",
+              "value": "climbing.lauren_chooser"
+            }
+          ]
         }
       ]
     }

@@ -753,10 +753,16 @@ function EditorMapDocument:encodeTileForLayer(layer, map_id, tileset_id, tile_id
     return encoded
 end
 
-function EditorMapDocument:getMapAt(world_x, world_y)
+function EditorMapDocument:getMapAt(world_x, world_y, preferred_map_id)
+    local preferred = preferred_map_id and self.map_lookup[preferred_map_id]
+    if preferred and world_x >= preferred.x and world_y >= preferred.y
+        and world_x <= preferred.x + (preferred.width or 0)
+        and world_y <= preferred.y + (preferred.height or 0) then
+        return preferred
+    end
     for index = #self.maps, 1, -1 do
         local entry = self.maps[index]
-        if world_x >= entry.x and world_y >= entry.y
+        if entry ~= preferred and world_x >= entry.x and world_y >= entry.y
             and world_x <= entry.x + (entry.width or 0) and world_y <= entry.y + (entry.height or 0) then
             return entry
         end
@@ -1179,8 +1185,20 @@ end
 
 function EditorMapDocument:findObjectAt(world_x, world_y, options)
     options = options or {}
-    for entry_index = #self.maps, 1, -1 do
-        local entry = self.maps[entry_index]
+    local entries = {}
+    local preferred_id = options.only_map_id or options.preferred_map_id
+    local preferred = preferred_id and self.map_lookup[preferred_id]
+    if preferred then table.insert(entries, preferred) end
+    if not options.only_map_id then
+        for entry_index = #self.maps, 1, -1 do
+            local entry = self.maps[entry_index]
+            if entry ~= preferred then table.insert(entries, entry) end
+        end
+    elseif not preferred then
+        local only = self.map_lookup[options.only_map_id]
+        if only then table.insert(entries, only) end
+    end
+    for _, entry in ipairs(entries) do
         local layers = self:getFlatEditableLayers(entry.id, false)
         for layer_index = #layers, 1, -1 do
             local layer_entry = layers[layer_index]
@@ -1583,8 +1601,9 @@ function EditorMapDocument:drawPreview(entry, outline_width, map_selected)
     local preview = self:getPreview(entry)
     if not preview then return false end
     local map = preview.map
-    local darken = not self.editor or self.editor.darken_unselected_layers ~= false
-    local map_alpha = darken and map_selected == false and 0.35 or 1
+    local darken_layers = not self.editor or self.editor.darken_unselected_layers ~= false
+    local darken_maps = not self.editor or self.editor.darken_unselected_maps ~= false
+    local map_alpha = darken_maps and map_selected == false and 0.35 or 1
     Draw.setColor(map.bg_color or { 0, 0, 0, 0 }, map_alpha)
     love.graphics.rectangle("fill", 0, 0, entry.width, entry.height)
     Draw.setColor(1, 1, 1, 1)
@@ -1602,7 +1621,7 @@ function EditorMapDocument:drawPreview(entry, outline_width, map_selected)
         local opacity = layer and (layer.opacity == nil and 1 or layer.opacity) or 1
         local tint = layer and (layer.tint or layer.tintcolor)
         if tint and tint[4] ~= nil then opacity = opacity * (tint[4] > 1 and tint[4] / 255 or tint[4]) end
-        local selection_alpha = not darken or map_selected == false or selected
+        local selection_alpha = not darken_layers or selected
         return true, (selection_alpha and 1 or 0.35) * opacity * map_alpha
     end
     for index, child in ipairs(preview.root.children) do

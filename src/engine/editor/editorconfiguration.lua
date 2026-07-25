@@ -36,6 +36,9 @@ function EditorConfiguration:registerMenuBar()
         is_enabled = function() return editor:hasSwitchableProjects() end,
         on_activate = function() editor:openProjectSwitcher() end
     })
+    editor.menu_bar:registerItem("file", "preferences", "Preferences...", {
+        on_activate = function() editor:showSettingsPanel() end
+    })
     editor.menu_bar:registerItem("file", "exit_editor",
         editor.return_to_menu_on_exit and "Return to Main Menu" or "Return to Game", {
             on_activate = function() Kristal.exitEditor() end
@@ -47,9 +50,6 @@ function EditorConfiguration:registerMenuBar()
     editor.menu_bar:registerItem("edit", "redo", "Redo", {
         is_enabled = function() return editor:canRedo() end,
         on_activate = function() editor:redo() end
-    })
-    editor.menu_bar:registerItem("edit", "settings", "Editor Settings...", {
-        on_activate = function() editor:showSettingsPanel() end
     })
     editor.menu_bar:registerItem("edit", "rebuild_terrain_layer", "Rebuild Terrain in Layer", {
         is_enabled = function()
@@ -80,6 +80,11 @@ function EditorConfiguration:registerMenuBar()
     editor.menu_bar:registerToggle("view", "tile_grid", "Tile Grid (G)",
         function() return editor.show_tile_grid end,
         function(enabled) editor.show_tile_grid = enabled == true end)
+    editor.menu_bar:registerToggle("view", "darken_unselected_maps", "Darken Unselected Maps",
+        function() return editor.darken_unselected_maps end,
+        function(enabled)
+            editor.settings:setValue("appearance.darken_unselected_maps", enabled)
+        end)
     editor.menu_bar:registerItem("view", "command_palette", "Command Palette (Ctrl+Shift+P)", {
         on_activate = function() editor:openCommandPalette() end
     })
@@ -155,10 +160,6 @@ function EditorConfiguration:registerEditorTools()
         name = "Filled Tile Ellipse", short_name = "Ellipse", icon = "editor/ui/tool/tile_shape_ellipse",
         keybind = "editor_tool_tile_shape_ellipse", toolbar_group = "tile_shape"
     })
-    editor.tool_registry:register("tile_select_rect", {
-        name = "Rectangular Tile Select", short_name = "Tile Select", icon = "editor/ui/tool/tile_select_rect",
-        keybind = "editor_tool_tile_select_rect", toolbar_group = "tile_select"
-    })
     editor.tool_registry:register("tile_select_wand", {
         name = "Connected Tile Select", short_name = "Wand", icon = "editor/ui/tool/tile_select_wand",
         keybind = "editor_tool_tile_select_wand", toolbar_group = "tile_select"
@@ -215,8 +216,8 @@ function EditorConfiguration:registerEditorSettings(session)
     if stored["appearance.editor_music"] == nil and legacy.editor_music ~= nil then
         stored["appearance.editor_music"] = legacy.editor_music
     end
-    if stored["appearance.darken_unselected"] == nil and legacy.darken_unselected_layers ~= nil then
-        stored["appearance.darken_unselected"] = legacy.darken_unselected_layers
+    if stored["appearance.darken_unselected_layers"] == nil and legacy.darken_unselected_layers ~= nil then
+        stored["appearance.darken_unselected_layers"] = legacy.darken_unselected_layers
     end
     if stored["appearance.ui_scale"] == nil and stored["appearance.font_scale"] ~= nil then
         stored["appearance.ui_scale"] = stored["appearance.font_scale"]
@@ -246,7 +247,7 @@ function EditorConfiguration:registerEditorSettings(session)
             if editor.editor_cursor then editor.editor_cursor:setCustomEnabled(value) end
         end
     })
-    editor.settings:registerSetting("appearance", "appearance.darken_unselected", {
+    editor.settings:registerSetting("appearance", "appearance.darken_unselected_layers", {
         name = "Darken Unselected Layers", type = "boolean", default = true,
         set = function(value, editor)
             editor.darken_unselected_layers = value
@@ -254,6 +255,10 @@ function EditorConfiguration:registerEditorSettings(session)
                 editor.layers_browser.darken_toggle:setValue(value, true)
             end
         end
+    })
+    editor.settings:registerSetting("appearance", "appearance.darken_unselected_maps", {
+        name = "Darken Unselected Maps", type = "boolean", default = true,
+        set = function(value, editor) editor.darken_unselected_maps = value end
     })
     editor.settings:registerSetting("appearance", "appearance.editor_music", {
         name = "Editor Music", type = "boolean", default = true,

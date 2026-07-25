@@ -30,6 +30,8 @@
 ---@field pending_tile_editing_mode boolean?
 ---@field tile_editing_mode boolean
 ---@field show_tile_grid boolean
+---@field darken_unselected_layers boolean
+---@field darken_unselected_maps boolean
 ---@field game_faulted boolean
 ---@field game_fault_trace string?
 ---@field project_id string?
@@ -127,6 +129,7 @@
 ---@field selected_map_object table?
 ---@field selected_map_objects table[]?
 ---@field map_object_clipboard table[]?
+---@field tile_clipboard table?
 ---@field asset_drag table?
 ---@field project_file_drag table?
 ---@field drag_preview table?
@@ -325,6 +328,7 @@ function Editor:enter(previous, options)
     self.selected_map_object = nil
     self.selected_map_objects = {}
     self.map_object_clipboard = nil
+    self.tile_clipboard = nil
     self.map_browser = EditorMapBrowser(self)
     self.file_type_registry = EditorFileTypeRegistry()
     self.project_workspace = EditorProjectWorkspace(self, self.file_type_registry)
@@ -1100,8 +1104,6 @@ function Editor:activateGameObjectSelection() return self.preview_controller:act
 
 function Editor:clearGameObjectSelection() return self.preview_controller:clearGameObjectSelection() end
 
-function Editor:getGameObjectPropertiesTarget(object) return self.preview_controller:getGameObjectPropertiesTarget(object) end
-
 function Editor:isGameObjectSelectionActive() return self.preview_controller:isGameObjectSelectionActive() end
 
 function Editor:updateGameObjectSelectionCursor(x, y) return self.preview_controller:updateGameObjectSelectionCursor(x, y) end
@@ -1158,6 +1160,12 @@ function Editor:onKeyPressed(key, is_repeat)
         self.consumed_editor_keys[key] = true
         if self.dockspace:onKeyPressed(key, is_repeat) then return true end
         if focused and (focused.accepts_text_input or focused.accepts_clipboard_input) then return true end
+        local map_view = self.active_document and self.active_document.map_view
+        if map_view and map_view:isTileLayerActive() then
+            if key == "c" then return map_view:copySelectedTiles() end
+            if key == "x" then return map_view:cutSelectedTiles() end
+            return map_view:beginPasteSelectedTiles()
+        end
         if key == "c" then return self:copySelectedMapObjects() end
         if key == "x" then return self:cutSelectedMapObjects() end
         return self:pasteMapObjects()
