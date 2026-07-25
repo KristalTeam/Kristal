@@ -1,6 +1,7 @@
 ---@class EditorQuicksave : EditorObject
 ---@overload fun(data?: table, options?: table): EditorQuicksave
 local EditorQuicksave, super = Class(EditorObject)
+EditorQuicksave.editor_sprite = "editor/quicksave"
 function EditorQuicksave:init(data, options)
     super.init(self, data, options)
     self:registerProperty("marker", "object_reference", { allowed_types = { "marker", "player" } })

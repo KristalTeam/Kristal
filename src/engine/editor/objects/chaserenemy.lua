@@ -1,6 +1,7 @@
 ---@class EditorChaserEnemy : EditorObject
 ---@overload fun(data?: table, options?: table): EditorChaserEnemy
 local EditorChaserEnemy, super = Class(EditorObject)
+EditorChaserEnemy.editor_sprite = "editor/enemy"
 EditorChaserEnemy.scaling_mode = "scale"
 EditorChaserEnemy.sprite_properties = EditorNPC.sprite_properties
 

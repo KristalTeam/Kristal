@@ -1,7 +1,7 @@
 ---@class EditorDarkFountain : EditorObject
 ---@overload fun(data?: table, options?: table): EditorDarkFountain
 local EditorDarkFountain, super = Class(EditorObject)
-EditorDarkFountain.editor_sprite = "world/events/darkfountain/bg"
+EditorDarkFountain.editor_sprite = "editor/darkfountain"
 EditorDarkFountain.scaling_mode = "scale"
 function EditorDarkFountain:init(data, options)
     super.init(self, data, options)

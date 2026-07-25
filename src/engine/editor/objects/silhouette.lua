@@ -1,6 +1,7 @@
 ---@class EditorSilhouette : EditorObject
 ---@overload fun(data?: table, options?: table): EditorSilhouette
 local EditorSilhouette, super = Class(EditorObject)
+EditorSilhouette.editor_sprite = "editor/silhouette"
 EditorSilhouette.placement_shape = "region"
 function EditorSilhouette:init(data, options)
     super.init(self, data, options)

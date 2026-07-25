@@ -1,6 +1,7 @@
 ---@class EditorSetFlagObject : EditorObject
 ---@overload fun(data?: table, options?: table): EditorSetFlagObject
 local EditorSetFlagObject, super = Class(EditorObject)
+EditorSetFlagObject.editor_sprite = "editor/setflag"
 EditorSetFlagObject.placement_shape = "region"
 function EditorSetFlagObject:init(data, options)
     super.init(self, data, options)
