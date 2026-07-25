@@ -1,6 +1,7 @@
 ---@class EditorCameraTarget : EditorObject
 ---@overload fun(data?: table, options?: table): EditorCameraTarget
 local EditorCameraTarget, super = Class(EditorObject)
+EditorCameraTarget.editor_sprite = "editor/cameratarget"
 EditorCameraTarget.placement_shape = "region"
 function EditorCameraTarget:init(data, options)
     super.init(self, data, options)

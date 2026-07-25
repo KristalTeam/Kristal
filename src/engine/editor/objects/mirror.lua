@@ -1,6 +1,7 @@
 ---@class EditorMirrorArea : EditorObject
 ---@overload fun(data?: table, options?: table): EditorMirrorArea
 local EditorMirrorArea, super = Class(EditorObject)
+EditorMirrorArea.editor_sprite = "editor/mirror"
 EditorMirrorArea.placement_shape = "region"
 function EditorMirrorArea:init(data, options)
     super.init(self, data, options)

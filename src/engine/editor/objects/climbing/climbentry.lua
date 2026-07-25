@@ -1,6 +1,7 @@
 ---@class EditorClimbEntry : EditorObject
 ---@overload fun(data?: table, options?: table): EditorClimbEntry
 local EditorClimbEntry, super = Class(EditorObject)
+EditorClimbEntry.editor_sprite = "editor/climbentry"
 function EditorClimbEntry:init(data, options)
     super.init(self, data, options)
     self:registerProperty("target", "object_reference", { allowed_types = { "climbexit" } })

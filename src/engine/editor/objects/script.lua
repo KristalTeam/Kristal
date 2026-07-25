@@ -2,6 +2,7 @@
 ---@overload fun(data?: table, options?: table): EditorScriptObject
 local EditorScriptObject, super = Class(EditorObject)
 
+EditorScriptObject.editor_sprite = "editor/script"
 EditorScriptObject.placement_shape = "region"
 
 function EditorScriptObject:init(data, options)

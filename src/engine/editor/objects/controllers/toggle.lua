@@ -2,6 +2,7 @@
 ---@overload fun(data?: table, options?: table): EditorToggleController
 local EditorToggleController, super = Class(EditorObject)
 
+EditorToggleController.editor_sprite = "editor/toggle"
 EditorToggleController.runtime_type = "controller"
 
 function EditorToggleController:init(data, options)

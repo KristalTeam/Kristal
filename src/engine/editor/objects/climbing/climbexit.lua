@@ -1,6 +1,7 @@
 ---@class EditorClimbExit : EditorObject
 ---@overload fun(data?: table, options?: table): EditorClimbExit
 local EditorClimbExit, super = Class(EditorObject)
+EditorClimbExit.editor_sprite = "editor/climbexit"
 function EditorClimbExit:init(data, options)
     super.init(self, data, options)
     self:registerProperty("target", "object_reference", { allowed_types = { "marker", "player" } })

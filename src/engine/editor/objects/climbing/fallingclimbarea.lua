@@ -1,6 +1,7 @@
 ---@class EditorFallingClimbArea : EditorObject
 ---@overload fun(data?: table, options?: table): EditorFallingClimbArea
 local EditorFallingClimbArea, super = Class(EditorObject)
+EditorFallingClimbArea.editor_sprite = "editor/fallingclimbarea"
 EditorFallingClimbArea.placement_shape = "region"
 function EditorFallingClimbArea:init(data, options)
     super.init(self, data, options)

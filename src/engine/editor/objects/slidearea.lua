@@ -1,6 +1,7 @@
 ---@class EditorSlideArea : EditorObject
 ---@overload fun(data?: table, options?: table): EditorSlideArea
 local EditorSlideArea, super = Class(EditorObject)
+EditorSlideArea.editor_sprite = "editor/slidearea"
 EditorSlideArea.placement_shape = "region"
 function EditorSlideArea:init(data, options)
     super.init(self, data, options)

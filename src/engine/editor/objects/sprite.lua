@@ -2,6 +2,7 @@
 ---@overload fun(data?: table, options?: table): EditorSpriteObject
 local EditorSpriteObject, super = Class(EditorObject)
 
+EditorSpriteObject.editor_sprite = "editor/sprite"
 EditorSpriteObject.sprite_property = "texture"
 EditorSpriteObject.scaling_mode = "scale"
 EditorSpriteObject.sprite_alignment = "top_left"
