@@ -186,9 +186,9 @@ end
 ---@param bool          boolean New tired state
 ---@param hide_message? boolean Hides the "TIRED" or "AWAKE" message (if it would otherwise have been shown) if set to `true`.
 function EnemyBattler:setTired(bool, hide_message)
-    local old_tired = self.tired
+    local old_tired = self:isTired()
     self.tired = bool
-    if self.tired then
+    if self:isTired() then
         self.comment = "(Tired)"
         if Game:getConfig("tiredMessages") and not old_tired and not hide_message then
             -- Enemies can't spawn TIRED messages safely until fully initialised and parented.
@@ -198,11 +198,13 @@ function EnemyBattler:setTired(bool, hide_message)
                 Assets.playSound("spellcast", 0.5, 0.9)
             end
         end
+        self:onTired()
     else
         self.comment = ""
         if Game:getConfig("awakeMessages") and old_tired and not hide_message then
             if self.parent then self:statusMessage("msg", "awake") end
         end
+        self:onAwake()
     end
 end
 
@@ -429,7 +431,7 @@ function EnemyBattler:getSpareText(battler, success)
     else
         ---@type string|string[]
         local text = "* " .. battler.chara:getName() .. " spared " .. self.name .. "!\n* But its name wasn't [color:yellow]YELLOW[color:reset]..."
-        if self.tired then
+        if self:isTired() then
             local found_spell = nil
             for _, party in ipairs(Game.battle.party) do
                 for _, spell in ipairs(party.chara:getSpells()) do
@@ -451,10 +453,22 @@ function EnemyBattler:getSpareText(battler, success)
     end
 end
 
---- *(Override)*
+--- *(Override)* Checks if the enemy can be spared
 ---@return boolean spareable
 function EnemyBattler:canSpare()
     return self.mercy >= 100
+end
+
+--- *(Override)* Checks if the enemy is tired
+---@return boolean is_tired
+function EnemyBattler:isTired()
+    return self.tired
+end
+
+--- *(Override)* Checks if the enemy has low health
+---@return boolean low_health
+function EnemyBattler:hasLowHealth()
+    return self.health <= (self.max_health * self.low_health_percentage)
 end
 
 --- *(Override)* Called when the enemy is spared
@@ -467,6 +481,12 @@ end
 function EnemyBattler:onSpareable()
     self:setAnimation("spared")
 end
+
+--- *(Override)* Called when the enemy becomes tired
+function EnemyBattler:onTired() end
+
+--- *(Override)* Called when the enemy stops being tired
+function EnemyBattler:onAwake() end
 
 --- Adds (or removes) mercy from this enemy
 ---@param amount number The amount of mercy being added (or removed, if set to negative)
@@ -604,7 +624,7 @@ function EnemyBattler:getNameColors()
     if self:canSpare() then
         table.insert(result, { 1, 1, 0 })
     end
-    if self.tired then
+    if self:isTired() then
         local tiredcol = { 0, 0.7, 1 }
         if Game:getConfig("pacifyGlow") then
             local battler = Game.battle.party[Game.battle.current_selecting]
@@ -624,26 +644,50 @@ function EnemyBattler:getNameColors()
     return result
 end
 
+--- Gets the text that should be shown when this enemy can be spared.
+---@return string|string[] text # If a table, you should use [next] to advance the text
+---@return string? portrait # The portrait to show
+---@return PartyBattler|PartyMember|Actor|string? actor # The actor to use for the text settings (ex. voice, portrait settings)
+function EnemyBattler:getSpareableText()
+    return self.spareable_text
+end
+
+--- Gets the text that should be shown when this enemy has low health.
+---@return string|string[] text # If a table, you should use [next] to advance the text
+---@return string? portrait # The portrait to show
+---@return PartyBattler|PartyMember|Actor|string? actor # The actor to use for the text settings (ex. voice, portrait settings)
+function EnemyBattler:getLowHealthText()
+    return self.low_health_text
+end
+
+--- Gets the text that should be shown when this enemy is tired.
+---@return string|string[] text # If a table, you should use [next] to advance the text
+---@return string? portrait # The portrait to show
+---@return PartyBattler|PartyMember|Actor|string? actor # The actor to use for the text settings (ex. voice, portrait settings)
+function EnemyBattler:getTiredText()
+    return self.tired_text
+end
+
 --- Gets the encounter text that should be shown in the battle box if this enemy is chosen for encounter text. Called at the start of each turn.
 ---@return string|string[] text # If a table, you should use [next] to advance the text
 ---@return string? portrait # The portrait to show
 ---@return PartyBattler|PartyMember|Actor|string? actor # The actor to use for the text settings (ex. voice, portrait settings)
 function EnemyBattler:getEncounterText()
-    local has_spareable_text = self.spareable_text and self:canSpare()
+    local has_spareable_text = self:getSpareableText() and self:canSpare()
 
     local priority_spareable_text = Game:getConfig("prioritySpareableText")
     if priority_spareable_text and has_spareable_text then
-        return self.spareable_text
+        return self:getSpareableText()
     end
 
-    if self.low_health_text and self.health <= (self.max_health * self.low_health_percentage) then
-        return self.low_health_text
+    if self:getLowHealthText() and self:hasLowHealth() then
+        return self:getLowHealthText()
 
-    elseif self.tired_text and self.tired then
-        return self.tired_text
+    elseif self:getTiredText() and self:isTired() then
+        return self:getTiredText()
 
     elseif has_spareable_text then
-        return self.spareable_text
+        return self:getSpareableText()
     end
 
     return TableUtils.pick(self.text)
