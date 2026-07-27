@@ -128,7 +128,9 @@ end
 
 --- Unlocks the player's movement. \
 --- Happens automatically at the end of cutscenes.
+---@deprecated
 function WorldCutscene:enableMovement()
+    Kristal.markDeprecated(2, "WorldCutscene:enableMovement", "method", "noreplacement")
     Game.lock_movement = false
 end
 
