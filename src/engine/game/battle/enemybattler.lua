@@ -42,7 +42,6 @@
 ---@field low_health_text   string?             A special text that displays when this enemy is at low HP. See [`low_health_percentage`](lua://EnemyBattler.low_health_percentage) for defining the low HP threshold.
 ---@field tired_text        string?             A special text that displays when this enemy is TIRED.
 ---@field spareable_text    string?             A special text that displays when this enemy is spareable.
----@field rare_text         string?             A special rare text that can show up when the [`EnemyBattler:rollRareTextChance()`](lua://EnemyBattler.rollRareTextChance) is rolled.
 ---
 ---@field tired_percentage      number          A number from 0-1 that defines what percentage of maximum hp this enemy should become tired at
 ---@field low_health_percentage number          A number from 0-1 that defines what percentage of maximum hp the [`low_health_text`](lua://EnemyBattler.low_health_text) of this enemy starts displaying
@@ -119,7 +118,6 @@ function EnemyBattler:init(actor, use_overlay)
     self.low_health_text = nil
     self.tired_text = nil
     self.spareable_text = nil
-    self.rare_text = nil
 
     self.tired_percentage = 0.5
     self.low_health_percentage = 0.5
@@ -646,12 +644,6 @@ function EnemyBattler:getNameColors()
     return result
 end
 
---- *(Override)* Rolls a chance for the rare text to show up
----@return boolean do_rare_text
-function EnemyBattler:rollRareTextChance()
-    return MathUtils.randomInt(101) < 3
-end
-
 --- Gets the text that should be shown when this enemy can be spared.
 ---@return string|string[] text # If a table, you should use [next] to advance the text
 ---@return string? portrait # The portrait to show
@@ -676,14 +668,6 @@ function EnemyBattler:getTiredText()
     return self.tired_text
 end
 
---- Gets the rare text that should show up with a certain chance.
----@return string|string[] text # If a table, you should use [next] to advance the text
----@return string? portrait # The portrait to show
----@return PartyBattler|PartyMember|Actor|string? actor # The actor to use for the text settings (ex. voice, portrait settings)
-function EnemyBattler:getRareText()
-    return self.rare_text
-end
-
 --- Gets the encounter text that should be shown in the battle box if this enemy is chosen for encounter text. Called at the start of each turn.
 ---@return string|string[] text # If a table, you should use [next] to advance the text
 ---@return string? portrait # The portrait to show
@@ -704,9 +688,6 @@ function EnemyBattler:getEncounterText()
 
     elseif has_spareable_text then
         return self:getSpareableText()
-
-    elseif self:getRareText() and self:rollRareTextChance() then
-        return self:getRareText()
     end
 
     return TableUtils.pick(self.text)
