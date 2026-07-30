@@ -362,7 +362,6 @@ function Editor:enter(previous, options)
     self.layers_browser = EditorLayersPanel(self)
     self.properties_browser = EditorPropertiesPanel(self)
     self.fx_browser = EditorFXBrowser(self)
-    self.toolbar = EditorToolbar(self)
     self.diagnostics_browser = EditorDiagnosticsPanel(self)
     self.console_browser = EditorConsolePanel(self)
     self.menu_bar = EditorMenuBar(self)
@@ -370,6 +369,7 @@ function Editor:enter(previous, options)
     self.editor_cursor:setCustomEnabled(self.use_custom_cursors)
 
     EditorPlugins:initialize(self)
+    self.toolbar = EditorToolbar(self)
     for id, data in pairs(Registry.map_data or {}) do
         local initialized, reason = EditorFormat.decodeMapExtensions(data, {
             map = data, map_id = id
