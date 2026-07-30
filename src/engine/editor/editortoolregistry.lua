@@ -24,6 +24,14 @@ function EditorToolRegistry:get(id)
     return self.tools[id]
 end
 
+function EditorToolRegistry:unregister(id, definition)
+    if definition and self.tools[id] ~= definition then return false end
+    if not self.tools[id] then return false end
+    self.tools[id] = nil
+    TableUtils.removeValue(self.order, id)
+    return true
+end
+
 function EditorToolRegistry:getAll()
     local result = {}
     for _, id in ipairs(self.order) do table.insert(result, self.tools[id]) end

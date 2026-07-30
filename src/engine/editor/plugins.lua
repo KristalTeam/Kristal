@@ -260,6 +260,28 @@ function EditorPlugin:registerPanel(id, title, content_factory, options)
     return definition
 end
 
+function EditorPlugin:registerTool(id, definition)
+    assert(type(id) == "string" and id ~= "", "Plugin tools require an id")
+    local editor = assert(EditorPlugins.editor, "Plugin tools require an active editor")
+    local tool_id = namespaced(self, "tool", id)
+    definition = TableUtils.copy(definition or {}, true)
+    local registered = editor.tool_registry:register(tool_id, definition)
+    self:trackRegistration(function()
+        if editor.active_tool == tool_id then editor:setActiveTool("select") end
+        if editor.tool_registry then editor.tool_registry:unregister(tool_id, registered) end
+    end)
+    self:registerCommand("tool_" .. id, registered.name .. " Tool", {
+        category = "Tools",
+        keywords = { id, registered.short_name or "" },
+        is_enabled = function()
+            return editor.tile_editing_mode and editor.active_document ~= nil
+        end,
+        get_checked = function() return editor.active_tool == tool_id end,
+        action = function() editor:setActiveTool(tool_id) end
+    })
+    return tool_id
+end
+
 ---@param id string
 ---@param name string|table
 ---@param layout? table|fun(editor: Editor, workspace: table): table
