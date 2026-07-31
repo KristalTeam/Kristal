@@ -15,7 +15,10 @@ function item:init()
     self.description = "A bouquet of beautiful flowers in many colors."
 
     -- Light world check text
-    self.check = "A bouquet of beautiful flowers in many colors."
+    self.check = {
+        "A bouquet of beautiful flowers in many colors."
+        "* Perhaps it could be offered to someone."
+    }
 
     -- Where this item can be used (world, battle, all, or none)
     self.usable_in = "all"
