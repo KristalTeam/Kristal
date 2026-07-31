@@ -15,7 +15,7 @@ function item:init(inventory)
     self.description = "A box of heart shaped candies. It's not yours."
 
     -- Light world check text
-    self.check = "It's not\nyours.[wait:5] Will that stop you?."
+    self.check = "It's not\nyours.[wait:5] Will that stop you?"
 
     -- Where this item can be used (world, battle, all, or none)
     self.usable_in = "all"
