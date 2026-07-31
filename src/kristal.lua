@@ -2174,6 +2174,46 @@ function Kristal.clearModSubclasses()
     MOD_SUBCLASSES = {}
 end
 
+---@alias (private) API_TYPE "function" | "functionvariant" | "method" | "methodvariant" | "callback" | "field" | "constant" | "custom"
+---@alias (private) DEPRECATION_TYPE_NEW_NAME "replaced" | "renamed"
+
+--- Logs a warning informing developers that the called function or method is deprecated.
+--- Paramaters are identical to LÖVE 12's' `love.markDeprecated`.
+---@param level integer Callstack level responsible for calling the deprecated API
+---@param name string The name of the API that was called
+---@param api_type API_TYPE What kind of API was called to emit the warning
+---@param deprecation_type DEPRECATION_TYPE_NEW_NAME
+---@param new_name string The new name of the API if it was renamed, or the replacement(s).
+--- Should not be specified if deprecation_type is "noreplacement".
+---@overload fun(level:integer, name:string, api_type: API_TYPE, deprecation_type: "noreplacement")
+function Kristal.markDeprecated(level, name, api_type, deprecation_type, new_name)
+    local api_name_type = ""
+    if api_type == "functionvariant" then
+        api_name_type = "function variant " .. name
+    elseif api_type == "methodvariant" then
+        api_name_type = "method variant " ..name
+    elseif api_type == "custom" then
+        api_name_type = name
+    else
+        api_name_type = api_type .. " " .. name
+    end
+    local deprecation_message = string.format("Using deprecated %s %s", api_name_type, name)
+    if deprecation_type == "replaced" then
+        deprecation_message = string.format("%s (replaced by %s)", deprecation_message, new_name)
+    ---@diagnostic disable-next-line: unknown-diag-code # LuaLS doesn't have unnecessary-if
+    ---@diagnostic disable-next-line: unnecessary-if # EmmyLua doesn't understand that deprecation_type could be "noreplacement"
+    elseif deprecation_type == "renamed" then
+        deprecation_message = string.format("%s (renamed to %s)", deprecation_message, new_name)
+    end
+    local info = debug.getinfo(level + 1, "Sl")
+    if not info then
+        print("Failed to find debug info for deprecation warning: " .. deprecation_message)
+        return
+    end
+    local source_line = string.format("%s:%s", info.short_src, info.currentline)
+    Kristal.Console:warn(string.format("Warning: %s: %s", source_line, deprecation_message))
+end
+
 --- Executes a `.lua` script inside the project folder.
 ---@param path string  The script name to execute.
 ---@param ...  any     The arguments to pass to the script.
