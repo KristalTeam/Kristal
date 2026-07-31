@@ -32,4 +32,8 @@ function item:init()
     self.dark_item = "mechasaber"
 end
 
+function item:onCheck()
+    Game.world:showText("* \"Mechanical Pencil\" - " .. self:getCheck())
+end
+
 return item
