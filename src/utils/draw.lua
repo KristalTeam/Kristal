@@ -110,7 +110,7 @@ end
 function Draw.setCanvas(canvas, options)
     options = options or {}
     if canvas then
-        if options["stencil"] == false then
+        if options["stencil"] == false or type(canvas) == "table" then
             love.graphics.setCanvas(canvas)
         else
             love.graphics.setCanvas { canvas, stencil = true }
