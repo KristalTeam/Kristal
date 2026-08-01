@@ -142,35 +142,35 @@ function EditorConfiguration:registerEditorTools()
     })
     editor.tool_registry:register("tile_brush", {
         name = "Tile Brush", short_name = "Brush", icon = "editor/ui/tool/brush",
-        keybind = "editor_tool_tile_brush", toolbar_group = "tile_brush"
+        keybind = "editor_tool_tile_brush", toolbar_group = "tile_brush", tile_tool = true
     })
     editor.tool_registry:register("tile_brush_line", {
         name = "Tile Line", short_name = "Line", icon = "editor/ui/tool/brush_line",
-        keybind = "editor_tool_tile_brush_line", toolbar_group = "tile_brush"
+        keybind = "editor_tool_tile_brush_line", toolbar_group = "tile_brush", tile_tool = true
     })
     editor.tool_registry:register("tile_brush_round", {
         name = "Round Tile Brush", short_name = "Round", icon = "editor/ui/tool/brush_round",
-        keybind = "editor_tool_tile_brush_round", toolbar_group = "tile_brush"
+        keybind = "editor_tool_tile_brush_round", toolbar_group = "tile_brush", tile_tool = true
     })
     editor.tool_registry:register("tile_shape_rect", {
         name = "Filled Tile Rectangle", short_name = "Rectangle", icon = "editor/ui/tool/tile_shape_rect",
-        keybind = "editor_tool_tile_shape_rect", toolbar_group = "tile_shape"
+        keybind = "editor_tool_tile_shape_rect", toolbar_group = "tile_shape", tile_tool = true
     })
     editor.tool_registry:register("tile_shape_ellipse", {
         name = "Filled Tile Ellipse", short_name = "Ellipse", icon = "editor/ui/tool/tile_shape_ellipse",
-        keybind = "editor_tool_tile_shape_ellipse", toolbar_group = "tile_shape"
+        keybind = "editor_tool_tile_shape_ellipse", toolbar_group = "tile_shape", tile_tool = true
     })
     editor.tool_registry:register("tile_select_wand", {
         name = "Connected Tile Select", short_name = "Wand", icon = "editor/ui/tool/tile_select_wand",
-        keybind = "editor_tool_tile_select_wand", toolbar_group = "tile_select"
+        keybind = "editor_tool_tile_select_wand", toolbar_group = "tile_select", tile_tool = true
     })
     editor.tool_registry:register("tile_select_same", {
         name = "Select Same Tiles", short_name = "Same Tiles", icon = "editor/ui/tool/tile_select_same",
-        keybind = "editor_tool_tile_select_same", toolbar_group = "tile_select"
+        keybind = "editor_tool_tile_select_same", toolbar_group = "tile_select", tile_tool = true
     })
     editor.tool_registry:register("tile_stamp", {
         name = "Capture Tile Stamp", short_name = "Stamp", icon = "editor/ui/tool/tile_stamp",
-        keybind = "editor_tool_tile_stamp"
+        keybind = "editor_tool_tile_stamp", tile_tool = true
     })
     editor.tool_registry:register("terrain_brush", {
         name = "Terrain Brush", short_name = "Terrain", icon = "editor/ui/tool/brush_terrain",
@@ -178,10 +178,11 @@ function EditorConfiguration:registerEditorTools()
     })
     editor.tool_registry:register("tile_fill", {
         name = "Tile Fill", short_name = "Fill", icon = "editor/ui/tool/bucket",
-        keybind = "editor_tool_tile_fill"
+        keybind = "editor_tool_tile_fill", tile_tool = true
     })
     editor.tool_registry:register("eraser", {
-        name = "Eraser", icon = "editor/ui/tool/eraser", keybind = "editor_tool_eraser"
+        name = "Eraser", icon = "editor/ui/tool/eraser", keybind = "editor_tool_eraser",
+        tile_tool = true
     })
     editor.tool_registry:register("link", {
         name = "Link Objects", short_name = "Link", icon = "editor/ui/tool/link",

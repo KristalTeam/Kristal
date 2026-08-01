@@ -211,6 +211,13 @@ end
 
 function EditorTemplateRegistry.coerce(field, value)
     if field.type == "boolean" then return value == true end
+    if field.type == "tile_layout" then
+        if type(value) ~= "table" then return nil, field.name .. " must be a tile layout" end
+        local columns, count = tonumber(value.columns), tonumber(value.count)
+        if not columns or columns < 1 then return nil, field.name .. " columns must be at least 1" end
+        if not count or count < 0 then return nil, field.name .. " tile count cannot be negative" end
+        return { columns = MathUtils.round(columns), count = MathUtils.round(count) }
+    end
     if field.type == "asset_path_list" then
         if type(value) == "string" then value = { value } end
         if value == nil then value = {} end
@@ -326,8 +333,10 @@ function EditorTemplateRegistry.registerBuiltins(registry)
                 description = "Add one image for a spritesheet, or one image per tile for a multi-image tileset." }),
             variable("tile_width", "Tile Width", "integer", 40, { minimum = 1 }),
             variable("tile_height", "Tile Height", "integer", 40, { minimum = 1 }),
-            variable("tile_columns", "Columns", "integer", 1, { minimum = 1 }),
-            variable("tile_count", "Tile Count", "integer", 0, { minimum = 0 }),
+            variable("layout", "Layout", "tile_layout", { columns = 1, count = 0 }, {
+                code_name = false,
+                description = "Enter columns and tile count directly, or choose a rectangular layout from the grid."
+            }),
             variable("margin", "Margin", "integer", 0, { minimum = 0 }),
             variable("spacing", "Spacing", "integer", 0, { minimum = 0 })
         }

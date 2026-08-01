@@ -314,6 +314,11 @@ function EditorPropertiesPanel:rebuild()
             options.on_submit = function(value) return setField(value, true) end
             value_control = self:addGeneratedControl(EditorPathInput(self.editor, field.get(), options))
             value_control.enabled = field.readonly ~= true
+        elseif field.control == "tile_layout" or field.type == "tile_layout" then
+            value_control = self:addGeneratedControl(EditorTileLayoutInput(field.get(), {
+                on_changed = function(value) return setField(value, true) end
+            }))
+            value_control.enabled = field.readonly ~= true
         elseif field.control == "path_list" or field.type == "asset_path_list" then
             local options = TableUtils.copy(field, true)
             options.on_changed = function(value) return setField(value, true) end

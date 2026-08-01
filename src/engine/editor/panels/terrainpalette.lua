@@ -21,6 +21,9 @@ function EditorTerrainPalette:init(editor)
     self.list = self:addChild(EditorItemList({
         row_height = 40,
         on_select = function(item) self:selectItem(item) end,
+        on_press = function(item)
+            if self:selectItem(item) then self.editor:setActiveTool("terrain_brush") end
+        end,
         on_activate = function(item)
             if self:selectItem(item) then self.editor:setActiveTool("terrain_brush") end
         end,

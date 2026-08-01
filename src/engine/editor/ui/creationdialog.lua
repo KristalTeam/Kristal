@@ -273,6 +273,9 @@ function EditorCreationDialog:addRow(field, value, on_changed)
         for key, option in pairs(field) do options[key] = option end
         options.on_submit = on_changed
         control = self.form:addChild(EditorPathInput(self.editor, value, options))
+    elseif field.type == "tile_layout" then
+        control = self.form:addChild(EditorTileLayoutInput(value, { on_changed = on_changed }))
+        height = math.max(height, control.preferred_height + 6)
     elseif field.type == "asset_path_list" then
         local options = TableUtils.copy(field, true)
         options.on_changed = on_changed
@@ -307,7 +310,9 @@ function EditorCreationDialog:addRow(field, value, on_changed)
     table.insert(self.form_rows, {
         label = label, control = control, height = height, minimum_height = height, field = field
     })
-    if control.focusable then
+    if field.type == "tile_layout" then
+        for _, input in ipairs(control.inputs) do table.insert(self.focusables, input) end
+    elseif control.focusable then
         table.insert(self.focusables, control)
     elseif control.inputs and control.inputs[1] then
         table.insert(self.focusables, control.inputs[1])
@@ -357,13 +362,15 @@ function EditorCreationDialog:layoutForm()
     local y = 4 - self.form_scroll
     local input_x = math.min(190, math.floor(self.form.width * 0.42))
     for _, row in ipairs(self.form_rows) do
-        if row.field and (row.field.type == "table" or row.field.type == "asset_path_list") then
+        if row.field and (row.field.type == "table" or row.field.type == "asset_path_list"
+            or row.field.type == "tile_layout") then
             row.height = math.max(row.minimum_height or 0, (row.control.preferred_height or 90) + 6)
         end
         row.label:setBounds(6, y, math.max(80, input_x - 14), row.height)
         if row.control then
             local control_height = row.field
-                and (row.field.type == "table" or row.field.type == "asset_path_list") and row.height - 6
+                and (row.field.type == "table" or row.field.type == "asset_path_list"
+                    or row.field.type == "tile_layout") and row.height - 6
                 or row.field and (row.field.type == "value" or row.field.multiline) and row.height - 6 or 28
             row.control:setBounds(input_x, y + 2, math.max(80, self.form.width - input_x - 8), control_height)
         end
