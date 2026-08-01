@@ -69,7 +69,8 @@ function EditorTilesetBrowser:createTileset()
             elseif values.image and #values.image > 1 then
                 image = TableUtils.copy(values.image, true)
             end
-            local tile_count = values.tile_count
+            local layout = values.layout or { columns = 1, count = 0 }
+            local tile_count = layout.count
             if type(image) == "table" then tile_count = #image end
             local data = {
                 name = values.name,
@@ -77,12 +78,13 @@ function EditorTilesetBrowser:createTileset()
                 tile_width = values.tile_width,
                 tile_height = values.tile_height,
                 tile_count = tile_count,
-                tile_columns = values.tile_columns,
+                tile_columns = layout.columns,
                 margin = values.margin,
                 spacing = values.spacing,
                 properties = {}, tiles = {}, terrains = {}
             }
             local document = EditorTilesetDocument(self.editor, values.id, nil, data)
+            document:refreshPreviewTileset()
             table.insert(self.editor.tileset_documents, document)
             self.editor.history.serial = self.editor.history.serial + 1
             document.history_revision = self.editor.history.serial

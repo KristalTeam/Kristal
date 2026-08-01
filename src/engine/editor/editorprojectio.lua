@@ -228,25 +228,6 @@ function EditorProjectIO:saveTilesetDocumentToProject(document)
     local self = self.editor
     if not document then return false end
     if not self:commitFocusedTextInput() then return false end
-    local view_state = self.tileset_editor
-        and self.tileset_editor.document == document
-        and self.tileset_editor:captureViewState() or nil
-    local selected_terrain_index, selected_variant_index
-    if self.active_tileset_document == document then
-        local _, selected_terrain, selected_variant = self:getSelectedTerrain()
-        for terrain_index, terrain in ipairs(document:getTerrainSets()) do
-            if terrain == selected_terrain then
-                selected_terrain_index = terrain_index
-                for variant_index, variant in ipairs(terrain.terrain_variants or {}) do
-                    if variant == selected_variant then
-                        selected_variant_index = variant_index
-                        break
-                    end
-                end
-                break
-            end
-        end
-    end
     local data, reason = EditorFormatDocument.buildTilesetData(document)
     if not data then
         self:addError("Could not prepare tileset '" .. document.id .. "' for saving", reason, "editor_save")
@@ -284,17 +265,9 @@ function EditorProjectIO:saveTilesetDocumentToProject(document)
         return false
     end
     Registry.registerTileset(document.id, tileset)
-    document:adoptSavedData(decoded, tileset)
+    document:adoptSavedTileset(tileset)
     self.history:markSaved(document)
     self:clearDiagnostics("editor_save")
-    self:setActiveTileset(document, { refresh = true, view_state = view_state })
-    local selected_terrain = selected_terrain_index
-        and document:getTerrainSets()[selected_terrain_index]
-    local selected_variant = selected_terrain and selected_variant_index
-        and selected_terrain.terrain_variants[selected_variant_index]
-    if selected_variant then
-        self:setSelectedTerrain(document, selected_terrain, selected_variant)
-    end
     if self.tileset_browser then self.tileset_browser:refresh(document.id) end
     return true
 end
@@ -387,6 +360,15 @@ function EditorProjectIO:saveActiveDocument()
             return self:saveTilesetDocumentToProject(self.active_tileset_document)
         end
         focused = focused.parent
+    end
+    local active_content = self.dockspace and self.dockspace.active_panel
+        and self.dockspace.active_panel.content
+    if active_content == self.world_browser then
+        return self:saveWorldDocumentToProject(self.active_editor_world)
+    end
+    if active_content == self.tileset_editor or active_content == self.tile_palette
+        or active_content == self.terrain_palette or active_content == self.tileset_browser then
+        return self:saveTilesetDocumentToProject(self.active_tileset_document)
     end
     if self.active_document and self.active_document.editor_world then
         return self:saveWorldDocumentToProject(self.active_document.world)

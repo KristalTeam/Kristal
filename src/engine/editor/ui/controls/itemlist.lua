@@ -9,6 +9,7 @@
 ---@field items table
 ---@field on_activate function?
 ---@field on_context_menu function?
+---@field on_press function?
 ---@field on_drag_end function?
 ---@field on_drag_move function?
 ---@field on_drag_start function?
@@ -40,6 +41,7 @@ function EditorItemList:init(options)
     self.on_drag_end = options.on_drag_end
     self.on_rename = options.on_rename
     self.on_context_menu = options.on_context_menu
+    self.on_press = options.on_press
     self.on_request_focus = options.on_request_focus
     self.pending_drag = nil
     self.dragging_item = nil
@@ -263,6 +265,7 @@ function EditorItemList:onMousePressed(x, y, button, presses)
         local already_selected = self.selected_index == index
         self:select(index, presses and presses >= 2)
         if already_selected and self.on_select then self.on_select(self.filtered_items[index], self) end
+        if self.on_press then self.on_press(self.filtered_items[index], self, presses) end
         if presses and presses >= 2 and self.on_rename then
             self:beginRename(self.filtered_items[index])
             return true

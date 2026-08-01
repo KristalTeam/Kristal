@@ -110,7 +110,7 @@ function EditorTilesetDocument:restoreHistoryState(state)
     self.data.__editor_property_types = self.data.__editor_property_types or {}
     self.property_set = EditorPropertySet(self.data.properties, self.data.__editor_property_types)
     self.tile_documents = {}
-    if self.tileset then self.tileset.data = self.data end
+    self:refreshPreviewTileset()
     return true
 end
 
@@ -126,15 +126,29 @@ function EditorTilesetDocument:save(path, options)
     return EditorFormatDocument.saveTileset(self, path, options)
 end
 
-function EditorTilesetDocument:adoptSavedData(data, tileset)
-    self.data = data
+function EditorTilesetDocument:adoptSavedTileset(tileset)
     self.tileset = tileset
     self.virtual = false
-    self.data.properties = self.data.properties or {}
-    self.data.terrain_tags = self.data.terrain_tags or {}
-    self.data.__editor_property_types = self.data.__editor_property_types or {}
-    self.property_set = EditorPropertySet(self.data.properties, self.data.__editor_property_types)
-    self.tile_documents = {}
+    if tileset then tileset.data = self.data end
+end
+
+function EditorTilesetDocument:refreshPreviewTileset()
+    local data = TableUtils.copy(self.data, true)
+    data.id = self.id
+    data.__tileset_reader = EditorTilesetReader
+    local path = self.tileset and self.tileset.path
+        or self.data.full_path or ("scripts/world/tilesets/" .. self.id .. ".json")
+    local base_dir = self.tileset and self.tileset.base_dir or FileSystemUtils.getDirname(path)
+    local success, tileset = pcall(Tileset, data, path, base_dir)
+    if not success then
+        if self.editor then
+            self.editor:addWarning("Could not update tileset preview", tostring(tileset), "tileset_preview")
+        end
+        return false, tileset
+    end
+    self.tileset = tileset
+    if self.editor then self.editor:clearDiagnostics("tileset_preview") end
+    return true
 end
 
 function EditorTilesetDocument:getName()
@@ -681,7 +695,15 @@ function EditorTilesetDocument:getPropertiesTarget()
                     return true
                 end },
             numberField("Tile Width", "tile_width"), numberField("Tile Height", "tile_height"),
-            numberField("Tile Count", "tile_count"), numberField("Columns", "tile_columns"),
+            { label = "Layout", control = "tile_layout",
+                get = function()
+                    return { columns = self:getColumns(), count = self:getTileCount() }
+                end,
+                set = function(value)
+                    data.tile_columns = math.max(1, MathUtils.round(tonumber(value.columns) or 1))
+                    data.tile_count = math.max(0, MathUtils.round(tonumber(value.count) or 0))
+                    return true
+                end },
             numberField("Margin", "margin"), numberField("Spacing", "spacing"),
             EditorPropertyFields.choice(data, "Object Alignment", "alignment", {
                 { value = "unspecified", label = "Unspecified" },
@@ -698,7 +720,10 @@ function EditorTilesetDocument:getPropertiesTarget()
                 { "tile", "grid" }, { default = "tile" }),
             EditorPropertyFields.choice(data, "Fill Mode", "fill_mode",
                 { "stretch", "preserve-aspect-fit" }, { default = "stretch" })
-        }
+        },
+        on_changed = function(kind)
+            if kind == "standard" then self:refreshPreviewTileset() end
+        end
     }
 end
 

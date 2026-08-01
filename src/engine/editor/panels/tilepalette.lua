@@ -6,6 +6,8 @@
 ---@field custom_tile_drag number?
 ---@field document EditorTilesetDocument?
 ---@field drag_selecting boolean
+---@field drag_selection_base table<number, boolean>?
+---@field drag_selection_mode string?
 ---@field draw_tile_overlay any
 ---@field editor Editor
 ---@field flip_x_button EditorButton
@@ -180,6 +182,40 @@ function EditorTilePalette:getTileRect(id)
 end
 
 function EditorTilePalette:setSelection(first, last, notify)
+    return self:setSelectionRange(first, last, "replace", nil, notify)
+end
+
+function EditorTilePalette:getSelectedTileIds()
+    local selected = {}
+    for _, row in ipairs(self.stamp) do
+        for _, id in ipairs(row) do
+            if id ~= false then selected[id] = true end
+        end
+    end
+    return selected
+end
+
+function EditorTilePalette:buildStamp(selected)
+    local columns = self:getColumns()
+    local min_x, min_y, max_x, max_y
+    for id in pairs(selected) do
+        local x, y = id % columns, math.floor(id / columns)
+        min_x, max_x = math.min(min_x or x, x), math.max(max_x or x, x)
+        min_y, max_y = math.min(min_y or y, y), math.max(max_y or y, y)
+    end
+    self.stamp = {}
+    if not min_x then return end
+    for row = min_y, max_y do
+        local stamp_row = {}
+        for column = min_x, max_x do
+            local id = row * columns + column
+            table.insert(stamp_row, selected[id] and id or false)
+        end
+        table.insert(self.stamp, stamp_row)
+    end
+end
+
+function EditorTilePalette:setSelectionRange(first, last, mode, base, notify)
     if first == nil then return false end
     last = last or first
     self.selection_start, self.selection_end = first, last
@@ -188,27 +224,43 @@ function EditorTilePalette:setSelection(first, last, notify)
     local last_x, last_y = last % columns, math.floor(last / columns)
     local min_x, max_x = math.min(first_x, last_x), math.max(first_x, last_x)
     local min_y, max_y = math.min(first_y, last_y), math.max(first_y, last_y)
-    self.stamp = {}
+    local selected = TableUtils.copy(base or self:getSelectedTileIds())
+    if mode == "replace" then selected = {} end
     for row = min_y, max_y do
-        local stamp_row = {}
         for column = min_x, max_x do
             local id = row * columns + column
-            table.insert(stamp_row, id < self.document:getTileCount() and id or false)
+            if id < self.document:getTileCount() then
+                if mode == "remove" then
+                    selected[id] = nil
+                else
+                    selected[id] = true
+                end
+            end
         end
-        table.insert(self.stamp, stamp_row)
     end
-    local tile = self.document:getTile(last)
+    self:buildStamp(selected)
+    local selected_id = selected[last] and last or next(selected)
+    local tile = self.document:getTile(selected_id)
     if tile and notify ~= false then
         self.editor:setSelectedTile(tile, self)
         if self.on_selection then self.on_selection(tile, self) end
+    elseif not tile and notify ~= false then
+        self.editor:setSelectedTile(nil, self)
     end
     return true
 end
 
 function EditorTilePalette:setSelectedTile(tile)
     if not tile or tile.document ~= self.document then return false end
-    if self.selection_start == tile.id and self.selection_end == tile.id then return true end
+    local selected = self:getSelectedTileIds()
+    if selected[tile.id] and next(selected, tile.id) == nil and next(selected) == tile.id then return true end
     return self:setSelection(tile.id, tile.id, false)
+end
+
+function EditorTilePalette:activateTileBrush()
+    if not self.activate_tile_brush or not self.editor.toolbar then return end
+    local tool = self.editor.tool_registry and self.editor.tool_registry:get(self.editor.active_tool)
+    if not (tool and tool.tile_tool) then self.editor.toolbar:activateGroup("tile_brush") end
 end
 
 function EditorTilePalette:getStamp()
@@ -275,15 +327,15 @@ function EditorTilePalette:onMousePressed(x, y, button, presses)
     if id == nil then return false end
     if button == 2 then return false end
     if button ~= 1 then return false end
-    if self.activate_tile_brush and self.editor.toolbar then
-        self.editor.toolbar:activateGroup("tile_brush")
-    end
+    self:activateTileBrush()
     if presses and presses >= 2 then
         self:setSelection(id, id)
         return true
     end
     self.drag_selecting = true
-    self:setSelection(id, id)
+    self.drag_selection_base = self:getSelectedTileIds()
+    self.drag_selection_mode = Input.ctrl() and "remove" or Input.shift() and "add" or "replace"
+    self:setSelectionRange(id, id, self.drag_selection_mode, self.drag_selection_base)
     return true
 end
 
@@ -295,7 +347,10 @@ function EditorTilePalette:onMouseMoved(x, y)
     end
     if not self.drag_selecting then return false end
     local id = self:getTileAt(x, y)
-    if id ~= nil then self:setSelection(self.selection_start, id) end
+    if id ~= nil then
+        self:setSelectionRange(self.selection_start, id,
+            self.drag_selection_mode, self.drag_selection_base)
+    end
     return true
 end
 
@@ -307,6 +362,8 @@ function EditorTilePalette:onMouseReleased(x, y, button)
     end
     if button ~= 1 or not self.drag_selecting then return false end
     self.drag_selecting = false
+    self.drag_selection_base = nil
+    self.drag_selection_mode = nil
     return true
 end
 
@@ -391,7 +448,12 @@ function EditorTilePalette:drawSelf()
                 love.graphics.rectangle("fill", x, y, cell_width, cell_height)
                 if self.document.tileset then
                     Draw.setColor(1, 1, 1, 1)
-                    self.document.tileset:drawGridTile(id, x, y, cell_width, cell_height)
+                    local base_width, base_height = self.document:getPaletteTileSize()
+                    love.graphics.push()
+                    love.graphics.translate(x, y)
+                    love.graphics.scale(cell_width / base_width, cell_height / base_height)
+                    self.document.tileset:drawGridTile(id, 0, 0, base_width, base_height)
+                    love.graphics.pop()
                 else
                     Draw.setColor(0.78, 0.78, 0.82, 1)
                     love.graphics.print(tostring(id), x + 4, y + 3)
