@@ -235,7 +235,7 @@ function EditorProjectWorkspace:refreshDocument(document)
 end
 
 function EditorProjectWorkspace:rename(path, destination)
-    if normalizeRealPath(path) == normalizeRealPath(self.virtual_root) then
+    if FileSystemUtils.normalizeRealPath(path) == FileSystemUtils.normalizeRealPath(self.virtual_root) then
         return false, "The project root cannot be renamed or moved"
     end
     local open_document = self.documents[path]
