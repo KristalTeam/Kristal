@@ -18,6 +18,7 @@
 ---@field element           string          The element of this recruit, shown on its details page
 ---@field like              string          The dislike of this recruit, shown on its details page
 ---@field dislike           string          The like of this recruit, shown on its details page
+---@field wish              string          The wish of this recruit, shown on its details page
 ---
 ---@field box_gradient_type     "bright"|"dark" The type of box gradient the recruit uses, either `"bright"` or `"dark"`
 ---@field box_gradient_color    table           The color used for drawing the box gradient
