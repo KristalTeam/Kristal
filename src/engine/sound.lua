@@ -4,7 +4,9 @@
 ---@field private data love.SoundData
 ---@field private settings Assets.sound_settings
 ---@field private volume number
+---@field private pitch number
 ---@field private set_volume number
+---@field private set_pitch number
 ---
 ---@overload fun(source: love.SoundData, settings: Assets.sound_settings): Sound
 local Sound = Class()
@@ -17,27 +19,46 @@ function Sound:init(data, settings)
     self.data = data
 
     self.volume = self.settings.volume or 1
+    self.pitch = self.settings.pitch or 1
     self.set_volume = 1
+    self.set_pitch = 1
 
     self.last_volume = 0 / 0 -- NaN
+    self.last_pitch = 0 / 0
 
     self:internal_updateSource()
 end
 
 function Sound:internal_updateSource()
     local calculated_volume = self.set_volume * self.volume
+    local calculated_pitch = self.set_pitch * self.pitch
+
+    local updated = false
 
     if calculated_volume ~= self.last_volume then
         if self.last_volume <= 1 and calculated_volume <= 1 then
             self.last_volume = calculated_volume
             self.source:setVolume(calculated_volume)
-            return
+            updated = true
         end
+    end
+
+    if calculated_pitch ~= self.last_pitch then
+        if self.last_pitch == self.last_pitch then -- check if self.last_pitch is valid
+            self.last_pitch = calculated_pitch
+            self.source:setPitch(calculated_pitch)
+            updated = true
+        end
+    end
+
+    if updated then
+        return
     end
 
     local old_source = self.source
 
     self.last_volume = calculated_volume
+    self.last_pitch = calculated_pitch
     if calculated_volume > 1 then
         -- Amplify it...
         local use_data = self.data:clone() --[[@as love.SoundData]]
@@ -53,6 +74,8 @@ function Sound:internal_updateSource()
         self.source:setVolume(self.set_volume * self.volume)
     end
 
+    self.source:setPitch(self.set_pitch * self.pitch)
+
     if old_source == nil then
         return
     end
@@ -64,7 +87,6 @@ function Sound:internal_updateSource()
         return
     end
 
-    self.source:setPitch(old_source:getPitch())
     self.source:setLooping(old_source:isLooping())
     self.source:setVolumeLimits(old_source:getVolumeLimits())
     for _, effect in ipairs(old_source:getActiveEffects()) do
@@ -92,6 +114,7 @@ end
 function Sound:clone()
     local sound = Sound(self.data, self.settings)
     sound.set_volume = self.set_volume
+    sound.set_pitch = self.set_pitch
 
     sound:internal_updateSource()
     return sound
@@ -310,12 +333,6 @@ function Sound:setLooping(loop)
     self.source:setLooping(loop)
 end
 
---- Sets the pitch of the Sound.
----@param pitch number # Calculated with regard to 1 being the base pitch. Each reduction by 50 percent equals a pitch shift of -12 semitones (one octave reduction). Each doubling equals a pitch shift of 12 semitones (one octave increase). Zero is not a legal value.
-function Sound:setPitch(pitch)
-    self.source:setPitch(pitch)
-end
-
 --- Sets the position of the Sound. Please note that this only works for mono (i.e. non-stereo) sound files!
 ---@param x number # The X position of the Sound.
 ---@param y number # The Y position of the Sound.
@@ -354,6 +371,13 @@ end
 ---@param volume number # The volume for a Sound, where 1.0 is normal volume. Volume cannot be raised above 1.0.
 function Sound:setVolume(volume)
     self.set_volume = volume
+    self:internal_updateSource()
+end
+
+--- Sets the current pitch of the Sound.
+---@param pitch number # Calculated with regard to 1 being the base pitch. Each reduction by 50 percent equals a pitch shift of -12 semitones (one octave reduction). Each doubling equals a pitch shift of 12 semitones (one octave increase). Zero is not a legal value.
+function Sound:setPitch(pitch)
+    self.set_pitch = pitch
     self:internal_updateSource()
 end
 
