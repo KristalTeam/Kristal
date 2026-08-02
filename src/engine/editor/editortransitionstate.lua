@@ -23,12 +23,14 @@ function EditorTransitionState:enter(previous, mode, options)
         self.transition = assert(self.options.transition, "Exit transition tail requires a transition")
         self.transition.on_complete = function()
             if self.options.switch_project_id then
+                Kristal.popState()
                 if not Kristal.switchEditorProject(self.options.switch_project_id) then
                     Kristal.returnToMenu()
                 end
                 return
             end
             if self.options.return_to_menu then
+                Kristal.popState()
                 Kristal.returnToMenu()
                 return
             end
