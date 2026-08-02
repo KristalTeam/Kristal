@@ -204,13 +204,20 @@ function EditorPreviewController:setStandaloneGamePreviewMap(id, options)
     end
     local was_paused = self.game_preview_paused
     if self.live_document then self:detachGamePreview() end
+    local had_snapshot = self.game_preview_snapshot ~= nil
     if not self:restoreGamePreviewSnapshot() then return false end
+    local restored_runtime = had_snapshot and Game.world and Game.world.map
+        and Game.world.map.id == id
+    if restored_runtime then
+        self.map_id = id
+        self.stale_runtime_maps[id] = nil
+    end
     self.standalone_preview_map_id = id
     self.standalone_preview_document = EditorMapDocument(self, id)
     self.game_preview:setDocument(self.standalone_preview_document)
     self.game_preview.canvas_positioned = false
     if (options.reload_runtime or id ~= self.map_id or self.stale_runtime_maps[id])
-        and not self:loadRuntimeMap(id) then return false end
+        and not restored_runtime and not self:loadRuntimeMap(id) then return false end
     if not self:captureGamePreviewSnapshot(self.standalone_preview_document) then return false end
     self.game_preview_panel:setContent(self.game_preview)
     self.live_document = self.standalone_preview_document
@@ -370,16 +377,30 @@ function EditorPreviewController:showGamePreview(options)
     local document = options.document or self.active_document
     if not document then return false end
     local was_paused = self.game_preview_paused ~= false
+    local restored_runtime = false
     if self.live_document ~= document then
         self:detachGamePreview()
+        local had_snapshot = self.game_preview_snapshot ~= nil
         if not self:restoreGamePreviewSnapshot() then return false end
+        restored_runtime = had_snapshot and Game.world and Game.world.map
+            and Game.world.map.id == document.primary_map_id
         self:applyGameViewState(document)
+    elseif options.reload_runtime then
+        self:clearGameObjectSelection()
+        local had_snapshot = self.game_preview_snapshot ~= nil
+        if not self:restoreGamePreviewSnapshot() then return false end
+        restored_runtime = had_snapshot and Game.world and Game.world.map
+            and Game.world.map.id == document.primary_map_id
+    end
+    if restored_runtime then
+        self.map_id = document.primary_map_id
+        self.stale_runtime_maps[document.primary_map_id] = nil
     end
     self.active_document = document
     self.game_preview:setDocument(document)
     if (options.reload_runtime or document.primary_map_id ~= self.map_id
         or self.stale_runtime_maps[document.primary_map_id])
-        and not self:loadRuntimeMap(document.primary_map_id) then
+        and not restored_runtime and not self:loadRuntimeMap(document.primary_map_id) then
         return false
     end
     if not self:captureGamePreviewSnapshot(document) then return false end
