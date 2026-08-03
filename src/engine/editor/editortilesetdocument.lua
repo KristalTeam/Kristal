@@ -344,10 +344,60 @@ function EditorTilesetDocument:addTerrainSet()
     end
     local name = "New Terrain Set"
     local set = { id = EditorFormat.uniqueSlug(name, used, "terrain"), name = name,
-        fallback_mode = "closest",
+        fallback_mode = "closest", connectivity = "continuous", region_shape = "freeform",
+        region_max_width = 0, region_max_height = 0,
         properties = {}, terrain_variants = {}, terrain_tiles = {} }
     table.insert(self:getTerrainSets(), set)
     return set
+end
+
+function EditorTilesetDocument:setTerrainId(terrain, value)
+    if not terrain then return false end
+    local used = {}
+    for _, candidate in ipairs(self:getTerrainSets()) do
+        if candidate ~= terrain and candidate.id then used[candidate.id] = true end
+    end
+    local old_id = terrain.id
+    local id = EditorFormat.uniqueSlug(value, used, old_id or "terrain")
+    if id == old_id then return true end
+    local owners = { self }
+    for _, document in ipairs(self.editor and self.editor.map_documents or {}) do
+        local affected = false
+        for _, entry in ipairs(document.maps or {}) do
+            for _, layer in ipairs(document:getAllEditableLayers(entry.id)) do
+                if layer.tileset == self.id then
+                    for _, region in ipairs(layer.terrain_regions or {}) do
+                        if region.terrain == old_id then affected = true break end
+                    end
+                end
+                if affected then break end
+            end
+            if affected then break end
+        end
+        if affected then table.insert(owners, document) end
+    end
+    local history = self.editor and self.editor:beginHistoryTransaction("Rename Terrain", owners)
+    terrain.id = id
+    for index = 2, #owners do
+        local document = owners[index]
+        for _, entry in ipairs(document.maps or {}) do
+            for _, layer in ipairs(document:getAllEditableLayers(entry.id)) do
+                if layer.tileset == self.id then
+                    for _, region in ipairs(layer.terrain_regions or {}) do
+                        if region.terrain == old_id then region.terrain = id end
+                    end
+                end
+            end
+        end
+    end
+    if self.editor and self.editor.selected_terrain_id == old_id then
+        self.editor.selected_terrain_id = id
+    end
+    if history then
+        self.editor:markHistoryChanged()
+        self.editor:commitHistoryTransaction()
+    end
+    return true
 end
 
 function EditorTilesetDocument:getTerrainTags()
@@ -743,6 +793,33 @@ function EditorTilesetDocument:getPropertiesTarget()
         on_changed = function(kind)
             if kind == "standard" then self:refreshPreviewTileset() end
         end
+    }
+end
+
+function EditorTilesetDocument:getTerrainConnectivity(terrain, variant)
+    local connectivity = variant and variant.connectivity
+    if connectivity == nil or connectivity == "inherit" then
+        connectivity = terrain and terrain.connectivity
+    end
+    return connectivity == "regions" and "regions" or "continuous"
+end
+
+function EditorTilesetDocument:usesTerrainRegions(terrain, variant)
+    return self:getTerrainConnectivity(terrain, variant) == "regions"
+end
+
+function EditorTilesetDocument:getTerrainRegionSettings(terrain, variant)
+    local shape = variant and variant.region_shape
+    if shape == nil or shape == "inherit" then shape = terrain and terrain.region_shape end
+    local max_width = tonumber(variant and variant.region_max_width)
+    local max_height = tonumber(variant and variant.region_max_height)
+    if max_width == nil or max_width < 0 then max_width = tonumber(terrain and terrain.region_max_width) end
+    if max_height == nil or max_height < 0 then max_height = tonumber(terrain and terrain.region_max_height) end
+    return {
+        connectivity = self:getTerrainConnectivity(terrain, variant),
+        shape = shape == "rectangle" and "rectangle" or "freeform",
+        max_width = math.max(0, math.floor(max_width or 0)),
+        max_height = math.max(0, math.floor(max_height or 0))
     }
 end
 

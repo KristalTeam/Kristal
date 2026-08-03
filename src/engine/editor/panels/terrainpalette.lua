@@ -22,10 +22,16 @@ function EditorTerrainPalette:init(editor)
         row_height = 40,
         on_select = function(item) self:selectItem(item) end,
         on_press = function(item)
-            if self:selectItem(item) then self.editor:setActiveTool("terrain_brush") end
+            if self:selectItem(item) then
+                local tool = self.editor.tool_registry:get(self.editor.active_tool)
+                if not (tool and tool.terrain_tool) then self.editor.toolbar:activateGroup("terrain") end
+            end
         end,
         on_activate = function(item)
-            if self:selectItem(item) then self.editor:setActiveTool("terrain_brush") end
+            if self:selectItem(item) then
+                local tool = self.editor.tool_registry:get(self.editor.active_tool)
+                if not (tool and tool.terrain_tool) then self.editor.toolbar:activateGroup("terrain") end
+            end
         end,
         on_request_focus = function(control) editor.dockspace:setFocus(control) end
     }))

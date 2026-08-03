@@ -190,6 +190,10 @@ EditorFormat.ORDERING = {
         "name",
         "tile_icon",
         "fallback_mode",
+        "connectivity",
+        "region_shape",
+        "region_max_width",
+        "region_max_height",
         "terrain_variants",
         "terrain_tiles",
         "properties",
@@ -232,8 +236,18 @@ EditorFormat.ORDERING = {
         "color",
         "tile_icon",
         "probability",
+        "connectivity",
+        "region_shape",
+        "region_max_width",
+        "region_max_height",
         "tags",
         "properties"
+    },
+    terrain_region = {
+        "id",
+        "terrain",
+        "variant",
+        "shape"
     },
     terrain_tile = {
         "tile_id",
@@ -300,6 +314,7 @@ local ARRAY_CHILDREN = {
     properties = "property",
     objects = "object",
     chunks = "chunk",
+    terrain_regions = "terrain_region",
     tiles = "tile",
     terrains = "terrain",
     terrain_variants = "terrain_variant",
@@ -353,7 +368,7 @@ end
 local function getChildSchema(schema, key, value)
     local child = ARRAY_CHILDREN[key]
     if child then return "array:" .. child end
-    if schema == "chunk" and key == "tile_data" then
+    if schema == "chunk" and (key == "tile_data" or key == "terrain_data") then
         return "compact_array:" .. EditorFormat.CHUNK_SIZE
     end
     if key == "shape" then return "shape" end
@@ -845,6 +860,29 @@ encodeLayer = function(source, context)
             table.insert(result.objects, encoded)
         end
     end
+    if result.terrain_regions then
+        local used_regions = {}
+        for _, chunk in ipairs(result.chunks or {}) do
+            for _, region in ipairs(chunk.terrain_data or {}) do
+                if region ~= 0 then used_regions[region] = true end
+            end
+        end
+        for index = #result.terrain_regions, 1, -1 do
+            if not used_regions[result.terrain_regions[index].id] then
+                table.remove(result.terrain_regions, index)
+            end
+        end
+        if #result.terrain_regions == 0 then result.terrain_regions = nil end
+    end
+    for _, chunk in ipairs(result.chunks or {}) do
+        if chunk.terrain_data then
+            local has_regions = false
+            for _, region in ipairs(chunk.terrain_data) do
+                if region ~= 0 then has_regions = true break end
+            end
+            if not has_regions then chunk.terrain_data = nil end
+        end
+    end
     return result
 end
 
@@ -1088,7 +1126,7 @@ function EditorFormat.encodeTileset(data, options)
     local terrain_ids = {}
     for _, terrain in ipairs(data.terrains or {}) do
         local encoded = copySerializable(terrain)
-        encoded.id = EditorFormat.uniqueSlug(terrain.name or terrain.id, terrain_ids, "terrain")
+        encoded.id = EditorFormat.uniqueSlug(terrain.id or terrain.name, terrain_ids, "terrain")
         encoded.properties = nil
         encoded.properties, reason = encodeOwnerProperties(terrain, { tileset = result })
         if not encoded.properties then return nil, reason end

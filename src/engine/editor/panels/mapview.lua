@@ -13,6 +13,7 @@
 ---@field polygon_build any
 ---@field polygon_vertex_drag table
 ---@field rotation_drag table
+---@field selected_terrain_region_id number?
 ---@field selected_world_map_id string?
 ---@field selection_marquee table
 ---@field shape_drag table
@@ -62,6 +63,7 @@ function EditorMapView:init(editor, document)
     self.tile_selection_move = nil
     self.tile_paste_preview = nil
     self.tile_shape_drag = nil
+    self.selected_terrain_region_id = nil
     self.map_resize_drag = nil
 end
 
@@ -269,6 +271,7 @@ function EditorMapView:drawDocument()
         end
     end
     self:drawMapResizeHandles()
+    self:drawTerrainRegions()
     self:drawTileSelection()
     self:drawTileToolPreview()
     self:drawObjectLinks()
@@ -422,7 +425,7 @@ function EditorMapView:getTilePaintSource()
     return palette, tileset
 end
 
-function EditorMapView:beginTileDrag(tool, world_x, world_y)
+function EditorMapView:beginTileDrag(tool, world_x, world_y, erase_terrain)
     local target, reason = self:getTileEditTarget(world_x, world_y, {
         allow_outside = tool == "tile_select_rect"
     })
@@ -430,7 +433,14 @@ function EditorMapView:beginTileDrag(tool, world_x, world_y)
         self.editor:addWarning(reason, nil, "tile_editing")
         return true
     end
-    if tool ~= "tile_select_rect" and tool ~= "tile_stamp" then
+    if tool == "terrain_region_rect" then
+        local tileset_document
+        tileset_document, _, _, reason = self:getTerrainPaintSource()
+        if not tileset_document then
+            self.editor:addWarning(reason, nil, "tile_editing")
+            return true
+        end
+    elseif tool ~= "tile_select_rect" and tool ~= "tile_stamp" then
         local palette
         palette, _, reason = self:getTilePaintSource()
         if not palette then
@@ -442,7 +452,9 @@ function EditorMapView:beginTileDrag(tool, world_x, world_y)
         tool = tool, target = target,
         start_column = target.column, start_row = target.row,
         current_column = target.column, current_row = target.row,
-        selection_mode = self:getTileSelectionMode()
+        selection_mode = self:getTileSelectionMode(),
+        erase_terrain = erase_terrain == true,
+        button = erase_terrain and 2 or 1
     }
     if tool == "tile_select_rect" or tool == "tile_stamp" then
         self.tile_selection_drag = drag
@@ -513,6 +525,20 @@ function EditorMapView:finishTileDrag()
         if reason then self.editor:addWarning(reason, nil, "tile_editing") end
         return success
     end
+    if drag.tool == "terrain_region_rect" then
+        self.editor:beginHistoryTransaction(drag.erase_terrain and "Erase Terrain Rectangle"
+            or "Paint Terrain Regions", self.document)
+        local changed, reason = self:paintTerrainRectangle(drag, drag.erase_terrain)
+        self.document:removeUnusedTerrainRegions(drag.target.layer, drag.target.map_id)
+        if changed then
+            self.editor:markHistoryChanged()
+            self.editor:commitHistoryTransaction()
+        else
+            self.editor:cancelHistoryTransaction()
+        end
+        if reason then self.editor:addWarning(reason, nil, "tile_editing") end
+        return true
+    end
     self.editor:beginHistoryTransaction(drag.tool == "tile_brush_line" and "Paint Tile Line"
         or drag.tool == "tile_shape_ellipse" and "Paint Tile Ellipse" or "Paint Tile Rectangle",
         self.document)
@@ -528,6 +554,7 @@ function EditorMapView:finishTileDrag()
         if cell_changed then changed = true end
         if reason then break end
     end
+    self.document:removeUnusedTerrainRegions(drag.target.layer, drag.target.map_id)
     if changed then
         self.editor:markHistoryChanged()
         self.editor:commitHistoryTransaction()
@@ -713,7 +740,9 @@ function EditorMapView:finishTileSelectionMove()
     for _, cell in ipairs(cells) do
         table.insert(values, {
             column = cell[1], row = cell[2],
-            value = self.document:getEncodedTile(drag.target.layer, cell[1], cell[2], drag.target.map_id)
+            value = self.document:getEncodedTile(drag.target.layer, cell[1], cell[2], drag.target.map_id),
+            region_id = self.document:getTerrainRegionIdAt(
+                drag.target.layer, cell[1], cell[2], drag.target.map_id)
         })
     end
     self.editor:beginHistoryTransaction("Move Selected Tiles", self.document)
@@ -725,12 +754,15 @@ function EditorMapView:finishTileSelectionMove()
     local moved = {}
     for _, value in ipairs(values) do
         local column, row = value.column + drag.column_offset, value.row + drag.row_offset
+        if self.document:setTerrainRegionIdAt(drag.target.layer, column, row,
+            value.region_id, drag.target.map_id, true) then changed = true end
         if self.document:setEncodedTile(drag.target.layer, column, row, value.value,
-            drag.target.map_id, true) then changed = true end
+            drag.target.map_id, true, value.region_id ~= 0) then changed = true end
         moved[tileKey(column, row)] = true
     end
     drag.selection.cells = moved
     if changed then
+        self.document:removeUnusedTerrainRegions(drag.target.layer, drag.target.map_id)
         self.document:invalidatePreview(drag.target.map_id)
         self.editor:markHistoryChanged()
         self.editor:commitHistoryTransaction()
@@ -887,6 +919,7 @@ function EditorMapView:deleteTileSelection(history_label)
             selection.map_id, true) then changed = true end
     end
     if changed then
+        self.document:removeUnusedTerrainRegions(selection.layer, selection.map_id)
         self.document:invalidatePreview(selection.map_id)
         self.editor:markHistoryChanged()
         self.editor:commitHistoryTransaction()
@@ -911,12 +944,15 @@ function EditorMapView:copySelectedTiles(silent)
             column = cell[1] - min_column,
             row = cell[2] - min_row,
             value = self.document:getEncodedTile(
-                selection.layer, cell[1], cell[2], selection.map_id) or 0
+                selection.layer, cell[1], cell[2], selection.map_id) or 0,
+            region_id = self.document:getTerrainRegionIdAt(
+                selection.layer, cell[1], cell[2], selection.map_id)
         })
     end
     self.editor.tile_clipboard = {
         cells = cells,
-        tileset = selection.layer.tileset
+        tileset = selection.layer.tileset,
+        terrain_regions = TableUtils.copy(selection.layer.terrain_regions or {}, true)
     }
     if not silent and self.editor.message_bar then
         self.editor.message_bar:setStatus(string.format(
@@ -967,7 +1003,8 @@ function EditorMapView:beginPasteSelectedTiles()
         target = target,
         column = target.column,
         row = target.row,
-        cells = clipboard.cells
+        cells = clipboard.cells,
+        terrain_regions = clipboard.terrain_regions
     }
     self.editor:selectMapObjects({})
     if self.editor.message_bar then
@@ -1008,10 +1045,28 @@ function EditorMapView:commitTilePaste()
     if not paste then return false end
     self.editor:beginHistoryTransaction("Paste Tiles", self.document)
     local changed, selected = false, {}
+    local pasted_regions = {}
     for _, cell in ipairs(paste.cells) do
         local column, row = paste.column + cell.column, paste.row + cell.row
+        local region_id = 0
+        if cell.region_id and cell.region_id ~= 0 then
+            local region = pasted_regions[cell.region_id]
+            if not region then
+                for _, source in ipairs(paste.terrain_regions or {}) do
+                    if source.id == cell.region_id then
+                        region = self.document:createTerrainRegion(paste.target.layer,
+                            source.terrain, source.variant, source.shape)
+                        pasted_regions[cell.region_id] = region
+                        break
+                    end
+                end
+            end
+            region_id = region and region.id or 0
+        end
+        if self.document:setTerrainRegionIdAt(paste.target.layer, column, row,
+            region_id, paste.target.map_id, true) then changed = true end
         if self.document:setEncodedTile(paste.target.layer, column, row, cell.value,
-            paste.target.map_id, true) then changed = true end
+            paste.target.map_id, true, region_id ~= 0) then changed = true end
         selected[tileKey(column, row)] = true
     end
     self.tile_selection = {
@@ -1020,6 +1075,7 @@ function EditorMapView:commitTilePaste()
         cells = selected
     }
     if changed then
+        self.document:removeUnusedTerrainRegions(paste.target.layer, paste.target.map_id)
         self.document:invalidatePreview(paste.target.map_id)
         self.editor:markHistoryChanged()
         self.editor:commitHistoryTransaction()
@@ -1043,13 +1099,93 @@ function EditorMapView:getTerrainPaintSource()
     return document, terrain, variant
 end
 
-function EditorMapView:getTerrainAtCell(target, tileset_document, terrain, column, row, overrides)
-    if column < 0 or row < 0 or column >= target.width or row >= target.height then return 0 end
+function EditorMapView:isTerrainTool(id)
+    local tool = self.editor and self.editor.tool_registry:get(id or self.editor.active_tool)
+    return tool and tool.terrain_tool == true
+end
+
+function EditorMapView:selectTerrainRegion(target)
+    local id = self.document:getTerrainRegionIdAt(
+        target.layer, target.column, target.row, target.map_id)
+    self.selected_terrain_region_id = id ~= 0 and id or nil
+    if id == 0 then
+        self.tile_selection = nil
+        if self.editor.message_bar then self.editor.message_bar:setStatus("No terrain region at this cell") end
+        return true
+    end
+    local selected = {}
+    local cells = self.document:getTerrainRegionCells(target.layer, id, target.map_id)
+    for _, cell in ipairs(cells) do selected[tileKey(cell[1], cell[2])] = true end
+    self:applyTileSelection(target, selected, self:getTileSelectionMode())
+    if self.editor.message_bar then
+        self.editor.message_bar:setStatus(string.format(
+            "Selected terrain region %d (%d cell%s)", id, #cells, #cells == 1 and "" or "s"))
+    end
+    return true
+end
+
+function EditorMapView:drawTerrainRegions()
+    if not self:isTerrainTool() or self.editor.live_document == self.document then return end
+    local map_id = self:getFocusedMapId()
+    local entry = self.document.map_lookup[map_id]
+    local layer = entry and self.document:getSelectedTileLayer(map_id)
+    if not layer or not layer.terrain_regions or #layer.terrain_regions == 0 then return end
+    local width, height = self.document:getTileLayerGridSize(layer, map_id)
+    local target = { entry = entry, map_id = map_id, layer = layer, width = width, height = height }
+    love.graphics.setLineWidth(2 / self.view_zoom)
+    local size = EditorFormat.CHUNK_SIZE
+    for _, chunk in ipairs(layer.chunks or {}) do
+        for index, id in ipairs(chunk.terrain_data or {}) do
+            if id ~= 0 then
+                local column = chunk.x + ((index - 1) % size)
+                local row = chunk.y + math.floor((index - 1) / size)
+                local x, y, cell_width, cell_height = self:getTileRect(target, column, row)
+                local selected = id == self.selected_terrain_region_id
+                if selected then
+                    Draw.setColor(1, 0.78, 0.2, 0.12)
+                    love.graphics.rectangle("fill", x, y, cell_width, cell_height)
+                end
+                Draw.setColor(selected and { 1, 0.82, 0.28, 0.95 } or { 0.3, 0.82, 1, 0.72 })
+                if self.document:getTerrainRegionIdAt(layer, column - 1, row, map_id) ~= id then
+                    love.graphics.line(x, y, x, y + cell_height)
+                end
+                if self.document:getTerrainRegionIdAt(layer, column + 1, row, map_id) ~= id then
+                    love.graphics.line(x + cell_width, y, x + cell_width, y + cell_height)
+                end
+                if self.document:getTerrainRegionIdAt(layer, column, row - 1, map_id) ~= id then
+                    love.graphics.line(x, y, x + cell_width, y)
+                end
+                if self.document:getTerrainRegionIdAt(layer, column, row + 1, map_id) ~= id then
+                    love.graphics.line(x, y + cell_height, x + cell_width, y + cell_height)
+                end
+            end
+        end
+    end
+end
+
+function EditorMapView:getTerrainRegionIdAtCell(target, column, row, overrides)
     local key = target.map_id .. ":" .. column .. ":" .. row
     if overrides and overrides[key] ~= nil then return overrides[key] end
-    local tile_id = self.document:getTileIdForLayer(target.layer, column, row,
-        target.map_id, tileset_document.id)
-    return tile_id ~= nil and tileset_document:getTerrainAtTile(terrain, tile_id) or 0
+    return self.document:getTerrainRegionIdAt(target.layer, column, row, target.map_id)
+end
+
+function EditorMapView:getTerrainAtCell(target, tileset_document, terrain, column, row,
+        overrides, region_overrides, center_region_id)
+    if column < 0 or row < 0 or column >= target.width or row >= target.height then return 0 end
+    local key = target.map_id .. ":" .. column .. ":" .. row
+    local terrain_id = overrides and overrides[key]
+    local region_id = self:getTerrainRegionIdAtCell(target, column, row, region_overrides)
+    local region = self.document:getTerrainRegion(target.layer, region_id)
+    if terrain_id == nil and region and region.terrain == terrain.id then terrain_id = region.variant end
+    if terrain_id == nil then
+        local tile_id = self.document:getTileIdForLayer(target.layer, column, row,
+            target.map_id, tileset_document.id)
+        terrain_id = tile_id ~= nil and tileset_document:getTerrainAtTile(terrain, tile_id) or 0
+    end
+    local variant = tileset_document:getTerrainVariant(terrain, terrain_id)
+    if variant and tileset_document:usesTerrainRegions(terrain, variant)
+        and center_region_id ~= nil and region_id ~= center_region_id then return 0 end
+    return terrain_id
 end
 
 function EditorMapView:getTerrainTileIdAtCell(target, tileset_document, column, row)
@@ -1059,7 +1195,7 @@ function EditorMapView:getTerrainTileIdAtCell(target, tileset_document, column, 
 end
 
 function EditorMapView:createTerrainRuleContext(target, tileset_document, terrain,
-        column, row, terrain_id, overrides)
+        column, row, terrain_id, overrides, region_overrides, center_region_id)
     local seed = column * 73856093 + row * 19349663 + terrain_id * 83492791
     return TerrainRuleContext({
         map_id = target.map_id, layer_id = target.layer._editor_uid,
@@ -1067,7 +1203,7 @@ function EditorMapView:createTerrainRuleContext(target, tileset_document, terrai
         tileset = tileset_document, seed = seed,
         get_terrain = function(x, y)
             return self:getTerrainAtCell(target, tileset_document, terrain,
-                column + x, row + y, overrides)
+                column + x, row + y, overrides, region_overrides, center_region_id)
         end,
         get_tile_id = function(x, y)
             return self:getTerrainTileIdAtCell(target, tileset_document,
@@ -1079,17 +1215,19 @@ function EditorMapView:createTerrainRuleContext(target, tileset_document, terrai
     }), seed
 end
 
-function EditorMapView:routeTerrainCell(target, tileset_document, terrain, column, row, overrides)
+function EditorMapView:routeTerrainCell(target, tileset_document, terrain, column, row,
+        overrides, region_overrides)
     if column < 0 or row < 0 or column >= target.width or row >= target.height then return false end
     local key = target.map_id .. ":" .. column .. ":" .. row
+    local center_region_id = self:getTerrainRegionIdAtCell(target, column, row, region_overrides)
     local terrain_id = self:getTerrainAtCell(target, tileset_document, terrain,
-        column, row, overrides)
+        column, row, overrides, region_overrides, center_region_id)
     if terrain_id == 0 then
         if not overrides or overrides[key] ~= 0 then return false end
-        return self.document:setEncodedTile(target.layer, column, row, 0, target.map_id, true)
+        return self.document:setEncodedTile(target.layer, column, row, 0, target.map_id, true, true)
     end
     local context, seed = self:createTerrainRuleContext(target, tileset_document,
-        terrain, column, row, terrain_id, overrides)
+        terrain, column, row, terrain_id, overrides, region_overrides, center_region_id)
     local rule, routing_reason = tileset_document:chooseTerrainTile(terrain, terrain_id, context, seed)
     if not rule then
         return false, routing_reason or string.format("Terrain '%s' has no matching tile rule for '%s'",
@@ -1099,7 +1237,7 @@ function EditorMapView:routeTerrainCell(target, tileset_document, terrain, colum
         tileset_document.id, rule.tile_id, rule.flip_x, rule.flip_y, rule.rotate)
     if not encoded then return false, reason end
     return self.document:setEncodedTile(target.layer, column, row,
-        encoded, target.map_id, true)
+        encoded, target.map_id, true, true)
 end
 
 function EditorMapView:getTerrainRoutingDebug(world_x, world_y)
@@ -1110,8 +1248,9 @@ function EditorMapView:getTerrainRoutingDebug(world_x, world_y)
     local terrain_id = self:getTerrainAtCell(target, tileset_document, terrain,
         target.column, target.row)
     if terrain_id == 0 then return "Terrain routing: empty cell" end
+    local region_id = self:getTerrainRegionIdAtCell(target, target.column, target.row)
     local context, seed = self:createTerrainRuleContext(target, tileset_document,
-        terrain, target.column, target.row, terrain_id)
+        terrain, target.column, target.row, terrain_id, nil, nil, region_id)
     local result, reason = tileset_document:chooseTerrainTile(terrain, terrain_id, context, seed)
     if not result then return "Terrain routing: " .. tostring(reason or "no matching rule") end
     local text = string.format("Terrain routing: tile %s, %s, score %s",
@@ -1226,33 +1365,20 @@ function EditorMapView:expandTileBrushAnchors(target, anchors, round_brush, size
     return cells
 end
 
-function EditorMapView:paintTerrainAnchor(target, erase)
-    local tileset_document, terrain, variant, reason = self:getTerrainPaintSource()
-    if not tileset_document then return false, reason end
-    local stroke = self.tile_stroke
-    local overrides = stroke and stroke.terrain_values or {}
-    if stroke then stroke.terrain_values = overrides end
-    local anchor_key = target.map_id .. ":" .. target.column .. ":" .. target.row
-        .. ":" .. tostring(erase == true)
-    if stroke then
-        stroke.terrain_anchors = stroke.terrain_anchors or {}
-        if stroke.terrain_anchors[anchor_key] then return false end
-        stroke.terrain_anchors[anchor_key] = true
-    end
-    local brush_cells = self:getTerrainBrushCells(target)
-    local has_change = false
-    for _, cell in ipairs(brush_cells) do
-        if self:getTerrainAtCell(target, tileset_document, terrain,
-            cell[1], cell[2], overrides) ~= (erase and 0 or variant.id) then
-            has_change = true
-        end
-        overrides[target.map_id .. ":" .. cell[1] .. ":" .. cell[2]]
-            = erase and 0 or variant.id
-    end
-    if not has_change then return false end
+function EditorMapView:canExpandTerrainRegion(target, region_id, column, row, settings)
+    if not region_id or region_id == 0 then return false end
+    local left, top, right, bottom = self.document:getTerrainRegionBounds(
+        target.layer, region_id, target.map_id)
+    left, top = math.min(left or column, column), math.min(top or row, row)
+    right, bottom = math.max(right or column, column), math.max(bottom or row, row)
+    return (settings.max_width == 0 or right - left + 1 <= settings.max_width)
+        and (settings.max_height == 0 or bottom - top + 1 <= settings.max_height)
+end
 
+function EditorMapView:routeTerrainCells(target, tileset_document, terrain, cells,
+        terrain_overrides, region_overrides)
     local route_cells, routed = {}, {}
-    for _, cell in ipairs(brush_cells) do
+    for _, cell in ipairs(cells) do
         for _, offset in ipairs(tileset_document:getTerrainAffectedOffsets(terrain)) do
             local column, row = cell[1] + offset[1], cell[2] + offset[2]
             local key = column .. ":" .. row
@@ -1262,16 +1388,150 @@ function EditorMapView:paintTerrainAnchor(target, erase)
             end
         end
     end
-    local changed = false
+    local changed, reason = false, nil
     for _, cell in ipairs(route_cells) do
         local cell_changed
         cell_changed, reason = self:routeTerrainCell(target, tileset_document, terrain,
-            cell[1], cell[2], overrides)
+            cell[1], cell[2], terrain_overrides, region_overrides)
         if cell_changed then changed = true end
         if reason then return changed, reason end
     end
-    if changed then self.document:invalidatePreview(target.map_id) end
     return changed
+end
+
+function EditorMapView:paintTerrainCells(target, cells, erase, options)
+    options = options or {}
+    local tileset_document, terrain, variant, reason = self:getTerrainPaintSource()
+    if not tileset_document then return false, reason end
+    if target.layer.tileset and target.layer.tileset ~= tileset_document.id then
+        return false, string.format("Layer uses tileset '%s'; select a layer for '%s'",
+            tostring(target.layer.tileset), tostring(tileset_document.id))
+    end
+    local stroke = self.tile_stroke
+    local terrain_overrides = stroke and stroke.terrain_values or options.terrain_values or {}
+    local region_overrides = stroke and stroke.terrain_regions or options.terrain_regions or {}
+    if stroke then
+        stroke.terrain_values = terrain_overrides
+        stroke.terrain_regions = region_overrides
+    end
+    local settings = tileset_document:getTerrainRegionSettings(terrain, variant)
+    local use_regions = not erase and settings.connectivity == "regions"
+    if use_regions and not target.layer.chunks then
+        return false, "Terrain regions require a native EditorFormat tile layer"
+    end
+    local changed, applied_cells, previous_cells = false, {}, {}
+    local block_regions = {}
+    local left, top = options.left, options.top
+    local block_width = settings.max_width > 0 and settings.max_width
+        or options.right and left and options.right - left + 1 or 1
+    local block_height = settings.max_height > 0 and settings.max_height
+        or options.bottom and top and options.bottom - top + 1 or 1
+    if use_regions and not options.separate_rectangles and stroke
+        and not stroke.active_terrain_region then
+        local existing = self.document:getTerrainRegionAt(
+            target.layer, target.column, target.row, target.map_id)
+        if existing and existing.terrain == terrain.id and existing.variant == variant.id then
+            stroke.active_terrain_region = existing
+        else
+            stroke.active_terrain_region = self.document:createTerrainRegion(
+                target.layer, terrain, variant, settings.shape)
+        end
+    end
+
+    for _, cell in ipairs(cells) do
+        local column, row = cell[1], cell[2]
+        local key = target.map_id .. ":" .. column .. ":" .. row
+        local region_id = 0
+        if use_regions then
+            if options.separate_rectangles then
+                local block_x = math.floor((column - left) / block_width)
+                local block_y = math.floor((row - top) / block_height)
+                local block_key = block_x .. ":" .. block_y
+                local region = block_regions[block_key]
+                if not region then
+                    region = self.document:createTerrainRegion(target.layer, terrain, variant, "rectangle")
+                    block_regions[block_key] = region
+                end
+                region_id = region.id
+            else
+                local active_region = stroke and stroke.active_terrain_region
+                if not active_region then
+                    local existing = self.document:getTerrainRegionAt(target.layer,
+                        target.column, target.row, target.map_id)
+                    if existing and existing.terrain == terrain.id and existing.variant == variant.id then
+                        active_region = existing
+                    else
+                        active_region = self.document:createTerrainRegion(
+                            target.layer, terrain, variant, settings.shape)
+                    end
+                    if stroke then stroke.active_terrain_region = active_region end
+                end
+                if not self:canExpandTerrainRegion(target, active_region.id, column, row, settings) then
+                    active_region = self.document:createTerrainRegion(
+                        target.layer, terrain, variant, settings.shape)
+                    if stroke then stroke.active_terrain_region = active_region end
+                end
+                region_id = active_region.id
+            end
+        end
+        local old_terrain = self:getTerrainAtCell(target, tileset_document, terrain,
+            column, row, terrain_overrides, region_overrides)
+        local old_region = self:getTerrainRegionIdAtCell(target, column, row, region_overrides)
+        table.insert(previous_cells, {
+            column = column, row = row, terrain = old_terrain, region = old_region
+        })
+        local terrain_id = erase and 0 or variant.id
+        if old_terrain ~= terrain_id or old_region ~= region_id then changed = true end
+        terrain_overrides[key] = terrain_id
+        region_overrides[key] = region_id
+        if self.document:setTerrainRegionIdAt(target.layer, column, row,
+            region_id, target.map_id, true) then changed = true end
+        table.insert(applied_cells, cell)
+    end
+    if #applied_cells == 0 then return changed end
+    local routed
+    routed, reason = self:routeTerrainCells(target, tileset_document, terrain,
+        applied_cells, terrain_overrides, region_overrides)
+    if reason then
+        for _, previous in ipairs(previous_cells) do
+            local key = target.map_id .. ":" .. previous.column .. ":" .. previous.row
+            terrain_overrides[key] = previous.terrain
+            region_overrides[key] = previous.region
+            self.document:setTerrainRegionIdAt(target.layer, previous.column, previous.row,
+                previous.region, target.map_id, true)
+        end
+        self:routeTerrainCells(target, tileset_document, terrain,
+            applied_cells, terrain_overrides, region_overrides)
+        self.document:invalidatePreview(target.map_id)
+        return false, reason
+    end
+    changed = changed or routed
+    if changed then self.document:invalidatePreview(target.map_id) end
+    return changed, reason
+end
+
+function EditorMapView:paintTerrainAnchor(target, erase)
+    local stroke = self.tile_stroke
+    local anchor_key = target.map_id .. ":" .. target.column .. ":" .. target.row
+        .. ":" .. tostring(erase == true)
+    if stroke then
+        stroke.terrain_anchors = stroke.terrain_anchors or {}
+        if stroke.terrain_anchors[anchor_key] then return false end
+        stroke.terrain_anchors[anchor_key] = true
+    end
+    return self:paintTerrainCells(target, self:getTerrainBrushCells(target), erase)
+end
+
+function EditorMapView:paintTerrainRectangle(drag, erase)
+    local cells = self:getTileDragCells(drag)
+    local left = math.min(drag.start_column, drag.current_column)
+    local right = math.max(drag.start_column, drag.current_column)
+    local top = math.min(drag.start_row, drag.current_row)
+    local bottom = math.max(drag.start_row, drag.current_row)
+    return self:paintTerrainCells(drag.target, cells, erase, {
+        separate_rectangles = true,
+        left = left, top = top, right = right, bottom = bottom
+    })
 end
 
 function EditorMapView:drawTerrainBrushPreview()
@@ -1393,6 +1653,10 @@ function EditorMapView:beginTileEdit(tool, world_x, world_y, erase_terrain)
             self.editor:addWarning(reason, nil, "tile_editing")
             return true
         end
+        local settings = tileset_document:getTerrainRegionSettings(terrain, variant)
+        if settings.connectivity == "regions" and settings.shape == "rectangle" then
+            return self:beginTileDrag("terrain_region_rect", world_x, world_y, erase_terrain)
+        end
     elseif tool ~= "eraser" then
         local palette
         palette, _, reason = self:getTilePaintSource()
@@ -1406,6 +1670,7 @@ function EditorMapView:beginTileEdit(tool, world_x, world_y, erase_terrain)
         self.editor:beginHistoryTransaction("Fill Tiles", self.document)
         local changed
         changed, reason = self:fillTiles(target)
+        self.document:removeUnusedTerrainRegions(target.layer, target.map_id)
         if reason then self.editor:addWarning(reason, nil, "tile_editing") end
         if changed then
             self.editor:markHistoryChanged()
@@ -1989,7 +2254,7 @@ function EditorMapView:drawWorldFocusIndicator()
 end
 
 function EditorMapView:drawTerrainRuleDebug()
-    if not self.editor or self.editor.active_tool ~= "terrain_brush" then return end
+    if not self:isTerrainTool() or self.editor.active_tool == "terrain_region_select" then return end
     local mouse_x, mouse_y = self.editor:getMousePosition()
     local global_x, global_y = self:getGlobalPosition()
     local local_x, local_y = mouse_x - global_x, mouse_y - global_y
@@ -2152,12 +2417,22 @@ function EditorMapView:onMousePressed(x, y, button, presses)
             or tool == "tile_brush_round" or tool == "tile_fill") then
             return self:beginTileEdit(tool, world_x, world_y)
         end
+        if button == 1 and tool == "terrain_region_select" then
+            if self:beginTileSelectionMove(world_x, world_y) then return true end
+            local target, reason = self:getTileEditTarget(world_x, world_y)
+            if not target then
+                self.editor:addWarning(reason, nil, "tile_editing")
+                return true
+            end
+            return self:selectTerrainRegion(target)
+        end
         if button == 1 and (tool == "tile_select_rect" or tool == "tile_select_wand"
             or tool == "tile_select_same") and self:beginTileSelectionMove(world_x, world_y) then
             return true
         end
         if button == 1 and (tool == "tile_brush_line" or tool == "tile_shape_rect"
-            or tool == "tile_shape_ellipse" or tool == "tile_select_rect" or tool == "tile_stamp") then
+            or tool == "tile_shape_ellipse" or tool == "tile_select_rect" or tool == "tile_stamp"
+            or tool == "terrain_region_rect") then
             return self:beginTileDrag(tool, world_x, world_y)
         end
         if button == 1 and (tool == "tile_select_wand" or tool == "tile_select_same") then
@@ -2171,6 +2446,9 @@ function EditorMapView:onMousePressed(x, y, button, presses)
         end
         if button == 2 and tool == "terrain_brush" then
             return self:beginTileEdit(tool, world_x, world_y, true)
+        end
+        if button == 2 and tool == "terrain_region_rect" then
+            return self:beginTileDrag(tool, world_x, world_y, true)
         end
         if button == 1 and tool == "eraser" then
             local entry = self:getMapAt(world_x, world_y)
@@ -2593,12 +2871,15 @@ function EditorMapView:onMouseReleased(x, y, button, presses)
         return true
     end
     if button == 1 and self.tile_selection_move then return self:finishTileSelectionMove() end
-    if button == 1 and (self.tile_selection_drag or self.tile_shape_drag) then
+    local tile_drag = self.tile_selection_drag or self.tile_shape_drag
+    if tile_drag and button == (tile_drag.button or 1) then
         return self:finishTileDrag()
     end
     if self.tile_stroke and button == self.tile_stroke.button then
-        local changed = self.tile_stroke.changed
+        local stroke = self.tile_stroke
+        local changed = stroke.changed
         self.tile_stroke = nil
+        self.document:removeUnusedTerrainRegions(stroke.target.layer, stroke.target.map_id)
         if changed then
             self.editor:commitHistoryTransaction()
         else
@@ -2733,7 +3014,8 @@ function EditorMapView:getCursorType(x, y)
     local _, map_resize_handle = self:getMapResizeHandleAt(world_x, world_y)
     if map_resize_handle then return self:getMapResizeCursor(map_resize_handle) end
     local tool = self:getEffectiveTool()
-    if tool == "tile_select_rect" or tool == "tile_select_wand" or tool == "tile_select_same" then
+    if tool == "tile_select_rect" or tool == "tile_select_wand" or tool == "tile_select_same"
+        or tool == "terrain_region_select" then
         local target = self:getTileEditTarget(world_x, world_y, {
             map_id = self.tile_selection and self.tile_selection.map_id,
             allow_outside = tool == "tile_select_rect"
@@ -2755,6 +3037,7 @@ function EditorMapView:getCursorType(x, y)
     end
     if tool == "object" or tool == "shape"
         or tool == "tile_brush" or tool == "terrain_brush"
+        or tool == "terrain_region_rect" or tool == "terrain_region_select"
         or tool == "tile_brush_round" or tool == "tile_brush_line"
         or tool == "tile_shape_rect" or tool == "tile_shape_ellipse"
         or tool == "tile_select_rect" or tool == "tile_select_wand"

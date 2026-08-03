@@ -400,6 +400,7 @@ function EditorMapDocument:createEditableLayer(type_id, id, parent_uid, options)
         else
             layer.kind = "tile"
             layer.tileset = self.editor and self.editor.active_tileset_id or nil
+            layer.terrain_regions = {}
             layer.chunks = {}
         end
     elseif kind == "object" then
@@ -523,7 +524,10 @@ function EditorMapDocument:resizeTileLayer(layer, old_map_width, old_map_height,
                 local row = (chunk.y or 0) + math.floor((index - 1) / size)
                 if column < 0 or row < 0 or column >= new_width or row >= new_height then
                     chunk.tile_data[index] = 0
-                elseif chunk.tile_data[index] and chunk.tile_data[index] ~= 0 then
+                    if chunk.terrain_data then chunk.terrain_data[index] = 0 end
+                elseif chunk.tile_data[index] and chunk.tile_data[index] ~= 0
+                    or chunk.terrain_data and chunk.terrain_data[index]
+                        and chunk.terrain_data[index] ~= 0 then
                     occupied = true
                 end
             end
@@ -560,6 +564,7 @@ function EditorMapDocument:resizeMap(id, width, height)
         local layer_type = Registry.getLayerType(layer._editor_type_id)
         if layer_type and layer_type.kind == "tile" then
             self:resizeTileLayer(layer, old_width, old_height, width, height)
+            self:removeUnusedTerrainRegions(layer, id)
         end
     end
     data.width, data.height = width, height
@@ -663,12 +668,145 @@ function EditorMapDocument:getEncodedTile(layer, column, row, map_id)
         local chunk_x, chunk_y = math.floor(column / size) * size, math.floor(row / size) * size
         for _, chunk in ipairs(layer.chunks) do
             if chunk.x == chunk_x and chunk.y == chunk_y then
-                return chunk.tile_data[(column - chunk_x) + (row - chunk_y) * size + 1] or 0
+                return chunk.tile_data
+                    and chunk.tile_data[(column - chunk_x) + (row - chunk_y) * size + 1] or 0
             end
         end
         return 0
     end
     return layer.data and layer.data[column + row * width + 1] or 0
+end
+
+function EditorMapDocument:getTileChunk(layer, column, row, create)
+    if not layer or not layer.chunks then return nil end
+    local size = EditorFormat.CHUNK_SIZE
+    local chunk_x, chunk_y = math.floor(column / size) * size, math.floor(row / size) * size
+    for index, chunk in ipairs(layer.chunks) do
+        if chunk.x == chunk_x and chunk.y == chunk_y then return chunk, index end
+    end
+    if not create then return nil end
+    local chunk = { x = chunk_x, y = chunk_y, tile_data = {} }
+    for index = 1, size * size do
+        chunk.tile_data[index] = 0
+    end
+    table.insert(layer.chunks, chunk)
+    return chunk, #layer.chunks
+end
+
+function EditorMapDocument:isTileChunkEmpty(chunk)
+    for _, tile in ipairs(chunk.tile_data or {}) do
+        if tile ~= 0 then return false end
+    end
+    for _, region in ipairs(chunk.terrain_data or {}) do
+        if region ~= 0 then return false end
+    end
+    return true
+end
+
+function EditorMapDocument:getTerrainRegion(layer, id)
+    id = tonumber(id) or 0
+    if id == 0 then return nil end
+    for _, region in ipairs(layer and layer.terrain_regions or {}) do
+        if region.id == id then return region end
+    end
+end
+
+function EditorMapDocument:createTerrainRegion(layer, terrain, variant, shape)
+    if not layer or not layer.chunks then return nil end
+    layer.terrain_regions = layer.terrain_regions or {}
+    local id = 1
+    for _, region in ipairs(layer.terrain_regions) do
+        id = math.max(id, (tonumber(region.id) or 0) + 1)
+    end
+    local region = {
+        id = id,
+        terrain = type(terrain) == "table" and terrain.id or terrain,
+        variant = type(variant) == "table" and variant.id or variant,
+        shape = shape or "freeform"
+    }
+    table.insert(layer.terrain_regions, region)
+    return region
+end
+
+function EditorMapDocument:getTerrainRegionIdAt(layer, column, row, map_id)
+    local width, height = self:getTileLayerGridSize(layer, map_id)
+    if column < 0 or row < 0 or column >= width or row >= height then return 0 end
+    local chunk = self:getTileChunk(layer, column, row, false)
+    if not chunk then return 0 end
+    local size = EditorFormat.CHUNK_SIZE
+    local index = (column - chunk.x) + (row - chunk.y) * size + 1
+    return tonumber(chunk.terrain_data and chunk.terrain_data[index]) or 0
+end
+
+function EditorMapDocument:getTerrainRegionAt(layer, column, row, map_id)
+    return self:getTerrainRegion(layer, self:getTerrainRegionIdAt(layer, column, row, map_id))
+end
+
+function EditorMapDocument:setTerrainRegionIdAt(layer, column, row, id, map_id, defer_preview)
+    local width, height = self:getTileLayerGridSize(layer, map_id)
+    if not layer or not layer.chunks or column < 0 or row < 0
+        or column >= width or row >= height then return false end
+    id = math.max(0, math.floor(tonumber(id) or 0))
+    if self:getTerrainRegionIdAt(layer, column, row, map_id) == id then return false end
+    local chunk, chunk_index = self:getTileChunk(layer, column, row, id ~= 0)
+    if not chunk then return false end
+    local size = EditorFormat.CHUNK_SIZE
+    if not chunk.terrain_data then
+        chunk.terrain_data = {}
+        for index = 1, size * size do chunk.terrain_data[index] = 0 end
+    end
+    chunk.terrain_data[(column - chunk.x) + (row - chunk.y) * size + 1] = id
+    if id == 0 then
+        local has_regions = false
+        for _, region in ipairs(chunk.terrain_data) do
+            if region ~= 0 then has_regions = true break end
+        end
+        if not has_regions then chunk.terrain_data = nil end
+    end
+    if id == 0 and self:isTileChunkEmpty(chunk) then table.remove(layer.chunks, chunk_index) end
+    if not defer_preview then self:invalidatePreview(map_id) end
+    return true
+end
+
+function EditorMapDocument:getTerrainRegionCells(layer, id, map_id)
+    local cells = {}
+    local width, height = self:getTileLayerGridSize(layer, map_id)
+    local size = EditorFormat.CHUNK_SIZE
+    for _, chunk in ipairs(layer and layer.chunks or {}) do
+        for index, region_id in ipairs(chunk.terrain_data or {}) do
+            local column = chunk.x + ((index - 1) % size)
+            local row = chunk.y + math.floor((index - 1) / size)
+            if region_id == id and column >= 0 and row >= 0
+                and column < width and row < height then
+                table.insert(cells, { column, row })
+            end
+        end
+    end
+    return cells
+end
+
+function EditorMapDocument:getTerrainRegionBounds(layer, id, map_id)
+    local left, top, right, bottom
+    for _, cell in ipairs(self:getTerrainRegionCells(layer, id, map_id)) do
+        left = math.min(left or cell[1], cell[1])
+        top = math.min(top or cell[2], cell[2])
+        right = math.max(right or cell[1], cell[1])
+        bottom = math.max(bottom or cell[2], cell[2])
+    end
+    if left == nil then return nil end
+    return left, top, right, bottom
+end
+
+function EditorMapDocument:removeUnusedTerrainRegions(layer, map_id)
+    local used = {}
+    for _, chunk in ipairs(layer and layer.chunks or {}) do
+        for _, region_id in ipairs(chunk.terrain_data or {}) do
+            if region_id ~= 0 then used[region_id] = true end
+        end
+    end
+    for index = #(layer.terrain_regions or {}), 1, -1 do
+        if not used[layer.terrain_regions[index].id] then table.remove(layer.terrain_regions, index) end
+    end
 end
 
 function EditorMapDocument:getTileIdForLayer(layer, column, row, map_id, tileset_id)
@@ -687,35 +825,22 @@ function EditorMapDocument:getTileIdForLayer(layer, column, row, map_id, tileset
     return tile_id
 end
 
-function EditorMapDocument:setEncodedTile(layer, column, row, encoded, map_id, defer_preview)
+function EditorMapDocument:setEncodedTile(layer, column, row, encoded, map_id, defer_preview, preserve_terrain_region)
     local width, height = self:getTileLayerGridSize(layer, map_id)
     if column < 0 or row < 0 or column >= width or row >= height then return false end
     encoded = encoded or 0
-    if self:getEncodedTile(layer, column, row, map_id) == encoded then return false end
+    local region_changed = false
+    if layer.chunks and not preserve_terrain_region then
+        region_changed = self:setTerrainRegionIdAt(layer, column, row, 0, map_id, true)
+    end
+    if self:getEncodedTile(layer, column, row, map_id) == encoded then return region_changed end
     if layer.chunks then
         local size = EditorFormat.CHUNK_SIZE
-        local chunk_x, chunk_y = math.floor(column / size) * size, math.floor(row / size) * size
-        local chunk, chunk_index
-        for index, candidate in ipairs(layer.chunks) do
-            if candidate.x == chunk_x and candidate.y == chunk_y then
-                chunk, chunk_index = candidate, index
-                break
-            end
-        end
-        if not chunk and encoded ~= 0 then
-            chunk = { x = chunk_x, y = chunk_y, tile_data = {} }
-            for index = 1, size * size do chunk.tile_data[index] = 0 end
-            table.insert(layer.chunks, chunk)
-        end
+        local chunk, chunk_index = self:getTileChunk(layer, column, row, encoded ~= 0)
         if chunk then
-            chunk.tile_data[(column - chunk_x) + (row - chunk_y) * size + 1] = encoded
-            if encoded == 0 then
-                local empty = true
-                for _, tile in ipairs(chunk.tile_data) do
-                    if tile ~= 0 then empty = false break end
-                end
-                if empty then table.remove(layer.chunks, chunk_index) end
-            end
+            chunk.tile_data = chunk.tile_data or {}
+            chunk.tile_data[(column - chunk.x) + (row - chunk.y) * size + 1] = encoded
+            if encoded == 0 and self:isTileChunkEmpty(chunk) then table.remove(layer.chunks, chunk_index) end
         end
     else
         layer.data = layer.data or {}
