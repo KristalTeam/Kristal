@@ -81,14 +81,14 @@ function EditorTerrainPalette:selectCurrent(select_default)
     for index, item in ipairs(self.list.filtered_items) do
         if item.data.kind == "variant" and item.data.terrain == terrain
             and item.data.variant == variant then
-            self.list:select(index)
+            self.list:select(index, false, false)
             return true
         end
     end
     if select_default then
         for index, item in ipairs(self.list.filtered_items) do
             if item.data.kind == "variant" then
-                self.list:select(index)
+                self.list:select(index, false, false)
                 return self:selectItem(item)
             end
         end

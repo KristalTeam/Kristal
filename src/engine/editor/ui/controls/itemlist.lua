@@ -214,7 +214,7 @@ function EditorItemList:getSelectedItem()
     return self.selected_index and self.filtered_items[self.selected_index] or nil
 end
 
-function EditorItemList:select(index, activate)
+function EditorItemList:select(index, activate, notify)
     if #self.filtered_items == 0 then self.selected_index = nil return end
     index = MathUtils.clamp(index, 1, #self.filtered_items)
     local changed = self.selected_index ~= index
@@ -224,7 +224,7 @@ function EditorItemList:select(index, activate)
     if index > self.scroll_row + visible_rows then self.scroll_row = index - visible_rows end
     self:clampScroll()
     local item = self:getSelectedItem()
-    if changed and self.on_select then self.on_select(item, self) end
+    if changed and notify ~= false and self.on_select then self.on_select(item, self) end
     if activate and self.on_activate then self.on_activate(item, self) end
 end
 

@@ -270,12 +270,9 @@ function EditorWorldBrowser:openContextMenu(item, list, x, y)
             self.editor:saveWorldDocumentToProject(item.data)
         end })
         table.insert(items, { label = "Rename", action = function() list:beginRename(item) end })
-        if item.data.virtual then
-            table.insert(items, { label = "Remove", action = function()
-                Registry.editor_worlds[item.data.id] = nil
-                self:refresh()
-            end })
-        end
+        table.insert(items, { label = "Delete", action = function()
+            self.editor:deleteWorldFromProject(item.data)
+        end })
     end
     local gx, gy = list:getGlobalPosition()
     self.editor.dockspace:openContextMenu(items, gx + x, gy + y, list)

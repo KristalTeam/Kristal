@@ -355,6 +355,12 @@ function EditorMapBrowser:openNodeContextMenu(node, tree, x, y)
             })
         end
         table.insert(items, { label = "Rename", action = function() tree:beginRename(node) end })
+        if node.type == "map" and node.registry_id then
+            table.insert(items, {
+                label = "Delete",
+                action = function() self.editor:deleteMapFromProject(node.registry_id) end
+            })
+        end
     end
     local global_x, global_y = tree:getGlobalPosition()
     self.editor.dockspace:openContextMenu(items, global_x + x, global_y + y, tree)
