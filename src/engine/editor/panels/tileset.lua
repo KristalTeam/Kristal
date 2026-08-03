@@ -1202,11 +1202,23 @@ function EditorTilesetPanel:getItemTarget(item)
         elseif item.kind == "terrain" then
             title = terrain.name or "Terrain Set"
             fields = {
-                field("ID", "id"), field("Name", "name"), field("Icon Tile", "tile_icon", true),
+                { label = "ID", get = function() return terrain.id end,
+                    set = function(value) return self.document:setTerrainId(terrain, value) end },
+                field("Name", "name"), field("Icon Tile", "tile_icon", true),
                 EditorPropertyFields.choice(terrain, "Fallback", "fallback_mode", {
                     { value = "closest", label = "Closest Match" },
                     { value = "strict", label = "Default Rule Only" }
-                }, { default = "closest" })
+                }, { default = "closest" }),
+                EditorPropertyFields.choice(terrain, "Connectivity", "connectivity", {
+                    { value = "continuous", label = "Continuous" },
+                    { value = "regions", label = "Separate Regions" }
+                }, { default = "continuous" }),
+                EditorPropertyFields.choice(terrain, "Region Shape", "region_shape", {
+                    { value = "freeform", label = "Freeform" },
+                    { value = "rectangle", label = "Rectangles" }
+                }, { default = "freeform" }),
+                field("Max Width (0 = Unlimited)", "region_max_width", true),
+                field("Max Height (0 = Unlimited)", "region_max_height", true)
             }
         elseif item.kind == "variant" then
             local variant = item.variant
@@ -1216,6 +1228,20 @@ function EditorTilesetPanel:getItemTarget(item)
                     set = function() return false end },
                 field("Name", "name"), EditorPropertyFields.color(variant, "Color", "color"),
                 field("Icon Tile", "tile_icon", true), field("Probability", "probability", true),
+                EditorPropertyFields.choice(variant, "Connectivity", "connectivity", {
+                    { value = "inherit", label = "Inherit from Set" },
+                    { value = "continuous", label = "Continuous" },
+                    { value = "regions", label = "Separate Regions" }
+                }, { default = "inherit" }),
+                EditorPropertyFields.choice(variant, "Region Shape", "region_shape", {
+                    { value = "inherit", label = "Inherit from Set" },
+                    { value = "freeform", label = "Freeform" },
+                    { value = "rectangle", label = "Rectangles" }
+                }, { default = "inherit" }),
+                EditorPropertyFields.value(variant, "Max Width (-1 = Inherit)",
+                    "region_max_width", { numeric = true, default = -1 }),
+                EditorPropertyFields.value(variant, "Max Height (-1 = Inherit)",
+                    "region_max_height", { numeric = true, default = -1 }),
                 { label = "Tags", get = function() return formatTags(variant.tags) end,
                     set = function(value) variant.tags = parseTags(self.document, value) return true end }
             }

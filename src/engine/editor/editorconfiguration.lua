@@ -174,7 +174,18 @@ function EditorConfiguration:registerEditorTools()
     })
     editor.tool_registry:register("terrain_brush", {
         name = "Terrain Brush", short_name = "Terrain", icon = "editor/ui/tool/brush_terrain",
-        keybind = "editor_tool_terrain_brush"
+        keybind = "editor_tool_terrain_brush", toolbar_group = "terrain",
+        terrain_tool = true
+    })
+    editor.tool_registry:register("terrain_region_rect", {
+        name = "Terrain Region Rectangle", short_name = "Region Rectangle",
+        icon = "editor/ui/tool/terrain_region_rect", keybind = "editor_tool_terrain_region_rect",
+        toolbar_group = "terrain", terrain_tool = true
+    })
+    editor.tool_registry:register("terrain_region_select", {
+        name = "Select Terrain Region", short_name = "Region Select",
+        icon = "editor/ui/tool/terrain_region_select", keybind = "editor_tool_terrain_region_select",
+        toolbar_group = "terrain", terrain_tool = true
     })
     editor.tool_registry:register("tile_fill", {
         name = "Tile Fill", short_name = "Fill", icon = "editor/ui/tool/bucket",

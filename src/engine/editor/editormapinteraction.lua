@@ -23,7 +23,7 @@ function EditorMapInteraction:setActiveTool(id)
     if document and document.editor_world and document.map_view and self.layers_browser then
         self.layers_browser:setDocument(document, document.map_view:getFocusedMapId())
     end
-    if id == "terrain_brush" and self.terrain_palette_panel then
+    if tool.terrain_tool and self.terrain_palette_panel then
         if not self.terrain_palette_panel.visible then
             self.dockspace:setPanelVisible(self.terrain_palette_panel, true)
         end
@@ -31,7 +31,11 @@ function EditorMapInteraction:setActiveTool(id)
             self.terrain_palette_panel.stack:setActivePanel(self.terrain_palette_panel)
         end
         if self.message_bar then
-            self.message_bar:setStatus("Terrain Brush: left-drag to paint, right-drag to erase")
+            self.message_bar:setStatus(id == "terrain_region_select"
+                and "Terrain Region Select: click a region to select all of its cells"
+                or id == "terrain_region_rect"
+                    and "Terrain Region Rectangle: drag to create regions, right-drag to erase"
+                    or "Terrain Brush: left-drag to paint or extend a region, right-drag to erase")
         end
     end
     self.placement_object_id = id == "object" and self.selected_object_id or nil

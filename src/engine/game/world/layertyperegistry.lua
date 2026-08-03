@@ -52,13 +52,15 @@ local DEFAULT_KINDS = {
             "tileset",
             "tileset_columns",
             "tileset_rows",
+            "terrain_regions",
             "chunks",
         },
         extra_format = {
             ["chunks"] = {
                 "x",
                 "y",
-                "tile_data"
+                "tile_data",
+                "terrain_data"
             }
         }
     },
