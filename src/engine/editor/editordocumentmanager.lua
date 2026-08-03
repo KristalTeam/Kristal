@@ -646,14 +646,15 @@ function EditorDocumentManager:removeMapFromView(id, document)
     return document and document:removeMap(id) or false
 end
 
-function EditorDocumentManager:removeMapDocument(document)
+function EditorDocumentManager:removeMapDocument(document, options)
     local self = self.editor
+    options = options or {}
     local remove_index
     for index, candidate in ipairs(self.map_documents) do
         if candidate == document then remove_index = index break end
     end
     if not remove_index then return false end
-    if document:isDirty() then
+    if document:isDirty() and not options.discard then
         local name = document.editor_world and document.world
             and (document.world.name or document.world.id)
             or document.primary_map_id or document.panel.title

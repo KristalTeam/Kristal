@@ -717,7 +717,7 @@ function EditorTilesetPanel:refreshList(selected)
             local item_value = list_item.data and (list_item.data.value or list_item.data)
             if item_value == selected_value then selected_index = index break end
         end
-        self.list:select(selected_index)
+        self.list:select(selected_index, false, false)
         self:selectItem(self.list:getSelectedItem().data)
     else
         self.properties:setTarget(nil)

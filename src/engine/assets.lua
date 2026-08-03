@@ -18,6 +18,7 @@ local self = Assets
 ---@class Assets.data
 ---@field texture table<string, love.Image>
 ---@field texture_data table<string, love.ImageData>
+---@field texture_paths table<string, string>
 ---@field frames table<string, love.Image[]>
 ---@field frame_ids table<string, string[]>
 ---@field fonts table<string, love.Font|{default: number, [number]: love.Font}>
@@ -56,6 +57,7 @@ function Assets.clear()
     self.data = {
         texture = {},
         texture_data = {},
+        texture_paths = {},
         frame_ids = {},
         frames = {},
         fonts = {},
@@ -294,13 +296,10 @@ function Assets.getTexture(path)
     return self.data.texture[path]
 end
 
----Resolves either an asset id or a path-shaped sprite reference through the
----merged engine/library/project texture registry.
 ---@param reference string
----@return love.Image? texture
----@return string? id
-function Assets.resolveTextureReference(reference)
-    if type(reference) ~= "string" or reference == "" then return nil end
+---@return string[]
+function Assets.getTextureReferenceCandidates(reference)
+    if type(reference) ~= "string" or reference == "" then return {} end
     local normalized = reference:gsub("\\", "/"):gsub("^%./", "")
     local candidates, seen = {}, {}
     local function add(candidate)
@@ -321,11 +320,48 @@ function Assets.resolveTextureReference(reference)
     if marker_start then add(normalized:sub(marker_start + #marker)) end
     if StringUtils.startsWith(normalized, "sprites/") then add(normalized:sub(9)) end
 
-    for _, id in ipairs(candidates) do
+    return candidates
+end
+
+---Resolves either an asset id or a path-shaped sprite reference through the
+---merged engine/library/project texture registry.
+---@param reference string
+---@return love.Image? texture
+---@return string? id
+function Assets.resolveTextureReference(reference)
+    for _, id in ipairs(self.getTextureReferenceCandidates(reference)) do
         local texture = self.getTexture(id)
         if texture then return texture, id end
     end
     return nil
+end
+
+---@param reference string
+---@return love.Image? texture
+---@return string? id
+---@return string? reason
+function Assets.reloadTextureReference(reference)
+    for _, id in ipairs(self.getTextureReferenceCandidates(reference)) do
+        local path = (self.data.texture_paths or {})[id]
+        if path then
+            local success, image_data = pcall(love.image.newImageData, path)
+            if not success then return nil, id, tostring(image_data) end
+            local image = love.graphics.newImage(image_data)
+            local previous = self.data.texture[id]
+            if previous then self.texture_ids[previous] = nil end
+            self.data.texture_data[id] = image_data
+            self.data.texture[id] = image
+            self.texture_ids[image] = id
+            local frame = self.frames_for[id]
+            if frame and self.data.frames[frame[1]] then
+                self.data.frames[frame[1]][frame[2]] = image
+            end
+            return image, id
+        end
+    end
+    local texture, id = self.resolveTextureReference(reference)
+    if texture then return texture, id end
+    return nil, nil, "Could not find the source file for image asset '" .. tostring(reference) .. "'"
 end
 
 ---@param path string

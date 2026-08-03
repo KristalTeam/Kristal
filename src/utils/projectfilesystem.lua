@@ -15,6 +15,18 @@ end
 function ProjectFileSystem.getProjectSourceRoot()
     if not Mod or not Mod.info or not Mod.info.path then return nil, "No project is loaded" end
     local project_path = FileSystemUtils.normalizeSlashes(Mod.info.path):gsub("/+$", "")
+    local roots = {
+        love.filesystem.getSaveDirectory(),
+        love.filesystem.getSourceBaseDirectory()
+    }
+    for _, root in ipairs(roots) do
+        root = FileSystemUtils.normalizeSlashes(root):gsub("/+$", "")
+        local manifest = io.open(root .. "/" .. project_path .. "/mod.json", "rb")
+        if manifest then
+            manifest:close()
+            return root
+        end
+    end
     local manifest_path = project_path .. "/mod.json"
     local source_root = love.filesystem.getRealDirectory(manifest_path)
     if not source_root then return nil, "Could not locate the active project on disk" end

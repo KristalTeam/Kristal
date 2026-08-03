@@ -60,6 +60,8 @@ function EditorTilesetBrowser:createTileset()
         title = "Create Tileset", templates = { Registry.getEditorTemplate("core:tileset") },
         context = { defaults = { id = id } },
         on_create = function(values)
+            local valid, reason = self.editor:isValidContentId(values.id)
+            if not valid then return false, reason end
             for _, existing in ipairs(self.editor.tileset_documents) do
                 if existing.id == values.id then return false, "A tileset with that id already exists" end
             end
@@ -73,6 +75,7 @@ function EditorTilesetBrowser:createTileset()
             local tile_count = layout.count
             if type(image) == "table" then tile_count = #image end
             local data = {
+                id = values.id,
                 name = values.name,
                 image = image,
                 tile_width = values.tile_width,
@@ -84,7 +87,9 @@ function EditorTilesetBrowser:createTileset()
                 properties = {}, tiles = {}, terrains = {}
             }
             local document = EditorTilesetDocument(self.editor, values.id, nil, data)
-            document:refreshPreviewTileset()
+            local refreshed
+            refreshed, reason = document:refreshPreviewTileset()
+            if not refreshed then return false, reason end
             table.insert(self.editor.tileset_documents, document)
             self.editor.history.serial = self.editor.history.serial + 1
             document.history_revision = self.editor.history.serial
@@ -106,12 +111,9 @@ function EditorTilesetBrowser:openContextMenu(item, list, x, y)
             action = function() self.editor:saveTilesetDocumentToProject(item.data) end
         })
         table.insert(items, { label = "Rename", action = function() list:beginRename(item) end })
-        if item.data.virtual then
-            table.insert(items, { label = "Remove", action = function()
-                TableUtils.removeValue(self.editor.tileset_documents, item.data)
-                self:refresh()
-            end })
-        end
+        table.insert(items, { label = "Delete", action = function()
+            self.editor:deleteTilesetFromProject(item.data)
+        end })
     end
     local gx, gy = list:getGlobalPosition()
     self.editor.dockspace:openContextMenu(items, gx + x, gy + y, list)

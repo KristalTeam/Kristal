@@ -913,6 +913,8 @@ function EditorDockSpace:openContextSubmenu(menu, item)
     local font = EditorFont.get(16)
     local width = 120
     for _, child in ipairs(item.children) do
+        child.enabled = not child.is_enabled or child.is_enabled() ~= false
+        if child.get_checked then child.checked = child.get_checked() == true end
         width = math.max(width, font:getWidth(child.label) + (child.checked and 38 or 24))
     end
     local height = #item.children * 28
@@ -1026,7 +1028,7 @@ function EditorDockSpace:drawContextMenu()
             love.graphics.setColor(pointInRect(mouse_x, mouse_y, item_rect)
                 and self.theme.tab_active or self.theme.tab_inactive)
             love.graphics.rectangle("fill", item_rect.x, item_rect.y, item_rect.width, item_rect.height)
-            love.graphics.setColor(self.theme.text)
+            love.graphics.setColor(item.enabled and self.theme.text or { 0.48, 0.48, 0.52, 1 })
             if item.checked then love.graphics.print("*", item_rect.x + 8,
                 item_rect.y + math.floor((item_rect.height - font:getHeight()) / 2)) end
             love.graphics.print(item.label, item_rect.x + (item.checked and 24 or 12),

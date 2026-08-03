@@ -129,7 +129,10 @@ end
 function EditorTilesetDocument:adoptSavedTileset(tileset)
     self.tileset = tileset
     self.virtual = false
-    if tileset then tileset.data = self.data end
+    if tileset then
+        tileset.data = self.data
+        Registry.registerTileset(self.id, tileset)
+    end
 end
 
 function EditorTilesetDocument:refreshPreviewTileset()
@@ -147,7 +150,23 @@ function EditorTilesetDocument:refreshPreviewTileset()
         return false, tileset
     end
     self.tileset = tileset
+    Registry.registerTileset(self.id, tileset)
     if self.editor then self.editor:clearDiagnostics("tileset_preview") end
+    return true
+end
+
+function EditorTilesetDocument:reloadSourceImages()
+    local images = type(self.data.image) == "table"
+        and TableUtils.copy(self.data.image) or { self.data.image }
+    for _, tile in ipairs(self.data.tiles or {}) do
+        if tile.image then table.insert(images, tile.image) end
+    end
+    for _, image in ipairs(images) do
+        if type(image) == "string" and image ~= "" then
+            local texture, _, reason = Assets.reloadTextureReference(image)
+            if not texture then return false, reason end
+        end
+    end
     return true
 end
 

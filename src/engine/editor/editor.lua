@@ -591,6 +591,12 @@ function Editor:getTilesetSavePath(document) return self.project_io:getTilesetSa
 
 function Editor:getWorldSavePath(world) return self.project_io:getWorldSavePath(world) end
 
+function Editor:deleteMapFromProject(id) return self.project_io:deleteMapFromProject(id) end
+
+function Editor:deleteTilesetFromProject(document) return self.project_io:deleteTilesetFromProject(document) end
+
+function Editor:deleteWorldFromProject(world) return self.project_io:deleteWorldFromProject(world) end
+
 function Editor:commitFocusedTextInput() return self.project_io:commitFocusedTextInput() end
 
 function Editor:saveMapDocumentToProject(document, options) return self.project_io:saveMapDocumentToProject(document, options) end
@@ -1081,7 +1087,7 @@ function Editor:addMapToWorld(world, map_id) return self.document_manager:addMap
 
 function Editor:removeMapFromView(id, document) return self.document_manager:removeMapFromView(id, document) end
 
-function Editor:removeMapDocument(document) return self.document_manager:removeMapDocument(document) end
+function Editor:removeMapDocument(document, options) return self.document_manager:removeMapDocument(document, options) end
 
 function Editor:isGamePreviewMounted() return self.preview_controller:isGamePreviewMounted() end
 

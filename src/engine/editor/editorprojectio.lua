@@ -79,41 +79,196 @@ function EditorProjectIO:getContentSavePath(kind, id)
 end
 
 function EditorProjectIO:getMapSavePath(id)
-    local self = self.editor
     local data = Registry.getMapData(id)
     local reader = Registry.getMapReader(id)
     local path = data and data.full_path
     if reader and not reader.LEGACY_FORMAT and type(path) == "string"
         and path:sub(-#EditorFormat.MAP_EXTENSION) == EditorFormat.MAP_EXTENSION
-        and (path == Mod.info.path or StringUtils.startsWith(path, Mod.info.path .. "/")) then
+        and self:isProjectContentPath("map", path) then
         return path
     end
     return self:getContentSavePath("map", id)
 end
 
 function EditorProjectIO:getTilesetSavePath(document)
-    local self = self.editor
     local tileset = document and document.tileset
     local reader = tileset and tileset.reader
     local path = document and document.data and document.data.full_path
         or tileset and tileset.path
     if reader and not reader.LEGACY_FORMAT and type(path) == "string"
         and path:sub(-#EditorFormat.TILESET_EXTENSION) == EditorFormat.TILESET_EXTENSION
-        and (path == Mod.info.path or StringUtils.startsWith(path, Mod.info.path .. "/")) then
+        and self:isProjectContentPath("tileset", path) then
         return path
     end
     return self:getContentSavePath("tileset", document.id)
 end
 
 function EditorProjectIO:getWorldSavePath(world)
-    local self = self.editor
     local path = world and world.data and world.data.full_path
     if type(path) == "string"
         and path:sub(-#EditorFormat.WORLD_EXTENSION) == EditorFormat.WORLD_EXTENSION
-        and (path == Mod.info.path or StringUtils.startsWith(path, Mod.info.path .. "/")) then
+        and self:isProjectContentPath("world", path) then
         return path
     end
     return self:getContentSavePath("world", world.id)
+end
+
+function EditorProjectIO:isProjectContentPath(kind, path)
+    if type(path) ~= "string" or not Mod or not Mod.info then return false end
+    local directory = kind == "map" and Registry.paths.maps
+        or kind == "tileset" and Registry.paths.tilesets
+        or kind == "world" and EditorFormat.WORLD_DIRECTORY
+    if not directory then return false end
+    local root = FileSystemUtils.normalizeSlashes(Mod.info.path .. "/scripts/" .. directory):gsub("/+$", "")
+    path = FileSystemUtils.normalizeSlashes(path)
+    return StringUtils.startsWith(path, root .. "/")
+end
+
+function EditorProjectIO:confirmDelete(kind, name)
+    return love.window.showMessageBox(
+        "Delete " .. kind,
+        "Permanently delete '" .. tostring(name) .. "' from this project?",
+        { "Delete", "Cancel", escapebutton = 2 },
+        "warning",
+        true
+    ) == 1
+end
+
+function EditorProjectIO:deleteMapFromProject(id)
+    local editor = self.editor
+    local data = Registry.getMapData(id)
+    if not data and not Registry.hasMap(id) then return false end
+    for _, world in pairs(Registry.editor_worlds or {}) do
+        if world:hasMap(id) then
+            editor:addWarning("Could not delete map '" .. id .. "'",
+                "Remove it from world '" .. tostring(world.name or world.id) .. "' first.", "editor_delete")
+            return false
+        end
+    end
+    local path = data and data.full_path
+    if path and not self:isProjectContentPath("map", path) then
+        editor:addWarning("Could not delete map '" .. id .. "'",
+            "Only maps stored directly in the active project can be deleted.", "editor_delete")
+        return false
+    end
+    if not self:confirmDelete("Map", data and data.name or id) then return false end
+    if path and ProjectFileSystem.getInfo(path) then
+        local removed, reason = ProjectFileSystem.remove(path)
+        if not removed then
+            editor:addError("Could not delete map '" .. id .. "'", reason, "editor_delete")
+            return false
+        end
+    end
+    local documents = {}
+    for _, document in ipairs(editor.map_documents or {}) do
+        if document.primary_map_id == id then table.insert(documents, document) end
+    end
+    for _, document in ipairs(documents) do editor:removeMapDocument(document, { discard = true }) end
+    Registry.maps[id] = nil
+    Registry.map_data[id] = nil
+    if Registry.map_readers then Registry.map_readers[id] = nil end
+    editor.stale_runtime_maps[id] = nil
+    editor:clearDiagnostics("editor_delete")
+    editor:clearPropertiesTarget(editor.map_browser)
+    if editor.map_browser then editor.map_browser:refresh() end
+    return true
+end
+
+function EditorProjectIO:findTilesetReference(id)
+    local editor = self.editor
+    for _, document in ipairs(editor.map_documents or {}) do
+        for map_id in pairs(document.editable_layers or {}) do
+            for _, layer in ipairs(document:getAllEditableLayers(map_id)) do
+                if layer.tileset == id then return map_id end
+            end
+        end
+    end
+    for map_id, data in pairs(Registry.map_data or {}) do
+        local found = false
+        MapUtils.walkLayers(data.layers or {}, function(layer)
+            if layer.tileset == id then found = true end
+        end)
+        if found then return map_id end
+    end
+end
+
+function EditorProjectIO:deleteTilesetFromProject(document)
+    local editor = self.editor
+    if not document then return false end
+    local reference = self:findTilesetReference(document.id)
+    if reference then
+        editor:addWarning("Could not delete tileset '" .. document.id .. "'",
+            "It is still used by map '" .. reference .. "'.", "editor_delete")
+        return false
+    end
+    local path = document.data and document.data.full_path
+        or document.tileset and document.tileset.path
+    if not document.virtual and path and not self:isProjectContentPath("tileset", path) then
+        editor:addWarning("Could not delete tileset '" .. document.id .. "'",
+            "Only tilesets stored directly in the active project can be deleted.", "editor_delete")
+        return false
+    end
+    if not self:confirmDelete("Tileset", document:getName()) then return false end
+    if path and ProjectFileSystem.getInfo(path) then
+        local removed, reason = ProjectFileSystem.remove(path)
+        if not removed then
+            editor:addError("Could not delete tileset '" .. document.id .. "'", reason, "editor_delete")
+            return false
+        end
+    end
+    if editor.history then editor.history:forgetOwner(document) end
+    TableUtils.removeValue(editor.tileset_documents, document)
+    Registry.tilesets[document.id] = nil
+    if editor.active_tileset_document == document then
+        local replacement = editor.tileset_documents[1]
+        editor.active_tileset_document = nil
+        editor.active_tileset_id = nil
+        if replacement then
+            editor:setActiveTileset(replacement)
+        else
+            if editor.tile_palette then editor.tile_palette:setTilesetDocument(nil) end
+            if editor.terrain_palette then editor.terrain_palette:setDocument(nil) end
+            if editor.tileset_editor then editor.tileset_editor:setDocument(nil) end
+        end
+    end
+    editor:clearDiagnostics("editor_delete")
+    editor:clearPropertiesTarget(editor.tileset_browser)
+    if editor.tileset_browser then editor.tileset_browser:refresh() end
+    return true
+end
+
+function EditorProjectIO:deleteWorldFromProject(world)
+    local editor = self.editor
+    if not world then return false end
+    local path = world.data and world.data.full_path
+    if not world.virtual and path and not self:isProjectContentPath("world", path) then
+        editor:addWarning("Could not delete world '" .. world.id .. "'",
+            "Only worlds stored directly in the active project can be deleted.", "editor_delete")
+        return false
+    end
+    if not self:confirmDelete("World", world.name or world.id) then return false end
+    if path and ProjectFileSystem.getInfo(path) then
+        local removed, reason = ProjectFileSystem.remove(path)
+        if not removed then
+            editor:addError("Could not delete world '" .. world.id .. "'", reason, "editor_delete")
+            return false
+        end
+    end
+    local document = editor:findWorldDocument(world.id)
+    if document then editor:removeMapDocument(document, { discard = true }) end
+    Registry.editor_worlds[world.id] = nil
+    if editor.active_editor_world == world then
+        local replacement_id, replacement = next(Registry.editor_worlds)
+        editor.active_editor_world = replacement
+        editor.active_world_id = replacement_id
+    end
+    editor:clearDiagnostics("editor_delete")
+    editor:clearPropertiesTarget(editor.world_browser)
+    if editor.world_browser then
+        editor.world_browser:refresh(editor.active_world_id)
+        editor.world_browser:selectWorld(editor.active_editor_world)
+    end
+    return true
 end
 
 function EditorProjectIO:commitFocusedTextInput()
@@ -228,6 +383,11 @@ function EditorProjectIO:saveTilesetDocumentToProject(document)
     local self = self.editor
     if not document then return false end
     if not self:commitFocusedTextInput() then return false end
+    local reloaded, reload_reason = document:reloadSourceImages()
+    if not reloaded then
+        self:addError("Could not refresh tileset '" .. document.id .. "' images", reload_reason, "editor_save")
+        return false
+    end
     local data, reason = EditorFormatDocument.buildTilesetData(document)
     if not data then
         self:addError("Could not prepare tileset '" .. document.id .. "' for saving", reason, "editor_save")
