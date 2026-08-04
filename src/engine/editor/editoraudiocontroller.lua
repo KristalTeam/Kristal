@@ -8,7 +8,7 @@ function EditorAudioController:init(editor)
     self.editor = editor
 end
 
-local EDITOR_MUSIC = "edit"
+local EDITOR_MUSIC_DIRECTORY = "editor/"
 local EDITOR_MUSIC_VOLUME = 0.5
 local EDITOR_MUSIC_FADE_TIME = 1
 
@@ -27,6 +27,38 @@ function EditorAudioController:resetEditingMusic()
     self.editor_music_override_sequence = 0
     self.editor_music_fade_tokens = {}
     self.editing_music_started = false
+    self.editing_music_active = false
+    self.audio_controller:refreshEditingMusicPlaylist()
+end
+
+function EditorAudioController:refreshEditingMusicPlaylist()
+    local self = self.editor
+    self.editing_music_playlist = {}
+    for _, music in ipairs(TableUtils.getCaseInsensitiveSortedKeys(Assets.data.music)) do
+        if StringUtils.startsWith(music, EDITOR_MUSIC_DIRECTORY) then
+            table.insert(self.editing_music_playlist, music)
+        end
+    end
+    self.editing_music_index = #self.editing_music_playlist > 0 and 1 or 0
+    return self.editing_music_playlist
+end
+
+function EditorAudioController:playEditingMusicTrack(index, volume)
+    local self = self.editor
+    if not self.editing_music_playlist or #self.editing_music_playlist == 0 then return false end
+    self.editing_music_index = MathUtils.wrapIndex(index, #self.editing_music_playlist)
+    self.music:setLooping(false)
+    self.music:play(self.editing_music_playlist[self.editing_music_index], volume)
+    self.editing_music_started = self.music.source ~= nil
+    self.editing_music_active = self.editing_music_started
+    return self.editing_music_started
+end
+
+function EditorAudioController:update()
+    local self = self.editor
+    if not self.editing_music_active or not self.editing_music_started
+        or not self.music.started or self.music:isPlaying() then return end
+    self.audio_controller:playEditingMusicTrack(self.editing_music_index + 1, EDITOR_MUSIC_VOLUME)
 end
 
 function EditorAudioController:invalidateEditingMusicFade(music)
@@ -71,12 +103,13 @@ end
 function EditorAudioController:resumeEditingMusic(fade_time)
     local self = self.editor
     if not self.editing_music_started then
-        self.music:play(EDITOR_MUSIC, 0)
-        if not self.music.source then return false end
-        self.editing_music_started = true
+        if not self.audio_controller:playEditingMusicTrack(self.editing_music_index or 1, 0) then
+            return false
+        end
     elseif self.music:canResume() then
         self.music:resume()
     end
+    self.editing_music_active = true
     self:fadeEditingMusicIn(self.music, EDITOR_MUSIC_VOLUME,
         fade_time == nil and EDITOR_MUSIC_FADE_TIME or fade_time)
     return true
@@ -84,6 +117,7 @@ end
 
 function EditorAudioController:pauseEditingMusic(fade_time)
     local self = self.editor
+    self.editing_music_active = false
     return self:fadeEditingMusicOut(self.music, fade_time or 0)
 end
 
@@ -94,6 +128,7 @@ function EditorAudioController:stopBaseEditingMusic()
         self.music:stop()
     end
     self.editing_music_started = false
+    self.editing_music_active = false
 end
 
 function EditorAudioController:stopEditingMusic()

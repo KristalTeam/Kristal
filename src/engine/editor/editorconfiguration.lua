@@ -294,7 +294,7 @@ function EditorConfiguration:registerEditorSettings(session)
         set = function(value, editor) editor.darken_unselected_maps = value end
     })
     editor.settings:registerSetting("appearance", "appearance.editor_music", {
-        name = "Editor Music", type = "boolean", default = true,
+        name = "Editor Music", type = "boolean", default = false,
         set = function(value, editor)
             editor.editor_music_enabled = value
             if editor.music then editor:syncEditingMusic() end
