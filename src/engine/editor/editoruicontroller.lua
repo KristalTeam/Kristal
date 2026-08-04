@@ -425,7 +425,11 @@ function EditorUIController:closeCreationDialog(created)
     if not dialog then return false end
     dialog:setFocus(nil)
     self.creation_dialog = nil
-    if self.message_bar and created then self.message_bar:setStatus("Created " .. (dialog.template.name or "item"), 4) end
+    if self.message_bar and created then
+        local message = type(dialog.success_message) == "function"
+            and dialog.success_message(dialog) or dialog.success_message
+        self.message_bar:setStatus(message or ("Created " .. (dialog.template.name or "item")), 4)
+    end
     return true
 end
 

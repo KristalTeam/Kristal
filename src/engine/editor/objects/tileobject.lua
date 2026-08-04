@@ -38,6 +38,10 @@ function EditorTileObject:createObject(map, context)
         self.width, self.height, self.rotation, self.flip_x, self.flip_y)
 end
 
+function EditorTileObject:hasExportPreview()
+    return self.tileset ~= nil and self.tile_id ~= nil
+end
+
 function EditorTileObject:draw(alpha)
     if not self.visible or not self.tileset or self.tile_id == nil then return end
     alpha = alpha or 1

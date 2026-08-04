@@ -23,6 +23,7 @@
 ---@field focused_control EditorControl?
 ---@field captured_control EditorControl?
 ---@field error_message string?
+---@field success_message string|function?
 ---@field form_scroll number
 ---@field form_content_height number
 ---@field panel_x number
@@ -182,6 +183,7 @@ function EditorCreationDialog:init(editor, options)
     self.context = options.context or {}
     self.on_create = options.on_create
     self.on_cancel = options.on_cancel
+    self.success_message = options.success_message
     self.template_values = {}
     self.form_rows = {}
     self.focusables = {}

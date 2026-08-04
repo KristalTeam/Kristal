@@ -244,6 +244,14 @@ function EditorObject:getTexture()
     return nil, false
 end
 
+function EditorObject:hasExportPreview()
+    if self.runtime_type == "marker" then return false end
+    local texture, marker = self:getTexture()
+    if not texture or marker then return false end
+    local texture_id = Assets.getTextureID(texture) or self.sprite
+    return type(texture_id) == "string" and not StringUtils.startsWith(texture_id, "editor/")
+end
+
 function EditorObject:draw(alpha)
     if not self.visible then return end
     alpha = alpha or 1

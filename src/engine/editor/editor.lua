@@ -5,6 +5,7 @@
 ---@field configuration EditorConfiguration
 ---@field document_manager EditorDocumentManager
 ---@field project_io EditorProjectIO
+---@field map_exporter EditorMapExporter
 ---@field ui_controller EditorUIController
 ---@field workspace_controller EditorWorkspaceController
 ---@field map_interaction EditorMapInteraction
@@ -153,6 +154,7 @@ function Editor:init()
     self.configuration = EditorConfiguration(self)
     self.document_manager = EditorDocumentManager(self)
     self.project_io = EditorProjectIO(self)
+    self.map_exporter = EditorMapExporter(self)
     self.ui_controller = EditorUIController(self)
     self.workspace_controller = EditorWorkspaceController(self)
     self.map_interaction = EditorMapInteraction(self)
@@ -235,6 +237,8 @@ function Editor:registerMenuBar() return self.configuration:registerMenuBar() en
 function Editor:registerEditorTools() return self.configuration:registerEditorTools() end
 
 function Editor:registerEditorSettings(session) return self.configuration:registerEditorSettings(session) end
+
+function Editor:openMapExportDialog(kind) return self.map_exporter:openDialog(kind) end
 
 function Editor:setupTilesetDocuments(session) return self.document_manager:setupTilesetDocuments(session) end
 
