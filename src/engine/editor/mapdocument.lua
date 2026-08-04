@@ -87,7 +87,9 @@ function EditorMapDocument:captureHistoryState()
             explicit_companion = entry.explicit_companion == true,
             primary = entry.id == self.primary_map_id,
             map_width = data and data.width,
-            map_height = data and data.height
+            map_height = data and data.height,
+            parallax_origin_x = data and data.parallax_origin_x,
+            parallax_origin_y = data and data.parallax_origin_y
         })
         if data then
             map_format_extensions[entry.id] = {
@@ -129,6 +131,8 @@ function EditorMapDocument:restoreHistoryState(state)
         if data then
             data.width = saved.map_width or data.width
             data.height = saved.map_height or data.height
+            data.parallax_origin_x = saved.parallax_origin_x
+            data.parallax_origin_y = saved.parallax_origin_y
         end
         local entry = world:addMap(saved.id, saved.x, saved.y, {
             explicit_companion = saved.explicit_companion
@@ -506,40 +510,81 @@ function EditorMapDocument:setMapPosition(id, x, y)
     return self.world:setMapPosition(id, x, y)
 end
 
-function EditorMapDocument:resizeTileLayer(layer, old_map_width, old_map_height, width, height)
-    local old_width = math.max(0, tonumber(layer.width) or old_map_width)
-    local old_height = math.max(0, tonumber(layer.height) or old_map_height)
-    local new_width = (layer.width == nil or old_width == old_map_width) and width or old_width
-    local new_height = (layer.height == nil or old_height == old_map_height) and height or old_height
-    if old_width == new_width and old_height == new_height then return false end
+function EditorMapDocument:resizeTileLayer(layer, transform)
+    local old_width = math.max(0, tonumber(layer.width) or transform.old_width)
+    local old_height = math.max(0, tonumber(layer.height) or transform.old_height)
+    local follows_width = layer.width == nil or old_width == transform.old_width
+    local follows_height = layer.height == nil or old_height == transform.old_height
+    local new_width = follows_width and transform.width or old_width
+    local new_height = follows_height and transform.height or old_height
+    local column_offset = follows_width and transform.column_offset or 0
+    local row_offset = follows_height and transform.row_offset or 0
+    local tile_width, tile_height = self:getTileLayerCellSize(layer, transform.map_id)
+
+    layer.offsetx = (layer.offsetx or 0)
+        + transform.content_offset_x - column_offset * tile_width
+    layer.offsety = (layer.offsety or 0)
+        + transform.content_offset_y - row_offset * tile_height
+
+    if old_width == new_width and old_height == new_height
+        and column_offset == 0 and row_offset == 0 then return true end
 
     if layer.chunks then
         local size = EditorFormat.CHUNK_SIZE
-        for chunk_index = #layer.chunks, 1, -1 do
-            local chunk = layer.chunks[chunk_index]
-            chunk.tile_data = chunk.tile_data or {}
-            local occupied = false
+        local chunks, chunk_lookup = {}, {}
+        local function getTargetChunk(column, row)
+            local chunk_x = math.floor(column / size) * size
+            local chunk_y = math.floor(row / size) * size
+            local key = chunk_x .. ":" .. chunk_y
+            local chunk = chunk_lookup[key]
+            if chunk then return chunk end
+            chunk = { x = chunk_x, y = chunk_y, tile_data = {} }
+            for index = 1, size * size do chunk.tile_data[index] = 0 end
+            chunk_lookup[key] = chunk
+            table.insert(chunks, chunk)
+            return chunk
+        end
+        for _, source in ipairs(layer.chunks) do
             for index = 1, size * size do
-                local column = (chunk.x or 0) + ((index - 1) % size)
-                local row = (chunk.y or 0) + math.floor((index - 1) / size)
-                if column < 0 or row < 0 or column >= new_width or row >= new_height then
-                    chunk.tile_data[index] = 0
-                    if chunk.terrain_data then chunk.terrain_data[index] = 0 end
-                elseif chunk.tile_data[index] and chunk.tile_data[index] ~= 0
-                    or chunk.terrain_data and chunk.terrain_data[index]
-                        and chunk.terrain_data[index] ~= 0 then
-                    occupied = true
+                local tile = source.tile_data and source.tile_data[index] or 0
+                local terrain = source.terrain_data and source.terrain_data[index] or 0
+                if tile ~= 0 or terrain ~= 0 then
+                    local column = (source.x or 0) + ((index - 1) % size) + column_offset
+                    local row = (source.y or 0) + math.floor((index - 1) / size) + row_offset
+                    if column >= 0 and row >= 0 and column < new_width and row < new_height then
+                        local target = getTargetChunk(column, row)
+                        local target_index = (column - target.x) + (row - target.y) * size + 1
+                        target.tile_data[target_index] = tile
+                        if terrain ~= 0 then
+                            if not target.terrain_data then
+                                target.terrain_data = {}
+                                for terrain_index = 1, size * size do
+                                    target.terrain_data[terrain_index] = 0
+                                end
+                            end
+                            target.terrain_data[target_index] = terrain
+                        end
+                    end
                 end
             end
-            if not occupied then table.remove(layer.chunks, chunk_index) end
         end
+        table.sort(chunks, function(a, b)
+            return a.y == b.y and a.x < b.x or a.y < b.y
+        end)
+        layer.chunks = chunks
     elseif type(layer.data) == "table" then
         local resized = {}
         for index = 1, new_width * new_height do resized[index] = 0 end
-        for row = 0, math.min(old_height, new_height) - 1 do
-            for column = 0, math.min(old_width, new_width) - 1 do
-                resized[column + row * new_width + 1] =
-                    layer.data[column + row * old_width + 1] or 0
+        for row = 0, old_height - 1 do
+            local target_row = row + row_offset
+            if target_row >= 0 and target_row < new_height then
+                for column = 0, old_width - 1 do
+                    local target_column = column + column_offset
+                    if target_column >= 0 and target_column < new_width then
+                        resized[target_column + target_row * new_width + 1] =
+                            layer.data[column + row * old_width + 1] or 0
+                    end
+                end
             end
         end
         layer.data = resized
@@ -549,30 +594,88 @@ function EditorMapDocument:resizeTileLayer(layer, old_map_width, old_map_height,
     return true
 end
 
-function EditorMapDocument:resizeMap(id, width, height)
+function EditorMapDocument:resizeObjectLayer(layer, transform)
+    for _, object in ipairs(layer.objects or {}) do
+        object.x = (object.x or 0) + transform.content_offset_x
+        object.y = (object.y or 0) + transform.content_offset_y
+    end
+    return true
+end
+
+function EditorMapDocument:resizeImageLayer(layer, transform)
+    layer.offsetx = (layer.offsetx or 0) + transform.content_offset_x
+    layer.offsety = (layer.offsety or 0) + transform.content_offset_y
+    return true
+end
+
+function EditorMapDocument:resizeMapExtensions(data, transform)
+    local extensions = Registry.editor_format_extensions
+    if not extensions then return end
+    local context = { document = self, map = data, map_id = transform.map_id }
+    for _, definition in ipairs(extensions:getMapExtensions()) do
+        local value = data.extensions and data.extensions[definition.id]
+        if value ~= nil and definition.resize then
+            local resized = definition.resize(value, transform, context, definition)
+            if resized ~= nil then data.extensions[definition.id] = resized end
+        end
+    end
+end
+
+function EditorMapDocument:resizeMap(id, bounds, legacy_height)
     id = id or self.primary_map_id
     local data = Registry.getMapData(id)
     local entry = self.map_lookup[id]
     if not data or not entry then return false, "Unknown map '" .. tostring(id) .. "'" end
-    width = math.max(1, math.floor(tonumber(width) or 0))
-    height = math.max(1, math.floor(tonumber(height) or 0))
+    if type(bounds) ~= "table" then bounds = { width = bounds, height = legacy_height } end
+    local width = math.max(1, math.floor(tonumber(bounds.width) or 0))
+    local height = math.max(1, math.floor(tonumber(bounds.height) or 0))
+    local left = math.floor(tonumber(bounds.left) or 0)
+    local top = math.floor(tonumber(bounds.top) or 0)
     local old_width = math.max(1, math.floor(tonumber(data.width) or 1))
     local old_height = math.max(1, math.floor(tonumber(data.height) or 1))
-    if width == old_width and height == old_height then return false end
+    if width == old_width and height == old_height and left == 0 and top == 0 then return false end
+
+    local tile_width, tile_height = self:getTileLayerCellSize(nil, id)
+    local transform = {
+        map_id = id,
+        left = left,
+        top = top,
+        width = width,
+        height = height,
+        old_width = old_width,
+        old_height = old_height,
+        column_offset = -left,
+        row_offset = -top,
+        origin_delta_x = left * tile_width,
+        origin_delta_y = top * tile_height,
+        content_offset_x = -left * tile_width,
+        content_offset_y = -top * tile_height,
+        tile_width = tile_width,
+        tile_height = tile_height
+    }
 
     for _, layer in ipairs(self:getAllEditableLayers(id)) do
-        local layer_type = Registry.getLayerType(layer._editor_type_id)
-        if layer_type and layer_type.kind == "tile" then
-            self:resizeTileLayer(layer, old_width, old_height, width, height)
+        Registry.layer_types:resizeLayer(layer, transform, {
+            document = self, map = data, map_id = id
+        })
+        if Registry.layer_types:getLayerKind(layer) == "tile" then
             self:removeUnusedTerrainRegions(layer, id)
         end
     end
+    self:resizeMapExtensions(data, transform)
+    if type(data.parallax_origin_x) == "number" then
+        data.parallax_origin_x = data.parallax_origin_x + transform.content_offset_x
+    end
+    if type(data.parallax_origin_y) == "number" then
+        data.parallax_origin_y = data.parallax_origin_y + transform.content_offset_y
+    end
     data.width, data.height = width, height
-    local tile_width, tile_height = self:getTileLayerCellSize(nil, id)
+    entry.x = entry.x + transform.origin_delta_x
+    entry.y = entry.y + transform.origin_delta_y
     entry.width, entry.height = width * tile_width, height * tile_height
     entry.tile_width, entry.tile_height = tile_width, tile_height
     self:invalidatePreview(id)
-    return true
+    return true, transform
 end
 
 function EditorMapDocument:removeMap(id)

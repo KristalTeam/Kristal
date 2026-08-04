@@ -607,31 +607,32 @@ function EditorMapView:getResizableMap()
 end
 
 function EditorMapView:getMapResizeHandleAt(world_x, world_y)
-    local entry = self.map_resize_drag and self.map_resize_drag.entry or self:getResizableMap()
+    local entry = self:getResizableMap()
     if not entry then return nil end
-    local width = self.map_resize_drag and self.map_resize_drag.width * (entry.tile_width or 40)
-        or entry.width
-    local height = self.map_resize_drag and self.map_resize_drag.height * (entry.tile_height or 40)
-        or entry.height
+    local width, height = entry.width, entry.height
     if not width or not height then return nil end
     local distance = 10 / self.view_zoom
-    local right, bottom = entry.x + width, entry.y + height
-    if math.abs(world_x - right) <= distance and math.abs(world_y - bottom) <= distance then
-        return entry, "se"
-    end
-    if math.abs(world_x - right) <= distance
-        and math.abs(world_y - (entry.y + height / 2)) <= distance then
-        return entry, "e"
-    end
-    if math.abs(world_x - (entry.x + width / 2)) <= distance
-        and math.abs(world_y - bottom) <= distance then
-        return entry, "s"
+    local left, top = entry.x, entry.y
+    local center_x, center_y = left + width / 2, top + height / 2
+    local right, bottom = left + width, top + height
+    local handles = {
+        { "nw", left, top }, { "ne", right, top },
+        { "sw", left, bottom }, { "se", right, bottom },
+        { "n", center_x, top }, { "s", center_x, bottom },
+        { "w", left, center_y }, { "e", right, center_y }
+    }
+    for _, handle in ipairs(handles) do
+        if math.abs(world_x - handle[2]) <= distance
+            and math.abs(world_y - handle[3]) <= distance then
+            return entry, handle[1]
+        end
     end
 end
 
 function EditorMapView:getMapResizeCursor(handle)
-    if handle == "e" then return "resize_hori" end
-    if handle == "s" then return "resize_vert" end
+    if handle == "e" or handle == "w" then return "resize_hori" end
+    if handle == "n" or handle == "s" then return "resize_vert" end
+    if handle == "ne" or handle == "sw" then return "resize_diag_r" end
     return "resize_diag_l"
 end
 
@@ -640,27 +641,31 @@ function EditorMapView:drawMapResizeHandles()
     local entry = drag and drag.entry or self:getResizableMap()
     if not entry then return end
     local tile_width, tile_height = entry.tile_width or 40, entry.tile_height or 40
+    local left = drag and drag.left or 0
+    local top = drag and drag.top or 0
     local width = drag and drag.width * tile_width or entry.width
     local height = drag and drag.height * tile_height or entry.height
+    local x, y = entry.x + left * tile_width, entry.y + top * tile_height
     if not width or not height then return end
 
     love.graphics.setLineWidth(2 / self.view_zoom)
     Draw.setColor(drag and { 1, 0.84, 0.2, 0.95 } or { 0.45, 0.72, 1, 0.95 })
-    love.graphics.rectangle("line", entry.x, entry.y, width, height)
+    love.graphics.rectangle("line", x, y, width, height)
     local size = 8 / self.view_zoom
-    love.graphics.rectangle("fill", entry.x + width - size / 2,
-        entry.y + height / 2 - size / 2, size, size)
-    love.graphics.rectangle("fill", entry.x + width / 2 - size / 2,
-        entry.y + height - size / 2, size, size)
-    love.graphics.rectangle("fill", entry.x + width - size / 2,
-        entry.y + height - size / 2, size, size)
+    for _, point in ipairs({
+        { x, y }, { x + width / 2, y }, { x + width, y },
+        { x, y + height / 2 }, { x + width, y + height / 2 },
+        { x, y + height }, { x + width / 2, y + height }, { x + width, y + height }
+    }) do
+        love.graphics.rectangle("fill", point[1] - size / 2, point[2] - size / 2, size, size)
+    end
 
     if drag then
         local text = string.format("%d × %d", drag.width, drag.height)
         local font = EditorFont.get(14)
         local text_width = font:getWidth(text)
         love.graphics.push()
-        love.graphics.translate(entry.x + width, entry.y + height)
+        love.graphics.translate(x + width, y + height)
         love.graphics.scale(1 / self.view_zoom)
         Draw.setColor(0.04, 0.04, 0.05, 0.9)
         love.graphics.rectangle("fill", -text_width - 12, -font:getHeight() - 12,
@@ -670,6 +675,14 @@ function EditorMapView:drawMapResizeHandles()
         love.graphics.print(text, -text_width - 6, -font:getHeight() - 8)
         love.graphics.pop()
     end
+end
+
+function EditorMapView:cancelMapResize()
+    if not self.map_resize_drag then return false end
+    self.map_resize_drag = nil
+    self.editor:cancelHistoryTransaction()
+    if self.editor.message_bar then self.editor.message_bar:setStatus("Cancelled map resize") end
+    return true
 end
 
 function EditorMapView:getTileSelectionCells(selection, column_offset, row_offset)
@@ -682,6 +695,71 @@ function EditorMapView:getTileSelectionCells(selection, column_offset, row_offse
         end
     end
     return cells
+end
+
+function EditorMapView:getTileSelectionBounds(selection)
+    local left, top, right, bottom
+    for _, cell in ipairs(self:getTileSelectionCells(selection)) do
+        left = math.min(left or cell[1], cell[1])
+        top = math.min(top or cell[2], cell[2])
+        right = math.max(right or cell[1], cell[1])
+        bottom = math.max(bottom or cell[2], cell[2])
+    end
+    if left == nil then return nil end
+    return left, top, right, bottom
+end
+
+function EditorMapView:canCropMapToTileSelection(map_id)
+    local selection = self.tile_selection
+    map_id = map_id or selection and selection.map_id
+    if not selection or selection.map_id ~= map_id or not self.document.map_lookup[map_id] then
+        return false
+    end
+    local left, top, right, bottom = self:getTileSelectionBounds(selection)
+    if left == nil then return false end
+    local data = Registry.getMapData(map_id) or {}
+    return left ~= 0 or top ~= 0
+        or right - left + 1 ~= tonumber(data.width)
+        or bottom - top + 1 ~= tonumber(data.height)
+end
+
+function EditorMapView:remapTileSelection(transform)
+    local selection = self.tile_selection
+    if not selection or selection.map_id ~= transform.map_id then return end
+    local cells = {}
+    for _, cell in ipairs(self:getTileSelectionCells(selection)) do
+        local column = cell[1] + transform.column_offset
+        local row = cell[2] + transform.row_offset
+        if column >= 0 and row >= 0 and column < transform.width and row < transform.height then
+            cells[tileKey(column, row)] = true
+        end
+    end
+    selection.cells = cells
+    if not next(cells) then self.tile_selection = nil end
+end
+
+function EditorMapView:cropMapToTileSelection(map_id)
+    local selection = self.tile_selection
+    map_id = map_id or selection and selection.map_id
+    if not self:canCropMapToTileSelection(map_id) then return false end
+    local left, top, right, bottom = self:getTileSelectionBounds(selection)
+    local changed, transform = self.editor:performHistoryEdit(
+        "Crop Map to Selection", self.document, function()
+            return self.document:resizeMap(map_id, {
+                left = left,
+                top = top,
+                width = right - left + 1,
+                height = bottom - top + 1
+            })
+        end)
+    if not changed then return false end
+    self:remapTileSelection(transform)
+    if self.editor.message_bar then
+        self.editor.message_bar:setStatus(string.format(
+            "Cropped map '%s' to %d × %d tiles",
+            map_id, transform.width, transform.height))
+    end
+    return true
 end
 
 function EditorMapView:beginTileSelectionMove(world_x, world_y)
@@ -2342,6 +2420,7 @@ function EditorMapView:onMousePressed(x, y, button, presses)
         end
         local tool = self:getEffectiveTool()
         can_manipulate_objects = self:canManipulateObjectSelection()
+        if button == 2 and self:cancelMapResize() then return true end
         if self.tile_paste_preview then
             if button == 2 then return self:cancelTilePaste() end
             if button == 1 then
@@ -2359,13 +2438,19 @@ function EditorMapView:onMousePressed(x, y, button, presses)
             local entry, handle = self:getMapResizeHandleAt(world_x, world_y)
             if entry then
                 local data = Registry.getMapData(entry.id) or {}
+                local width = math.max(1, math.floor(tonumber(data.width)
+                    or entry.width / (entry.tile_width or 40)))
+                local height = math.max(1, math.floor(tonumber(data.height)
+                    or entry.height / (entry.tile_height or 40)))
                 self.map_resize_drag = {
                     entry = entry,
                     handle = handle,
-                    width = math.max(1, math.floor(tonumber(data.width)
-                        or entry.width / (entry.tile_width or 40))),
-                    height = math.max(1, math.floor(tonumber(data.height)
-                        or entry.height / (entry.tile_height or 40)))
+                    left = 0,
+                    top = 0,
+                    right = width,
+                    bottom = height,
+                    width = width,
+                    height = height
                 }
                 self.editor:beginHistoryTransaction("Resize Map", self.document)
                 return true
@@ -2406,7 +2491,17 @@ function EditorMapView:onMousePressed(x, y, button, presses)
                 end
                 return true
             end
-            return false
+            local entry = self:getMapAt(world_x, world_y)
+            if not entry then return false end
+            self:selectWorldMap(entry)
+            local global_x, global_y = self:getGlobalPosition()
+            return self.editor.dockspace:openContextMenu({
+                {
+                    label = "Crop Map to Selection",
+                    is_enabled = function() return self:canCropMapToTileSelection(entry.id) end,
+                    action = function() self:cropMapToTileSelection(entry.id) end
+                }
+            }, global_x + x, global_y + y, self)
         end
         if self.polygon_build and button == 2 then
             table.remove(self.polygon_build.points)
@@ -2681,18 +2776,25 @@ function EditorMapView:onMouseMoved(x, y, dx, dy)
     if self.map_resize_drag then
         local drag = self.map_resize_drag
         local tile_width, tile_height = drag.entry.tile_width or 40, drag.entry.tile_height or 40
-        if drag.handle == "e" or drag.handle == "se" then
-            drag.width = math.max(1,
-                MathUtils.round((world_x - drag.entry.x) / tile_width))
+        local column = MathUtils.round((world_x - drag.entry.x) / tile_width)
+        local row = MathUtils.round((world_y - drag.entry.y) / tile_height)
+        if drag.handle:find("w", 1, true) then
+            drag.left = math.min(drag.right - 1, column)
+        elseif drag.handle:find("e", 1, true) then
+            drag.right = math.max(drag.left + 1, column)
         end
-        if drag.handle == "s" or drag.handle == "se" then
-            drag.height = math.max(1,
-                MathUtils.round((world_y - drag.entry.y) / tile_height))
+        if drag.handle:find("n", 1, true) then
+            drag.top = math.min(drag.bottom - 1, row)
+        elseif drag.handle:find("s", 1, true) then
+            drag.bottom = math.max(drag.top + 1, row)
         end
+        drag.width = drag.right - drag.left
+        drag.height = drag.bottom - drag.top
         if self.editor.message_bar then
             self.editor.message_bar:setStatus(string.format(
-                "Resize Map: %d × %d tiles (%d × %d px)",
-                drag.width, drag.height, drag.width * tile_width, drag.height * tile_height))
+                "Resize Map: %d × %d tiles at (%d, %d) (%d × %d px)",
+                drag.width, drag.height, drag.left, drag.top,
+                drag.width * tile_width, drag.height * tile_height))
         end
         return true
     end
@@ -2842,8 +2944,14 @@ function EditorMapView:onMouseReleased(x, y, button, presses)
     if button == 1 and self.map_resize_drag then
         local drag = self.map_resize_drag
         self.map_resize_drag = nil
-        if self.document:resizeMap(drag.entry.id, drag.width, drag.height) then
-            self.tile_selection = nil
+        local changed, transform = self.document:resizeMap(drag.entry.id, {
+            left = drag.left,
+            top = drag.top,
+            width = drag.width,
+            height = drag.height
+        })
+        if changed then
+            self:remapTileSelection(transform)
             self.editor:markHistoryChanged()
             self.editor:commitHistoryTransaction()
             if self.editor.message_bar then
@@ -3058,6 +3166,7 @@ function EditorMapView:getCursorType(x, y)
 end
 
 function EditorMapView:onKeyPressed(key, is_repeat)
+    if not is_repeat and key == "escape" and self:cancelMapResize() then return true end
     if not is_repeat and key == "escape" and self:cancelTilePaste() then return true end
     if not is_repeat and key == "escape" and self.editor and self.editor.placement_object_id then
         self:cancelObjectRegion()

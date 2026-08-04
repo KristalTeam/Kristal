@@ -20,6 +20,8 @@ function EditorFormatRegistry:registerExtension(scope, id, definition)
         "Tileset format extensions must define both encode and decode, or neither")
     assert(definition.validate == nil or type(definition.validate) == "function",
         "Tileset format extension validate must be a function")
+    assert(definition.resize == nil or type(definition.resize) == "function",
+        "Map format extension resize must be a function")
     assert(definition.format == nil or type(definition.format) == "table",
         "Tileset format extension format must be an ordered field list")
 
