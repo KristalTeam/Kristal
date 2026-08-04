@@ -738,6 +738,15 @@ function EditorMapView:remapTileSelection(transform)
     if not next(cells) then self.tile_selection = nil end
 end
 
+function EditorMapView:preserveMapResizeCamera(transform, direction)
+    if not transform or transform.map_id ~= self.document.primary_map_id then return false end
+    direction = direction or 1
+    self:setCanvasPosition(
+        self.canvas_x + transform.origin_delta_x * self.view_zoom * direction,
+        self.canvas_y + transform.origin_delta_y * self.view_zoom * direction)
+    return true
+end
+
 function EditorMapView:cropMapToTileSelection(map_id)
     local selection = self.tile_selection
     map_id = map_id or selection and selection.map_id
@@ -745,14 +754,22 @@ function EditorMapView:cropMapToTileSelection(map_id)
     local left, top, right, bottom = self:getTileSelectionBounds(selection)
     local changed, transform = self.editor:performHistoryEdit(
         "Crop Map to Selection", self.document, function()
-            return self.document:resizeMap(map_id, {
+            local resized, resize_transform = self.document:resizeMap(map_id, {
                 left = left,
                 top = top,
                 width = right - left + 1,
                 height = bottom - top + 1
             })
+            if resized then
+                self.editor:setHistoryMetadata("map_resize", {
+                    document = self.document,
+                    transform = resize_transform
+                })
+            end
+            return resized, resize_transform
         end)
     if not changed then return false end
+    self:preserveMapResizeCamera(transform)
     self:remapTileSelection(transform)
     if self.editor.message_bar then
         self.editor.message_bar:setStatus(string.format(
@@ -2994,7 +3011,12 @@ function EditorMapView:onMouseReleased(x, y, button, presses)
             height = drag.height
         })
         if changed then
+            self:preserveMapResizeCamera(transform)
             self:remapTileSelection(transform)
+            self.editor:setHistoryMetadata("map_resize", {
+                document = self.document,
+                transform = transform
+            })
             self.editor:markHistoryChanged()
             self.editor:commitHistoryTransaction()
             if self.editor.message_bar then
