@@ -21,7 +21,7 @@ function item:init()
     self.description = "Ralsei's handmade book full of\nvarious tips and tricks."
 
     -- Default shop price (sell price is halved)
-    self.price = 0
+    self.price = 1
     -- Whether the item can be sold
     self.can_sell = false
 

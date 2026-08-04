@@ -19,9 +19,9 @@ function item:init()
     self.description = "Shoes from a prestigious dancer.\nRalsei's PACIFY costs 0% TP."
 
     -- Default shop price (sell price is halved)
-    self.price = 2
+    self.price = 0
     -- Whether the item can be sold
-    self.can_sell = true
+    self.can_sell = false
 
     -- Consumable target mode (ally, party, enemy, enemies, or none)
     self.target = "none"

@@ -19,9 +19,9 @@ function item:init()
     self.description = "The apron of a kind chef. The wearer\nrecovers 16% of their max HP after defending."
 
     -- Default shop price (sell price is halved)
-    self.price = 2
+    self.price = 0
     -- Whether the item can be sold
-    self.can_sell = true
+    self.can_sell = false
 
     -- Consumable target mode (ally, party, enemy, enemies, or none)
     self.target = "none"
