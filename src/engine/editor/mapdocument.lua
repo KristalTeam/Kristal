@@ -1724,15 +1724,21 @@ function EditorMapDocument:getPreview(entry)
     return entry.preview
 end
 
-function EditorMapDocument:drawPreview(entry, outline_width, map_selected)
+function EditorMapDocument:drawPreview(entry, outline_width, map_selected, options)
+    options = options or {}
     local preview = self:getPreview(entry)
     if not preview then return false end
     local map = preview.map
-    local darken_layers = not self.editor or self.editor.darken_unselected_layers ~= false
-    local darken_maps = not self.editor or self.editor.darken_unselected_maps ~= false
+    local exporting = options.export == true
+    local darken_layers = not exporting
+        and (not self.editor or self.editor.darken_unselected_layers ~= false)
+    local darken_maps = not exporting
+        and (not self.editor or self.editor.darken_unselected_maps ~= false)
     local map_alpha = darken_maps and map_selected == false and 0.35 or 1
-    Draw.setColor(map.bg_color or { 0, 0, 0, 0 }, map_alpha)
-    love.graphics.rectangle("fill", 0, 0, entry.width, entry.height)
+    if not exporting or options.include_background ~= false then
+        Draw.setColor(map.bg_color or { 0, 0, 0, 0 }, map_alpha)
+        love.graphics.rectangle("fill", 0, 0, entry.width, entry.height)
+    end
     Draw.setColor(1, 1, 1, 1)
     local drawables = {}
     local selected_uid = self:getSelectedLayer(entry.id)
@@ -1762,24 +1768,28 @@ function EditorMapDocument:drawPreview(entry, outline_width, map_selected)
         end
     end
     local offset = #drawables
-    for index, object in ipairs(preview.editor_objects or {}) do
-        local layer_visible, alpha = layerState(object.layer_uid)
-        if object.visible and layer_visible then
-            local _, sort_y = object:getSortPosition()
-            table.insert(drawables, {
-                layer = object.layer or 0, index = offset + index, sort_kind = 2,
-                sort_y = sort_y, value = object, alpha = alpha
-            })
+    if not exporting or options.include_objects ~= false then
+        for index, object in ipairs(preview.editor_objects or {}) do
+            local layer_visible, alpha = layerState(object.layer_uid)
+            if object.visible and layer_visible and (not exporting or object:hasExportPreview()) then
+                local _, sort_y = object:getSortPosition()
+                table.insert(drawables, {
+                    layer = object.layer or 0, index = offset + index, sort_kind = 2,
+                    sort_y = sort_y, value = object, alpha = alpha
+                })
+            end
         end
     end
-    offset = offset + #(preview.editor_objects or {})
-    for index, overlay in ipairs(preview.editor_overlays or {}) do
-        local layer_visible, alpha = layerState(overlay.layer_uid)
-        if overlay.visible and layer_visible then
-            table.insert(drawables, {
-                layer = overlay.layer or 0, index = offset + index, sort_kind = 3,
-                value = overlay, alpha = alpha
-            })
+    if not exporting then
+        offset = offset + #(preview.editor_objects or {})
+        for index, overlay in ipairs(preview.editor_overlays or {}) do
+            local layer_visible, alpha = layerState(overlay.layer_uid)
+            if overlay.visible and layer_visible then
+                table.insert(drawables, {
+                    layer = overlay.layer or 0, index = offset + index, sort_kind = 3,
+                    value = overlay, alpha = alpha
+                })
+            end
         end
     end
     table.sort(drawables, function(a, b)
@@ -1821,9 +1831,11 @@ function EditorMapDocument:drawPreview(entry, outline_width, map_selected)
         end
         if old_blend then love.graphics.setBlendMode(old_blend, old_alpha_mode) end
     end
-    for _, object in ipairs(preview.editor_objects or {}) do
-        local layer_visible, alpha = layerState(object.layer_uid)
-        if object.visible and layer_visible then object:drawBounds(alpha, outline_width) end
+    if not exporting then
+        for _, object in ipairs(preview.editor_objects or {}) do
+            local layer_visible, alpha = layerState(object.layer_uid)
+            if object.visible and layer_visible then object:drawBounds(alpha, outline_width) end
+        end
     end
     Draw.setColor(1, 1, 1, 1)
     return true

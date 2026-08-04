@@ -32,6 +32,16 @@ function EditorConfiguration:registerMenuBar()
         is_enabled = function() return editor:hasUnsavedChanges() end,
         on_activate = function() editor:saveAllDocuments() end
     })
+    editor.menu_bar:registerItem("file", "export_map_png", "Export Map as PNG...", {
+        is_enabled = function() return editor.active_document ~= nil end,
+        on_activate = function() editor:openMapExportDialog("map") end
+    })
+    editor.menu_bar:registerItem("file", "export_world_png", "Export World as PNG...", {
+        is_enabled = function()
+            return editor.active_document ~= nil and editor.active_document.editor_world == true
+        end,
+        on_activate = function() editor:openMapExportDialog("world") end
+    })
     editor.menu_bar:registerItem("file", "switch_project", "Switch Project...", {
         is_enabled = function() return editor:hasSwitchableProjects() end,
         on_activate = function() editor:openProjectSwitcher() end
