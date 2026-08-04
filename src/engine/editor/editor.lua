@@ -721,6 +721,13 @@ function Editor:onHistoryChanged(owners, restored, command, direction)
             end
         end
     end
+    local map_resize = command and command.metadata and command.metadata.map_resize
+    if restored and map_resize and map_resize.document and map_resize.transform then
+        local view = map_resize.document.map_view
+        if view then
+            view:preserveMapResizeCamera(map_resize.transform, direction == "undo" and -1 or 1)
+        end
+    end
     for _, owner in ipairs(owners or {}) do
         local editor_world = owner.world and owner.world.id
             and Registry.getEditorWorld(owner.world.id)
