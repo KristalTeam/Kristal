@@ -456,6 +456,11 @@ function EditorMapView:beginTileDrag(tool, world_x, world_y, erase_terrain)
         erase_terrain = erase_terrain == true,
         button = erase_terrain and 2 or 1
     }
+    if tool == "tile_select_rect" and drag.selection_mode == "replace" then
+        local selection = self:getTileSelection(target)
+        drag.clear_selection_on_click = selection ~= nil
+            and not selection.cells[tileKey(target.column, target.row)]
+    end
     if tool == "tile_select_rect" or tool == "tile_stamp" then
         self.tile_selection_drag = drag
     else
@@ -474,6 +479,9 @@ function EditorMapView:continueTileDrag(world_x, world_y)
     })
     if target and target.map_id == drag.target.map_id and target.layer == drag.target.layer then
         drag.current_column, drag.current_row = target.column, target.row
+        if target.column ~= drag.start_column or target.row ~= drag.start_row then
+            drag.moved = true
+        end
     end
     return true
 end
@@ -517,6 +525,10 @@ function EditorMapView:finishTileDrag()
     if not drag then return false end
     local cells = self:getTileDragCells(drag)
     if drag.tool == "tile_select_rect" then
+        if drag.clear_selection_on_click and not drag.moved then
+            self.tile_selection = nil
+            return true
+        end
         local selected = {}
         for _, cell in ipairs(cells) do selected[tileKey(cell[1], cell[2])] = true end
         return self:applyTileSelection(drag.target, selected, drag.selection_mode)
