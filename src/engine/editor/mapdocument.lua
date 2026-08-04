@@ -1627,8 +1627,10 @@ function EditorMapDocument:createPreview(entry)
     local data = Registry.getMapData(entry.id)
     if not data then return nil, "no registered map data is available" end
 
+    local preview_data = TableUtils.copy(data)
+    preview_data.layers = self:getEditableLayers(entry.id)
     local root = Object()
-    local map = Map(root, data)
+    local map = Map(root, preview_data)
     map.id = entry.id
     local editor_objects = {}
     local editor_overlays = {}
@@ -1676,7 +1678,7 @@ function EditorMapDocument:createPreview(entry)
                         offset_x = layer.offsetx or 0,
                         offset_y = layer.offsety or 0,
                         map_id = entry.id,
-                        map_data = data,
+                        map_data = preview_data,
                         map = map
                     }))
                 end
