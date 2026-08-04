@@ -907,6 +907,49 @@ function EditorMapView:drawTileCells(target, cells, fill_alpha)
     end
 end
 
+function EditorMapView:drawTileSelectionCells(target, cells, fill_alpha)
+    if not target then return end
+    local selected = {}
+    for _, cell in ipairs(cells) do
+        selected[tileKey(cell[1], cell[2])] = true
+        local x, y, width, height = self:getTileRect(target, cell[1], cell[2])
+        Draw.setColor(0.28, 0.66, 1, fill_alpha or 0.14)
+        love.graphics.rectangle("fill", x, y, width, height)
+    end
+
+    love.graphics.setLineWidth(1 / self.view_zoom)
+    Draw.setColor(0.52, 0.82, 1, 0.65)
+    for _, cell in ipairs(cells) do
+        local column, row = cell[1], cell[2]
+        local x, y, width, height = self:getTileRect(target, column, row)
+        if selected[tileKey(column + 1, row)] then
+            drawDashedLine(x + width, y, x + width, y + height, 3 / self.view_zoom)
+        end
+        if selected[tileKey(column, row + 1)] then
+            drawDashedLine(x, y + height, x + width, y + height, 3 / self.view_zoom)
+        end
+    end
+
+    love.graphics.setLineWidth(2 / self.view_zoom)
+    Draw.setColor(0.52, 0.82, 1, 0.95)
+    for _, cell in ipairs(cells) do
+        local column, row = cell[1], cell[2]
+        local x, y, width, height = self:getTileRect(target, column, row)
+        if not selected[tileKey(column, row - 1)] then
+            love.graphics.line(x, y, x + width, y)
+        end
+        if not selected[tileKey(column + 1, row)] then
+            love.graphics.line(x + width, y, x + width, y + height)
+        end
+        if not selected[tileKey(column, row + 1)] then
+            love.graphics.line(x, y + height, x + width, y + height)
+        end
+        if not selected[tileKey(column - 1, row)] then
+            love.graphics.line(x, y, x, y + height)
+        end
+    end
+end
+
 function EditorMapView:drawTilePastePreview(paste)
     local outline_cells = {}
     local preview = not paste.target.layer.chunks and self.document:getPreview(paste.target.entry)
@@ -940,7 +983,7 @@ function EditorMapView:drawTileSelection()
     local width, height = self.document:getTileLayerGridSize(selection.layer, selection.map_id)
     local target = { entry = entry, map_id = selection.map_id, layer = selection.layer,
         width = width, height = height }
-    self:drawTileCells(target, self:getTileSelectionCells(selection), 0.10)
+    self:drawTileSelectionCells(target, self:getTileSelectionCells(selection), 0.10)
 end
 
 function EditorMapView:getTileDragCells(drag)
@@ -972,7 +1015,7 @@ function EditorMapView:drawTileToolPreview()
     end
     local move = self.tile_selection_move
     if move then
-        self:drawTileCells(move.target, self:getTileSelectionCells(move.selection,
+        self:drawTileSelectionCells(move.target, self:getTileSelectionCells(move.selection,
             move.column_offset, move.row_offset), 0.24)
         return
     end
