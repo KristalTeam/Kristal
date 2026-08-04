@@ -16,6 +16,9 @@
 ---@field align_game_transition boolean
 ---@field music Music
 ---@field editing_music_started boolean?
+---@field editing_music_active boolean?
+---@field editing_music_playlist string[]?
+---@field editing_music_index integer?
 ---@field editor_music_enabled boolean?
 ---@field editor_music_override_player Music?
 ---@field editor_music_overrides table<any, table>?
@@ -555,6 +558,9 @@ function Editor:leave()
     self.game_preview_snapshot_save_id = nil
     self.game_music_suspended_by_editor = nil
     self.editing_music_started = nil
+    self.editing_music_active = nil
+    self.editing_music_playlist = nil
+    self.editing_music_index = nil
     self.editor_music_enabled = nil
     self.editor_music_override_player = nil
     self.editor_music_overrides = nil
@@ -931,6 +937,7 @@ function Editor:update()
         and self.source_state and self.source_state.update and not self.game_faulted then
         self:runGameCallback("update", function() self.source_state:update() end)
     end
+    self.audio_controller:update()
     local ui_width, ui_height = self:getUIDimensions()
     self.menu_bar:setBounds(0, 0, ui_width)
     self.message_bar:setBounds(0, ui_height - EditorMessageBar.HEIGHT, ui_width)
