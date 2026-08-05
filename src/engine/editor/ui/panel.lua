@@ -9,6 +9,7 @@
 ---@field minimum_width number
 ---@field on_activate function?
 ---@field on_remove function?
+---@field on_reopen function?
 ---@field on_visibility_changed function?
 ---@field preferred_height number
 ---@field preferred_width number
@@ -36,6 +37,7 @@ function EditorPanel:init(id, title, content, options)
     self.on_visibility_changed = options.on_visibility_changed
     self.recoverable = options.recoverable == true
     self.on_remove = options.on_remove
+    self.on_reopen = options.on_reopen
     self.stack = nil
     self.floating = nil
 end

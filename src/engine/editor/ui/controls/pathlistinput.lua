@@ -4,6 +4,7 @@
 ---@field clip boolean
 ---@field editor Editor
 ---@field maximum_visible_rows table
+---@field mixed boolean
 ---@field on_changed function?
 ---@field on_request_focus function?
 ---@field options table
@@ -29,7 +30,8 @@ function EditorPathListInput:init(editor, value, options)
     super.init(self, 0, 0, options.width or 260, 120)
     self.editor = editor
     self.options = options
-    self.value = copyPaths(value)
+    self.mixed = options.mixed == true
+    self.value = self.mixed and {} or copyPaths(value)
     self.on_changed = options.on_changed
     self.on_request_focus = options.on_request_focus
     self.row_height = 32
@@ -92,6 +94,7 @@ end
 
 function EditorPathListInput:submit(candidate, rebuild)
     if self.on_changed and self.on_changed(candidate, self) == false then return false end
+    self.mixed = false
     self.value = candidate
     if rebuild then self:rebuildRows() end
     return true
@@ -195,7 +198,7 @@ function EditorPathListInput:drawSelf()
     end
     if #self.rows == 0 then
         Draw.setColor(0.46, 0.46, 0.50, 1)
-        love.graphics.print("No images", 36, 34)
+        love.graphics.print(self.mixed and "--" or "No images", 36, 34)
     end
 end
 

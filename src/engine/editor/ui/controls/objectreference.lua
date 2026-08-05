@@ -9,6 +9,7 @@
 ---@field on_changed function?
 ---@field open_picker_on_release boolean
 ---@field options table
+---@field mixed boolean
 ---@field pending_drag boolean
 ---@field press_x number?
 ---@field press_y number?
@@ -23,6 +24,7 @@ function EditorObjectReferenceControl:init(editor, value, options)
     self.value = value
     self.on_changed = options.on_changed
     self.options = TableUtils.copy(options, true)
+    self.mixed = options.mixed == true
     self.focusable = true
     self.focused = false
     self.cursor_type = "link"
@@ -31,9 +33,11 @@ end
 
 function EditorObjectReferenceControl:setValue(value)
     self.value = value
+    self.mixed = false
 end
 
 function EditorObjectReferenceControl:getLabel()
+    if self.mixed then return "--" end
     if type(self.value) == "table" then
         if self.editor and self.editor.getObjectReferenceLabel then
             return self.editor:getObjectReferenceLabel(self.value)
@@ -54,6 +58,7 @@ function EditorObjectReferenceControl:openPicker()
         and options.allowed_types[1] == "marker" and "Choose Marker Reference" or "Choose Object Reference")
     options.on_apply = function(value)
         self.value = value
+        self.mixed = false
         if self.on_changed then return self.on_changed(value, self) end
     end
     return self.editor:openObjectReferencePicker(self.value, options) ~= nil
@@ -92,6 +97,7 @@ function EditorObjectReferenceControl:onMouseReleased(_, _, button)
         local value = self.editor:finishObjectReferenceDrag(x, y)
         if value then
             self.value = value
+            self.mixed = false
             if self.on_changed then self.on_changed(value, self) end
         end
     end

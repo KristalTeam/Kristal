@@ -6,6 +6,7 @@
 ---@field swatch ColorSwatchButton
 ---@field input EditorTextInput
 ---@field inputs EditorTextInput[]
+---@field mixed boolean
 ---@field preferred_height number
 ---@overload fun(editor: Editor, value?: string|table, options?: table): EditorColorInput
 local EditorColorInput, super = Class(EditorControl)
@@ -45,16 +46,17 @@ function EditorColorInput:init(editor, value, options)
     super.init(self, 0, 0, options.width or 180, 28)
     self.editor = editor
     self.on_submit = options.on_submit
+    self.mixed = options.mixed == true
     self.value = colorValue(value) or "#FFFFFFFF"
     self.swatch = self:addChild(ColorSwatchButton(function() self:openPicker() end,
-        function() return ColorUtils.tryHexToRGB(self.value) end))
+        function() return not self.mixed and ColorUtils.tryHexToRGB(self.value) or nil end))
     self.input = self:addChild(EditorTextInput({
         editor = editor,
-        placeholder = "#RRGGBB or #RRGGBBAA",
+        placeholder = self.mixed and "--" or "#RRGGBB or #RRGGBBAA",
         on_submit = function(input) return self:submitValue(input) end
     }))
     self.inputs = { self.input }
-    self.input:setValue(self.value, true)
+    self.input:setValue(self.mixed and "" or self.value, true)
     self.preferred_height = 28
 end
 
@@ -62,6 +64,7 @@ function EditorColorInput:setValue(value, silent)
     local normalized = colorValue(value)
     if not normalized then return false end
     self.value = normalized
+    self.mixed = false
     self.input:setValue(normalized, silent == true)
     return true
 end
@@ -70,6 +73,7 @@ function EditorColorInput:submitValue(value)
     local normalized = colorValue(value)
     if not normalized then return false end
     if self.on_submit and self.on_submit(normalized, self) == false then return false end
+    self.mixed = false
     self.value = normalized
     self.input:setValue(normalized, true)
     return true

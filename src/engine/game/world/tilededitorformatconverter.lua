@@ -31,6 +31,15 @@ local function getTiledTilesetReferences(map_data)
     return references
 end
 
+local function getTiledImageAssetId(image, map_data)
+    local base_dir = map_data.full_path and FileSystemUtils.getDirname(map_data.full_path) or ""
+    local success, result = TiledUtils.resolveImageAsset(image, base_dir)
+    if success then return true, result end
+    local texture, asset_id = Assets.resolveTextureReference(image)
+    if texture then return true, asset_id end
+    return false, result
+end
+
 local function resolveTiledGid(gid, references)
     local tile_gid, flip_x, flip_y, rotated = TiledUtils.parseTileGid(gid)
     if tile_gid == 0 then return nil end
@@ -256,6 +265,14 @@ function TiledEditorFormatConverter.convertMap(data, options)
                 layer.kind = layer_type.kind
                 layer.x = layer.offsetx or 0
                 layer.y = layer.offsety or 0
+                if layer.type == "imagelayer" and layer.image then
+                    local success, image_or_reason = getTiledImageAssetId(layer.image, converted)
+                    if not success then
+                        return nil, string.format("Could not convert image layer '%s': %s",
+                            tostring(layer.name or layer.id or "Image Layer"), image_or_reason)
+                    end
+                    layer.image = image_or_reason
+                end
                 for _, object in ipairs(layer.objects or {}) do
                     object.type = object == player_spawn and "player"
                         or Registry.layer_types:getLegacyTiledObjectType(layer, object)

@@ -79,6 +79,12 @@ function EditorPropertiesPanel:getPropertyGroups()
     return {}
 end
 
+function EditorPropertiesPanel:isPropertyMixed(name)
+    return self.target and self.target.property_set
+        and self.target.property_set.isMixed
+        and self.target.property_set:isMixed(name) or false
+end
+
 function EditorPropertiesPanel:notifyChanged(kind)
     if self.target and self.target.on_changed then self.target.on_changed(kind) end
 end
@@ -122,11 +128,11 @@ function EditorPropertiesPanel:getPropertyType(name, definition, value)
     return "string"
 end
 
-function EditorPropertiesPanel:createChoiceControl(name, definition, value)
+function EditorPropertiesPanel:createChoiceControl(name, definition, value, mixed)
     local choices = Registry.editor_properties:getChoices(definition)
     local button
     local _, current_label = EditorChoiceUtils.find(choices, value)
-    button = EditorButton(displayValue(current_label or value), function()
+    button = EditorButton(mixed and "--" or displayValue(current_label or value), function()
         local items = {}
         choices = Registry.editor_properties:getChoices(definition)
         for _, choice in ipairs(choices) do
@@ -134,7 +140,8 @@ function EditorPropertiesPanel:createChoiceControl(name, definition, value)
             local choice_label = EditorChoiceUtils.getLabel(choice)
             table.insert(items, {
                 label = tostring(choice_label),
-                checked = choice_value == self:getPropertyValue(name, definition),
+                checked = not self:isPropertyMixed(name)
+                    and choice_value == self:getPropertyValue(name, definition),
                 action = function()
                     if self:setPropertyValue(name, choice_value, definition) then
                         button.label = displayValue(choice_label)
@@ -151,46 +158,54 @@ function EditorPropertiesPanel:createChoiceControl(name, definition, value)
 end
 
 function EditorPropertiesPanel:createValueControl(name, definition, value)
+    local mixed = self:isPropertyMixed(name)
     local property_type = self:getPropertyType(name, definition, value)
     local property_type_definition = Registry.getEditorPropertyType(property_type)
     local control_type = definition and definition.control or property_type_definition.control or "text"
     if control_type == "color" then
         return self:addGeneratedControl(EditorColorInput(self.editor, value, {
+            mixed = mixed,
             on_submit = function(color) return self:setPropertyValue(name, color, definition) end
         }))
     elseif control_type == "path" then
         local options = TableUtils.copy(property_type_definition, true)
         for key, option in pairs(definition or {}) do options[key] = option end
+        options.mixed = mixed
         options.on_submit = function(path) return self:setPropertyValue(name, path, definition) end
         return self:addGeneratedControl(EditorPathInput(self.editor, value, options))
     elseif control_type == "object_reference"
         or control_type == "marker_reference" and type(value) == "table" then
         local options = TableUtils.copy(definition or {}, true)
+        options.mixed = mixed
         options.on_changed = function(reference)
             return self:setPropertyValue(name, reference, definition)
         end
         return self:addGeneratedControl(EditorObjectReferenceControl(self.editor, value, options))
     elseif control_type == "table" or type(value) == "table" then
         return self:addGeneratedControl(EditorTableInput(self.editor, value, {
+            mixed = mixed,
             on_changed = function(table_value)
                 return self:setPropertyValue(name, table_value, definition)
             end
         }))
     elseif control_type == "boolean" then
-        return self:addGeneratedControl(EditorCheckbox("", value == true, function(checked)
+        local checkbox = self:addGeneratedControl(EditorCheckbox("", value == true, function(checked)
             self:setPropertyValue(name, checked, definition)
         end))
+        checkbox:setMixed(mixed)
+        return checkbox
     elseif control_type == "choice" then
-        return self:addGeneratedControl(self:createChoiceControl(name, definition, value))
+        return self:addGeneratedControl(self:createChoiceControl(name, definition, value, mixed))
     end
     local multiline = control_type == "multiline_value"
         or definition and (definition.multiline == true or definition.custom == true and property_type == "string")
         or type(value) == "string" and value:find("\n", 1, true) ~= nil
     local input = self:addGeneratedControl(EditorTextInput({
+        placeholder = mixed and "--" or nil,
         multiline = multiline,
         on_submit = function(input_value) return self:setPropertyValue(name, input_value, definition) end
     }))
-    input:setValue(displayPropertyValue(property_type, value), true)
+    input:setValue(mixed and "" or displayPropertyValue(property_type, value), true)
     return input
 end
 
@@ -262,11 +277,13 @@ end
 function EditorPropertiesPanel:rebuild()
     self:clearGeneratedControls()
     local properties = self:getProperties()
-    self.add_button.visible = self.target ~= nil and properties ~= nil
+    local allow_property_management = self.target and self.target.allow_property_management ~= false
+    self.add_button.visible = self.target ~= nil and properties ~= nil and allow_property_management
     if not self.target then return end
 
     for _, field in ipairs(self.target.fields or {}) do
         local function setField(value, submitted)
+            local was_mixed = field.mixed and field.mixed() or false
             self:beginTargetHistory("Edit " .. field.label)
             local changed = field.set(value, submitted) ~= false
             if changed then self:notifyChanged("standard") end
@@ -275,22 +292,25 @@ function EditorPropertiesPanel:rebuild()
                 self:setTarget(field.rebuild_target())
             elseif changed and field.rebuild then
                 self:rebuild()
+            elseif changed and was_mixed then
+                self:rebuild()
             end
             return changed
         end
         local value_control
         if field.choices then
             local button
+            local mixed = field.mixed and field.mixed() or false
             local _, current_label = EditorChoiceUtils.find(field.choices, field.get())
             button = self:addGeneratedControl(EditorButton(
-                displayValue(current_label or field.get()), function()
+                mixed and "--" or displayValue(current_label or field.get()), function()
                 local items = {}
                 for _, choice in ipairs(field.choices) do
                     local choice_value = EditorChoiceUtils.getValue(choice)
                     local choice_label = EditorChoiceUtils.getLabel(choice)
                     table.insert(items, {
                         label = tostring(choice_label),
-                        checked = choice_value == field.get(),
+                        checked = not (field.mixed and field.mixed()) and choice_value == field.get(),
                         action = function()
                             if setField(choice_value, true) then button.label = displayValue(choice_label) end
                         end
@@ -305,12 +325,14 @@ function EditorPropertiesPanel:rebuild()
             value_control = button
         elseif field.control == "color" or field.type == "color" then
             value_control = self:addGeneratedControl(EditorColorInput(self.editor, field.get(), {
+                mixed = field.mixed and field.mixed() or false,
                 on_submit = function(value) return setField(value, true) end
             }))
             value_control.enabled = field.readonly ~= true
         elseif field.control == "path" or field.type == "asset_path" or field.type == "script_path" then
             local options = TableUtils.copy(Registry.getEditorPropertyType(field.type or "string"), true)
             for key, option in pairs(field) do options[key] = option end
+            options.mixed = field.mixed and field.mixed() or false
             options.on_submit = function(value) return setField(value, true) end
             value_control = self:addGeneratedControl(EditorPathInput(self.editor, field.get(), options))
             value_control.enabled = field.readonly ~= true
@@ -321,6 +343,7 @@ function EditorPropertiesPanel:rebuild()
             value_control.enabled = field.readonly ~= true
         elseif field.control == "path_list" or field.type == "asset_path_list" then
             local options = TableUtils.copy(field, true)
+            options.mixed = field.mixed and field.mixed() or false
             options.on_changed = function(value) return setField(value, true) end
             options.on_request_focus = function(input)
                 if self.editor.dockspace then self.editor.dockspace:setFocus(input) end
@@ -329,7 +352,7 @@ function EditorPropertiesPanel:rebuild()
             value_control.enabled = field.readonly ~= true
         else
             local input = self:addGeneratedControl(EditorTextInput({
-                placeholder = field.placeholder,
+                placeholder = field.mixed and field.mixed() and "--" or field.placeholder,
                 multiline = field.multiline == true,
                 submit_feedback = not field.live,
                 on_changed = field.live and function(value)
@@ -339,7 +362,7 @@ function EditorPropertiesPanel:rebuild()
                     return setField(value, true)
                 end
             }))
-            input:setValue(displayValue(field.get()), true)
+            input:setValue(field.mixed and field.mixed() and "" or displayValue(field.get()), true)
             input.enabled = field.readonly ~= true
             value_control = input
         end
@@ -378,11 +401,12 @@ function EditorPropertiesPanel:rebuild()
             on_submit = function(value) self:renameProperty(name, value) end
         } or nil))
         name_input:setValue(definition.custom and name or definition.name or name, true)
-        name_input.enabled = definition.custom == true and definition.unavailable ~= true
+        name_input.enabled = allow_property_management and definition.custom == true
+            and definition.unavailable ~= true
         local value_control = self:createValueControl(name, definition, value)
         value_control.enabled = definition.unavailable ~= true
         local remove_button = self:addGeneratedControl(EditorButton("-", function() self:removeProperty(name) end))
-        remove_button.enabled = definition.unavailable ~= true
+        remove_button.enabled = allow_property_management and definition.unavailable ~= true
         table.insert(self.layout_rows, {
             kind = "property", property_name = name, definition = definition,
             name_input = name_input, value_control = value_control, remove_button = remove_button,
@@ -400,9 +424,11 @@ function EditorPropertiesPanel:rebuild()
             on_submit = function(value) self:renameProperty(property_name, value) end
         }))
         name_input:setValue(property_name, true)
+        name_input.enabled = allow_property_management
         local definition = self:getPropertyDefinition(property_name)
         local value_control = self:createValueControl(property_name, definition, properties[property_name])
         local remove_button = self:addGeneratedControl(EditorButton("-", function() self:removeProperty(property_name) end))
+        remove_button.enabled = allow_property_management
         table.insert(self.layout_rows, {
             kind = "property", property_name = property_name, definition = definition,
             name_input = name_input, value_control = value_control, remove_button = remove_button,
@@ -541,6 +567,7 @@ end
 function EditorPropertiesPanel:setPropertyValue(name, value, definition)
     local properties, property_types = self:getProperties(), self:getPropertyTypes()
     if not properties then return false end
+    local was_mixed = self:isPropertyMixed(name)
     definition = definition or self:getPropertyDefinition(name)
     self:beginTargetHistory("Edit Property")
     local property_type = self:getPropertyType(name, definition, properties[name])
@@ -552,7 +579,10 @@ function EditorPropertiesPanel:setPropertyValue(name, value, definition)
         return false
     end
     if self.target.property_set then
-        self.target.property_set:setValue(name, coerced)
+        if not self.target.property_set:setValue(name, coerced) then
+            self:finishTargetHistory(false)
+            return false
+        end
     else
         properties[name] = coerced
         property_types[name] = property_type
@@ -560,6 +590,7 @@ function EditorPropertiesPanel:setPropertyValue(name, value, definition)
     self.editor:clearDiagnostics("property_value")
     self:notifyChanged(name)
     self:finishTargetHistory(true)
+    if was_mixed then self:rebuild() end
     return true
 end
 
@@ -649,6 +680,7 @@ function EditorPropertiesPanel:update(dt)
     end
     self.add_button:setBounds(padding, y + 4, width, 28)
     self.add_button.visible = self.target ~= nil and self:getProperties() ~= nil
+        and self.target.allow_property_management ~= false
         and self.add_button.y + self.add_button.height > 27 and self.add_button.y < self.height
     self.content_height = y + self.scroll_y + 40
     self.scroll_y = MathUtils.clamp(self.scroll_y, 0, self:getMaxScroll())

@@ -3,6 +3,7 @@
 ---@field editor Editor
 ---@field input EditorTextInput
 ---@field inputs table
+---@field mixed boolean
 ---@field on_submit function?
 ---@field options table
 ---@field path_kind string
@@ -43,20 +44,23 @@ function EditorPathInput:init(editor, value, options)
     self.options = options
     self.path_kind = options.path_kind or "asset"
     self.on_submit = options.on_submit
+    self.mixed = options.mixed == true
     self.value = normalizePath(value)
     self.input = self:addChild(EditorTextInput({
         editor = editor,
-        placeholder = options.placeholder or (self.path_kind == "script" and "Script path" or "Asset path"),
+        placeholder = self.mixed and "--"
+            or options.placeholder or (self.path_kind == "script" and "Script path" or "Asset path"),
         on_submit = function(input) return self:submitValue(input) end
     }))
     self.picker_button = self:addChild(EditorButton("...", function() self:openPicker() end))
     self.inputs = { self.input }
-    self.input:setValue(self.value, true)
+    self.input:setValue(self.mixed and "" or self.value, true)
     self.preferred_height = 28
 end
 
 function EditorPathInput:setValue(value, silent)
     self.value = normalizePath(value)
+    self.mixed = false
     self.input:setValue(self.value, silent == true)
     return true
 end
