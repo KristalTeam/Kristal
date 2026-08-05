@@ -266,23 +266,25 @@ function EditorMapInteraction:getMapObjectPropertiesTarget(selection)
         end
     end
     local function numberField(label, key)
-        return EditorPropertyFields.number(data, label, key, {
+        local field = EditorPropertyFields.number(data, label, key, {
             on_set = function() selection.document:invalidatePreview(selection.map_id) end
         })
+        field.id = key
+        return field
     end
     local function valueField(label, key)
-        return EditorPropertyFields.value(data, label, key, {
+        local field = EditorPropertyFields.value(data, label, key, {
             on_set = function() selection.document:invalidatePreview(selection.map_id) end
         })
+        field.id = key
+        return field
     end
     local tile_object = data.gid or data.tileset and data.tile_id ~= nil
     local name_field = valueField("Name", "name")
     name_field.compact = true
     local type_field = valueField("Type", "type")
     type_field.compact = true
-    type_field.rebuild_target = function()
-        return self:getMapObjectPropertiesTarget(selection)
-    end
+    type_field.readonly = true
     local fields = {
         name_field, type_field,
         numberField("X", "x"), numberField("Y", "y")
@@ -292,6 +294,7 @@ function EditorMapInteraction:getMapObjectPropertiesTarget(selection)
         for id in pairs(Registry.tilesets or {}) do table.insert(tileset_choices, id) end
         table.sort(tileset_choices)
         table.insert(fields, {
+            id = "tileset",
             label = "Tileset", compact = true,
             get = function() return data.tileset or "" end,
             set = function(value) data.tileset = value ~= "" and value or nil return true end,
@@ -299,12 +302,14 @@ function EditorMapInteraction:getMapObjectPropertiesTarget(selection)
         })
         table.insert(fields, numberField("Tile ID", "tile_id"))
         table.insert(fields, {
+            id = "flip_x",
             label = "Flip X", compact = true,
             get = function() return data.flip_x == true end,
             set = function(value) data.flip_x = value == true return true end,
             choices = { { value = false, label = "No" }, { value = true, label = "Yes" } }
         })
         table.insert(fields, {
+            id = "flip_y",
             label = "Flip Y", compact = true,
             get = function() return data.flip_y == true end,
             set = function(value) data.flip_y = value == true return true end,
@@ -312,6 +317,7 @@ function EditorMapInteraction:getMapObjectPropertiesTarget(selection)
         })
     else
         table.insert(fields, {
+            id = "shape",
             label = "Shape",
             get = function() return selection.document:getObjectShape(selection) end,
             set = function(shape) return selection.document:setObjectShape(selection, shape) end,
@@ -334,6 +340,7 @@ function EditorMapInteraction:getMapObjectPropertiesTarget(selection)
     end
     table.insert(fields, numberField("Rotation", "rotation"))
     table.insert(fields, {
+        id = "drawfx",
         label = "DrawFX",
         get = function()
             local ids = {}
@@ -361,6 +368,7 @@ function EditorMapInteraction:getMapObjectPropertiesTarget(selection)
             if resized then
                 self:setPropertiesTarget(self:getMapObjectPropertiesTarget(selection), self)
             end
+            return resized
         end
     }
 end
@@ -385,36 +393,72 @@ end
 
 function EditorMapInteraction:getMapObjectBatchPropertiesTarget(selections)
     local self = self.editor
-    local function sharedValue(key)
-        local value = selections[1] and (selections[1].data[key] or 0) or 0
-        for index = 2, #selections do
-            if (selections[index].data[key] or 0) ~= value then return "" end
+    local targets, owners, owner_set = {}, {}, {}
+    for _, selection in ipairs(selections) do
+        local target = self:getMapObjectPropertiesTarget(selection)
+        table.insert(targets, target)
+        if not owner_set[selection.document] then
+            owner_set[selection.document] = true
+            table.insert(owners, selection.document)
         end
-        return value
     end
-    local function batchNumberField(label, key)
-        return {
-            label = label,
-            compact = true,
-            placeholder = "Mixed",
-            get = function() return sharedValue(key) end,
-            set = function(value)
-                local number = tonumber(value)
-                if not number then return false end
-                local invalidated = {}
-                for _, selection in ipairs(selections) do
-                    selection.data[key] = number
-                    invalidated[selection.map_id] = selection.document
+    local field_maps = {}
+    for index, target in ipairs(targets) do
+        field_maps[index] = {}
+        for _, field in ipairs(target.fields or {}) do
+            if field.id then field_maps[index][field.id] = field end
+        end
+    end
+    local fields = {}
+    for _, source in ipairs(targets[1] and targets[1].fields or {}) do
+        local id = source.id
+        local common = id ~= nil
+        for index = 2, #targets do
+            if not field_maps[index][id] then common = false break end
+        end
+        if common then
+            local field = TableUtils.copy(source, true)
+            field.placeholder = "--"
+            field.get = function() return field_maps[1][id].get() end
+            field.mixed = function()
+                local value = field_maps[1][id].get()
+                for index = 2, #field_maps do
+                    if not Utils.equal(value, field_maps[index][id].get(), true) then return true end
                 end
-                for map_id, document in pairs(invalidated) do document:invalidatePreview(map_id) end
-                return true
+                return false
             end
-        }
+            field.set = function(value, submitted)
+                local changed = false
+                for _, candidates in ipairs(field_maps) do
+                    if candidates[id].set(value, submitted) ~= false then changed = true end
+                end
+                return changed
+            end
+            field.readonly = source.readonly == true
+            for index = 2, #field_maps do
+                if field_maps[index][id].readonly then field.readonly = true break end
+            end
+            field.rebuild_target = nil
+            table.insert(fields, field)
+        end
     end
+    local property_sets = {}
+    for _, target in ipairs(targets) do table.insert(property_sets, target.property_set) end
     return {
         title = tostring(#selections) .. " Objects",
-        history_owner = selections[1] and selections[1].document,
-        fields = { batchNumberField("Rotation", "rotation") }
+        history_owner = owners,
+        fields = fields,
+        property_set = EditorPropertySet.batch(property_sets),
+        allow_property_management = false,
+        on_changed = function(name)
+            local rebuild = false
+            for _, target in ipairs(targets) do
+                if target.on_changed and target.on_changed(name) then rebuild = true end
+            end
+            if rebuild then
+                self:setPropertiesTarget(self:getMapObjectBatchPropertiesTarget(selections), self)
+            end
+        end
     }
 end
 

@@ -30,7 +30,23 @@ function EditorDocumentManager:createMapDocument(id, panel_id)
         preferred_width = SCREEN_WIDTH,
         preferred_height = SCREEN_HEIGHT + 28,
         on_remove = function()
-            self:removeMapDocument(document)
+            return self:removeMapDocument(document)
+        end,
+        on_reopen = function(target, index)
+            local reopened
+            if document.editor_world and document.world then
+                if not self:openWorld(document.world.id) then return false end
+                reopened = self:findWorldDocument(document.world.id)
+            else
+                if not self:openMap(document.primary_map_id) then return false end
+                reopened = self:findMapDocument(document.primary_map_id)
+            end
+            if reopened and target then
+                if reopened.panel.stack == target then target:removePanel(reopened.panel) end
+                self.dockspace:dockPanel(reopened.panel, target,
+                    index and math.min(index, #target.panels + 1))
+            end
+            return reopened and reopened.panel or false
         end,
         on_activate = function()
             if not self.suppress_panel_activation then

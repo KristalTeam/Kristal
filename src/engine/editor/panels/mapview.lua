@@ -2303,6 +2303,7 @@ function EditorMapView:placeObjectPaintCell(stroke, cell)
     stroke.changed = true
     stroke.selection = self.document:getObjectSelection(map_id, layer_or_reason, object)
     stroke.selection.view = self
+    table.insert(stroke.selections, stroke.selection)
     self.editor:markHistoryChanged()
     return true
 end
@@ -2314,7 +2315,13 @@ function EditorMapView:beginObjectPaint(object_id, world_x, world_y)
         return true
     end
     self.editor:beginHistoryTransaction("Paint Objects", self.document)
-    local stroke = { object_id = object_id, visited = {}, changed = false, last_cell = cell }
+    local stroke = {
+        object_id = object_id,
+        visited = {},
+        selections = {},
+        changed = false,
+        last_cell = cell
+    }
     self.object_paint_stroke = stroke
     self:placeObjectPaintCell(stroke, cell)
     return true
@@ -3077,7 +3084,7 @@ function EditorMapView:onMouseReleased(x, y, button, presses)
         self.object_paint_stroke = nil
         if stroke.changed then
             self.editor:commitHistoryTransaction()
-            if stroke.selection then self.editor:selectMapObject(stroke.selection) end
+            self.editor:selectMapObjects(stroke.selections, stroke.selection)
             self.editor:clearDiagnostics("object_placement")
         else
             self.editor:cancelHistoryTransaction()

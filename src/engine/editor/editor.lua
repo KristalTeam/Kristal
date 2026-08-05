@@ -1175,6 +1175,10 @@ function Editor:onKeyPressed(key, is_repeat)
     if self.menu_bar:onKeyPressed(key) then return true end
     local focused = self.dockspace.focused_control
     local editing_text = focused and focused.accepts_text_input
+    if Input.ctrl() and Input.shift() and not is_repeat and key == "t" then
+        self.consumed_editor_keys[key] = true
+        return self.dockspace:reopenLastClosedPanel()
+    end
     if Input.ctrl() and not is_repeat and key == "w" then
         self.consumed_editor_keys[key] = true
         self:closeActiveTab(not editing_text)

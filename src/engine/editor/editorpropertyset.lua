@@ -6,6 +6,8 @@
 ---@field order table
 ---@field types table
 ---@field values any
+---@field sources EditorPropertySet[]?
+---@field mixed table<string, boolean>?
 ---@overload fun(values?: table, types?: table): EditorPropertySet
 local EditorPropertySet = Class()
 
@@ -34,6 +36,43 @@ function EditorPropertySet.fromEntries(entries, context)
     local values, types, order, definitions = Registry.editor_properties:decodePropertyEntries(entries, context)
     if not values then return nil, types end
     return EditorPropertySet(values, types, order, definitions)
+end
+
+---@param sources EditorPropertySet[]
+---@return EditorPropertySet
+function EditorPropertySet.batch(sources)
+    local result = EditorPropertySet()
+    result.sources = sources
+    result.mixed = {}
+    local first = sources[1]
+    if not first then return result end
+    for _, definition in ipairs(first:getProperties()) do
+        local id = definition.id
+        local common = true
+        local unavailable = definition.unavailable == true
+        for index = 2, #sources do
+            local candidate = sources[index]:getProperty(id)
+            if not candidate or candidate.type ~= definition.type then
+                common = false
+                break
+            end
+            unavailable = unavailable or candidate.unavailable == true
+        end
+        if common then
+            local result_definition = result:registerProperty(id, definition.type, definition)
+            result_definition.unavailable = unavailable
+            local value = first:getValue(id)
+            result.values[id] = type(value) == "table" and TableUtils.copy(value, true) or value
+            result.types[id] = definition.type
+            for index = 2, #sources do
+                if not Utils.equal(value, sources[index]:getValue(id), true) then
+                    result.mixed[id] = true
+                    break
+                end
+            end
+        end
+    end
+    return result
 end
 
 function EditorPropertySet:encodeEntries(context)
@@ -80,9 +119,28 @@ function EditorPropertySet:setValue(id, value)
     if definition.unavailable then return false end
     local coerced = Registry.editor_properties:coerce(definition.type, value, definition)
     if coerced == nil then return false end
+    if self.sources then
+        local source_values = {}
+        for index, source in ipairs(self.sources) do
+            local source_definition = source:getProperty(id)
+            if not source_definition or source_definition.unavailable then return false end
+            local source_value = Registry.editor_properties:coerce(source_definition.type, coerced, source_definition)
+            if source_value == nil then return false end
+            source_values[index] = type(source_value) == "table"
+                and TableUtils.copy(source_value, true) or source_value
+        end
+        for index, source in ipairs(self.sources) do
+            if not source:setValue(id, source_values[index]) then return false end
+        end
+        self.mixed[id] = nil
+    end
     self.values[id] = coerced
     self.types[id] = definition.type
     return true
+end
+
+function EditorPropertySet:isMixed(id)
+    return self.mixed and self.mixed[id] == true or false
 end
 
 function EditorPropertySet:normalizeObjectReferences(default_map_id)

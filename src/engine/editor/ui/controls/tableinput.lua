@@ -4,6 +4,7 @@
 ---@field clip boolean
 ---@field editor Editor
 ---@field maximum_visible_rows table
+---@field mixed boolean
 ---@field on_changed function?
 ---@field on_request_focus function?
 ---@field preferred_height number
@@ -30,7 +31,8 @@ function EditorTableInput:init(editor, value, options)
     options = options or {}
     super.init(self, 0, 0, 260, 120)
     self.editor = editor
-    self.value = type(value) == "table" and value or {}
+    self.mixed = options.mixed == true
+    self.value = self.mixed and {} or type(value) == "table" and value or {}
     self.on_changed = options.on_changed
     self.on_request_focus = options.on_request_focus
     self.row_height = 30
@@ -93,6 +95,7 @@ end
 
 function EditorTableInput:submit(candidate)
     if self.on_changed and self.on_changed(candidate, self) == false then return false end
+    self.mixed = false
     self.value = candidate
     self:rebuildRows()
     return true
@@ -203,7 +206,7 @@ function EditorTableInput:drawSelf()
     love.graphics.print("Value", math.max(49, math.floor((self.width - 8) * 0.34) + 9), 5)
     if #self.rows == 0 then
         Draw.setColor(0.46, 0.46, 0.50, 1)
-        love.graphics.print("Empty table", 5, 30)
+        love.graphics.print(self.mixed and "--" or "Empty table", 5, 30)
     end
 end
 

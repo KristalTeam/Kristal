@@ -3,6 +3,7 @@
 ---@field active_panel EditorPanel?
 ---@field captured_control any
 ---@field context_menu any
+---@field closed_panels table
 ---@field dock_preview any
 ---@field drag_offset_x number
 ---@field drag_offset_y number
@@ -92,6 +93,7 @@ function EditorDockSpace:init(editor)
     self.floating_resize = nil
     self.tab_close_mouse_button = nil
     self.context_menu = nil
+    self.closed_panels = {}
     self.splitters = {}
     self.stack_splitters = {}
     self.theme = {
@@ -131,7 +133,7 @@ function EditorDockSpace:removeEmptySplitStacks()
     for _, region in ipairs(REGIONS) do
         local stacks = self.region_stacks[region]
         for index = #stacks, 2, -1 do
-            if stacks[index]:isEmpty() then
+            if stacks[index]:isEmpty() and stacks[index] ~= self.drag_source_stack then
                 self.stacks[stacks[index].id] = nil
                 table.remove(stacks, index)
             end
@@ -967,21 +969,66 @@ function EditorDockSpace:getContextMenuItemAt(x, y)
     end
 end
 
-function EditorDockSpace:closePanelFromContext(panel)
-    if panel.recoverable then
-        self:setPanelVisible(panel, false)
-    elseif panel.on_remove then
-        panel.on_remove(panel)
-    else
-        self:unregisterPanel(panel)
+function EditorDockSpace:getPanelCloseLocation(panel)
+    local location = { stack_id = panel.stack and panel.stack.id, region = panel.stack and panel.stack.region }
+    if panel.stack then
+        for index, candidate in ipairs(panel.stack.panels) do
+            if candidate == panel then location.index = index break end
+        end
+    elseif panel.floating then
+        location.floating = copyRect(panel.floating)
     end
+    return location
+end
+
+function EditorDockSpace:recordClosedPanel(panel, location)
+    if not panel.recoverable and not panel.on_reopen then return false end
+    table.insert(self.closed_panels, { panel = panel, location = location })
+    while #self.closed_panels > 20 do table.remove(self.closed_panels, 1) end
+    return true
+end
+
+function EditorDockSpace:reopenLastClosedPanel()
+    while #self.closed_panels > 0 do
+        local closed = table.remove(self.closed_panels)
+        local panel, location = closed.panel, closed.location or {}
+        local target = self.stacks[location.stack_id] or self.stacks[location.region] or self.stacks.center
+        local reopened
+        if panel.recoverable and self.panels[panel.id] == panel and not panel.visible then
+            self:setPanelVisible(panel, true, target.id)
+            if location.index and panel.stack then panel.stack:removePanel(panel) end
+            self:dockPanel(panel, target, location.index and math.min(location.index, #target.panels + 1))
+            reopened = panel
+        elseif panel.on_reopen and not self.panels[panel.id] then
+            reopened = panel.on_reopen(target, location.index)
+        end
+        if reopened then
+            if location.floating then self:floatPanel(reopened == true and panel or reopened, location.floating) end
+            return true
+        end
+    end
+    return false
+end
+
+function EditorDockSpace:closePanelFromContext(panel)
+    local location = self:getPanelCloseLocation(panel)
+    local closed
+    if panel.recoverable then
+        closed = self:setPanelVisible(panel, false)
+    elseif panel.on_remove then
+        closed = panel.on_remove(panel)
+    else
+        closed = self:unregisterPanel(panel)
+    end
+    if closed == false then return false end
+    self:recordClosedPanel(panel, location)
+    return true
 end
 
 function EditorDockSpace:closeActivePanel()
     local panel = self:getActivePanel()
     if not panel then return false end
-    self:closePanelFromContext(panel)
-    return true
+    return self:closePanelFromContext(panel)
 end
 
 function EditorDockSpace:drawContextMenu()
@@ -1319,6 +1366,8 @@ function EditorDockSpace:onMouseReleased(x, y, button, presses)
         self.drag_source_stack = nil
         self.pending_drag = nil
         self.dock_preview = nil
+        self:removeEmptySplitStacks()
+        self:layout()
         return true
     end
     self.pending_drag = nil
@@ -1333,12 +1382,21 @@ function EditorDockSpace:onMouseReleased(x, y, button, presses)
 end
 
 function EditorDockSpace:getDockTarget(x, y, moving_panel)
-    for _, stack in ipairs(self:getStacks()) do
-        local view = stack.tab_view_rect
-        if not view and stack == self.drag_source_stack then
-            view = { x = stack.x, y = stack.y, width = stack.width, height = HEADER_HEIGHT }
+    local source = self.drag_source_stack
+    if source and source:isEmpty() then
+        local header = { x = source.x, y = source.y, width = source.width, height = HEADER_HEIGHT }
+        if pointInRect(x, y, header) then
+            return {
+                stack = source,
+                tab_index = 1,
+                rect = { x = header.x + 2, y = header.y + 2, width = 4, height = header.height - 4 }
+            }
         end
-        if view and pointInRect(x, y, view) then
+    end
+    for _, stack in ipairs(self:getStacks()) do
+        local header = self:getStackHeaderRect(stack)
+        local view = stack.tab_view_rect or header
+        if header and pointInRect(x, y, header) then
             local insertion = #stack.panels + 1
             local marker_x = view.x + view.width
             for index, rect in ipairs(stack.tab_rects) do
@@ -1408,17 +1466,8 @@ function EditorDockSpace:getDockTarget(x, y, moving_panel)
 end
 
 function EditorDockSpace:getMapPanelDropTarget(x, y)
-    for _, stack in ipairs(self:getStacks()) do
-        local header = self:getStackHeaderRect(stack)
-        if pointInRect(x, y, header) then
-            return {
-                stack = stack,
-                rect = { x = stack.x, y = stack.y, width = stack.width, height = stack.height }
-            }
-        end
-    end
     local target = self:getDockTarget(x, y)
-    if target and target.stack and target.stack:isEmpty() then return target end
+    if target and target.stack and (target.tab_index or target.stack:isEmpty()) then return target end
 end
 
 function EditorDockSpace:onWheelMoved(x, y)

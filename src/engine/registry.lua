@@ -1381,6 +1381,10 @@ function Registry.initEditorObjects()
     for id, object in pairs(builtins) do self.registerEditorObject(id, object) end
 
     Kristal.callEvent(KRISTAL_EVENT.onRegisterEditorObjects)
+
+    for id in pairs(self.events or {}) do
+        if not self.editor_objects[id] then self.registerEditorObject(id, EditorLegacyObject) end
+    end
 end
 
 function Registry.initControllers()

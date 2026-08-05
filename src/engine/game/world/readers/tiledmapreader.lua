@@ -145,7 +145,11 @@ function operations.createTileLayer(self, data)
 end
 
 function operations.loadTextureFromImagePath(self, filename)
-    return TiledUtils.resolveImageAsset(filename, self.full_map_path)
+    local success, result = TiledUtils.resolveImageAsset(filename, self.full_map_path)
+    if success then return true, result end
+    local texture, asset_id = Assets.resolveTextureReference(filename)
+    if texture then return true, asset_id end
+    return false, result
 end
 
 function operations.populateTilesets(self, data)
