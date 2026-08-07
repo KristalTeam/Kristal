@@ -31,8 +31,21 @@ function Overlay:init()
     self.load_timer = 0
 
     self.loading = false
+end
 
-    self.quit_release = false
+function Overlay:quit()
+    Input.clear("escape", true)
+    self.quit_timer = 0
+
+    if Mod ~= nil then
+        if Kristal.getModOption("hardReset") then
+            love.event.quit("restart")
+        else
+            Kristal.returnToMenu()
+        end
+    else
+        love.event.quit()
+    end
 end
 
 function Overlay:update()
@@ -48,56 +61,39 @@ function Overlay:update()
         self.load_timer = 0
     end
 
-    if Input.keyDown("escape") and not self.quit_release then
+    if Input.keyDown("escape") then
         if Kristal.Config and Kristal.Config["instantQuit"] then
-            if Mod ~= nil then
-                self.quit_release = true
-                if Kristal.getModOption("hardReset") then
-                    love.event.quit("restart")
-                else
-                    Kristal.returnToMenu()
-                end
-            else
-                love.event.quit()
-            end
+            self:quit()
         else
-            if self.quit_alpha < 1 then
-                self.quit_alpha = math.min(1, self.quit_alpha + DT / 0.75)
+            if self.quit_timer < 0 then
+                self.quit_timer = 0
             end
-            self.quit_timer = self.quit_timer + DT
-            if self.quit_timer > 1.2 then
-                if Mod ~= nil then
-                    self.quit_release = true
-                    if Kristal.getModOption("hardReset") then
-                        love.event.quit("restart")
-                    else
-                        Kristal.returnToMenu()
-                    end
-                else
-                    love.event.quit()
-                end
+
+            self.quit_timer = self.quit_timer + DTMULT
+
+            if self.quit_timer >= 30 then
+                self:quit()
             end
         end
     else
-        self.quit_timer = 0
-        if self.quit_alpha > 0 then
-            self.quit_alpha = math.max(0, self.quit_alpha - DT / 0.25)
-        end
+        self.quit_timer = self.quit_timer - (2 * DTMULT)
     end
+end
 
-    if self.quit_release and not Input.keyDown("escape") then
-        self.quit_release = false
-    end
+function Overlay:drawQuitText()
+    love.graphics.push()
+    love.graphics.scale(2)
+    Draw.setColor(1, 1, 1, self.quit_timer / 15)
+    local quit_frame = (math.floor(self.quit_timer / 7) % #self.quit_frames) + 1
+    Draw.draw(self.quit_frames[quit_frame], 2, 2)
+    love.graphics.pop()
 end
 
 function Overlay:draw()
     -- Draw the quit text
-    love.graphics.push()
-    love.graphics.scale(2)
-    Draw.setColor(1, 1, 1, self.quit_alpha)
-    local quit_frame = (math.floor(self.quit_timer / 0.25) % #self.quit_frames) + 1
-    Draw.draw(self.quit_frames[quit_frame])
-    love.graphics.pop()
+    if self.quit_timer > 0 then
+        self:drawQuitText()
+    end
 
     -- Draw the load text
     love.graphics.push()
