@@ -23,4 +23,9 @@ function item:init()
     self.result_item = nil
 end
 
+function item:onWorldUse()
+    Game.world:showText("* (You held it up in the air.)")
+    return false
+end
+
 return item
