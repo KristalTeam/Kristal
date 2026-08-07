@@ -79,10 +79,12 @@ end
 
 function Battler:createSprite(use_overlay)
     self.sprite = self.actor and self.actor:createSprite() or Sprite()
+    self.sprite.inherit_color = true
     self:addChild(self.sprite)
 
     if use_overlay ~= false then
         self.overlay_sprite = self.actor and self.actor:createSprite() or Sprite()
+        self.overlay_sprite.inherit_color = true
         self.overlay_sprite.visible = false
         self:addChild(self.overlay_sprite)
     end

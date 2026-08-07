@@ -104,6 +104,6 @@ Shaders["Mask"] = love.graphics.newShader[[
         }
         return vec4(1.0);
     }
- ]]
+]]
 
 return Shaders

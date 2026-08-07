@@ -159,6 +159,9 @@ function actor:init()
     if Game.chapter == 1 then
         self.animations["battle/transition"] = {"walk/right", 0, true}
     end
+
+    -- The x and y offsets of the ReviveSong spotlight
+    self.spotlight_offset = { -2, -5 }
 end
 
 return actor

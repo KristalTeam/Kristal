@@ -222,6 +222,9 @@ function actor:init(style)
         ["diagonal_kick_right"] = {-5, -1},
         ["diagonal_kick_left"] = {-3, -1},
     }
+
+    -- The x and y offsets of the ReviveSong spotlight
+    self.spotlight_offset = { 0, -7 }
 end
 
 return actor
