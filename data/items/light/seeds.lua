@@ -23,4 +23,9 @@ function item:init()
     self.result_item = nil
 end
 
+function item:onWorldUse()
+    Game.world:showText("* (You cannot use it right now.)")
+    return false
+end
+
 return item
