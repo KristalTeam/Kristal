@@ -25,11 +25,7 @@ function spell:init()
 end
 
 function spell:getPowerMenuTPDisplay(chara)
-    if Game.battle == nil then
-        return "??%"
-    end
-
-    return super.getPowerMenuTPDisplay(self, chara)
+    return "??%"
 end
 
 
