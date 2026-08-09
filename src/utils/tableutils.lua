@@ -108,7 +108,10 @@ function TableUtils.copyInto(new_tbl, tbl, deep, seen)
             if seen[v] then
                 -- If we've already seen this table, use the same copy.
                 new_tbl[k] = seen[v]
-            elseif (not isClass(tbl) or (tbl:canDeepCopyKey(k) and not tbl.__dont_include[k])) and (not isClass(v) or (v.canDeepCopy and v:canDeepCopy())) then
+            elseif (type(tbl.canDeepCopyKey) ~= "function" or tbl:canDeepCopyKey(k))
+                and (not tbl.__dont_include or not tbl.__dont_include[k])
+                and (type(v.canDeepCopy) ~= "function" or v:canDeepCopy())
+            then
                 -- Unless the current value is a class that doesn't want to be deep copied,
                 -- or the member of a class that doesn't want it to be deep copied, we can copy it.
                 new_tbl[k] = {}
@@ -306,6 +309,50 @@ function TableUtils.isArray(tbl)
         end
     end
     return true
+end
+
+--- Returns whether a table is a contiguous, one-indexed array.
+---@param tbl table
+---@return boolean
+function TableUtils.isContiguousArray(tbl)
+    local count, maximum = 0, 0
+    for key in pairs(tbl) do
+        if type(key) ~= "number" or key < 1 or key % 1 ~= 0 then return false end
+        count, maximum = count + 1, math.max(maximum, key)
+    end
+    return count == maximum
+end
+
+--- Returns table keys in a stable order, including tables with mixed key types.
+---@param tbl table
+---@return any[]
+function TableUtils.getSortedKeys(tbl)
+    local keys = {}
+    for key in pairs(tbl) do table.insert(keys, key) end
+    table.sort(keys, function(a, b)
+        if type(a) == type(b) then
+            if type(a) == "number" or type(a) == "string" then return a < b end
+            return tostring(a) < tostring(b)
+        end
+        return type(a) < type(b)
+    end)
+    return keys
+end
+
+---@param tbl table
+---@return any[]
+function TableUtils.getCaseInsensitiveSortedKeys(tbl)
+    local keys = {}
+    for key in pairs(tbl) do table.insert(keys, key) end
+    table.sort(keys, function(first, second)
+        return tostring(first):lower() < tostring(second):lower()
+    end)
+    return keys
+end
+
+function TableUtils.clearFields(tbl, fields)
+    for _, field in ipairs(fields) do tbl[field] = nil end
+    return tbl
 end
 
 ---

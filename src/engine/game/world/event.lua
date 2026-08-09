@@ -43,7 +43,7 @@ function Event:init(x, y, width, height)
     super.init(self, x, y, shape[1], shape[2])
 
     if shape[3] then
-        self.collider = TiledUtils.colliderFromShape(self, { shape = "polygon", polygon = shape[3] })
+        self.collider = MapUtils.colliderFromShape(self, { shape = "polygon", polygon = shape[3] })
     end
 
     -- Default collider (Object width and height)

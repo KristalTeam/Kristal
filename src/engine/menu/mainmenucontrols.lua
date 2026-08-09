@@ -64,10 +64,13 @@ function MainMenuControls:registerMainPage()
     page.entries = {}
 
     for _, keybind in ipairs(Input.order) do
-        table.insert(
-            page.entries,
-            { keybind = keybind, name = (Input.getBindName(keybind) or keybind:gsub("_", " ")):upper() }
-        )
+        local editor_bind = keybind == "editor" or StringUtils.startsWith(keybind, "editor_")
+        if not RELEASE_MODE or not editor_bind then
+            table.insert(
+                page.entries,
+                { keybind = keybind, name = (Input.getBindName(keybind) or keybind:gsub("_", " ")):upper() }
+            )
+        end
     end
 
     table.insert(self.pages, page)

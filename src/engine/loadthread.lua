@@ -35,6 +35,7 @@ function resetData()
         assets = {
             texture = {},
             texture_data = {},
+            texture_paths = {},
             frame_ids = {},
             frames = {},
             fonts = {},
@@ -255,6 +256,7 @@ local loaders = {
             if not ok then
                 error("Image \"" .. path .. "\" is invalid or corrupted!")
             end
+            data.assets.texture_paths[id] = full_path
             for i = 3, 1, -1 do
                 local num = tonumber(id:sub(-i))
                 local bad_index = (num ~= num) or --NaN check

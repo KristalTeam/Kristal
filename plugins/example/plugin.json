@@ -1,0 +1,6 @@
+{
+    "id": "example",
+    "name": "Example Editor Plugin",
+    "version": "1.0.0",
+    "description": "small example plugin"
+}

@@ -1,3 +1,4 @@
+---@class ArenaHazard : Bullet
 local ArenaHazard, super = Class(Bullet)
 
 function ArenaHazard:init(x, y, rot)

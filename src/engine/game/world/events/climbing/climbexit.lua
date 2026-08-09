@@ -99,7 +99,7 @@ function ClimbExit:onLoad()
         return
     end
 
-    self.target_x, self.target_y, _ = TiledUtils.parseMarkerProperty(self, self.target, "target")
+    self.target_x, self.target_y, _ = MapUtils.parseMarkerProperty(self, self.target, "target")
     self:calculateAutoExit()
 end
 
