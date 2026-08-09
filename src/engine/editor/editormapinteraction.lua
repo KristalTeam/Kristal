@@ -81,6 +81,7 @@ end
 
 function EditorMapInteraction:beginAssetDrag(kind, id, label)
     local self = self.editor
+    self:setAssetDropTarget(nil)
     self.asset_drag = { kind = kind, id = id, label = label or id }
     local icon
     if kind == "drawfx" then icon = "editor/ui/tool/brush" end
@@ -152,7 +153,25 @@ end
 
 function EditorMapInteraction:finishDragPreview()
     local self = self.editor
+    self:setAssetDropTarget(nil)
     self.drag_preview = nil
+end
+
+function EditorMapInteraction:setAssetDropTarget(target)
+    local self = self.editor
+    if self.asset_drop_target == target then return end
+    if self.asset_drop_target then self.asset_drop_target.asset_drop_hover = false end
+    self.asset_drop_target = target
+    if target then target.asset_drop_hover = true end
+end
+
+function EditorMapInteraction:getAssetDropTarget(x, y, drag)
+    local self = self.editor
+    local target = self.dockspace:getControlAt(x, y)
+    while target do
+        if target.canAcceptAssetDrop and target:canAcceptAssetDrop(drag) then return target end
+        target = target.parent
+    end
 end
 
 function EditorMapInteraction:updateAssetDrag(x, y)
@@ -160,6 +179,7 @@ function EditorMapInteraction:updateAssetDrag(x, y)
     if not self.asset_drag then return false end
     self.asset_drag.x, self.asset_drag.y = x, y
     self:updateDragPreview(x, y)
+    self:setAssetDropTarget(self:getAssetDropTarget(x, y, self.asset_drag))
     return true
 end
 
@@ -186,9 +206,11 @@ end
 function EditorMapInteraction:finishAssetDrag(x, y)
     local self = self.editor
     local drag = self.asset_drag
+    local drop_target = drag and self:getAssetDropTarget(x, y, drag)
     self.asset_drag = nil
     self:finishDragPreview()
     if not drag then return false end
+    if drop_target and drop_target.acceptAssetDrop and drop_target:acceptAssetDrop(drag) then return true end
     local selection, view, world_x, world_y = self:getMapObjectAtScreen(x, y)
     if drag.kind == "drawfx" then
         if not selection then
@@ -232,6 +254,10 @@ function EditorMapInteraction:getMapObjectPropertiesTarget(selection)
     data.__editor_property_types = data.__editor_property_types or {}
     local object_id = selection.document:getEditorObjectType(data, selection.map_id)
     local layer_type = Registry.getLayerType(selection.layer._editor_type_id)
+    local tile_object = data.gid or data.tileset and data.tile_id ~= nil
+    local explicit_type = type(data.type) == "string" and data.type ~= ""
+    local assignable_type = not tile_object and not explicit_type and not Registry.getEditorObject(object_id)
+        and layer_type and layer_type.id == "objects"
     local editor_object = Registry.createEditorObject(object_id, data, {
         depth = tonumber(selection.layer._editor_depth_offset) or 0,
         layer_uid = selection.layer._editor_uid,
@@ -279,12 +305,25 @@ function EditorMapInteraction:getMapObjectPropertiesTarget(selection)
         field.id = key
         return field
     end
-    local tile_object = data.gid or data.tileset and data.tile_id ~= nil
     local name_field = valueField("Name", "name")
     name_field.compact = true
     local type_field = valueField("Type", "type")
     type_field.compact = true
-    type_field.readonly = true
+    type_field.readonly = not assignable_type
+    if assignable_type then
+        type_field.placeholder = "Select object..."
+        type_field.choices = {}
+        for _, entry in ipairs(Registry.getEditorObjectAll()) do
+            table.insert(type_field.choices, { value = entry.id, label = entry.name })
+        end
+        type_field.drop_value = function(drag)
+            local object = drag.kind == "object" and Registry.getEditorObject(drag.id)
+            if object and not object.editor_hidden then return drag.id end
+        end
+        type_field.rebuild_target = function()
+            return self:getMapObjectPropertiesTarget(selection)
+        end
+    end
     local fields = {
         name_field, type_field,
         numberField("X", "x"), numberField("Y", "y")
@@ -438,7 +477,9 @@ function EditorMapInteraction:getMapObjectBatchPropertiesTarget(selections)
             for index = 2, #field_maps do
                 if field_maps[index][id].readonly then field.readonly = true break end
             end
-            field.rebuild_target = nil
+            field.rebuild_target = source.rebuild_target and function()
+                return self:getMapObjectBatchPropertiesTarget(selections)
+            end or nil
             table.insert(fields, field)
         end
     end

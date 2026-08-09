@@ -368,17 +368,24 @@ function EditorMapView:isRotationHandleAt(world_x, world_y)
 end
 
 function EditorMapView:snapToMapGrid(entry, world_x, world_y)
-    if Input.ctrl() then return world_x, world_y end
     local tile_width, tile_height = entry.tile_width or 40, entry.tile_height or 40
-    return entry.x + MathUtils.round((world_x - entry.x) / tile_width) * tile_width,
-        entry.y + MathUtils.round((world_y - entry.y) / tile_height) * tile_height
+    return entry.x + self:snapObjectDragValue(world_x - entry.x, tile_width),
+        entry.y + self:snapObjectDragValue(world_y - entry.y, tile_height)
+end
+
+function EditorMapView:snapObjectDragValue(value, tile_size)
+    if Input.ctrl() and not Input.shift() then return value end
+    local interval = Input.shift() and tile_size / (Input.ctrl() and 10 or 2) or tile_size
+    return MathUtils.round(value / interval) * interval
 end
 
 function EditorMapView:snapPointShapeToMapGrid(entry, world_x, world_y)
-    if not Input.ctrl() then return world_x, world_y end
+    if not Input.ctrl() and not Input.shift() then return world_x, world_y end
     local tile_width, tile_height = entry.tile_width or 40, entry.tile_height or 40
-    return entry.x + MathUtils.round((world_x - entry.x) / tile_width) * tile_width,
-        entry.y + MathUtils.round((world_y - entry.y) / tile_height) * tile_height
+    local divisor = Input.ctrl() and Input.shift() and 10 or Input.shift() and 2 or 1
+    local interval_x, interval_y = tile_width / divisor, tile_height / divisor
+    return entry.x + MathUtils.round((world_x - entry.x) / interval_x) * interval_x,
+        entry.y + MathUtils.round((world_y - entry.y) / interval_y) * interval_y
 end
 
 function EditorMapView:getTileEditTarget(world_x, world_y, options)
@@ -2450,11 +2457,11 @@ function EditorMapView:canManipulateObjectSelection()
 end
 
 function EditorMapView:beginObjectMove(selection, world_x, world_y)
-    if Input.shift() then
+    local additive = Input.shift() and not Input.ctrl()
+    local selected = self.editor:isMapObjectSelected(selection)
+    if additive and not selected then
         self.editor:selectMapObject(selection, true)
-        return true
-    end
-    if not self.editor:isMapObjectSelected(selection) then
+    elseif not selected then
         self.editor:selectMapObject(selection)
     end
     local snapshots = {}
@@ -2476,7 +2483,11 @@ function EditorMapView:beginObjectMove(selection, world_x, world_y)
         object_x = selection.data.x or 0,
         object_y = selection.data.y or 0,
         width = selection.data.width or 0,
-        height = selection.data.height or 0
+        height = selection.data.height or 0,
+        shift_toggle = additive and selected,
+        moved = false,
+        delta_x = 0,
+        delta_y = 0
     }
     self.editor:beginHistoryTransaction("Move Objects", self.document)
     return true
@@ -2766,10 +2777,7 @@ function EditorMapView:onMousePressed(x, y, button, presses)
             return true
         elseif tool == "shape" and self.editor.shape_mode == "point" then
             local entry = self:getMapAt(world_x, world_y) or self.document:getPrimaryMap()
-            if not Input.ctrl() then
-                world_x = MathUtils.round(world_x / (entry.tile_width or 40)) * (entry.tile_width or 40)
-                world_y = MathUtils.round(world_y / (entry.tile_height or 40)) * (entry.tile_height or 40)
-            end
+            world_x, world_y = self:snapToMapGrid(entry, world_x, world_y)
             self.editor:beginHistoryTransaction("Create Point", self.document)
             local object, layer_or_reason, map_id = self.document:addShapeObject("point", entry.id, world_x, world_y, 0, 0)
             if not object then
@@ -2957,9 +2965,6 @@ function EditorMapView:onMouseMoved(x, y, dx, dy)
         local data = drag.selection.data
         local tile_width = drag.selection.entry.tile_width or 40
         local tile_height = drag.selection.entry.tile_height or 40
-        local function snap(value, size)
-            return Input.ctrl() and value or MathUtils.round(value / size) * size
-        end
         if drag.resize then
             local rotation = math.rad(data.rotation or 0)
             local inverse = -rotation
@@ -2968,8 +2973,10 @@ function EditorMapView:onMouseMoved(x, y, dx, dy)
             local local_y = relative_x * math.sin(inverse) + relative_y * math.cos(inverse)
             local right = drag.resize_corner == "ne" or drag.resize_corner == "se"
             local bottom = drag.resize_corner == "sw" or drag.resize_corner == "se"
-            local width = math.max(0, snap(right and local_x or -local_x, tile_width))
-            local height = math.max(0, snap(bottom and local_y or -local_y, tile_height))
+            local width = math.max(0,
+                self:snapObjectDragValue(right and local_x or -local_x, tile_width))
+            local height = math.max(0,
+                self:snapObjectDragValue(bottom and local_y or -local_y, tile_height))
             if drag.scaling_mode == "scale" and drag.base_width > 0 and drag.base_height > 0 then
                 data.scale_x = width / drag.base_width
                 data.scale_y = height / drag.base_height
@@ -2982,12 +2989,14 @@ function EditorMapView:onMouseMoved(x, y, dx, dy)
             local origin_y = drag.fixed_y - opposite_x * math.sin(rotation) - opposite_y * math.cos(rotation)
             data.x = origin_x - drag.selection.entry.x - (drag.selection.layer.offsetx or 0)
             data.y = origin_y - drag.selection.entry.y - (drag.selection.layer.offsety or 0)
+            drag.moved = true
         else
             local delta_x, delta_y = world_x - drag.start_x, world_y - drag.start_y
-            if not Input.ctrl() then
-                delta_x = MathUtils.round(delta_x / tile_width) * tile_width
-                delta_y = MathUtils.round(delta_y / tile_height) * tile_height
-            end
+            delta_x = self:snapObjectDragValue(delta_x, tile_width)
+            delta_y = self:snapObjectDragValue(delta_y, tile_height)
+            if delta_x == drag.delta_x and delta_y == drag.delta_y then return true end
+            drag.delta_x, drag.delta_y = delta_x, delta_y
+            if delta_x ~= 0 or delta_y ~= 0 then drag.moved = true end
             local invalidated = {}
             for _, snapshot in ipairs(drag.selections) do
                 snapshot.selection.data.x = snapshot.x + delta_x
@@ -3133,9 +3142,15 @@ function EditorMapView:onMouseReleased(x, y, button, presses)
         return true
     end
     if button == 1 and self.object_drag then
+        local drag = self.object_drag
         self.object_drag = nil
-        self.editor:commitHistoryTransaction()
-        self.editor:selectMapObjects(self.editor:getSelectedMapObjects(), self.editor.selected_map_object)
+        if drag.shift_toggle and not drag.moved then
+            self.editor:cancelHistoryTransaction()
+            self.editor:selectMapObject(drag.selection, true)
+        else
+            self.editor:commitHistoryTransaction()
+            self.editor:selectMapObjects(self.editor:getSelectedMapObjects(), self.editor.selected_map_object)
+        end
         return true
     end
     if button == 1 and self.polygon_vertex_drag then

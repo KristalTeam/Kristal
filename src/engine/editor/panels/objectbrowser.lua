@@ -41,20 +41,17 @@ end
 
 function EditorObjectBrowser:refresh()
     local items = {}
-    for id, object in pairs(Registry.editor_objects or {}) do
-        if not object.editor_hidden then
-            local success, preview = pcall(Registry.createEditorObject, id, {
-                x = 0, y = 0, width = 0, height = 0, properties = {}
-            }, { layer_color = { 0.95, 0.75, 0.25, 1 } })
-            table.insert(items, {
-                id = id,
-                label = object.editor_name or object.name or StringUtils.titleCase(id:gsub("[/_]", " ")),
-                data = object,
-                preview = success and preview or nil
-            })
-        end
+    for _, entry in ipairs(Registry.getEditorObjectAll()) do
+        local success, preview = pcall(Registry.createEditorObject, entry.id, {
+            x = 0, y = 0, width = 0, height = 0, properties = {}
+        }, { layer_color = { 0.95, 0.75, 0.25, 1 } })
+        table.insert(items, {
+            id = entry.id,
+            label = entry.name,
+            data = entry.class,
+            preview = success and preview or nil
+        })
     end
-    table.sort(items, function(a, b) return a.label:lower() < b.label:lower() end)
     self.list:setItems(items)
 end
 
