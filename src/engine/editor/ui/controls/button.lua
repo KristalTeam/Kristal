@@ -1,5 +1,8 @@
 --- Provides a clickable editor button.
 ---@class EditorButton : EditorControl
+---@field acceptAssetDrop? fun(self: EditorButton, drag: table): boolean
+---@field asset_drop_hover boolean
+---@field canAcceptAssetDrop? fun(self: EditorButton, drag: table): boolean
 ---@field cursor_type string
 ---@field focusable boolean
 ---@field focused boolean
@@ -16,6 +19,7 @@ function EditorButton:init(label, on_pressed)
     self.focusable = true
     self.focused = false
     self.pressed = false
+    self.asset_drop_hover = false
     self.cursor_type = "select"
 end
 
@@ -49,19 +53,20 @@ end
 function EditorButton:drawSelf()
     local font = EditorFont.get(16)
     local previous_line_width = love.graphics.getLineWidth()
+    local highlighted = self.focused or self.asset_drop_hover
     love.graphics.setFont(font)
     if not self.enabled then
         Draw.setColor(0.11, 0.11, 0.13, 1)
     elseif self.pressed then
         Draw.setColor(0.18, 0.28, 0.42, 1)
-    elseif self.focused then
+    elseif highlighted then
         Draw.setColor(0.20, 0.30, 0.46, 1)
     else
         Draw.setColor(0.15, 0.15, 0.18, 1)
     end
     love.graphics.rectangle("fill", 0, 0, self.width, self.height)
-    Draw.setColor(self.focused and 0.55 or 0.32, self.focused and 0.68 or 0.32,
-        self.focused and 0.90 or 0.37, 1)
+    Draw.setColor(highlighted and 0.55 or 0.32, highlighted and 0.68 or 0.32,
+        highlighted and 0.90 or 0.37, 1)
     love.graphics.setLineWidth(1)
     love.graphics.rectangle("line", 0.5, 0.5, self.width - 1, self.height - 1)
     love.graphics.setLineWidth(previous_line_width)

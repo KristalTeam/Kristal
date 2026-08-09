@@ -301,9 +301,13 @@ function EditorPropertiesPanel:rebuild()
         if field.choices then
             local button
             local mixed = field.mixed and field.mixed() or false
-            local _, current_label = EditorChoiceUtils.find(field.choices, field.get())
+            local current_value = field.get()
+            local _, current_label = EditorChoiceUtils.find(field.choices, current_value)
+            local current_display = current_label
+                or current_value ~= nil and tostring(current_value) ~= "" and current_value
+                or field.placeholder
             button = self:addGeneratedControl(EditorButton(
-                mixed and "--" or displayValue(current_label or field.get()), function()
+                mixed and "--" or displayValue(current_display), function()
                 local items = {}
                 for _, choice in ipairs(field.choices) do
                     local choice_value = EditorChoiceUtils.getValue(choice)
@@ -321,6 +325,15 @@ function EditorPropertiesPanel:rebuild()
                     searchable = #items > 12
                 })
             end))
+            if field.drop_value then
+                button.canAcceptAssetDrop = function(_, drag)
+                    return field.drop_value(drag) ~= nil
+                end
+                button.acceptAssetDrop = function(_, drag)
+                    local value = field.drop_value(drag)
+                    return value ~= nil and setField(value, true)
+                end
+            end
             button.enabled = field.readonly ~= true
             value_control = button
         elseif field.control == "color" or field.type == "color" then

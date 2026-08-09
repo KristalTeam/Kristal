@@ -678,6 +678,28 @@ function Registry.getEditorObject(id)
     return self.editor_objects and self.editor_objects[id]
 end
 
+---@class RegistryEditorObjectEntry
+---@field id string
+---@field name string
+---@field class EditorObject
+
+---@param include_hidden boolean?
+---@return RegistryEditorObjectEntry[]
+function Registry.getEditorObjectAll(include_hidden)
+    local result = {}
+    for id, object in pairs(self.editor_objects or {}) do
+        if include_hidden or not object.editor_hidden then
+            table.insert(result, {
+                id = id,
+                name = object.editor_name or object.name or StringUtils.titleCase(id:gsub("[/_]", " ")),
+                class = object
+            })
+        end
+    end
+    table.sort(result, function(a, b) return a.name:lower() < b.name:lower() end)
+    return result
+end
+
 ---@param id string?
 ---@return "event"|"controller"|"marker"|"path"|"player"
 function Registry.getEditorObjectRuntimeType(id)
