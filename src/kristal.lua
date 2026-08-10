@@ -679,8 +679,9 @@ function Kristal.errorHandler(msg, trace_level)
     local copy_color = { 1, 1, 1, 1 }
     local anim_index = 1
     local starwalker_error = (love.math.random(100) <= 5) -- 5% chance for starwalker
-    local asgore_chance = love.math.random(100)
-	local asgore_error = (asgore_chance <= 25 and asgore_chance > 5)
+    ---local asgore_chance = love.math.random(100)
+	---local asgore_error = (asgore_chance <= 25 and asgore_chance > 5)
+    --- Nevermind, it's not used. If it was, it would've told something like You cannot give up just yet...You have to keep going, stay determined! idk
     local font = love.graphics.newFont("assets/fonts/main.ttf", 32, "mono")
     local smaller_font = love.graphics.newFont("assets/fonts/main.ttf", 16, "mono")
 
