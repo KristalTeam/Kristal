@@ -874,7 +874,7 @@ function EnemyBattler:onHurt(damage, battler)
     if not self:getActiveSprite():setAnimation("hurt") then
         self:toggleOverlay(false)
     end
-    self:getActiveSprite():shake(9, 0, 0.5, 2 / 30)
+    self:getActiveSprite():shake(9, 0, 1, 2 / 30, true)
 
     if self.health <= (self.max_health * self.tired_percentage) then
         -- If `tired_percentage` is set to 0 (or less?), treat that as an indication to hide the message.
@@ -910,6 +910,7 @@ end
 ---@param damage?    number
 ---@param battler?   PartyBattler
 function EnemyBattler:onDefeatRun(damage, battler)
+    self:getActiveSprite():stopShake()
     self.hurt_timer = -1
     self.defeated = true
 

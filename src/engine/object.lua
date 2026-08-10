@@ -395,6 +395,7 @@ end
 ---@field shake_friction number       The amount the object's shake will slow down, per frame at 30FPS.
 ---@field shake_delay    number       The time it takes for the object to invert its shake direction, in seconds.
 ---@field shake_timer    number       *(Used internally)* A timer used to invert the object's shake direction.
+---@field shake_ignorescale boolean  If the shake amount should ignore the object's and its parents' scales.
 
 --- Resets all of the object's `graphics` table values to their default values, \
 --- making it so it will stop transforming if it was before.
@@ -426,7 +427,9 @@ function Object:resetGraphics()
         -- Shake speed (How much time it takes to invert the shake)
         shake_delay = 2 / 30,
         -- Shake timer (used to invert the shake)
-        shake_timer = 0
+        shake_timer = 0,
+        -- If the shake amount should ignore object and parent scaling
+        shake_ignorescale = false
     }
 end
 
@@ -485,12 +488,14 @@ end
 ---@param y?        number   The amount of shake in the `y` direction. (Defaults to `0`)
 ---@param friction? number   The amount that the shake should decrease by, per frame at 30FPS. (Defaults to `1`)
 ---@param delay?    number   The time it takes for the object to invert its shake direction, in seconds. (Defaults to `1/30`)
-function Object:shake(x, y, friction, delay)
+---@param ignorescale? boolean If the shake amount should ignore the object's and its parents' scales. (Defaults to `false`)
+function Object:shake(x, y, friction, delay, ignorescale)
     self.graphics.shake_x = x or 4
     self.graphics.shake_y = y or 0
     self.graphics.shake_friction = friction or 1
     self.graphics.shake_delay = delay or (1 / 30)
     self.graphics.shake_timer = 0
+    self.graphics.shake_ignorescale = ignorescale or false
 end
 
 --- Stops the object from shaking.
@@ -1362,7 +1367,14 @@ function Object:applyTransformTo(transform, floor_x, floor_y)
     end
     if self.graphics and ((self.graphics.shake_x and self.graphics.shake_x ~= 0) or (self.graphics.shake_y and self.graphics.shake_y ~= 0)) then
         local shake_x, shake_y = math.ceil(self.graphics.shake_x), math.ceil(self.graphics.shake_y)
-        if not floor_x then
+        if self.graphics.shake_ignorescale then
+            if floor_x then
+                transform:translate(shake_x * floor_x, shake_y * floor_y)
+            else
+                local scale_x, scale_y = self:getFullScale()
+                transform:translate(scale_x ~= 0 and shake_x / scale_x or 0, scale_y ~= 0 and shake_y / scale_y or 0)
+            end
+        elseif not floor_x then
             transform:translate(shake_x, shake_y)
         else
             transform:translate(MathUtils.floorToMultiple(shake_x, floor_x), MathUtils.floorToMultiple(shake_y, floor_y))
