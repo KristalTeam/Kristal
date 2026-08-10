@@ -209,6 +209,7 @@ function love.load(args)
 
     -- load menu
     Kristal.setState("Loading")
+    local FIRST_ERROR_SESSION = true
 
     -- Initialize Discord RPC
     if DISCORD_RPC_AVAILABLE and Kristal.Config["discordRPC"] then
@@ -679,6 +680,8 @@ function Kristal.errorHandler(msg, trace_level)
     local copy_color = { 1, 1, 1, 1 }
     local anim_index = 1
     local starwalker_error = (love.math.random(100) <= 5) -- 5% chance for starwalker
+    local asgore_chance = love.math.random(100)
+	local asgore_error = (asgore_chance <= 26 and asgore_chance > 5)
     local font = love.graphics.newFont("assets/fonts/main.ttf", 32, "mono")
     local smaller_font = love.graphics.newFont("assets/fonts/main.ttf", 16, "mono")
 
@@ -901,35 +904,50 @@ function Kristal.errorHandler(msg, trace_level)
             love.graphics.setFont(smaller_font)
             love.graphics.printf("- Stack overflow (recursive loop?)", pos + 24, ypos + 96 + 32, warp)
         end
+        
+        if FIRST_ERROR_SESSION then
+			if starwalker_error then
+				Draw.draw(
+					starwalkertext,
+					window_width - starwalkertext:getWidth() - 20,
+					window_height - starwalkertext:getHeight() - (starwalker:getHeight() * 2)
+				)
 
-        if starwalker_error then
-            Draw.draw(
-                starwalkertext,
-                window_width - starwalkertext:getWidth() - 20,
-                window_height - starwalkertext:getHeight() - (starwalker:getHeight() * 2)
-            )
+				love.graphics.push()
+				love.graphics.scale(2, 2)
+				Draw.draw(
+					starwalker,
+					(window_width / 2) - starwalker:getWidth(),
+					(window_height / 2) - starwalker:getHeight()
+				)
+				love.graphics.pop()
+			elseif asgore_error then
+				error_colour = { 1, 1, 1, 1 }
+				Draw.setColor(error_colour)
+				love.graphics.push()
+				love.graphics.print("You cannot give up just yet...\nYou have to keep going!\nStay determined...", (window_width / 2) + 250, (window_height / 2) + 200)
+				love.graphics.pop()
+			else
+				anim_index = anim_index + (DT * 4)
+				if anim_index >= 8 then
+					anim_index = 1
+				end
 
-            love.graphics.push()
-            love.graphics.scale(2, 2)
-            Draw.draw(
-                starwalker,
-                (window_width / 2) - starwalker:getWidth(),
-                (window_height / 2) - starwalker:getHeight()
-            )
-            love.graphics.pop()
-        else
-            anim_index = anim_index + (DT * 4)
-            if anim_index >= 8 then
-                anim_index = 1
-            end
+				local banana = banana_anim[math.floor(anim_index)]
 
-            local banana = banana_anim[math.floor(anim_index)]
-
-            love.graphics.push()
-            love.graphics.scale(2, 2)
-            Draw.draw(banana, (window_width / 2) - banana:getWidth(), (window_height / 2) - banana:getHeight())
-            love.graphics.pop()
-        end
+				love.graphics.push()
+				love.graphics.scale(2, 2)
+				Draw.draw(banana, (window_width / 2) - banana:getWidth(), (window_height / 2) - banana:getHeight())
+				love.graphics.pop()
+			end
+		else
+			FIRST_ERROR_SESSION = false
+			error_colour = { 1, 1, 1, 1 }
+			Draw.setColor(error_colour)
+			love.graphics.push()
+			love.graphics.print("You cannot give up just yet...\nYou have to keep going!\nStay determined...", (window_width / 2) + 250, (window_height / 2) + 200)
+			love.graphics.pop()
+		end
 
         -- DT shouldnt exceed 30FPS
         DT = math.min(love.timer.getDelta(), 1 / 30)
