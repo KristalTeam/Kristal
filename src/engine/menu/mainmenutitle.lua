@@ -45,7 +45,7 @@ function MainMenuTitle:onEnter(old_state)
             { "modfolder", "Open folder" },
             { "options", "Options" },
             { "credits", "Credits" },
-            { "wiki", "Open wiki" },
+            { "about", "About" },
             { "quit", "Quit" },
         }
     end
@@ -99,8 +99,9 @@ function MainMenuTitle:onKeyPressed(key, is_repeat)
         elseif option == "credits" then
             self.menu:setState("CREDITS")
 
-        elseif option == "wiki" then
-            love.system.openURL("https://kristal.cc/wiki")
+        elseif option == "about" then
+            Input.clear("confirm") -- TODO: remove this once onKeyPressed is removed from other states
+            self.menu:setState("ABOUT")
 
         elseif option == "quit" then
             love.event.quit()
