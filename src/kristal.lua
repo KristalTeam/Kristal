@@ -830,6 +830,7 @@ function Kristal.errorHandler(msg, trace_level)
     local show_libraries = false
 
     local function draw()
+		local currentos = love.system.getOS()
         local pos = 32
         local ypos = pos
         love.graphics.origin()
@@ -945,8 +946,13 @@ function Kristal.errorHandler(msg, trace_level)
             love.graphics.print("Press ESC to return to mod menu", 8, window_height - (critical and 20 or 40))
         end
         if not critical then
-            Draw.setColor(copy_color)
-            love.graphics.print("Press CTRL+C to copy traceback to clipboard", 8, window_height - 20)
+			if currentos ~= "OS X" then
+				Draw.setColor(copy_color)
+				love.graphics.print("Press CTRL+C to copy traceback to clipboard", 8, window_height - 20)
+			else
+				Draw.setColor(copy_color)
+				love.graphics.print("Press CMD+C to copy traceback to clipboard", 8, window_height - 20)
+			end
         end
 
         if show_libraries then
@@ -973,7 +979,7 @@ function Kristal.errorHandler(msg, trace_level)
         end
 
         love.event.pump()
-        currentos = love.system.getOS()
+        local currentos = love.system.getOS()
         for e, a, b, c in love.event.poll() do
             if e == "quit" then
                 return 1
