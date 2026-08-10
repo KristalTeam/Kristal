@@ -679,6 +679,8 @@ function Kristal.errorHandler(msg, trace_level)
     local copy_color = { 1, 1, 1, 1 }
     local anim_index = 1
     local starwalker_error = (love.math.random(100) <= 5) -- 5% chance for starwalker
+    local asgore_chance = love.math.random(100)
+	local asgore_error = (asgore_chance <= 25 and asgore_chance > 5)
     local font = love.graphics.newFont("assets/fonts/main.ttf", 32, "mono")
     local smaller_font = love.graphics.newFont("assets/fonts/main.ttf", 16, "mono")
 
@@ -958,7 +960,7 @@ function Kristal.errorHandler(msg, trace_level)
 
         love.graphics.present()
     end
-
+            
     local function copyToClipboard()
         if not love.system then return end
         copy_color = { 0, 1, 0, 1 }
@@ -973,7 +975,7 @@ function Kristal.errorHandler(msg, trace_level)
         end
 
         love.event.pump()
-
+        currentos = love.system.getOS()
         for e, a, b, c in love.event.poll() do
             if e == "quit" then
                 return 1
@@ -983,9 +985,9 @@ function Kristal.errorHandler(msg, trace_level)
                 else
                     return "reload"
                 end
-            elseif e == "keypressed" and a == "r" and love.keyboard.isDown("lctrl", "rctrl") and love.keyboard.isDown("lalt", "ralt") and love.keyboard.isDown("lshift", "rshift") then
+            elseif e == "keypressed" and a == "r" and love.keyboard.isDown("lalt", "ralt") and love.keyboard.isDown("lshift", "rshift") and ((love.keyboard.isDown("lctrl", "rctrl") and currentos ~= "OS X") or (love.keyboard.isDown("lgui", "rgui") and currentos == "OS X")) then
                 return "restart"
-            elseif e == "keypressed" and a == "c" and love.keyboard.isDown("lctrl", "rctrl") and not critical then
+            elseif e == "keypressed" and a == "c" and ((love.keyboard.isDown("lctrl", "rctrl") and currentos ~= "OS X") or (love.keyboard.isDown("lgui", "rgui") and currentos == "OS X")) and not critical then
                 copyToClipboard()
             elseif e == "touchpressed" then
                 local name = love.window.getTitle()
