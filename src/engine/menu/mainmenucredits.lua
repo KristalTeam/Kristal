@@ -69,6 +69,7 @@ function MainMenuCredits:init(menu)
                 "MaybeSamo",
                 "MCdeDaxia",
                 "MihBoss96",
+                "mpjasonreal",
                 "MrOinky"
             }
         },
@@ -94,8 +95,7 @@ function MainMenuCredits:init(menu)
                 "TheSkerch",
                 "Verozity",
                 "WIL-TZY",
-                "YeetusSnoopy",
-                "mpjasonreal"
+                "YeetusSnoopy"
             }
         }
     }
