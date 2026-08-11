@@ -81,13 +81,14 @@ function MainMenuCredits:init(menu)
                 "Nextop",
                 "nightpool",
                 "prokube",
+                "raisinbrainguy",
                 "rfrx",
                 "Simbel",
-                "sjl057",
-                "skarph"
+                "sjl057"
             },
             {
                 { "GitHub Contributors", COLORS.silver },
+                "skarph",
                 "SuperOfSrb2",
                 "SweetSylveon",
                 "TFLTV",
