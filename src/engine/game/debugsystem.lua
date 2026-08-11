@@ -1229,7 +1229,7 @@ function DebugSystem:registerDefaults()
                 function(text)
                     local money = tonumber(text)
                     if money then
-                        if not MathUtils.isNaN(money) and not money == math.huge then
+                        if not MathUtils.isNaN(money) and not (money == math.huge) then
                             if Game:isLight() then
                                 Game.lw_money = Game.lw_money + money
                             else
