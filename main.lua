@@ -40,7 +40,8 @@ HookSystem = require("src.utils.hooksystem")
 Utils = require("src.utils.utils")
 
 GitFinder = require("src.utils.gitfinder")
-CollisionUtil = require("src.utils.collision")
+CollisionUtil = require("src.utils.collision") -- TODO: Rename ??????? Why did i do this
+CollisionUtils = require("src.utils.collisionutils")
 Draw = require("src.utils.draw")
 
 Kristal = require("src.kristal")

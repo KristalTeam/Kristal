@@ -23,7 +23,7 @@ function SlideArea:onCollide(chara)
         end
 
         if not chara:isSliding() then
-            if self:checkAgainstWall(chara) then
+            if chara:checkSlideStop() then
                 return
             end
 
@@ -54,20 +54,6 @@ function SlideArea:update()
     Object.endCache()
 
     super.update(self)
-end
-
-function SlideArea:checkAgainstWall(chara)
-    local hb = chara.collider
-
-    if hb and hb:includes(Hitbox) then
-        local extended_hitbox = Hitbox(chara, hb.x + 0.25, hb.y + 0.25, hb.width - 0.5, (hb.height - 0.5) * 1.5)
-
-        if self.world:checkCollision(extended_hitbox) then
-            return true
-        end
-    end
-
-    return false
 end
 
 return SlideArea

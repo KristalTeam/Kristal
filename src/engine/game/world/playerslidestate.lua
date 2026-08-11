@@ -14,14 +14,24 @@ end
 -------------------------------------------------------------------------------
 
 function PlayerSlideState:handleMovement()
-    local slide_x = 0
+    super.handleMovement(self)
 
     if self.player:isMovementEnabled() then
-        if Input.down("right") then slide_x = slide_x + 1 end
-        if Input.down("left") then slide_x = slide_x - 1 end
-    end
+        local slide_x = 0
 
-    self.player:move(slide_x, 2, 6 * DTMULT)
+        if Input.down("right") then
+            slide_x = slide_x + (6 * DTMULT)
+        end
+        if Input.down("left") then
+            slide_x = slide_x - (6 * DTMULT)
+        end
+
+        if slide_x ~= 0 then
+            if not self.player:shouldCollideWithSolids() or not self.player:checkSolidCollisionAt(self.player.x + slide_x, self.player.y) then
+                self.player.x = self.player.x + slide_x
+            end
+        end
+    end
 end
 
 return PlayerSlideState

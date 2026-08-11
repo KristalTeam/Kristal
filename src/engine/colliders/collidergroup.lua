@@ -60,7 +60,7 @@ function ColliderGroup:setInner(inner)
 end
 
 --- Gets a list of colliders contained in the group.
---- 
+---
 --- Modifying the returned table directly will not update the collider group's list. To update its colliders,
 --- use [`ColliderGroup:addCollider`](lua://ColliderGroup.addCollider) or [`ColliderGroup:setColliders`](lua://ColliderGroup.setColliders)
 --- instead.

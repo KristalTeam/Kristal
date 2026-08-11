@@ -149,10 +149,10 @@ end
 function Collider:getRelativeBounds(source_tf, target_tf)
     local bounds_x, bounds_y, bounds_w, bounds_h = self:getBounds()
 
-    local ul_x, ul_y = self:getLocalPoint(source_tf, target_tf, bounds_x, bounds_y)
-    local ur_x, ur_y = self:getLocalPoint(source_tf, target_tf, bounds_x + bounds_w, bounds_y)
-    local dr_x, dr_y = self:getLocalPoint(source_tf, target_tf, bounds_x + bounds_w, bounds_y + bounds_h)
-    local dl_x, dl_y = self:getLocalPoint(source_tf, target_tf, bounds_x, bounds_y + bounds_h)
+    local ul_x, ul_y = self:getLocalPoint(target_tf, source_tf, bounds_x, bounds_y)
+    local ur_x, ur_y = self:getLocalPoint(target_tf, source_tf, bounds_x + bounds_w, bounds_y)
+    local dr_x, dr_y = self:getLocalPoint(target_tf, source_tf, bounds_x + bounds_w, bounds_y + bounds_h)
+    local dl_x, dl_y = self:getLocalPoint(target_tf, source_tf, bounds_x, bounds_y + bounds_h)
 
     local min_x = math.min(ul_x, ur_x, dr_x, dl_x)
     local min_y = math.min(ul_y, ur_y, dr_y, dl_y)

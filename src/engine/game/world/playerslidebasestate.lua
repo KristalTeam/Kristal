@@ -58,28 +58,31 @@ function PlayerSlideBaseState:onSlideEnd()
 end
 
 function PlayerSlideBaseState:handleMovement()
-    self.player:move(0, 2, 6 * DTMULT)
+    self.player.y = self.player.y + (12 * DTMULT)
 end
 
 function PlayerSlideBaseState:checkSlideEnd()
-    if self.player.last_collided_y then
-        self:onSlideEnd()
-    end
-
-    local is_colliding = false
+    local stopped = false
 
     Object.startCache()
-    for _, obj in ipairs(Game.world.children) do
-        if obj:includes(SlideArea) and obj:meetsObject(self.player) then
-            is_colliding = true
-            self.was_colliding = true
-            break
+
+    if self.player:checkSlideStop() then
+        stopped = true
+    else
+        stopped = self.was_colliding
+
+        for _, obj in ipairs(Game.stage:getObjects(SlideArea)) do
+            if obj:meetsObject(self.player) then
+                stopped = false
+                self.was_colliding = true
+                break
+            end
         end
     end
 
     Object.endCache()
 
-    if not is_colliding and self.was_colliding then
+    if stopped then
         self:onSlideEnd()
     end
 end

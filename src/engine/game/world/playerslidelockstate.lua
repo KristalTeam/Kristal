@@ -30,10 +30,6 @@ function PlayerSlideLockState:updateSlideLand()
     end
 end
 
-function PlayerSlideLockState:handleMovement()
-    self.player:move(0, 12, DTMULT)
-end
-
 function PlayerSlideLockState:onSlideEnd()
     self.landed = true
     self.landed_timer = 4

@@ -1465,15 +1465,18 @@ function Object:getFullTransform(i)
     end
 end
 
----@return table hierarchy A table of all parents between this object and its stage (inclusive).
+---@return Object[] hierarchy A table of all parents between this object and its stage (inclusive).
 function Object:getHierarchy()
-    local tbl = { self }
-    if self.parent then
-        for _, v in ipairs(self.parent:getHierarchy()) do
-            table.insert(tbl, v)
-        end
+    local hierarchy = {} ---@type Object[]
+
+    local current = self ---@type Object?
+    while current ~= nil do
+        table.insert(hierarchy, current)
+
+        current = current.parent
     end
-    return tbl
+
+    return hierarchy
 end
 
 --- Returns the object's scale, multiplied by its parent's full scale.

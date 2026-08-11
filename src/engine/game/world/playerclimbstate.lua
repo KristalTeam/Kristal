@@ -940,7 +940,7 @@ function PlayerClimbState:checkClimbAreaExists()
 end
 
 --- *(Called internally)* Handles "neutral" movement.
---- 
+---
 --- This function is responsible for:
 --- - Updating the "last climb position"
 --- - Updating the "last safe climb position"
