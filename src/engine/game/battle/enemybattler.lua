@@ -176,6 +176,17 @@ function EnemyBattler:getMercyColor()
     return PALETTE["battle_mercy_text"]
 end
 
+--- *(Override)* Get whether the enemy should shake when hurt or not.
+--- This should be a boolean.
+--- 
+--- By default, returns true.
+---@param damage number The amount of damage the enemy took. Useful for if you only want it to shake for a certain threshold.
+---@return boolean should_shake
+function EnemyBattler:shouldShakeOnHurt(damage)
+    return true
+end
+
+
 --- *(Override)* Get the default graze tension for this enemy.
 --- Any bullets which don't specify graze tension will use this value.
 ---@return number tension The tension to gain when bullets spawned by this enemy are grazed.
@@ -874,7 +885,9 @@ function EnemyBattler:onHurt(damage, battler)
     if not self:getActiveSprite():setAnimation("hurt") then
         self:toggleOverlay(false)
     end
+    if self:shouldShakeOnHurt(damage) then 
     self:getActiveSprite():shake(9, 0, 0.5, 2 / 30)
+    end
 
     if self.health <= (self.max_health * self.tired_percentage) then
         -- If `tired_percentage` is set to 0 (or less?), treat that as an indication to hide the message.
