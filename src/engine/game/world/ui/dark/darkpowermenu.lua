@@ -41,6 +41,7 @@ function DarkPowerMenu:init()
 
     self.party = DarkMenuPartySelect(8, 48)
     self.party.focused = true
+    -- TODO: Game.chapter usage!
     if Game.chapter == 1 then
         self.party.highlight_party = false
     end
