@@ -451,6 +451,17 @@ function EnemyBattler:getSpareText(battler, success)
     end
 end
 
+--- *(Override)* Checks if the enemy should shake when damaged, and determines shake properties.
+---
+--- @param damage number The amount of damage taken. Useful for setting custom HP/DMG threshold checks.
+--- @return boolean should_shake If the enemy should shake when it's hurt.
+--- @return table shakenumbers An array-style configuration table, unpacked and passed into `:shake()`.
+function EnemyBattler:shouldShakeOnHurt(damage)
+    return true, {9, 0, 0.5, 2 / 30} -- A table that can be unpacked and passed into :shake().
+end
+
+
+
 --- *(Override)*
 ---@return boolean spareable
 function EnemyBattler:canSpare()
@@ -874,7 +885,10 @@ function EnemyBattler:onHurt(damage, battler)
     if not self:getActiveSprite():setAnimation("hurt") then
         self:toggleOverlay(false)
     end
-    self:getActiveSprite():shake(9, 0, 0.5, 2 / 30)
+    local bool, shake_table = self:shouldShakeOnHurt(damage) 
+    if bool then  
+    self:getActiveSprite():shake(TableUtils.unpack(shake_table))
+    end 
 
     if self.health <= (self.max_health * self.tired_percentage) then
         -- If `tired_percentage` is set to 0 (or less?), treat that as an indication to hide the message.
