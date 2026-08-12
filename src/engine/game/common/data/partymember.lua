@@ -685,7 +685,7 @@ end
 function PartyMember:getEquipmentBonus(stat)
     local total = 0
     for _, item in ipairs(self:getEquipment()) do
-        total = total + item:getStatBonus(stat)
+        total = total + item:getStatBonus(stat, self)
     end
     return total
 end
@@ -694,7 +694,7 @@ end
 function PartyMember:getStats(light)
     local stats = TableUtils.copy(self:getBaseStats(light))
     for _, item in ipairs(self:getEquipment()) do
-        for stat, amount in pairs(item:getStatBonuses()) do
+        for stat, amount in pairs(item:getStatBonuses(self)) do
             if stats[stat] then
                 stats[stat] = stats[stat] + amount
             else

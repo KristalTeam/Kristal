@@ -55,14 +55,14 @@ function item:init()
     }
 end
 
-function item:getStatBonuses()
+function item:getStatBonuses(character)
     -- TODO: Stat Display callbacks?
     -- Return empty bonuses outside of battle to hide stats visually
     if Game.state ~= "BATTLE" then
         return {}
     end
 
-    return super.getStatBonuses(self)
+    return super.getStatBonuses(self, character)
 end
 
 return item

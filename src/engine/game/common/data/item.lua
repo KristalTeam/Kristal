@@ -303,7 +303,6 @@ function Item:getTarget() return self.target end
 
 function Item:isSellable() return self.can_sell end
 
-function Item:getStatBonuses() return self.bonuses end
 function Item:getBonusName() return self.bonus_name end
 function Item:getBonusIcon() return self.bonus_icon end
 function Item:getBonusColor() return self.bonus_color end
@@ -427,11 +426,22 @@ function Item:calculateInvulnFramesPriority()
     return 0
 end
 
---- Gets the stat bonus an item has for a specific stat
----@param stat string
----@return number bonus
-function Item:getStatBonus(stat)
-    return self:getStatBonuses()[stat] or 0
+--- *(Override)* Gets a table of all stat bonuses this item provides when equipped.
+---@param character PartyMember? # An optional character to get the equipment stat bonuses for.
+---@return table<string, number> bonuses # A table of stat bonuses, where the key is the stat name and the value is the bonus amount.
+function Item:getStatBonuses(character)
+    return self.bonuses
+end
+
+--- Gets the stat bonus an item has for a specific stat.
+---
+--- This is a convenience function which is not always called. If you would like to override behaviour for dynamic stat bonuses, override
+--- [Item.getStatBonuses](lua://Item.getStatBonuses) instead.
+---@param stat string # The name of the stat to get the bonus for.
+---@param character PartyMember? # An optional character to get the equipment stat bonus for.
+---@return number bonus # The stat bonus amount.
+function Item:getStatBonus(stat, character)
+    return self:getStatBonuses(character)[stat] or 0
 end
 
 --- Gets whether a particular character can equip an item
