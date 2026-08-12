@@ -49,17 +49,18 @@ function CollisionRegistry.registerDefaultCollisions()
     -- Hitbox Collisions
     CollisionRegistry.register(CollisionRegistry.RECTANGLE, CollisionRegistry.RECTANGLE, KristalCollisions.rectRect)
     CollisionRegistry.register(CollisionRegistry.RECTANGLE, CollisionRegistry.LINE, KristalCollisions.rectLine, true)
-    CollisionRegistry.register(CollisionRegistry.RECTANGLE, CollisionRegistry.CIRCLE, KristalCollisions.rectCircle, true)
     CollisionRegistry.register(CollisionRegistry.RECTANGLE, CollisionRegistry.POINT, KristalCollisions.rectPoint, true)
 
     -- LineCollider Collisions
     CollisionRegistry.register(CollisionRegistry.LINE, CollisionRegistry.LINE, KristalCollisions.lineLine)
-    CollisionRegistry.register(CollisionRegistry.LINE, CollisionRegistry.CIRCLE, KristalCollisions.lineCircle, true)
     CollisionRegistry.register(CollisionRegistry.LINE, CollisionRegistry.POINT, KristalCollisions.linePoint, true)
 
     -- CircleCollider Collisions
+    CollisionRegistry.register(CollisionRegistry.CIRCLE, CollisionRegistry.RECTANGLE, KristalCollisions.circleRect, true)
+    CollisionRegistry.register(CollisionRegistry.CIRCLE, CollisionRegistry.LINE, KristalCollisions.circleLine, true)
     CollisionRegistry.register(CollisionRegistry.CIRCLE, CollisionRegistry.CIRCLE, KristalCollisions.circleCircle)
     CollisionRegistry.register(CollisionRegistry.CIRCLE, CollisionRegistry.POINT, KristalCollisions.circlePoint, true)
+    CollisionRegistry.register(CollisionRegistry.CIRCLE, CollisionRegistry.POLYGON, KristalCollisions.circlePolygon, true)
 
     -- PointCollider Collisions
     CollisionRegistry.register(CollisionRegistry.POINT, CollisionRegistry.POINT, KristalCollisions.pointPoint)
@@ -67,7 +68,6 @@ function CollisionRegistry.registerDefaultCollisions()
     -- PolygonCollider Collisions
     CollisionRegistry.register(CollisionRegistry.POLYGON, CollisionRegistry.RECTANGLE, KristalCollisions.polygonRect, true)
     CollisionRegistry.register(CollisionRegistry.POLYGON, CollisionRegistry.LINE, KristalCollisions.polygonLine, true)
-    CollisionRegistry.register(CollisionRegistry.POLYGON, CollisionRegistry.CIRCLE, KristalCollisions.polygonCircle, true)
     CollisionRegistry.register(CollisionRegistry.POLYGON, CollisionRegistry.POINT, KristalCollisions.polygonPoint, true)
     CollisionRegistry.register(CollisionRegistry.POLYGON, CollisionRegistry.POLYGON, KristalCollisions.polygonPolygon)
 

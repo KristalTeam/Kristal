@@ -97,31 +97,7 @@ function KristalCollisions.rectLineInner(rect, line)
 end
 
 --#endregion
---#region [Base] Hitbox / CircleCollider
-
----@param rect Hitbox
----@param circle CircleCollider
----@return boolean
-function KristalCollisions.rectCircle(rect, circle)
-    local circle_x, circle_y, circle_radius = circle:getCircleFor(rect)
-
-    -- Perform a preliminary bounds check
-    local circle_bounds_x, circle_bounds_y, circle_bounds_w, circle_bounds_h = Utils.getCircleBounds(circle_x, circle_y, circle_radius)
-
-    local bounds_check = CollisionUtil.rectRect(
-        rect.x, rect.y, rect.width, rect.height,
-        circle_bounds_x, circle_bounds_y, circle_bounds_w, circle_bounds_h
-    )
-
-    if not bounds_check then
-        return false
-    end
-
-    return CollisionUtil.rectCircle(
-        rect.x, rect.y, rect.width, rect.height,
-        circle_x, circle_y, circle_radius
-    )
-end
+--#region        Hitbox / CircleCollider
 
 ---@param rect Hitbox
 ---@param circle CircleCollider
@@ -230,19 +206,7 @@ function KristalCollisions.lineLineInner(a, b)
 end
 
 --#endregion
---#region [Base] LineCollider / CircleCollider
-
----@param line LineCollider
----@param circle CircleCollider
----@return boolean
-function KristalCollisions.lineCircle(line, circle)
-    local circle_x, circle_y, circle_radius = circle:getCircleFor(line)
-
-    return CollisionUtil.lineCircle(
-        line.x1, line.y1, line.x2, line.y2,
-        circle_x, circle_y, circle_radius
-    )
-end
+--#region        LineCollider / CircleCollider
 
 ---@param line LineCollider
 ---@param circle CircleCollider
@@ -293,7 +257,39 @@ end
 --#endregion
 --#region CircleCollider Collisions
 
---#region        CircleCollider / Hitbox
+--#region [Base] CircleCollider / Hitbox
+
+---@param circle CircleCollider
+---@param rect Hitbox
+---@return boolean
+function KristalCollisions.circleRect(circle, rect)
+    local rect_aabb, rect_shape = rect:getRectOrPolyFor(circle)
+
+    if rect_aabb then
+        return CollisionUtil.circleRect(
+            circle.x, circle.y, circle.radius,
+            rect_shape[1], rect_shape[2], rect_shape[3], rect_shape[4]
+        )
+    else
+        -- Perform a preliminary bounds check
+        local circle_bounds_x, circle_bounds_y, circle_bounds_w, circle_bounds_h = circle:getBounds()
+        local rect_bounds_x, rect_bounds_y, rect_bounds_w, rect_bounds_h = Utils.getPolygonBounds(rect_shape)
+
+        local bounds_check = CollisionUtil.rectRect(
+            circle_bounds_x, circle_bounds_y, circle_bounds_w, circle_bounds_h,
+            rect_bounds_x, rect_bounds_y, rect_bounds_w, rect_bounds_h
+        )
+
+        if not bounds_check then
+            return false
+        end
+
+        return CollisionUtil.circlePolygon(
+            circle.x, circle.y, circle.radius,
+            rect_shape
+        )
+    end
+end
 
 ---@param circle CircleCollider
 ---@param rect Hitbox
@@ -316,7 +312,32 @@ function KristalCollisions.circleRectInner(circle, rect)
 end
 
 --#endregion
---#region        CircleCollider / LineCollider
+--#region [Base] CircleCollider / LineCollider
+
+---@param circle CircleCollider
+---@param line LineCollider
+---@return boolean
+function KristalCollisions.circleLine(circle, line)
+    local line_x1, line_y1, line_x2, line_y2 = line:getLineFor(circle)
+
+    -- Perform a preliminary bounds check
+    local circle_bounds_x, circle_bounds_y, circle_bounds_w, circle_bounds_h = circle:getBounds()
+    local line_bounds_x, line_bounds_y, line_bounds_w, line_bounds_h = Utils.getLineBounds(line_x1, line_y1, line_x2, line_y2)
+
+    local bounds_check = CollisionUtil.rectRect(
+        circle_bounds_x, circle_bounds_y, circle_bounds_w, circle_bounds_h,
+        line_bounds_x, line_bounds_y, line_bounds_w, line_bounds_h
+    )
+
+    if not bounds_check then
+        return false
+    end
+
+    return CollisionUtil.circleLine(
+        circle.x, circle.y, circle.radius,
+        line_x1, line_y1, line_x2, line_y2
+    )
+end
 
 ---@param circle CircleCollider
 ---@param line LineCollider
@@ -385,7 +406,30 @@ function KristalCollisions.circlePointInner(circle, point)
 end
 
 --#endregion
---#region        CircleCollider / PolygonCollider
+--#region [Base] CircleCollider / PolygonCollider
+
+---@param circle CircleCollider
+---@param polygon PolygonCollider
+---@return boolean
+function KristalCollisions.circlePolygon(circle, polygon)
+    -- Perform a preliminary bounds check
+    local circle_bounds_x, circle_bounds_y, circle_bounds_w, circle_bounds_h = circle:getBounds()
+    local poly_bounds_x, poly_bounds_y, poly_bounds_w, poly_bounds_h = polygon:getBoundsFor(circle)
+
+    local bounds_check = CollisionUtil.rectRect(
+        circle_bounds_x, circle_bounds_y, circle_bounds_w, circle_bounds_h,
+        poly_bounds_x, poly_bounds_y, poly_bounds_w, poly_bounds_h
+    )
+
+    if not bounds_check then
+        return false
+    end
+
+    return CollisionUtil.circlePolygon(
+        circle.x, circle.y, circle.radius,
+        polygon:getPointsFor(circle)
+    )
+end
 
 ---@param circle CircleCollider
 ---@param polygon PolygonCollider
@@ -633,32 +677,7 @@ function KristalCollisions.polygonLineInner(polygon, line)
 end
 
 --#endregion
---#region [Base] PolygonCollider / CircleCollider
-
----@param polygon PolygonCollider
----@param circle CircleCollider
----@return boolean
-function KristalCollisions.polygonCircle(polygon, circle)
-    local circle_x, circle_y, circle_r = circle:getCircleFor(polygon)
-
-    local poly_bounds_x, poly_bounds_y, poly_bounds_w, poly_bounds_h = polygon:getBounds()
-    local circle_bounds_x, circle_bounds_y, circle_bounds_w, circle_bounds_h = Utils.getCircleBounds(circle_x, circle_y, circle_r)
-
-    -- Perform a preliminary bounds check
-    local bounds_check = CollisionUtil.rectRect(
-        poly_bounds_x, poly_bounds_y, poly_bounds_w, poly_bounds_h,
-        circle_bounds_x, circle_bounds_y, circle_bounds_w, circle_bounds_h
-    )
-
-    if not bounds_check then
-        return false
-    end
-
-    return CollisionUtil.polygonCircle(
-        polygon:getPointsDirect(),
-        circle_x, circle_y, circle_r
-    )
-end
+--#region        PolygonCollider / CircleCollider
 
 ---@param polygon PolygonCollider
 ---@param circle CircleCollider
