@@ -23,15 +23,15 @@ function DarkPowerMenu:init()
     self.tp_sprite = Assets.getTexture("ui/menu/caption_tp")
 
     self.caption_sprites = {
-          ["char"] = Assets.getTexture("ui/menu/caption_char"),
-         ["stats"] = Assets.getTexture("ui/menu/caption_stats"),
+        ["char"] = Assets.getTexture("ui/menu/caption_char"),
+        ["stats"] = Assets.getTexture("ui/menu/caption_stats"),
         ["spells"] = Assets.getTexture("ui/menu/caption_spells"),
     }
 
     self.stat_icons = {
-         ["attack"] = Assets.getTexture("ui/menu/icon/sword"),
+        ["attack"] = Assets.getTexture("ui/menu/icon/sword"),
         ["defense"] = Assets.getTexture("ui/menu/icon/armor"),
-          ["magic"] = Assets.getTexture("ui/menu/icon/magic"),
+        ["magic"] = Assets.getTexture("ui/menu/icon/magic"),
    }
 
     self.bg = UIBox(0, 0, self.width, self.height)
@@ -41,7 +41,10 @@ function DarkPowerMenu:init()
 
     self.party = DarkMenuPartySelect(8, 48)
     self.party.focused = true
-    self.party.highlight_party = false
+    -- TODO: Game.chapter usage!
+    if Game.chapter == 1 then
+        self.party.highlight_party = false
+    end
     self:addChild(self.party)
 
     self.party.on_select = function(new, old)
