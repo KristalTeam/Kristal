@@ -393,7 +393,6 @@ function Game:save(x, y)
     data.default_equip_slots = self.default_equip_slots
     data.default_storage_slots = self.default_storage_slots
 
-    data.inventory = self.inventory:save()
     data.light_inventory = self.light_inventory:save()
     data.dark_inventory = self.dark_inventory:save()
 
@@ -545,33 +544,63 @@ function Game:load(data, index, fade)
         end
     end
 
-    if self.light then
-        self.inventory = LightInventory()
-    else
-        self.inventory = DarkInventory()
+    self.light_inventory = LightInventory()
+    self.dark_inventory = DarkInventory()
+
+    if self.is_new_file then
+        -- Initialize inventories
+
+        local default_light = Kristal.getModOption("lightInventory")
+        local default_dark = Kristal.getModOption("darkInventory")
+
+        if Kristal.getModOption("inventory") ~= nil then
+            if self.light and default_light == nil then
+                Kristal.markDeprecated(1, "project option inventory", "custom", "replaced", "lightInventory")
+                default_light = Kristal.getModOption("inventory")
+            elseif not self.light and default_dark == nil then
+                Kristal.markDeprecated(1, "project option inventory", "custom", "replaced", "darkInventory")
+                default_dark = Kristal.getModOption("inventory")
+            end
+        end
+
+        default_light = default_light or {}
+        default_dark = default_dark or {}
+
+        -- Default key items to include cell phone in dark inventory
+        if default_dark["key_items"] == nil then
+            default_dark["key_items"] = { "cell_phone" }
+        end
+
+        for storage, items in pairs(default_light) do
+            for i, item in ipairs(items) do
+                self.light_inventory:setItem(storage, i, item)
+            end
+        end
+        for storage, items in pairs(default_dark) do
+            for i, item in ipairs(items) do
+                self.dark_inventory:setItem(storage, i, item)
+            end
+        end
     end
 
-    self.light_inventory = LightInventory()
-    if data.light_inventory then
+    if data.inventory ~= nil and self.light then
+        -- DEPRECATED in 0.11.0: If generic "inventory" data is saved and it is currently light, load it instead
+        self.light_inventory:load(data.inventory)
+    elseif data.light_inventory ~= nil then
         self.light_inventory:load(data.light_inventory)
     end
-    self.dark_inventory = DarkInventory()
-    if data.dark_inventory then
+
+    if data.inventory ~= nil and not self.light then
+        -- DEPRECATED in 0.11.0: If generic "inventory" data is saved and it is currently dark, load it instead
+        self.dark_inventory:load(data.inventory)
+    elseif data.dark_inventory ~= nil then
         self.dark_inventory:load(data.dark_inventory)
     end
 
-    if data.inventory then
-        self.inventory:load(data.inventory)
+    if self.light then
+        self.inventory = self.light_inventory
     else
-        local default_inv = Kristal.getModOption("inventory") or {}
-        if not self.light and not default_inv["key_items"] then
-            default_inv["key_items"] = { "cell_phone" }
-        end
-        for storage, items in pairs(default_inv) do
-            for i, item in ipairs(items) do
-                self.inventory:setItem(storage, i, item)
-            end
-        end
+        self.inventory = self.dark_inventory
     end
 
     local loaded_light = data.light or false

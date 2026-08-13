@@ -2210,7 +2210,7 @@ function Kristal.markDeprecated(level, name, api_type, deprecation_type, new_nam
     else
         api_name_type = api_type .. " " .. name
     end
-    local deprecation_message = string.format("Using deprecated %s %s", api_name_type, name)
+    local deprecation_message = string.format("Using deprecated %s", api_name_type)
     if deprecation_type == "replaced" then
         deprecation_message = string.format("%s (replaced by %s)", deprecation_message, new_name)
     ---@diagnostic disable-next-line: unknown-diag-code # LuaLS doesn't have unnecessary-if

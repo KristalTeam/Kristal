@@ -23,7 +23,7 @@
     "party": ["kris", "susie", "ralsei"],
 
     // The inventory. Contains three darkburgers, a cell phone and a shadow crystal by default.
-    "inventory": {
+    "darkInventory": {
         "items": ["glowshard", "darkburger", "darkburger", "darkburger"],
         "key_items": ["cell_phone", "shadowcrystal"]
     },
