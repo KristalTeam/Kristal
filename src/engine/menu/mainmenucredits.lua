@@ -69,14 +69,14 @@ function MainMenuCredits:init(menu)
                 "MaybeSamo",
                 "MCdeDaxia",
                 "MihBoss96",
-                "mpjasonreal",
-                "MrOinky"
+                "mpjasonreal"
             }
         },
         {
             "Kristal Engine",
             {
                 { "GitHub Contributors", COLORS.silver },
+                "MrOinky",
                 "NakuAutumn",
                 "NelleMonelle",
                 "Nextop",
@@ -84,11 +84,11 @@ function MainMenuCredits:init(menu)
                 "prokube",
                 "raisinbrainguy",
                 "rfrx",
-                "Simbel",
-                "sjl057"
+                "Simbel"
             },
             {
                 { "GitHub Contributors", COLORS.silver },
+                "sjl057",
                 "skarph",
                 "SuperOfSrb2",
                 "SweetSylveon",
