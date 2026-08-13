@@ -101,6 +101,10 @@ function love.load(args)
         end
     end
 
+    if Kristal.Args["disable-stdout-buffer"] then
+        io.stdout:setvbuf("no")
+    end
+
     -- load the version
     Kristal.Version = SemVer(love.filesystem.read("VERSION"))
 
