@@ -1332,7 +1332,9 @@ function Battle:processAction(action)
             end
         end
 
-        battler:setAnimation("battle/attack", function()
+        battler:setAnimation("battle/attack")
+
+        self.timer:after(10 / 30, function()
             action.icon = nil
 
             if action.target and action.target.done_state then
