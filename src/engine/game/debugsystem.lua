@@ -137,7 +137,7 @@ function DebugSystem:onMousePressed(x, y, button, istouch, presses)
     if button == 3 then
         if self:selectionOpen() then
             self:closeSelection()
-        else
+        elseif Kristal.isDevMode() then
             self:openSelection()
         end
         return
