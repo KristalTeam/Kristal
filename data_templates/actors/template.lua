@@ -1,6 +1,8 @@
 local actor, super = Class(Actor, "test_actor")
 
 function actor:init()
+    super.init(self)
+
     -- Display name (optional)
     self.name = "Test Actor"
 
