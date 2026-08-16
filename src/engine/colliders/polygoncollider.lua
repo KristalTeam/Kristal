@@ -45,7 +45,7 @@ end
 function PolygonCollider:setPoints(points)
     self.points = points
 
-    self.bounds_x, self.bounds_y, self.bounds_width, self.bounds_height = Utils.getPolygonBounds(points)
+    self.bounds_x, self.bounds_y, self.bounds_width, self.bounds_height = ShapeUtils.getPolygonBounds(points)
 end
 
 --- Gets the points of the polygon collider as a list of `{x, y}` pairs, without copying them.

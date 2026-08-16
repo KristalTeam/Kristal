@@ -36,12 +36,13 @@ TableUtils = require("src.utils.tableutils")
 ClassUtils = require("src.utils.classutils")
 TiledUtils = require("src.utils.tiledutils")
 FileSystemUtils = require("src.utils.filesystemutils")
+CollisionUtils = require("src.utils.collisionutils")
+ShapeUtils = require("src.utils.shapeutils")
 HookSystem = require("src.utils.hooksystem")
 Utils = require("src.utils.utils")
 
 GitFinder = require("src.utils.gitfinder")
 CollisionUtil = require("src.utils.collision") -- TODO: Rename ??????? Why did i do this
-CollisionUtils = require("src.utils.collisionutils")
 Draw = require("src.utils.draw")
 
 Kristal = require("src.kristal")

@@ -24,7 +24,7 @@ function CircleCollider:getColliderType()
 end
 
 function CircleCollider:getBounds()
-    return self.x - self.radius, self.y - self.radius, self.radius * 2, self.radius * 2
+    return ShapeUtils.getCircleBounds(self.x, self.y, self.radius)
 end
 
 --- Gets the circle's center and radius.

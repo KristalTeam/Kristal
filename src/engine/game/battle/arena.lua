@@ -86,16 +86,16 @@ function Arena:setShape(shape)
     self.top = math.floor(self.y - self.height / 2)
     self.bottom = math.floor(self.y + self.height / 2)
 
-    self.triangles = love.math.triangulate(Utils.unpackPolygon(self.shape))
+    self.triangles = love.math.triangulate(ShapeUtils.unpackPolygon(self.shape))
 
-    self.border_line = { Utils.unpackPolygon(Utils.getPolygonOffset(self.shape, self.line_width / 2)) }
+    self.border_line = { ShapeUtils.unpackPolygon(ShapeUtils.getPolygonOffset(self.shape, self.line_width / 2)) }
 
-    self.clockwise = Utils.isPolygonClockwise(self.shape)
+    self.clockwise = ShapeUtils.isPolygonClockwise(self.shape)
 
     self.area_collider = PolygonCollider(self, TableUtils.copy(shape, true))
 
     local colliders = {}
-    for _, v in ipairs(Utils.getPolygonEdges(self.shape)) do
+    for _, v in ipairs(ShapeUtils.getPolygonEdges(self.shape)) do
         table.insert(colliders, LineCollider(self, v[1][1], v[1][2], v[2][1], v[2][2]))
     end
     self.collider:setColliders(colliders)

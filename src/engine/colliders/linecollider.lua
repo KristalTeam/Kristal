@@ -27,7 +27,7 @@ function LineCollider:getColliderType()
 end
 
 function LineCollider:getBounds()
-    return Utils.getLineBounds(self.x1, self.y1, self.x2, self.y2)
+    return ShapeUtils.getLineBounds(self.x1, self.y1, self.x2, self.y2)
 end
 
 --- Gets the coordinates of the line segment.

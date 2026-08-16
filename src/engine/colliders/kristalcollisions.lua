@@ -18,7 +18,7 @@ function KristalCollisions.rectRect(a, b)
         )
     else
         -- Perform a preliminary bounds check
-        local b_x, b_y, b_width, b_height = Utils.getPolygonBounds(b_shape)
+        local b_x, b_y, b_width, b_height = ShapeUtils.getPolygonBounds(b_shape)
 
         local bounds_check = CollisionUtil.rectRect(
             a.x, a.y, a.width, a.height,
@@ -66,7 +66,7 @@ function KristalCollisions.rectLine(rect, line)
     local line_x1, line_y1, line_x2, line_y2 = line:getLineFor(rect)
 
     -- Perform a preliminary bounds check
-    local line_bounds_x, line_bounds_y, line_bounds_w, line_bounds_h = Utils.getLineBounds(line_x1, line_y1, line_x2, line_y2)
+    local line_bounds_x, line_bounds_y, line_bounds_w, line_bounds_h = ShapeUtils.getLineBounds(line_x1, line_y1, line_x2, line_y2)
 
     local bounds_check = CollisionUtil.rectRect(
         rect.x, rect.y, rect.width, rect.height,
@@ -273,7 +273,7 @@ function KristalCollisions.circleRect(circle, rect)
     else
         -- Perform a preliminary bounds check
         local circle_bounds_x, circle_bounds_y, circle_bounds_w, circle_bounds_h = circle:getBounds()
-        local rect_bounds_x, rect_bounds_y, rect_bounds_w, rect_bounds_h = Utils.getPolygonBounds(rect_shape)
+        local rect_bounds_x, rect_bounds_y, rect_bounds_w, rect_bounds_h = ShapeUtils.getPolygonBounds(rect_shape)
 
         local bounds_check = CollisionUtil.rectRect(
             circle_bounds_x, circle_bounds_y, circle_bounds_w, circle_bounds_h,
@@ -322,7 +322,7 @@ function KristalCollisions.circleLine(circle, line)
 
     -- Perform a preliminary bounds check
     local circle_bounds_x, circle_bounds_y, circle_bounds_w, circle_bounds_h = circle:getBounds()
-    local line_bounds_x, line_bounds_y, line_bounds_w, line_bounds_h = Utils.getLineBounds(line_x1, line_y1, line_x2, line_y2)
+    local line_bounds_x, line_bounds_y, line_bounds_w, line_bounds_h = ShapeUtils.getLineBounds(line_x1, line_y1, line_x2, line_y2)
 
     local bounds_check = CollisionUtil.rectRect(
         circle_bounds_x, circle_bounds_y, circle_bounds_w, circle_bounds_h,
@@ -559,7 +559,7 @@ function KristalCollisions.polygonRect(polygon, rect)
             rect_x, rect_y, rect_w, rect_h
         )
     else
-        local rect_bounds_x, rect_bounds_y, rect_bounds_w, rect_bounds_h = Utils.getPolygonBounds(rect_shape)
+        local rect_bounds_x, rect_bounds_y, rect_bounds_w, rect_bounds_h = ShapeUtils.getPolygonBounds(rect_shape)
 
         -- Perform a preliminary bounds check
         local bounds_check = CollisionUtil.rectRect(
@@ -604,7 +604,7 @@ function KristalCollisions.polygonRectInner(polygon, rect)
             rect_x, rect_y, rect_w, rect_h
         )
     else
-        local rect_bounds_x, rect_bounds_y, rect_bounds_w, rect_bounds_h = Utils.getPolygonBounds(rect_shape)
+        local rect_bounds_x, rect_bounds_y, rect_bounds_w, rect_bounds_h = ShapeUtils.getPolygonBounds(rect_shape)
 
         -- Perform a preliminary bounds check
         local bounds_check = CollisionUtil.rectRectInside(
@@ -633,7 +633,7 @@ function KristalCollisions.polygonLine(polygon, line)
     local line_x1, line_y1, line_x2, line_y2 = line:getLineFor(polygon)
 
     local poly_bounds_x, poly_bounds_y, poly_bounds_w, poly_bounds_h = polygon:getBounds()
-    local line_bounds_x, line_bounds_y, line_bounds_w, line_bounds_h = Utils.getLineBounds(line_x1, line_y1, line_x2, line_y2)
+    local line_bounds_x, line_bounds_y, line_bounds_w, line_bounds_h = ShapeUtils.getLineBounds(line_x1, line_y1, line_x2, line_y2)
 
     -- Perform a preliminary bounds check
     local bounds_check = CollisionUtil.rectRect(
