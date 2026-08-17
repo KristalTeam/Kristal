@@ -51,10 +51,10 @@ end
 ---@return number y # The Y coordinate of the circle's center relative to the other collider.
 ---@return number radius # The radius of the circle relative to the other collider.
 function CircleCollider:getCircleFor(other)
-    local tf1, tf2 = other:getTransformsWith(self)
+    local source_tf, dest_tf = self:getTransformsWith(other)
 
-    local cx, cy = other:getLocalPoint(tf1, tf2, self.x, self.y)
-    local crx, cry = other:getLocalPoint(tf1, tf2, self.x + self.radius, self.y)
+    local cx, cy = ShapeUtils.relativeTransformPoint(source_tf, dest_tf, self.x, self.y)
+    local crx, cry = ShapeUtils.relativeTransformPoint(source_tf, dest_tf, self.x + self.radius, self.y)
 
     return cx, cy, MathUtils.dist(cx, cy, crx, cry)
 end

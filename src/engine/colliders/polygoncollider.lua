@@ -61,12 +61,12 @@ end
 ---@param other Collider # The other collider to get the points relative to.
 ---@return number[][] shape # The points of the polygon collider as a list of `{x, y}` pairs.
 function PolygonCollider:getPointsFor(other)
-    local tf1, tf2 = other:getTransformsWith(self)
+    local source_tf, dest_tf = self:getTransformsWith(other)
 
     local local_points = {}
 
     for i, point in ipairs(self.points) do
-        local x, y = other:getLocalPoint(tf1, tf2, point[1], point[2])
+        local x, y = ShapeUtils.relativeTransformPoint(source_tf, dest_tf, point[1], point[2])
 
         local_points[i] = {x, y}
     end

@@ -110,8 +110,8 @@ end
 --- This is useful for collision detection, allowing you to transform the points of one collider into the coordinate space of another
 --- via [`Collider:getLocalPoint`](lua://Collider.getLocalPoint).
 ---@param other Collider # The other collider to get the transformations with.
----@return love.Transform? tf1 # The transformation of this collider relative to the common parent.
----@return love.Transform? tf2 # The transformation of the other collider relative to the common parent.
+---@return love.Transform? this_tf # The transformation of this collider relative to the common parent.
+---@return love.Transform? other_tf # The transformation of the other collider relative to the common parent.
 function Collider:getTransformsWith(other)
     if self:getOwner() ~= nil and other:getOwner() ~= nil and self:getOwner().parent == other:getOwner().parent then
         return self.owner:getTransform(), other.owner:getTransform()
@@ -120,39 +120,20 @@ function Collider:getTransformsWith(other)
     end
 end
 
---- Gets a point transformed from the coordinate space of the second collider to the first collider.
----@param tf1 love.Transform? # The transformation of the first collider relative to the common parent.
----@param tf2 love.Transform? # The transformation of the second collider relative to the common parent.
----@param x number # The X coordinate of the point to be transformed.
----@param y number # The Y coordinate of the point to be transformed.
----@return number local_x # The X coordinate of the point from the second collider, relative to the first collider.
----@return number local_y # The Y coordinate of the point from the second collider, relative to the first collider.
-function Collider:getLocalPoint(tf1, tf2, x, y)
-    if tf2 ~= nil then
-        x, y = tf2:transformPoint(x, y)
-    end
-
-    if tf1 ~= nil then
-        x, y = tf1:inverseTransformPoint(x, y)
-    end
-
-    return x, y
-end
-
 --- Gets the axis-aligned bounding box of the collider, transformed from one coordinate space to another.
 ---@param source_tf love.Transform? # The transform of this collider relative to the common parent.
----@param target_tf love.Transform? # The destination transform relative to the common parent.
+---@param dest_tf love.Transform? # The destination transform relative to the common parent.
 ---@return number x # The X coordinate of the bounding box relative to the second transform.
 ---@return number y # The Y coordinate of the bounding box relative to the second transform.
 ---@return number width # The width of the bounding box relative to the second transform.
 ---@return number height # The height of the bounding box relative to the second transform.
-function Collider:getRelativeBounds(source_tf, target_tf)
+function Collider:getRelativeBounds(source_tf, dest_tf)
     local bounds_x, bounds_y, bounds_w, bounds_h = self:getBounds()
 
-    local ul_x, ul_y = self:getLocalPoint(target_tf, source_tf, bounds_x, bounds_y)
-    local ur_x, ur_y = self:getLocalPoint(target_tf, source_tf, bounds_x + bounds_w, bounds_y)
-    local dr_x, dr_y = self:getLocalPoint(target_tf, source_tf, bounds_x + bounds_w, bounds_y + bounds_h)
-    local dl_x, dl_y = self:getLocalPoint(target_tf, source_tf, bounds_x, bounds_y + bounds_h)
+    local ul_x, ul_y = ShapeUtils.relativeTransformPoint(source_tf, dest_tf, bounds_x, bounds_y)
+    local ur_x, ur_y = ShapeUtils.relativeTransformPoint(source_tf, dest_tf, bounds_x + bounds_w, bounds_y)
+    local dr_x, dr_y = ShapeUtils.relativeTransformPoint(source_tf, dest_tf, bounds_x + bounds_w, bounds_y + bounds_h)
+    local dl_x, dl_y = ShapeUtils.relativeTransformPoint(source_tf, dest_tf, bounds_x, bounds_y + bounds_h)
 
     local min_x = math.min(ul_x, ur_x, dr_x, dl_x)
     local min_y = math.min(ul_y, ur_y, dr_y, dl_y)
@@ -169,9 +150,9 @@ end
 ---@return number width # The width of the bounding box relative to the other collider.
 ---@return number height # The height of the bounding box relative to the other collider.
 function Collider:getBoundsFor(other)
-    local tf1, tf2 = other:getTransformsWith(self)
+    local source_tf, dest_tf = self:getTransformsWith(other)
 
-    return self:getRelativeBounds(tf1, tf2)
+    return self:getRelativeBounds(source_tf, dest_tf)
 end
 
 --- Checks collision between this collider and another collider.

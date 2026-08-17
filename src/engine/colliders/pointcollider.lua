@@ -44,9 +44,9 @@ end
 ---@return number x # The X coordinate of the point relative to the other collider.
 ---@return number y # The Y coordinate of the point relative to the other collider.
 function PointCollider:getPointFor(other)
-    local tf1, tf2 = other:getTransformsWith(self)
+    local source_tf, dest_tf = self:getTransformsWith(other)
 
-    return other:getLocalPoint(tf1, tf2, self.x, self.y)
+    return ShapeUtils.relativeTransformPoint(source_tf, dest_tf, self.x, self.y)
 end
 
 --- Draws the point with the given color.

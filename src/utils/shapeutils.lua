@@ -204,4 +204,23 @@ function ShapeUtils.getCircleBounds(x, y, radius)
     return x - radius, y - radius, diameter, diameter
 end
 
+--- Transforms a point from the local space of the source transform to the local space of the destination transform.
+---@param source love.Transform? # The source transform, relative to a common parent.
+---@param destination love.Transform? # The destination transform, relative to a common parent.
+---@param x number # The X coordinate of the point to be transformed.
+---@param y number # The Y coordinate of the point to be transformed.
+---@return number local_x # The X coordinate of the point from the source, relative to the destination.
+---@return number local_y # The Y coordinate of the point from the source, relative to the destination.
+function ShapeUtils.relativeTransformPoint(source, destination, x, y)
+    if source ~= nil then
+        x, y = source:transformPoint(x, y)
+    end
+
+    if destination ~= nil then
+        x, y = destination:inverseTransformPoint(x, y)
+    end
+
+    return x, y
+end
+
 return ShapeUtils

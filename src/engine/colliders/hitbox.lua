@@ -47,14 +47,14 @@ end
 ---@return boolean aabb # `true` if the shape is a rectangle, `false` if it is a polygon.
 ---@return [number, number, number, number]|number[][] shape # The shape of the collider as a rectangle or polygon.
 function Hitbox:getRectOrPolyFor(other)
-    local tf1, tf2 = other:getTransformsWith(self)
+    local source_tf, dest_tf = self:getTransformsWith(other)
 
     local x, y, width, height = self:getBounds()
 
-    local ul_x, ul_y = other:getLocalPoint(tf1, tf2, x, y)
-    local ur_x, ur_y = other:getLocalPoint(tf1, tf2, x + width, y)
-    local dr_x, dr_y = other:getLocalPoint(tf1, tf2, x + width, y + height)
-    local dl_x, dl_y = other:getLocalPoint(tf1, tf2, x, y + height)
+    local ul_x, ul_y = ShapeUtils.relativeTransformPoint(source_tf, dest_tf, x, y)
+    local ur_x, ur_y = ShapeUtils.relativeTransformPoint(source_tf, dest_tf, x + width, y)
+    local dr_x, dr_y = ShapeUtils.relativeTransformPoint(source_tf, dest_tf, x + width, y + height)
+    local dl_x, dl_y = ShapeUtils.relativeTransformPoint(source_tf, dest_tf, x, y + height)
 
     if ul_y == ur_y and ul_x == dl_x then
         local min_x, min_y = math.min(ul_x, dr_x), math.min(ul_y, dr_y)

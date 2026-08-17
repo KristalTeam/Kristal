@@ -33,12 +33,12 @@ function ColliderGroup:getBounds()
             max_x = math.max(max_x, x + width)
             max_y = math.max(max_y, y + height)
         else
-            local tf1, tf2 = self:getTransformsWith(collider)
+            local source_tf, dest_tf = collider:getTransformsWith(self)
 
-            local rel_ul_x, rel_ul_y = self:getLocalPoint(tf1, tf2, x, y)
-            local rel_ur_x, rel_ur_y = self:getLocalPoint(tf1, tf2, x + width, y)
-            local rel_dr_x, rel_dr_y = self:getLocalPoint(tf1, tf2, x + width, y + height)
-            local rel_dl_x, rel_dl_y = self:getLocalPoint(tf1, tf2, x, y + height)
+            local rel_ul_x, rel_ul_y = ShapeUtils.relativeTransformPoint(source_tf, dest_tf, x, y)
+            local rel_ur_x, rel_ur_y = ShapeUtils.relativeTransformPoint(source_tf, dest_tf, x + width, y)
+            local rel_dr_x, rel_dr_y = ShapeUtils.relativeTransformPoint(source_tf, dest_tf, x + width, y + height)
+            local rel_dl_x, rel_dl_y = ShapeUtils.relativeTransformPoint(source_tf, dest_tf, x, y + height)
 
             min_x = math.min(min_x, rel_ul_x, rel_ur_x, rel_dr_x, rel_dl_x)
             min_y = math.min(min_y, rel_ul_y, rel_ur_y, rel_dr_y, rel_dl_y)

@@ -58,10 +58,10 @@ end
 ---@return number x2 # The X coordinate of the second point of the line segment relative to the other collider.
 ---@return number y2 # The Y coordinate of the second point of the line segment relative to the other collider.
 function LineCollider:getLineFor(other)
-    local tf1, tf2 = other:getTransformsWith(self)
+    local source_tf, dest_tf = self:getTransformsWith(other)
 
-    local x1, y1 = other:getLocalPoint(tf1, tf2, self.x1, self.y1)
-    local x2, y2 = other:getLocalPoint(tf1, tf2, self.x2, self.y2)
+    local x1, y1 = ShapeUtils.relativeTransformPoint(source_tf, dest_tf, self.x1, self.y1)
+    local x2, y2 = ShapeUtils.relativeTransformPoint(source_tf, dest_tf, self.x2, self.y2)
 
     return x1, y1, x2, y2
 end
