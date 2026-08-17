@@ -34,8 +34,6 @@ function ShapeUtils.isPolygonClockwise(points)
     return sum > 0
 end
 
-
-
 --- Returns the point at which two lines intersect.
 ---@param x1 number # The horizontal position of the first point for the first line.
 ---@param y1 number # The vertical position of the first point for the first line.

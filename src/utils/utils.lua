@@ -961,7 +961,7 @@ end
 ---@return number width # The width of the bounding box.
 ---@return number height # The height of the bounding box.
 ---@deprecated Use `ShapeUtils.getLineBounds` instead
-function ShapeUtils.getLineBounds(x1, y1, x2, y2)
+function Utils.getLineBounds(x1, y1, x2, y2)
     return ShapeUtils.getLineBounds(x1, y1, x2, y2)
 end
 
@@ -974,7 +974,7 @@ end
 ---@return number width # The width of the bounding box.
 ---@return number height # The height of the bounding box.
 ---@deprecated Use `ShapeUtils.getCircleBounds` instead
-function ShapeUtils.getCircleBounds(x, y, radius)
+function Utils.getCircleBounds(x, y, radius)
     return ShapeUtils.getCircleBounds(x, y, radius)
 end
 
