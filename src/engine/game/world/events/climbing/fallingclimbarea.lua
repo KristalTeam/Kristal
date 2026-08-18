@@ -8,7 +8,7 @@
 
 --- A FallingClimbArea is an area the player can climb on. It will fall once the player leaves it.
 ---
---- `FallingClimbArea` is an [`Event`](lua://Event.init) - naming an object `FallingClimbArea` on an `objects` layer in a map creates this object.
+--- `FallingClimbArea` is an [`Event`](lua://Event.init) - naming an object `fallingclimbarea` on an `objects` layer in a map creates this object.
 ---
 ---@class FallingClimbArea : ClimbArea
 ---
