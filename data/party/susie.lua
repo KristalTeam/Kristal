@@ -147,10 +147,14 @@ function character:init()
         self:setWeapon("autoaxe")
         self:setArmor(1, "amber_card")
         self:setArmor(2, "glowwrist")
-    elseif Game.chapter >= 4 then
+    elseif Game.chapter == 4 then
         self:setWeapon("toxicaxe")
         self:setArmor(1, "gingerguard")
         self:setArmor(2, "glowwrist")
+    elseif Game.chapter >= 5 then
+        self:setWeapon("toxicaxe")
+        self:setArmor(1, "gingerguard")
+        self:setArmor(2, "gingerguard")
     end
 
     -- Default light world equipment item IDs (saves current equipment)

@@ -134,7 +134,7 @@ function character:init()
         self:setWeapon("mechasaber")
         self:setArmor(1, "amber_card")
         self:setArmor(2, "glowwrist")
-    elseif Game.chapter >= 4 then
+    elseif Game.chapter == 4 then
         self:setWeapon("saber10")
         self:setArmor(1, "gingerguard")
         self:setArmor(2, "glowwrist")
