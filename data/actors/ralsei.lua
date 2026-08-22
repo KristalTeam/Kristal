@@ -344,4 +344,12 @@ function actor:initChapter2()
     self.spotlight_offset = { 10, -5 }
 end
 
+function actor:getAnimation(anim)
+    if Game:getPartyMember("ralsei"):getFlag("serious", false) and self.animations_alt[anim] ~= nil then
+        return self.animations_alt[anim] or nil
+    else
+        return super.getAnimation(self, anim)
+    end
+end
+
 return actor
