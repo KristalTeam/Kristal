@@ -16,7 +16,9 @@ function FileSystemUtils.getFilesRecursive(dir, ext)
     for _, path in ipairs(paths) do
         local info = love.filesystem.getInfo(dir .. "/" .. path)
 
-        if info.type == "directory" then
+        if not info then
+            -- Broken junction/symlink: getInfo returns nil, so skip it.
+        elseif info.type == "directory" then
             -- If the path is a folder, recursively get all files within that folder
             local inners = FileSystemUtils.getFilesRecursive(dir .. "/" .. path, ext)
             for _, inner in ipairs(inners) do
@@ -45,7 +47,9 @@ function FileSystemUtils.findFiles(folder, base, path)
     local files = {}
     for _, f in ipairs(love.filesystem.getDirectoryItems(folder)) do
         local info = love.filesystem.getInfo(folder .. "/" .. f)
-        if info.type == "directory" then
+        if not info then
+            -- Broken junction/symlink: getInfo returns nil, so skip it.
+        elseif info.type == "directory" then
             table.insert(files, path .. (f:gsub(base_folder, "", 1)))
             local new_path = path .. f .. "/"
             for _, ff in ipairs(FileSystemUtils.findFiles(folder .. "/" .. f, base_folder, new_path)) do
