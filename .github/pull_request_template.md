@@ -21,7 +21,7 @@ Describe your patch here. Make sure to justify the changes, and why it should be
 If this patch contains any breaking changes, list them here. You should also include the new alternatives for affected usage, if any.
 
 e.g.:
-- `Object.example_variable` has been renamed to `Object.best_variable_ever`. Mods that use `Object.example_variable` should now use `Object.best_variable_ever` instead.
+- `Object.example_variable` has been renamed to `Object.best_variable_ever`. Existing projects that use `Object.example_variable` should now use `Object.best_variable_ever` instead.
 
 IF there are no breaking changes, remove this section.
 
