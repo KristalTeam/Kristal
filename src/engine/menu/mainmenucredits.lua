@@ -16,6 +16,67 @@ local MainMenuCredits, super = Class(StateClass)
 function MainMenuCredits:init(menu)
     self.menu = menu
 
+    --- CONTRIBUTORS SHOULD ADD THEIR NAME HERE.
+    -- IT'LL BE AUTOMATICALLY SORTED AND PAGED ALPHABETICALLY.
+    local github_credits = {
+        "Abbe",
+        "AcousticJamm",
+        "Agent 7",
+        "AlexGamingSW",
+        "Archie-osu",
+        "Azrael",
+        "Bor",
+        "CosmicPikachu001",
+        "DiamondDeltahedron",
+        "Dobby233Liu",
+        "Elioze",
+        "Eribetra",
+        "FireRainV",
+        "Gabrielcito",
+        "HmmNoPls",
+        "HUECYCLES",
+        "Hyperboid",
+        "isakube",
+        "J.A.R.U.",
+        "Jogla",
+        "Lionmeow",
+        "Luna",
+        "Maks7594",
+        "MaybeSamo",
+        "MCdeDaxia",
+        "MihBoss96",
+        "mpjasonreal",
+        "MrOinky",
+        "NakuAutumn",
+        "NelleMonelle",
+        "Nextop",
+        "nightpool",
+        "prokube",
+        "raisinbrainguy",
+        "rfrx",
+        "Simbel",
+        "sjl057",
+        "skarph",
+        "SuperOfSrb2",
+        "SweetSylveon",
+        "TFLTV",
+        "TheSkerch",
+        "Verozity",
+        "WIL-TZY",
+        "YeetusSnoopy"
+    }
+
+    table.sort(github_credits, function (a, b)
+        return string.lower(tostring(a)) < string.lower(tostring(b))
+    end)
+
+    local t = {
+        { "GitHub Contributors", COLORS.silver },
+    }
+
+    for i=1, 9 do
+        table.insert(t,github_credits[i])
+    end
     self.pages = {
         {
             "Kristal Engine",
@@ -32,74 +93,54 @@ function MainMenuCredits:init(menu)
                 "",
                 ""
             },
-            {
-                { "GitHub Contributors", COLORS.silver },
-                "Abbe",
-                "AcousticJamm",
-                "Agent 7",
-                "AlexGamingSW",
-                "Archie-osu",
-                "Azrael",
-                "Bor",
-                "CosmicPikachu001",
-                "DiamondDeltahedron"
-            }
+            t
         },
-        {
-            "Kristal Engine",
-            {
-                { "GitHub Contributors", COLORS.silver },
-                "Dobby233Liu",
-                "Elioze",
-                "Eribetra",
-                "FireRainV",
-                "Gabrielcito",
-                "HmmNoPls",
-                "HUECYCLES",
-                "Hyperboid",
-                "isakube"
-            },
-            {
-                { "GitHub Contributors", COLORS.silver },
-                "J.A.R.U.",
-                "Jogla",
-                "Lionmeow",
-                "Luna",
-                "Maks7594",
-                "MaybeSamo",
-                "MCdeDaxia",
-                "MihBoss96",
-                "mpjasonreal"
-            }
-        },
-        {
-            "Kristal Engine",
-            {
-                { "GitHub Contributors", COLORS.silver },
-                "MrOinky",
-                "NakuAutumn",
-                "NelleMonelle",
-                "Nextop",
-                "nightpool",
-                "prokube",
-                "raisinbrainguy",
-                "rfrx",
-                "Simbel"
-            },
-            {
-                { "GitHub Contributors", COLORS.silver },
-                "sjl057",
-                "skarph",
-                "SuperOfSrb2",
-                "SweetSylveon",
-                "TFLTV",
-                "TheSkerch",
-                "Verozity",
-                "WIL-TZY",
-                "YeetusSnoopy"
-            }
-        }
     }
+
+
+    local cr, cl, t
+
+    local function reset_new_credits_table()
+        cr = {
+            { "GitHub Contributors", COLORS.silver },
+        }
+        cl = {
+            { "GitHub Contributors", COLORS.silver },
+        }
+        t = {
+            "Kristal Engine",
+            cl,
+            cr,
+        }
+    end
+
+    reset_new_credits_table()
+
+    local i = 10
+    while i < #github_credits do
+        local names_per_list = 9 -- Amount of names per column.
+
+        -- Accomodate the title. Done as separate variables to make it
+        -- ever so slightly more convenient to edit the original number
+        names_per_list = names_per_list + 1
+
+        if #cl < names_per_list then
+            table.insert(cl, tostring(github_credits[i]))
+        elseif #cr < names_per_list then
+            table.insert(cr, tostring(github_credits[i]))
+        else
+            table.insert(self.pages, t)
+            reset_new_credits_table()
+            i = i - 1
+        end
+        i = i + 1
+    end
+
+    -- Add an extra page if there are credits left over
+    if #cl > 1 then
+        table.insert(self.pages, t)
+    end
+
     self.selected_page = 1
 
     self.scroll_direction = "right"
