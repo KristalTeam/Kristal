@@ -20,8 +20,10 @@ function item:init()
         self.heal_amount = 140
     elseif Game.chapter == 3 then
         self.heal_amount = 150
-    elseif Game.chapter >= 4 then
+    elseif Game.chapter == 4 then
         self.heal_amount = 160
+    elseif Game.chapter >= 5 then
+        self.heal_amount = 180
     end
 
     -- Battle description

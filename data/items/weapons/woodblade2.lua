@@ -14,7 +14,7 @@ function item:init()
     -- Battle description
     self.effect = ""
     -- Shop description
-    self.shop = ""
+    self.shop = "Arbitrary\nupgrade"
     -- Menu description
     self.description = "A sword that is arbitrarily stronger\nbecause it fits the setting of Chapter 5."
 
