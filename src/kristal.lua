@@ -322,11 +322,10 @@ function Kristal.drawBorders()
             love.graphics.scale(Kristal.getGameScale())
             Draw.setColor(1, 1, 1, dynamic and BORDER_ALPHA or 1)
             love.graphics.push("all")
+            local border_width, border_height = 1920 * BORDER_SCALE, 1080 * BORDER_SCALE
             love.graphics.translate(
-                ((love.graphics.getWidth() / Kristal.getGameScale())) / 2 +
-                (((love.graphics.getHeight() / Kristal.getGameScale()) / -2) * (16 / 9)),
-                ((love.graphics.getHeight() / Kristal.getGameScale()) / 2) +
-                ((love.graphics.getHeight() / Kristal.getGameScale()) / -2)
+                (love.graphics.getWidth() / Kristal.getGameScale() - border_width) / 2,
+                (love.graphics.getHeight() / Kristal.getGameScale() - border_height) / 2
             )
             if border_texture then
                 Draw.draw(border_texture, 0, 0, 0, BORDER_SCALE)
