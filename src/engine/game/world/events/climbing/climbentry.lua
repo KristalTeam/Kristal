@@ -109,13 +109,7 @@ function ClimbEntry:draw()
 
         love.graphics.setColor(1, 0, 1, 1)
         love.graphics.setLineWidth(2)
-        love.graphics.line(self.width / 2, self.height / 2, target_x, target_y)
-
-        local angle = math.atan2(target_y - (self.height / 2), target_x - (self.width / 2)) + math.pi / 2
-
-        local texture = Assets.getTexture("ui/flat_arrow_up")
-
-        love.graphics.draw(texture, target_x, target_y, angle, 1, 1, texture:getWidth() / 2, texture:getHeight() / 2)
+        Draw.drawArrow(self.width / 2, self.height / 2, target_x, target_y, 12)
     end
 end
 

@@ -518,4 +518,20 @@ function Draw.drawMenuRectangle(x, y, width, height)
     love.graphics.rectangle("line", x - 3, y - 3, width + 7, height + 7)
 end
 
+function Draw.drawArrow(x1, y1, x2, y2, size)
+	local dd = math.sqrt(((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1)))
+
+	if dd ~= 0 then
+	    if (size > dd) then
+	        size = dd
+        end
+
+	    local xx = size * (x2 - x1) / dd
+	    local yy = size * (y2 - y1) / dd
+
+        love.graphics.line(x1, y1, x2, y2)
+        love.graphics.polygon("fill", x2 - xx - yy / 3, y2 - yy + xx / 3, x2, y2, x2 - xx + yy / 3, y2 - yy - xx / 3)
+    end
+end
+
 return Draw
