@@ -518,20 +518,40 @@ function Draw.drawMenuRectangle(x, y, width, height)
     love.graphics.rectangle("line", x - 3, y - 3, width + 7, height + 7)
 end
 
+--- A helper function to draw a line with an arrow at the end.
+---
+--- This is a reimplementation of GameMaker's `draw_arrow` function.
+--- This is mostly intended for debugging; if you need something more customizable or complex, consider drawing an arrow yourself, or using a sprite.
+---
+---@param x1 number # The starting x position of the line.
+---@param y1 number # The starting y position of the line.
+---@param x2 number # The ending x position of the line.
+---@param y2 number # The ending y position of the line.
+---@param size number # The length of the arrow's head, in pixels.
 function Draw.drawArrow(x1, y1, x2, y2, size)
-	local dd = math.sqrt(((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1)))
+    local dir_x = x2 - x1
+    local dir_y = y2 - y1
 
-	if dd ~= 0 then
-	    if (size > dd) then
-	        size = dd
-        end
+	local distance = math.sqrt((dir_x * dir_x) + (dir_y * dir_y))
 
-	    local xx = size * (x2 - x1) / dd
-	    local yy = size * (y2 - y1) / dd
-
-        love.graphics.line(x1, y1, x2, y2)
-        love.graphics.polygon("fill", x2 - xx - yy / 3, y2 - yy + xx / 3, x2, y2, x2 - xx + yy / 3, y2 - yy - xx / 3)
+	if distance == 0 then
+        return
     end
+
+    -- Arrowhead should not be longer than the line itself
+    size = math.min(size, distance)
+
+    local xx = size * dir_x / distance
+    local yy = size * dir_y / distance
+
+    love.graphics.line(x1, y1, x2, y2)
+
+    love.graphics.polygon(
+        "fill",
+        x2 - xx - yy / 3, y2 - yy + xx / 3,
+        x2, y2,
+        x2 - xx + yy / 3, y2 - yy - xx / 3
+    )
 end
 
 return Draw
