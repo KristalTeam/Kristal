@@ -27,7 +27,7 @@ function spell:onCast(user, target)
     local count = 0
     for _, enemy in ipairs(target) do
         if enemy.done_state == nil then
-            local success = enemy.tired
+            local success = enemy:isTired()
 
             if success then
                 enemy.done_state = "PACIFIED"
