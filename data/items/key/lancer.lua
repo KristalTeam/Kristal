@@ -79,11 +79,11 @@ end
 function item:convertToLight(inventory)
     if inventory:hasItem("light/cards") then
         local light_item = inventory:getItemByID("light/cards")
-        table.insert(light_item.cards, self.id)
+        table.insert(light_item.flags["cards"], self.id)
         return true
     else
         local light_item = Registry.createItem("light/cards")
-        table.insert(light_item.cards, self.id)
+        table.insert(light_item.flags["cards"], self.id)
         return light_item
     end
 end
