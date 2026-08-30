@@ -104,7 +104,7 @@ function Textbox:init(x, y, width, height, default_font, default_font_size, batt
         if self.actor and self.actor:getPortraitPath() then
             self.face.path = self.actor:getPortraitPath()
         end
-        self:setFace(node.arguments[1], tonumber(node.arguments[2]), tonumber(node.arguments[3]))
+        self:setFace(node.arguments[1], tonumber(node.arguments[2]), tonumber(node.arguments[3]), tonumber(node.arguments[4]))
     end)
     self.text:registerCommand("facec", function(text, node, dry)
         self.face.path = "face"
@@ -114,7 +114,7 @@ function Textbox:init(x, y, width, height, default_font, default_font_size, batt
             ox = (ox or 0) - actor_ox
             oy = (oy or 0) - actor_oy
         end
-        self:setFace(node.arguments[1], ox, oy)
+        self:setFace(node.arguments[1], ox, oy, tonumber(node.arguments[4]))
     end)
 
     self.text:registerCommand("react", function(text, node, dry)
@@ -174,6 +174,8 @@ function Textbox:init(x, y, width, height, default_font, default_font_size, batt
     end)
 
     self.advance_callback = nil
+
+    self.face_shift = 116
 end
 
 function Textbox:update()
@@ -222,7 +224,7 @@ function Textbox:setActor(actor)
     end
 end
 
-function Textbox:setFace(face, ox, oy)
+function Textbox:setFace(face, ox, oy, face_shift)
     self.face:setSprite(face)
     self.face:play(4/30)
 
@@ -232,6 +234,10 @@ function Textbox:setFace(face, ox, oy)
         oy = (oy or 0) + actor_oy
     end
     self.face:setPosition(self.face_x + (ox or 0), self.face_y + (oy or 0))
+
+    if face_shift then
+        self.face_shift = face_shift
+    end
 
     self:updateTextBounds()
 end
@@ -356,8 +362,8 @@ end
 
 function Textbox:updateTextBounds()
     if self.face.texture then
-        self.text.x = self.text_x + 116
-        self.text.width = self.width - 116 + self.wrap_add_w
+        self.text.x = self.text_x + self.face_shift
+        self.text.width = self.width - self.face_shift + self.wrap_add_w
     else
         self.text.x = self.text_x
         self.text.width = self.width + self.wrap_add_w
