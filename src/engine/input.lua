@@ -1076,7 +1076,7 @@ end
 --- Returns the type of the current gamepad, or nil if none connected.
 ---
 --- Defaults to "xbox" if no gamepad is connected, or if the type cannot be determined.
----@return "switch"|"ps4"|"xbox"?
+---@return "switch"|"ps4"|"ps5"|"xbox"?
 function Input.getControllerType()
     local gamepad = Input.connected_gamepad
 
@@ -1096,8 +1096,12 @@ function Input.getControllerType()
             return "switch"
         end
 
-        if type == "ps3" or type == "ps4" or type == "ps5" then
+        if type == "ps3" or type == "ps4" then
             return "ps4"
+        end
+
+        if type == "ps5" then
+            return "ps5"
         end
 
         return "xbox" -- unknown, xbox360, xboxone, amazonluna, stadia, virtual, shield
@@ -1112,8 +1116,10 @@ function Input.getControllerType()
     if con("nintendo") or con("switch") or con("joy-con") or con("wii") or con("gamecube") or con("nso") or con("nes") then
         return "switch"
     end
-
-    if con("sony") or con("playstation") or con("%f[%a]ps") or con("dualshock") or con("dualsense") or con("dualforce") then
+    if con("dualsense") then
+        return "ps5"
+    end
+    if con("sony") or con("playstation") or con("%f[%a]ps") or con("dualshock") or con("dualforce") then
         return "ps4"
     end
 
@@ -1163,26 +1169,26 @@ Input.button_sprites = {
     ["rsup"]          = "common/right_stick_up",
     ["rsdown"]        = "common/right_stick_down",
 
-    ["dpleft"]        = { switch = "switch/left", ps4 = "ps4/dpad_left", xbox = "xbox/left" },
-    ["dpright"]       = { switch = "switch/right", ps4 = "ps4/dpad_right", xbox = "xbox/right" },
-    ["dpup"]          = { switch = "switch/up", ps4 = "ps4/dpad_up", xbox = "xbox/up" },
-    ["dpdown"]        = { switch = "switch/down", ps4 = "ps4/dpad_down", xbox = "xbox/down" },
+    ["dpleft"]        = { switch = "switch/left", ps4 = "ps4/dpad_left", ps5 = "ps5/dpad_left", xbox = "xbox/left" },
+    ["dpright"]       = { switch = "switch/right", ps4 = "ps4/dpad_right", ps5 = "ps5/dpad_right", xbox = "xbox/right" },
+    ["dpup"]          = { switch = "switch/up", ps4 = "ps4/dpad_up", ps5 = "ps5/dpad_up" ,xbox = "xbox/up" },
+    ["dpdown"]        = { switch = "switch/down", ps4 = "ps4/dpad_down", ps5 = "ps5/dpad_down", xbox = "xbox/down" },
 
-    ["a"]             = { switch = "switch/a", ps4 = "ps4/cross", xbox = "xbox/a" },
-    ["b"]             = { switch = "switch/b", ps4 = "ps4/circle", xbox = "xbox/b" },
-    ["x"]             = { switch = "switch/x", ps4 = "ps4/square", xbox = "xbox/x" },
-    ["y"]             = { switch = "switch/y", ps4 = "ps4/triangle", xbox = "xbox/y" },
+    ["a"]             = { switch = "switch/a", ps4 = "ps4/cross", ps5 = "ps5/cross", xbox = "xbox/a" },
+    ["b"]             = { switch = "switch/b", ps4 = "ps4/circle", ps5 = "ps5/circle", xbox = "xbox/b" },
+    ["x"]             = { switch = "switch/x", ps4 = "ps4/square", ps5 = "ps5/square", xbox = "xbox/x" },
+    ["y"]             = { switch = "switch/y", ps4 = "ps4/triangle", ps5 = "ps5/triangle", xbox = "xbox/y" },
 
-    ["start"]         = { switch = "switch/plus", ps4 = "ps4/options", xbox = "xbox/menu" },
-    ["back"]          = { switch = "switch/minus", ps4 = "ps4/share", xbox = "xbox/view" },
-    ["guide"]         = { switch = "switch/home", ps4 = "ps4/ps", xbox = "xbox/xbox" },
+    ["start"]         = { switch = "switch/plus", ps4 = "ps4/options", ps5 = "ps5/options", xbox = "xbox/menu" },
+    ["back"]          = { switch = "switch/minus", ps4 = "ps4/share", ps5 = "ps4/share", xbox = "xbox/view" },
+    ["guide"]         = { switch = "switch/home", ps4 = "ps4/ps", ps5 = "ps4/ps", xbox = "xbox/xbox" },
 
-    ["leftshoulder"]  = { switch = "switch/l", ps4 = "ps4/l1", xbox = "xbox/left_bumper" },
-    ["rightshoulder"] = { switch = "switch/r", ps4 = "ps4/r1", xbox = "xbox/right_bumper" },
-    ["lefttrigger"]   = { switch = "switch/zl", ps4 = "ps4/l2", xbox = "xbox/left_trigger" },
-    ["righttrigger"]  = { switch = "switch/zr", ps4 = "ps4/r2", xbox = "xbox/right_trigger" },
-    ["leftstick"]     = { switch = "switch/lStickClick", ps4 = "ps4/l3", xbox = "xbox/left_stick" },
-    ["rightstick"]    = { switch = "switch/rStickClick", ps4 = "ps4/r3", xbox = "xbox/right_stick" },
+    ["leftshoulder"]  = { switch = "switch/l", ps4 = "ps4/l1", ps5 = "ps5/l1", xbox = "xbox/left_bumper" },
+    ["rightshoulder"] = { switch = "switch/r", ps4 = "ps4/r1", ps5 = "ps5/r1", xbox = "xbox/right_bumper" },
+    ["lefttrigger"]   = { switch = "switch/zl", ps4 = "ps4/l2", ps5 = "ps5/l2", xbox = "xbox/left_trigger" },
+    ["righttrigger"]  = { switch = "switch/zr", ps4 = "ps4/r2", ps5 = "ps5/r2", xbox = "xbox/right_trigger" },
+    ["leftstick"]     = { switch = "switch/lStickClick", ps4 = "ps4/l3", ps5 = "ps5/l3", xbox = "xbox/left_stick" },
+    ["rightstick"]    = { switch = "switch/rStickClick", ps4 = "ps4/r3", ps5 = "ps5/r3", xbox = "xbox/right_stick" },
 }
 
 ---@param button string
