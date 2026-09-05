@@ -135,6 +135,7 @@ function MainMenuModList:onKeyPressed(key, is_repeat)
         elseif Input.is("project_rebind", key) then
             if mod then
                 if Input.mod_keybinds[mod.id] and not mod["hideKeybinds"] then
+                    Assets.stopAndPlaySound("ui_select")
                     self.menu:pushState("CONTROLS", Input.usingGamepad() and "gamepad" or "keyboard", mod.id) -- TODO: gamepad detection
                     self.list.visible = false
                 end
