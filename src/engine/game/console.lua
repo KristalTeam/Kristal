@@ -383,6 +383,7 @@ local function hard_wrap(state, word)
             available = state.wrap_limit
         end
 
+        local piece_width = 0
         local last_valid_byte = 0
 
         for byte_start, codepoint in utf8.codes(remaining) do
