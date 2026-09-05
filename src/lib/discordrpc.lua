@@ -28,7 +28,7 @@ end
 DISCORD_RPC_AVAILABLE = ok
 
 if not ok then
-    Logging.warn("Discord RPC unavailable! Print DISCORD_RPC_INFO for more information")
+    print("Discord RPC unavailable! Print DISCORD_RPC_INFO for more information")
 
     DISCORD_RPC_INFO = "Missing, tried:\n"
     for _, search_path in ipairs(search_paths) do

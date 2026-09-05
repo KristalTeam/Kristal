@@ -28,7 +28,7 @@ end
 HTTPS_AVAILABLE = ok
 
 if not ok then
-    Logging.warn("HTTPS module unavailable! Print HTTPS_INFO for more information")
+    print("HTTPS module unavailable! Print HTTPS_INFO for more information")
 
     HTTPS_INFO = "Missing, tried:\n"
     for _, search_path in ipairs(search_paths) do
