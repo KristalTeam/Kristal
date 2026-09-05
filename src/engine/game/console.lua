@@ -330,42 +330,254 @@ function Console:draw()
     super.draw(self)
 end
 
+-- begin mini text engine
+
+--- An internal class for keeping track of the state of text wrapping in the console.
+---@class ConsoleTextState
+---@field lines table The lines of text that have been wrapped so far
+---@field line table The current line of text being built
+---@field width number The width of the current line
+---@field max_width number The maximum width of any line so far
+---@field color table? The current color being used for text
+---@field pending_space string The whitespace that has been seen but not yet added to the current line
+---@field wrap_limit number The maximum width of a line before wrapping
+---@field font love.Font The font being used
+
+
+---@param state ConsoleTextState
+local function finish_line(state)
+    state.max_width = math.max(state.max_width, state.width)
+    table.insert(state.lines, state.line)
+
+    state.line = {}
+
+    if state.color then
+        table.insert(state.line, state.color)
+    end
+
+    state.width = 0
+    state.pending_space = ""
+end
+
+---@param state ConsoleTextState
+---@param text string
+local function add_piece(state, text)
+    if text == "" then
+        return
+    end
+
+    table.insert(state.line, text)
+    state.width = state.width + state.font:getWidth(text)
+end
+
+---@param state ConsoleTextState
+---@param word string
+local function hard_wrap(state, word)
+    local remaining = word
+
+    while remaining ~= "" do
+        local available = state.wrap_limit - state.width
+
+        if available <= 0 then
+            finish_line(state)
+            available = state.wrap_limit
+        end
+
+        local last_valid_byte = 0
+
+        for byte_start, codepoint in utf8.codes(remaining) do
+            local character = utf8.char(codepoint)
+            local character_width = state.font:getWidth(character)
+
+            if piece_width + character_width > available then
+                break
+            end
+
+            piece_width = piece_width + character_width
+            last_valid_byte = byte_start + #character - 1
+        end
+
+        -- okay so this character is wider than the available space
+        if last_valid_byte == 0 then
+            local next_char_boundary = utf8.offset(remaining, 2) or (#remaining + 1)
+            local character = remaining:sub(1, next_char_boundary - 1)
+
+            add_piece(state, character)
+            remaining = remaining:sub(next_char_boundary)
+
+            if remaining ~= "" then
+                finish_line(state)
+            end
+        else
+            local piece = remaining:sub(1, last_valid_byte)
+            add_piece(state, piece)
+            remaining = remaining:sub(last_valid_byte + 1)
+
+            if remaining ~= "" then
+                finish_line(state)
+            end
+        end
+    end
+end
+
+---@param state ConsoleTextState
+---@param word string
+local function add_word(state, word)
+    if word == "" then
+        return
+    end
+
+    local space_width = state.font:getWidth(state.pending_space)
+    local word_width = state.font:getWidth(word)
+
+    -- word fits on current line
+    if state.width + space_width + word_width <= state.wrap_limit then
+        add_piece(state, state.pending_space)
+
+        state.pending_space = ""
+
+        add_piece(state, word)
+        return
+    end
+
+    -- word doesnt fit on this line, but it will on a new line
+    if word_width <= state.wrap_limit then
+        state.pending_space = ""
+        finish_line(state)
+        add_piece(state, word)
+        return
+    end
+
+    -- word is too large, so hard-wrap
+    state.pending_space = ""
+
+    if state.width > 0 then
+        finish_line(state)
+    end
+
+    hard_wrap(state, word)
+end
+
+--- add text to the console, handling whitespace and wrapping
+---@param state ConsoleTextState
+---@param text string
+---@param preserve_leading_space boolean
+local function add_text(state, text, preserve_leading_space)
+    local pos = 1
+
+    while pos <= #text do
+        local whitespace_start, whitespace_end = text:find("%s+", pos)
+
+        if whitespace_start == pos then
+            local whitespace = text:sub(whitespace_start, whitespace_end)
+
+            if preserve_leading_space and state.width == 0 then
+                -- whitespace follows an explicit newline, so keep it
+                add_piece(state, whitespace)
+            else
+                -- dont commit whitespace until we know the next word fits on this line
+                state.pending_space = state.pending_space .. whitespace
+            end
+
+            pos = whitespace_end + 1
+        else
+            local word_end = text:find("%s", pos) or (#text + 1)
+            local word = text:sub(pos, word_end - 1)
+
+            add_word(state, word)
+
+            preserve_leading_space = false
+            pos = word_end
+        end
+    end
+end
+
+--- responsible for adding text to the console, handling newlines and wrapping
+---@param state ConsoleTextState
+---@param text string
+local function add_formatted_text(state, text)
+    local start = 1
+    local after_newline = false
+
+    while true do
+        local newline = text:find("\n", start, true)
+
+        if not newline then
+            add_text(state, text:sub(start), after_newline)
+            break
+        end
+
+        add_text(state, text:sub(start, newline - 1), after_newline)
+
+        -- explicit newline, so preserve whitespace
+        state.pending_space = ""
+        finish_line(state)
+
+        after_newline = true
+        start = newline + 1
+    end
+end
+
+---
+--- Like LÖVE's `Font:getWrap`, but keeps formatting
+---
+---@param tbl table The text to wrap, as a table of strings and formatting tables.
+---@param wrap_limit number The width to wrap at.
+---@return number width The width of the wrapped text
+---@return table lines The wrapped text, as a table of lines, each line being a table of strings and formatting tables.
+function Console:getWrappedLines(tbl, wrap_limit)
+    -- okay begin the horrors
+    -- this is a mini text wrapping engine
+
+    ---@type ConsoleTextState
+    local state = {
+        lines = {},
+        line = {},
+        width = 0,
+        max_width = 0,
+        color = nil,
+        pending_space = "",
+        wrap_limit = wrap_limit,
+        font = self.font
+    }
+
+    for _, part in ipairs(tbl) do
+        if type(part) == "table" then
+            state.color = part
+            table.insert(state.line, part)
+        else
+            add_formatted_text(state, part)
+        end
+    end
+
+    -- whitespace at the end of the input should be kept
+    if state.pending_space ~= "" then
+        add_piece(state, state.pending_space)
+    end
+
+    state.max_width = math.max(state.max_width, state.width)
+    table.insert(state.lines, state.line)
+
+    return state.max_width, state.lines
+end
+
 function Console:push(str)
     if str == nil then
         return
     end
 
     if type(str) == "table" then
-        -- We'll assume this is a fancy LÖVE table with colors and stuff. We'll have to split by newlines ourselves.
-        local lines = {}
-        local current_line = {}
+        -- This is a fancy formatting table, so let's wrap it
 
-        for _, part in ipairs(str) do
-            if type(part) == "table" then
-                table.insert(current_line, part)
-            else
-                local split = StringUtils.split(part, "\n", false)
-                for i, line in ipairs(split) do
-                    if i == 1 then
-                        table.insert(current_line, line)
-                    else
-                        table.insert(lines, current_line)
-                        current_line = { line }
-                    end
-                end
-            end
-        end
-
-        table.insert(lines, current_line)
-
-        for _, line in ipairs(lines) do
+        local _, wrappedtext = self:getWrappedLines(str, SCREEN_WIDTH - 16)
+        for _, line in ipairs(wrappedtext) do
             table.insert(self.history, line)
         end
 
         return
     end
 
-    local lines = StringUtils.split(str, "\n", false)
+    local _, lines = self.font:getWrap(str, SCREEN_WIDTH - 16)
 
     for _, line in ipairs(lines) do
         table.insert(self.history, { line })
