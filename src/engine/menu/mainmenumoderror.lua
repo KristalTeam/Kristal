@@ -24,7 +24,7 @@ function MainMenuModError:onEnter(old_state)
     self.menu.heart_target_y = 480 - 16 + 1
 
     for _, failure in ipairs(Kristal.Mods.failed_mods) do
-        Kristal.Console:error(failure.error)
+        Logging.error(failure.error)
     end
 end
 

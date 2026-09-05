@@ -1,4 +1,4 @@
----@class ImageBorder: Border
+---@class ImageBorder : Border
 ---@field texture love.Image # The texture to be drawn behind the game. Usually 1920x1080.
 ---@overload fun(texture:love.Image, id?: string): ImageBorder
 ---@overload fun(id: string): ImageBorder

@@ -469,7 +469,7 @@ function Map:loadLayer(layer, depth)
         end
         self:loadShapes(layer)
     else
-        Kristal.Console:warn(string.format("Unhandled or unknown Tiled layer type \"%s\", ignoring", layer.type))
+        Logging.warn(string.format("Unhandled or unknown Tiled layer type \"%s\", ignoring", layer.type))
     end
 end
 
@@ -811,7 +811,7 @@ function Map:loadObject(name, data)
         return self:createTileObject(data)
     end
 
-    Kristal.Console:warn("No event with ID '" .. tostring(name) .. "' found")
+    Logging.warn("No event with ID '" .. tostring(name) .. "' found")
 end
 
 function Map:loadController(name, data)

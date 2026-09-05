@@ -13,7 +13,7 @@ end
 ---@param constructor fun(data):Event  A constructor function that takes event data and returns an event instance.
 function EventRegistry:register(id, constructor)
     if self.events[id] then
-        Kristal.Console:warn("Replacing already-registered event '" .. id .. "'...")
+        Logging.warn("Replacing already-registered event '" .. id .. "'...")
     end
 
     self.events[id] = constructor

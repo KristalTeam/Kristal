@@ -1,5 +1,6 @@
 function Mod:init()
-    print("Loaded " .. self.info.name .. "!")
+    -- Create a logger for this project. Change the name!
+    Mod.logger = Logger("Example Project", ConsoleFormats.GREEN)
 
     Game:registerEvent("mouseholeentry", function(data)
         return MouseholeEntry(data.x, data.y, { data.width, data.height })
@@ -10,4 +11,6 @@ function Mod:init()
         -- Same with shoot_speed.
         return ClimbShooter(data.x, data.y, { data.width, data.height }, data.properties.timer_offset, data.properties.shoot_speed)
     end)
+
+    Mod.logger:info("Loaded " .. self.info.name .. "!")
 end

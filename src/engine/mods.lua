@@ -116,7 +116,7 @@ function Mods.sortLibraries(mod)
 
         if #new_unsorted == #unsorted then
             for _, lib_id in ipairs(new_unsorted) do
-                Kristal.Console:warn(
+                Logging.warn(
                     string.format(
                         "Issue loading mod '%s' - Dependencies for library '%s' failed to load, likely circular dependency",
                         mod.id,

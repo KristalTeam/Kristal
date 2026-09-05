@@ -78,7 +78,7 @@ function Kristal.verifySoundSystem()
     local source = love.audio.newSource("assets/music/none.ogg", "static")
     local success = source:play()
     if not success then
-        print("Audio has been detected as unavailable, disabling sound for the rest of the session")
+        Logging.warn("Audio has been detected as unavailable, disabling sound for the rest of the session")
         SOUND_DISABLED = true
     end
 end
@@ -104,6 +104,12 @@ function love.load(args)
     if Kristal.Args["disable-stdout-buffer"] then
         io.stdout:setvbuf("no")
     end
+
+    Logging.init(Kristal.Args["ansi-colors"])
+    Logging.registerDefaultListeners()
+    Logging.createSystemLogger()
+
+    Hotswapper.init()
 
     -- load the version
     Kristal.Version = SemVer(love.filesystem.read("VERSION"))
@@ -587,7 +593,7 @@ function Kristal.onKeyPressed(key, is_repeat)
             elseif key == "f6" then
                 DEBUG_RENDER = not DEBUG_RENDER
             elseif key == "f8" then
-                print("Hotswapping files...\nNOTE: Might be unstable. If anything goes wrong, it's not our fault :P")
+                Hotswapper.LOGGER:info("Hotswapping files...\nNOTE: Might be unstable. If anything goes wrong, it's not our fault :P")
                 Hotswapper.scan()
             elseif key == "r" and Input.ctrl() and (not console_open) then
                 -- CTRL+R to reload
@@ -662,7 +668,7 @@ function Kristal.onWheelMoved(x, y)
 end
 
 local function error_printer(msg, layer)
-    print((debug.traceback("Error: " .. tostring(msg), 1 + (layer or 1)):gsub("\n[^\n]+$", "")))
+    Logging.error((debug.traceback("Error: " .. tostring(msg), 1 + (layer or 1)):gsub("\n[^\n]+$", "")))
 end
 
 --- Kristal alternative to the default love.errorhandler. \
@@ -734,7 +740,7 @@ function Kristal.errorHandler(msg, trace_level)
     if not critical and not trace then
         error_printer(msg, trace_level)
     elseif trace then
-        print("Error: " .. msg .. "\n" .. trace)
+        Logging.error("Error: " .. msg .. "\n" .. trace)
     end
 
     if not love.window or not love.graphics or not love.event then
@@ -1881,21 +1887,19 @@ function Kristal.loadConfig()
     if love.filesystem.getInfo("settings.json") then
         local success, message = pcall(JSON.decode, love.filesystem.read("settings.json"))
         if not success then
-            print("Error loading settings.json: " .. tostring(message))
-            print("Using default config.")
+            Logging.error("Error loading settings.json: " .. tostring(message) .. "\nUsing default config.")
             return config
         end
 
         local config_type = type(message)
         if config_type ~= "table" then
-            print("Error loading settings.json: Expected table, got " .. config_type)
-            print("Using default config.")
+            Logging.error("Error loading settings.json: Expected table, got " .. config_type .. "\nUsing default config.")
             return config
         end
 
         TableUtils.merge(config, message)
     else
-        print("No settings.json found, using default config.")
+        Logging.info("No settings.json found, using default config.")
     end
 
     return config
@@ -2219,11 +2223,11 @@ function Kristal.markDeprecated(level, name, api_type, deprecation_type, new_nam
     end
     local info = debug.getinfo(level + 1, "Sl")
     if not info then
-        print("Failed to find debug info for deprecation warning: " .. deprecation_message)
+        Logging.warn("Failed to find debug info for deprecation warning: " .. deprecation_message)
         return
     end
     local source_line = string.format("%s:%s", info.short_src, info.currentline)
-    Kristal.Console:warn(string.format("Warning: %s: %s", source_line, deprecation_message))
+    Logging.warn(string.format("%s: %s", source_line, deprecation_message))
 end
 
 --- Executes a `.lua` script inside the project folder.

@@ -36,7 +36,7 @@ end
 function SetFlagEvent:onEnter(chara)
     if chara.is_player then
         if self.flag == nil then
-            Kristal.Console:warn("SetFlagEvent is missing a flag, ignoring")
+            Logging.warn("SetFlagEvent is missing a flag, ignoring")
             return
         end
 

@@ -126,12 +126,12 @@ function CollisionRegistry.validateCollisions()
         for _, type_b in ipairs(CollisionRegistry.types) do
             local test = CollisionRegistry.collision_tests[type_a][type_b]
             if test == nil then
-                Kristal.Console:warn("Missing collision test for: " .. type_a .. " vs " .. type_b)
+                Logging.warn("Missing collision test for: " .. type_a .. " vs " .. type_b)
             end
 
             local inner_test = CollisionRegistry.inner_collision_tests[type_a][type_b]
             if inner_test == nil then
-                Kristal.Console:warn("Missing inner collision test for: " .. type_a .. " vs " .. type_b)
+                Logging.warn("Missing inner collision test for: " .. type_a .. " vs " .. type_b)
             end
         end
     end

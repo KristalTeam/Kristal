@@ -29,6 +29,18 @@ require("src.lib.stable_sort")
 Class = require("src.utils.class")
 require("src.utils.graphics")
 
+LoggingOutputListener = require("src.utils.logging.loggingoutputlistener")
+ConsoleOutputListener = require("src.utils.logging.consoleoutputlistener")
+StandardOutputListener = require("src.utils.logging.standardoutputlistener")
+
+EscapeSequences = require("src.utils.logging.escapesequences")
+ConsoleFormatting = require("src.utils.logging.consoleformatting")
+ConsoleFormats = require("src.utils.logging.consoleformats")
+FormatStringPart = require("src.utils.logging.formatstringpart")
+FormatString = require("src.utils.logging.formatstring")
+Logger = require("src.utils.logging.logger")
+Logging = require("src.utils.logging.logging")
+
 ColorUtils = require("src.utils.colorutils")
 MathUtils = require("src.utils.mathutils")
 StringUtils = require("src.utils.stringutils")
@@ -347,9 +359,6 @@ FitSizing = require("src.engine.ui.sizing.fit")
 FillSizing = require("src.engine.ui.sizing.fill")
 
 Hotswapper = require("src.hotswapper")
-
--- Register required in the hotswapper
-Hotswapper.updateFiles("required")
 
 function love.run()
     if not love.timer then

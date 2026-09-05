@@ -12,10 +12,16 @@ Hotswapper.files = {
 
 package.path = package.path .. ";" .. love.filesystem.getSource() .. "/?.lua"
 
+function Hotswapper.init()
+    Hotswapper.LOGGER = Logger("Hotswapper", ConsoleFormats.MAGENTA)
+
+    Hotswapper.updateFiles("required")
+end
+
 function Hotswapper.updateFiles(file_type)
     if not enabled then return end
     if file_type == "required" then
-        print("Updating file information for required packages...")
+        Hotswapper.LOGGER:info("Updating file information for required packages...")
         -- Loop through loaded packages
         for key, value in pairs(package.loaded) do
             local path = package.searchpath(key, package.path)
@@ -26,7 +32,7 @@ function Hotswapper.updateFiles(file_type)
                 }
             end
         end
-        print("Done")
+        Hotswapper.LOGGER:info("Done")
     elseif file_type == "registry" then
         -- Loop through registry
         --[[local hotswappable = {
@@ -63,14 +69,14 @@ function Hotswapper.scan()
         if Hotswapper.getLastModified(value.path) == false then return end
         if value.modified ~= Hotswapper.getLastModified(value.path) then
             value.modified = Hotswapper.getLastModified(value.path)
-            print("Attempting to hotswap " .. key)
+            Hotswapper.LOGGER:info("Attempting to hotswap " .. key)
             --print(value.path)
 
             HOTSWAPPING = true
             local updated_module, error_text = Hotswapper.hotswap(key)
             HOTSWAPPING = false
             if not updated_module then
-                print(error_text)
+                Hotswapper.LOGGER:error(error_text)
             end
         end
     end
@@ -89,7 +95,7 @@ function Hotswapper.getLastModified(path)
     path = path:gsub("^.[\\/]", ""):gsub("\\", "/")
     local info = love.filesystem.getInfo(path, "file")
     if not info then
-        print("Info is nil, disabling hotswapper...")
+        Hotswapper.LOGGER:warn("Info is nil, disabling hotswapper...")
         return false
     end
     return info.modtime

@@ -282,7 +282,7 @@ function MainMenu:update()
         if v.update then
             local success, msg = pcall(v.update, v)
             if not success then
-                Kristal.Console:warn("preview.lua error in " .. Kristal.Mods.getMod(k).name .. ": " .. msg)
+                Logging.warn("preview.lua error in " .. Kristal.Mods.getMod(k).name .. ": " .. msg)
                 self.mod_list.scripts[k] = nil
             end
         end
@@ -327,7 +327,7 @@ function MainMenu:draw()
             love.graphics.push()
             local success, msg = pcall(script.drawOverlay, script)
             if not success then
-                Kristal.Console:warn("preview.lua error in " .. Kristal.Mods.getMod(modid).name .. ": " .. msg)
+                Logging.warn("preview.lua error in " .. Kristal.Mods.getMod(modid).name .. ": " .. msg)
                 self.mod_list.scripts[modid] = nil
             end
             love.graphics.pop()
@@ -413,7 +413,7 @@ function MainMenu:drawBackground()
             love.graphics.push()
             local success, msg = pcall(script.draw, script)
             if not success then
-                Kristal.Console:warn("preview.lua error in " .. mod.name .. ": " .. msg)
+                Logging.warn("preview.lua error in " .. mod.name .. ": " .. msg)
                 self.mod_list.scripts[mod.id] = nil
             end
             love.graphics.pop()

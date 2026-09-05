@@ -78,7 +78,7 @@ function Inventory:addItemTo(storage, index, item, allow_fallback)
                     -- Inserting pushed item out-of-bounds, move it to fallback storage
                     local overflow, overflow_index = self:getNextIndex(storage, storage.max + 1, allow_fallback)
                     if not overflow or not self:setItem(overflow, overflow_index, storage[storage.max + 1]) then
-                        Kristal.Console:warn("Deleted item by overflow - THIS SHOULDNT HAPPEN")
+                        Logging.warn("Deleted item by overflow - THIS SHOULDNT HAPPEN")
                     else
                         self:updateStoredItems(self:getStorage(overflow))
                     end
@@ -501,7 +501,7 @@ function Inventory:loadStorage(storage, data)
                 storage[i] = Registry.createItem(item.id)
                 storage[i]:load(item)
             else
-                Kristal.Console:error("Could not load item \""..item.id.."\"")
+                Logging.error("Could not load item \""..item.id.."\"")
             end
         end
     end

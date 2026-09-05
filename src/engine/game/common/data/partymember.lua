@@ -870,16 +870,16 @@ function PartyMember:loadEquipment(data)
                     weapon:load(data.weapon)
                     self:setWeapon(weapon)
                 else
-                    Kristal.Console:error("Could not load weapon \"" .. data.weapon.id .. "\"")
+                    Logging.error("Could not load weapon \"" .. data.weapon.id .. "\"")
                 end
             else
-                Kristal.Console:error("Could not load weapon \"" .. data.weapon.id .. "\"")
+                Logging.error("Could not load weapon \"" .. data.weapon.id .. "\"")
             end
         else
             if Registry.getItem(data.weapon) then
                 self:setWeapon(data.weapon)
             else
-                Kristal.Console:error("Could not load weapon \"" .. (data.weapon or "nil") .. "\"")
+                Logging.error("Could not load weapon \"" .. (data.weapon or "nil") .. "\"")
             end
         end
     end
@@ -895,16 +895,16 @@ function PartyMember:loadEquipment(data)
                         armor:load(v)
                         self:setArmor(tonumber(k), armor)
                     else
-                        Kristal.Console:error("Could not load armor \"" .. v.id .. "\"")
+                        Logging.error("Could not load armor \"" .. v.id .. "\"")
                     end
                 else
-                    Kristal.Console:error("Could not load armor \"" .. v.id .. "\"")
+                    Logging.error("Could not load armor \"" .. v.id .. "\"")
                 end
             else
                 if Registry.getItem(v) then
                     self:setArmor(tonumber(k), v)
                 else
-                    Kristal.Console:error("Could not load armor \"" .. (v or "nil") .. "\"")
+                    Logging.error("Could not load armor \"" .. (v or "nil") .. "\"")
                 end
             end
         end
@@ -927,7 +927,7 @@ function PartyMember:loadSpells(data)
         if Registry.getSpell(v) then
             self:addSpell(v)
         else
-            Kristal.Console:error("Could not load spell \"" .. (v or "nil") .. "\"")
+            Logging.error("Could not load spell \"" .. (v or "nil") .. "\"")
         end
     end
 end

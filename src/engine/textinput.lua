@@ -67,7 +67,7 @@ end
 
 --- Set the system's options.
 ---
---- This does not reset the system, and should be used alongside {@link TextInput.reset}, or anything which calls it.
+--- This does not reset the system, and should be used alongside [`TextInput.reset`](lua://TextInput.reset), or anything which calls it.
 ---@param options TextInput.inputOptions? # The new options to use. If nil, the default options are used.
 function TextInput.setOptions(options)
     options = options or {} --[[@as TextInput.inputOptions]]
@@ -158,7 +158,7 @@ function TextInput.submit()
     if TextInput.submit_callback then
         TextInput.submit_callback()
     else
-        Kristal.Console:warn("No submit callback set!")
+        Logging.warn("No submit callback set!")
     end
     if TextInput.clear_after_submit then
         TextInput.clear()

@@ -1,4 +1,4 @@
----@class Border: Class
+---@class Border : Class
 ---@overload fun(): Border
 local Border = Class()
 

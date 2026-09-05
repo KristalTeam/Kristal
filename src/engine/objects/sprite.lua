@@ -186,7 +186,7 @@ function Sprite:setTextureExact(texture)
         self.texture = texture
     end
     if (not self.texture) and (texture ~= nil) then
-        Kristal.Console:warn("Texture not found: " .. TableUtils.dump(texture))
+        Logging.warn("Texture not found: " .. TableUtils.dump(texture))
     end
     self.texture_path = Assets.getTextureID(texture)
     if self.use_texture_size then
@@ -448,8 +448,8 @@ function Sprite:crossFadeTo(texture, time, options, after)
         options = { fade_out = options }
 
         local info = debug.getinfo(2, "Sln")
-        Kristal.Console:warn("Deprecated \"fade_to\" argument to crossFadeTo, expected a table of options")
-        Kristal.Console:warn(info.source .. ":"..info.currentline)
+        Logging.warn("Deprecated \"fade_to\" argument to crossFadeTo, expected a table of options")
+        Logging.warn(info.source .. ":"..info.currentline)
     end
 
     self:crossFadeToSpeed(texture, (1 / (time or 1)) / 30 * (1 - self.crossfade_alpha), options, after)
@@ -467,8 +467,8 @@ function Sprite:crossFadeToSpeed(texture, speed, options, after)
         options = { fade_out = options }
 
         local info = debug.getinfo(2, "Sln")
-        Kristal.Console:warn("Deprecated \"fade_to\" argument to crossFadeToSpeed, expected a table of options")
-        Kristal.Console:warn(info.source .. ":"..info.currentline)
+        Logging.warn("Deprecated \"fade_to\" argument to crossFadeToSpeed, expected a table of options")
+        Logging.warn(info.source .. ":"..info.currentline)
     end
 
     options = options or {}

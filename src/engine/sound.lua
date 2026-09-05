@@ -1,5 +1,5 @@
 --- The sound class. This is a transparent wrapper over Love2D's `Source`.
----@class Sound
+---@class Sound : Class
 ---
 ---@field private data love.SoundData
 ---@field private settings Assets.sound_settings
