@@ -114,6 +114,8 @@ function love.load(args)
     -- load the version
     Kristal.Version = SemVer(love.filesystem.read("VERSION"))
 
+    Logging.info("Kristal v" .. tostring(Kristal.Version))
+
     -- load the settings.json
     Kristal.Config = Kristal.loadConfig()
 
@@ -1882,6 +1884,7 @@ end
 --- Called internally. Loads the saved user config, with default values.
 ---@return table config The user config.
 function Kristal.loadConfig()
+    Logging.info("Loading settings from " .. FormatString("settings.json", ConsoleFormats.GRAY))
     local config = Kristal.getDefaultConfig()
 
     if love.filesystem.getInfo("settings.json") then
@@ -1907,7 +1910,12 @@ end
 
 --- Saves the current config table to the `settings.json`.
 function Kristal.saveConfig()
-    love.filesystem.write("settings.json", JSON.encode(Kristal.Config))
+    Logging.info("Saving " .. FormatString("settings.json", ConsoleFormats.GRAY))
+    local success, message = love.filesystem.write("settings.json", JSON.encode(Kristal.Config))
+
+    if not success then
+        Logging.error("Error saving settings.json: " .. tostring(message))
+    end
 end
 
 --- Saves the game.
@@ -1915,11 +1923,16 @@ end
 ---@param data? table  The data to save to the file. (Defaults to the output of `Game:save()`)
 function Kristal.saveGame(id, data)
     id = id or Game.save_id
+    local path = "saves/" .. Mod.info.id .. "/file_" .. id .. ".json"
+
+    Logging.info(FormatString("Writing save file "):add(FormatString(tostring(id), ConsoleFormats.GREEN)):add(" to path "):add(FormatString(path, ConsoleFormats.GRAY)))
+
     data = data or Game:save()
     Game.save_id = id
     Game.quick_save = nil
+
     love.filesystem.createDirectory("saves/" .. Mod.info.id)
-    love.filesystem.write("saves/" .. Mod.info.id .. "/file_" .. id .. ".json", JSON.encode(data))
+    love.filesystem.write(path, JSON.encode(data))
 end
 
 --- Loads the game from a save file.
@@ -1928,10 +1941,14 @@ end
 function Kristal.loadGame(id, fade)
     id = id or Game.save_id
     local path = "saves/" .. Mod.info.id .. "/file_" .. id .. ".json"
+
+    Logging.info(FormatString("Loading save file "):add(FormatString(tostring(id), ConsoleFormats.GREEN)):add(" from path "):add(FormatString(path, ConsoleFormats.GRAY)))
+
     if love.filesystem.getInfo(path) then
         local data = JSON.decode(love.filesystem.read(path))
         Game:load(data, id, fade)
     else
+        Logging.info(FormatString("Save file "):add(FormatString(tostring(id), ConsoleFormats.GREEN)):add(" does not exist, starting new game."))
         Game:load(nil, id, fade)
     end
 end
