@@ -102,7 +102,7 @@ Input.scroll_delta_y = 0
 
 Input.order = {
     "down", "right", "up", "left", "confirm", "cancel", "menu", "console", "debug_menu", "object_selector",
-    "fast_forward", "mod_rebind"
+    "fast_forward", "project_rebind"
 }
 
 Input.required_binds = {
@@ -228,7 +228,7 @@ function Input.resetBinds(gamepad, mod_id)
             ["debug_menu"] = { { "shift", "`" } },
             ["object_selector"] = { { "ctrl", "o" } },
             ["fast_forward"] = { { "ctrl", "g" } },
-            ["mod_rebind"] = { "/" },
+            ["project_rebind"] = { "/" },
         }
         local gamepad_bindings = {
             ["up"] = { "gamepad:dpup", "gamepad:lsup" },
@@ -242,7 +242,7 @@ function Input.resetBinds(gamepad, mod_id)
             ["debug_menu"] = {},
             ["object_selector"] = {},
             ["fast_forward"] = {},
-            ["mod_rebind"] = { "gamepad:x" },
+            ["project_rebind"] = { "gamepad:x" },
         }
         if gamepad ~= true then TableUtils.merge(Input.key_bindings, key_bindings) end
         if gamepad ~= false then TableUtils.merge(Input.gamepad_bindings, gamepad_bindings) end
@@ -293,7 +293,7 @@ function Input.resetBinds(gamepad, mod_id)
             ["debug_menu"] = { { "shift", "`" } },
             ["object_selector"] = { { "ctrl", "o" } },
             ["fast_forward"] = { { "ctrl", "g" } },
-            ["mod_rebind"] = { "/" },
+            ["project_rebind"] = { "/" },
         }
         for _, mod in ipairs(Kristal.Mods.getMods()) do
             if mod.keybinds then
@@ -339,7 +339,7 @@ function Input.resetBinds(gamepad, mod_id)
             ["debug_menu"] = {},
             ["object_selector"] = {},
             ["fast_forward"] = {},
-            ["mod_rebind"] = { "gamepad:x" },
+            ["project_rebind"] = { "gamepad:x" },
         }
         for _, mod in ipairs(Kristal.Mods.getMods()) do
             if mod.keybinds then
@@ -372,10 +372,19 @@ function Input.loadBinds()
     Input.resetBinds()
 
     if love.filesystem.getInfo("keybinds.json") then
+        local found_rename = false
         local user_binds = JSON.decode(love.filesystem.read("keybinds.json"))
+
         for k, v in pairs(user_binds) do
             local key_bind = {}
             local gamepad_bind = {}
+
+            if k == "mod_rebind" then
+                Logging.warn("Found 'mod_rebind' keybind, converting to 'project_rebind'")
+                k = "project_rebind"
+                found_rename = true
+            end
+
             for _, key in ipairs(v) do
                 local split = StringUtils.split(key, "+")
                 if #split > 1 then
@@ -399,6 +408,11 @@ function Input.loadBinds()
                 Input.stray_gamepad_bindings[k] = gamepad_bind
             end
         end
+
+        if found_rename then
+            Input.saveBinds()
+        end
+
     end
 end
 

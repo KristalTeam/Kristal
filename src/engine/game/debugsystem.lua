@@ -1149,7 +1149,7 @@ function DebugSystem:registerDefaults()
         local hard_reset = Kristal.getModOption("hardReset")
         if hard_reset then
             self:registerOption(
-                "main", "Reload", "Reload the mod.",
+                "main", "Reload", "Reload the project.",
                 function()
                     love.event.quit("restart")
                 end,
@@ -1159,7 +1159,7 @@ function DebugSystem:registerDefaults()
             self:registerOption(
                 "main",
                 "Reload (tempsave)",
-                "Reload the mod, creating a temporary save.",
+                "Reload the project, creating a temporary save.",
                 function()
                     if Kristal.getModOption("hardReset") then
                         love.event.quit("restart")
@@ -1174,7 +1174,7 @@ function DebugSystem:registerDefaults()
                 self:registerOption(
                     "main",
                     "Reload (from save)",
-                    "Reload the mod from your current save.",
+                    "Reload the project from your current save.",
                     function()
                         Kristal.quickReload("save")
                     end,

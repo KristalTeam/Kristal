@@ -132,7 +132,7 @@ function MainMenuModList:onKeyPressed(key, is_repeat)
             end
 
             return true
-        elseif Input.is("mod_rebind", key) then
+        elseif Input.is("project_rebind", key) then
             if mod then
                 if Input.mod_keybinds[mod.id] and not mod["hideKeybinds"] then
                     self.menu:pushState("CONTROLS", Input.usingGamepad() and "gamepad" or "keyboard", mod.id) -- TODO: gamepad detection
@@ -187,18 +187,18 @@ end
 
 function MainMenuModList:draw()
     if self.loading_mods then
-        Draw.printShadow("Loading mods...", 0, 115 - 8, 2, "center", 640)
+        Draw.printShadow("Loading projects...", 0, 115 - 8, 2, "center", 640)
     elseif self.menu.state ~= "CONTROLS" then
         local menu_font = Assets.getFont("main")
 
         if #self.list.mods == 0 then
-            -- Draw introduction text if no mods exist
+            -- Draw introduction text if no projects exist
 
             self.intro_text = {
                 { 1, 1, 1, 1 },
-                "Welcome to Kristal,\nthe DELTARUNE fangame engine!\n\nAdd mods to the ",
+                "Welcome to Kristal,\nthe DELTARUNE fangame engine!\n\nAdd projects to the ",
                 { 1, 1, 0, 1 },
-                "mods folder",
+                "\"mods\" folder",
                 { 1, 1, 1, 1 },
                 "\nto continue."
             }
@@ -247,7 +247,7 @@ function MainMenuModList:draw()
             else
                 control_menu_width = menu_font:getWidth(Input.getText("menu"))
                 control_cancel_width = menu_font:getWidth(Input.getText("cancel"))
-                control_rebind_width = menu_font:getWidth(Input.getText("mod_rebind"))
+                control_rebind_width = menu_font:getWidth(Input.getText("project_rebind"))
             end
 
             local button = self:getSelectedButton()
@@ -283,11 +283,11 @@ function MainMenuModList:draw()
                 x_pos = x_pos + control_rebind_width
                 if Input.usingGamepad() then
                     Draw.setColor(0, 0, 0, 1)
-                    Draw.draw(Input.getTexture("mod_rebind"), 580 + (16 * 3) - x_pos + 2, 454 - 8 + 4, 0, 2, 2)
+                    Draw.draw(Input.getTexture("project_rebind"), 580 + (16 * 3) - x_pos + 2, 454 - 8 + 4, 0, 2, 2)
                     Draw.setColor(1, 1, 1, 1)
-                    Draw.draw(Input.getTexture("mod_rebind"), 580 + (16 * 3) - x_pos, 454 - 8 + 2, 0, 2, 2)
+                    Draw.draw(Input.getTexture("project_rebind"), 580 + (16 * 3) - x_pos, 454 - 8 + 2, 0, 2, 2)
                 else
-                    Draw.printShadow(Input.getText("mod_rebind"), 580 + (16 * 3) - x_pos, 454 - 8)
+                    Draw.printShadow(Input.getText("project_rebind"), 580 + (16 * 3) - x_pos, 454 - 8)
                 end
             end
             --local control_text = Input.getText("menu").." "..(self.heart_outline.visible and "Unfavorite" or "Favorite  ").."  "..Input.getText("cancel").." Back"
@@ -416,9 +416,11 @@ function MainMenuModList:buildModListFavorited()
         end
     end
 
-    -- Add the mod create button
-    local create_button = ModCreateButton(424 + 70, 42)
-    self.list:addMod(create_button)
+    if not RELEASE_MODE then
+        -- Add the mod create button
+        local create_button = ModCreateButton(424 + 70, 42)
+        self.list:addMod(create_button)
+    end
 
     -- Remember the loaded structure of the mods directory
     self.last_loaded = love.filesystem.getDirectoryItems("mods")
@@ -541,9 +543,11 @@ function MainMenuModList:buildModList()
         end
     end
 
-    -- Add the mod create button
-    local create_button = ModCreateButton(424 + 70, 42)
-    self.list:addMod(create_button)
+    if not RELEASE_MODE then
+        -- Add the mod create button
+        local create_button = ModCreateButton(424 + 70, 42)
+        self.list:addMod(create_button)
+    end
 
     -- Remember the loaded structure of the mods directory
     self.last_loaded = love.filesystem.getDirectoryItems("mods")
@@ -561,7 +565,7 @@ function MainMenuModList:buildModList()
     if TARGET_MOD then
         local target_button, index = self.list:getById(TARGET_MOD)
         if not index then
-            error("No mod found: " .. TARGET_MOD)
+            error("No project found: " .. TARGET_MOD)
         else
             self.list:select(index, true)
         end

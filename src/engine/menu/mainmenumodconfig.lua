@@ -183,7 +183,7 @@ function MainMenuModConfig:draw()
     if option then
         text = option.description
     else
-        text = "Return to the mod creation menu"
+        text = "Return to the project creation menu"
     end
     Draw.setColor(COLORS.silver)
 

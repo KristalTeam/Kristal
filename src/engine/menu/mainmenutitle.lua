@@ -80,7 +80,7 @@ function MainMenuTitle:onKeyPressed(key, is_repeat)
                     self.menu:setState("FILESELECT")
                 elseif (mod["useSaves"] == false) or (mod["useSaves"] == nil and not self.has_target_saves) then
                     if not Kristal.loadMod(TARGET_MOD, 1) then
-                        error("Failed to load mod: " .. TARGET_MOD)
+                        error("Failed to load project: " .. TARGET_MOD)
                     end
                 end
             end
