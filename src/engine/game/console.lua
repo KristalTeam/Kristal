@@ -646,7 +646,7 @@ function Console:log(str)
     Kristal.markDeprecated(2, "Kristal.Console:log", "method", "replaced", "Logging.info")
 
     print("[CONSOLE] " .. tostring(str))
-    self:push(self:parseLegacyFormatting(str))
+    self:push(self:parseLegacyFormatting(tostring(str)))
 end
 
 ---@deprecated
