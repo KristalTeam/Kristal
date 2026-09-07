@@ -594,13 +594,7 @@ function Kristal.onKeyPressed(key, is_repeat)
 
             -- Developer hotkeys
             if key == "f2" or (Input.is("fast_forward", key) and not console_open) then
-                if not FAST_FORWARD then
-                    FAST_FORWARD = true
-                    debug_logger:infoNotify("Fast Forward: " .. FormatString("ON", ConsoleFormats.GREEN))
-                else
-                    FAST_FORWARD = false
-                    debug_logger:infoNotify("Fast Forward: " .. FormatString("OFF", ConsoleFormats.RED))
-                end
+                FAST_FORWARD = not FAST_FORWARD
             elseif key == "f3" then
                 love.system.openURL("https://kristal.cc/wiki")
             elseif key == "f6" then
