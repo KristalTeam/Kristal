@@ -1116,6 +1116,10 @@ function World:loadMap(...)
         end
     end
 
+    for _, battle_border in ipairs(self.map.battle_borders) do
+        battle_border.alpha = 0
+    end
+
     self.map:onEnter()
 
     if callback then
@@ -1405,6 +1409,7 @@ function World:update()
     for _, battle_border in ipairs(self.map.battle_borders) do
         battle_border.alpha = self.battle_alpha
     end
+
     if self.battle_fader then
         self.battle_fader:setColor(0, 0, 0, half_alpha)
     end
