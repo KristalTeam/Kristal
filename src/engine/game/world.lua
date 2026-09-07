@@ -452,10 +452,6 @@ function World:onKeyPressed(key)
             end
             debug_logger:infoNotify(FormatString("Healed party", ConsoleFormats.GREEN))
         end
-        if key == "b" then
-            Game.world:hurtParty(1)
-            debug_logger:infoNotify(FormatString("Hurt party", ConsoleFormats.YELLOW))
-        end
         if key == "k" then
             Game:setTension(Game:getMaxTension())
             Assets.playSound("cardrive", 0.8, 1.4)

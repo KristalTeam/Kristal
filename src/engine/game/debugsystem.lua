@@ -1386,6 +1386,17 @@ function DebugSystem:registerDefaults()
         end
     )
 
+    self:registerOption(
+        "main",
+        "Kill Party",
+        "Applies fatal damage to all party members.",
+        function()
+            Game.world:hurtParty(math.huge)
+            self:closeMenu()
+        end,
+        in_overworld
+    )
+
     -- Battle specific
     self:registerOption(
         "main",
@@ -1403,6 +1414,17 @@ function DebugSystem:registerDefaults()
         "Start multiple waves at once.",
         function()
             self:enterMenu("wave_select_multiple", 0)
+        end,
+        in_battle
+    )
+
+    self:registerOption(
+        "main",
+        "Kill Party",
+        "Applies fatal damage to all party members.",
+        function()
+            Game.battle:hurt(math.huge, true, "ALL")
+            self:closeMenu()
         end,
         in_battle
     )

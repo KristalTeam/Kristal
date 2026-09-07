@@ -3114,7 +3114,6 @@ function Battle:drawDebug()
     self:debugPrintOutline("CTRL+Y - win battle", 4, 96)
     self:debugPrintOutline("CTRL+M - pause/resume music", 4, 112)
     self:debugPrintOutline("CTRL+F - end current wave", 4, 128)
-    self:debugPrintOutline("CTRL+B - kill party", 4, 144)
     self:debugPrintOutline("CTRL+K - fill tension", 4, 160)
     self:debugPrintOutline("CTRL+N - toggle noclip", 4, 176)
     self:debugPrintOutline("CTRL+I - toggle invincibility", 4, 192)
@@ -3347,10 +3346,6 @@ function Battle:onKeyPressed(key)
         if self.state == "DEFENDING" and key == "f" then
             self:endWaves()
             debug_logger:infoNotify(FormatString("Ending waves", ConsoleFormats.YELLOW))
-        end
-        if key == "b" then
-            self:hurt(1, true, "ALL")
-            debug_logger:infoNotify(FormatString("Hurt party", ConsoleFormats.YELLOW))
         end
         if key == "k" then
             Game:setTension(Game:getMaxTension())
