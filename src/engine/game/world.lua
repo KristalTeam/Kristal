@@ -420,12 +420,16 @@ end
 ---@param key string
 function World:onKeyPressed(key)
     if Kristal.isDevMode() and Input.ctrl() then
+        local debug_logger = Kristal.DebugSystem and Kristal.DebugSystem.logger or Logging.INSTANCE
+
         if key == "m" then
             if self.music then
                 if self.music:isPlaying() then
                     self.music:pause()
+                    debug_logger:infoNotify("World music: " .. FormatString("PAUSED", ConsoleFormats.YELLOW))
                 else
                     self.music:resume()
+                    debug_logger:infoNotify("World music: " .. FormatString("RESUMED", ConsoleFormats.GREEN))
                 end
             end
         end
@@ -446,28 +450,35 @@ function World:onKeyPressed(key)
             for _, party in ipairs(Game.party) do
                 party:heal(math.huge)
             end
+            debug_logger:infoNotify(FormatString("Healed party", ConsoleFormats.GREEN))
         end
         if key == "b" then
-            Game.world:hurtParty(math.huge)
+            Game.world:hurtParty(1)
+            debug_logger:infoNotify(FormatString("Hurt party", ConsoleFormats.YELLOW))
         end
         if key == "k" then
             Game:setTension(Game:getMaxTension())
             Assets.playSound("cardrive", 0.8, 1.4)
+            debug_logger:infoNotify("Tension: " .. FormatString("100%", ConsoleFormats.YELLOW))
         end
         if key == "n" then
             NOCLIP = not NOCLIP
             if NOCLIP then
                 Assets.playSound("petrify")
+                debug_logger:infoNotify("Noclip: " .. FormatString("ON", ConsoleFormats.GREEN))
             else
                 Assets.playSound("bump")
+                debug_logger:infoNotify("Noclip: " .. FormatString("OFF", ConsoleFormats.RED))
             end
         end
         if key == "i" then
             INVINCIBILITY = not INVINCIBILITY
             if INVINCIBILITY then
                 Assets.playSound("sparkle_glock")
+                debug_logger:infoNotify("Invincibility: " .. FormatString("ON", ConsoleFormats.GREEN))
             else
                 Assets.playSound("bump")
+                debug_logger:infoNotify("Invincibility: " .. FormatString("OFF", ConsoleFormats.RED))
             end
         end
     end

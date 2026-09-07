@@ -224,8 +224,6 @@ function MainMenuOptions:onKeyPressedMenu(key, is_repeat)
     if Input.isCancel(key) then
         Assets.stopAndPlaySound("ui_move")
 
-        Kristal.saveConfig()
-
         self.menu:setState("TITLE")
         self.menu.title_screen:selectOption("options")
         return
@@ -277,8 +275,6 @@ function MainMenuOptions:onKeyPressedMenu(key, is_repeat)
 
         if self.selected_option == max_option then
             -- "Back" button
-            Kristal.saveConfig()
-
             self.menu:setState("TITLE")
             self.menu.title_screen:selectOption("options")
         else
@@ -302,6 +298,8 @@ function MainMenuOptions:onKeyPressedBorder(key, is_repeat)
     if Input.isCancel(key) or Input.isConfirm(key) then
         Assets.stopAndPlaySound("ui_select")
         self:setState("MENU")
+
+        Kristal.saveConfig()
     end
 
     local types = Kristal.getBorderTypes()
@@ -343,6 +341,8 @@ function MainMenuOptions:onKeyPressedFPS(key, is_repeat)
 
         Assets.stopAndPlaySound("ui_select")
         self:setState("MENU")
+
+        Kristal.saveConfig()
     end
 
     if Input.is("left", key) then
@@ -388,6 +388,8 @@ function MainMenuOptions:onKeyPressedWindowScale(key, is_repeat)
     if Input.isCancel(key) or Input.isConfirm(key) then
         Assets.stopAndPlaySound("ui_select")
         self:setState("MENU")
+
+        Kristal.saveConfig()
     end
 
     local old_scale = Kristal.getWindowScale()
@@ -530,6 +532,7 @@ function MainMenuOptions:registerConfigOption(page, name, config, callback)
             if callback then
                 callback(Kristal.Config[config])
             end
+            Kristal.saveConfig()
         end
     )
 end
@@ -605,6 +608,7 @@ function MainMenuOptions:initializeOptions()
                     end
                     Kristal.resetWindow()
                 end
+                Kristal.saveConfig()
             end
         )
     end

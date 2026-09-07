@@ -113,7 +113,7 @@ function Bullet:getInvulnFrames()
     local deprecated_time = self:getInvulnTime()
 
     if deprecated_time ~= nil then
-        Logging.warn("Deprecated use of \"inv_time\" or \"getInvulnTime\". Use \"inv_frames\" or \"getInvulnFrames\" instead.")
+        Logging.warnNotify("Deprecated use of \"inv_time\" or \"getInvulnTime\". Use \"inv_frames\" or \"getInvulnFrames\" instead.")
         return deprecated_time * 30
     end
 

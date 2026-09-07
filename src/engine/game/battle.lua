@@ -1495,7 +1495,7 @@ function Battle:processAction(action)
 
     else
         -- we don't know how to handle this...
-        Logging.warn("Unhandled battle action: " .. tostring(action.action))
+        Logging.warnNotify("Unhandled battle action: " .. tostring(action.action))
         return true
     end
 end
@@ -2493,7 +2493,7 @@ function Battle:nextTurn()
     while not (self.party[self.current_selecting]:isActive()) do
         self.current_selecting = self.current_selecting + 1
         if self.current_selecting > #self.party then
-            Logging.warn("Nobody up! This shouldn't happen...")
+            Logging.warnNotify("Nobody up! This shouldn't happen...")
             self.current_selecting = 1
             break
         end
@@ -3320,29 +3320,37 @@ end
 ---@param key string
 function Battle:onKeyPressed(key)
     if Kristal.isDevMode() and Input.ctrl() then
+        local debug_logger = Kristal.DebugSystem and Kristal.DebugSystem.logger or Logging.INSTANCE
+
         if key == "h" then
             for _, party in ipairs(self.party) do
                 party:heal(math.huge)
             end
+            debug_logger:infoNotify(FormatString("Healed party", ConsoleFormats.GREEN))
         end
         if key == "y" then
             Input.clear(nil, true)
             self:setState("VICTORY")
+            debug_logger:infoNotify(FormatString("Ending battle", ConsoleFormats.YELLOW))
         end
         if key == "m" then
             if self.music then
                 if self.music:isPlaying() then
                     self.music:pause()
+                    debug_logger:infoNotify("Battle music: " .. FormatString("PAUSED", ConsoleFormats.YELLOW))
                 else
                     self.music:resume()
+                    debug_logger:infoNotify("Battle music: " .. FormatString("RESUMED", ConsoleFormats.GREEN))
                 end
             end
         end
         if self.state == "DEFENDING" and key == "f" then
             self:endWaves()
+            debug_logger:infoNotify(FormatString("Ending waves", ConsoleFormats.YELLOW))
         end
         if key == "b" then
-            self:hurt(math.huge, true, "ALL")
+            self:hurt(1, true, "ALL")
+            debug_logger:infoNotify(FormatString("Hurt party", ConsoleFormats.YELLOW))
         end
         if key == "k" then
             Game:setTension(Game:getMaxTension())
@@ -3351,21 +3359,27 @@ function Battle:onKeyPressed(key)
             if self.tension_bar ~= nil then
                 self.tension_bar:flash()
             end
+
+            debug_logger:infoNotify("Tension: " .. FormatString("100%", ConsoleFormats.YELLOW))
         end
         if key == "n" then
             NOCLIP = not NOCLIP
             if NOCLIP then
                 Assets.playSound("petrify")
+                debug_logger:infoNotify("Noclip: " .. FormatString("ON", ConsoleFormats.GREEN))
             else
                 Assets.playSound("bump")
+                debug_logger:infoNotify("Noclip: " .. FormatString("OFF", ConsoleFormats.RED))
             end
         end
         if key == "i" then
             INVINCIBILITY = not INVINCIBILITY
             if INVINCIBILITY then
                 Assets.playSound("sparkle_glock")
+                debug_logger:infoNotify("Invincibility: " .. FormatString("ON", ConsoleFormats.GREEN))
             else
                 Assets.playSound("bump")
+                debug_logger:infoNotify("Invincibility: " .. FormatString("OFF", ConsoleFormats.RED))
             end
         end
     end

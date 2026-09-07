@@ -50,6 +50,7 @@ end
 
 function MainMenuControls:registerEvents()
     self:registerEvent("enter", self.onEnter)
+    self:registerEvent("leave", self.onLeave)
     self:registerEvent("keypressed", self.onKeyPressed)
     self:registerEvent("keyreleased", self.onKeyReleased)
     self:registerEvent("update", self.update)
@@ -142,6 +143,10 @@ function MainMenuControls:onEnter(old_state, control_menu, target_mod)
 
     self.menu.heart_target_x = 152
     self.menu.heart_target_y = 129 + 0 * 32
+end
+
+function MainMenuControls:onLeave()
+    Kristal.saveConfig()
 end
 
 function MainMenuControls:onKeyPressed(key, is_repeat)

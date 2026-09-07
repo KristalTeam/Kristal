@@ -477,7 +477,7 @@ function Game:load(data, index, fade)
         if ally then
             table.insert(self.party, ally)
         else
-            Logging.error("Could not load party member \""  .. id .. "\"")
+            Logging.errorNotify("Could not load party member \""  .. id .. "\"")
         end
     end
 
@@ -532,7 +532,7 @@ function Game:load(data, index, fade)
     self.default_storage_slots = data.default_storage_slots or 0
     -- Check if a project is still using the deprecated "enableStorage" config
     if Game:getConfig("enableStorage") ~= nil then
-        Logging.warn("Using deprecated project option 'enableStorage', switch to 'storageSlots' option instead")
+        Logging.warnNotify("Using deprecated project option 'enableStorage', switch to 'storageSlots' option instead")
         if Game:getConfig("enableStorage") or self.default_storage_slots > 0 then
             self.default_storage_slots = 24
         else

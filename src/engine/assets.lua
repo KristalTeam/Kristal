@@ -380,7 +380,7 @@ function Assets.startSound(sound)
         self.sounds[sound]:play()
         return self.sounds[sound]
     else
-        Logging.warn("Sound not found: \"" .. sound .. "\"")
+        Logging.warnNotify("Sound not found: \"" .. sound .. "\"")
     end
     ---@diagnostic disable-next-line: return-type-mismatch
     return nil
@@ -433,7 +433,7 @@ function Assets.playSound(sound, volume, pitch)
 
         return src
     else
-        Logging.warn("Sound not found: \"" .. sound .. "\"")
+        Logging.warnNotify("Sound not found: \"" .. sound .. "\"")
     end
     ---@diagnostic disable-next-line: return-type-mismatch
     return nil

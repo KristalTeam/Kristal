@@ -296,4 +296,34 @@ function Logging.fatal(...)
     Logging.INSTANCE:fatal(...)
 end
 
+--- Display a debug message as a notification.
+---@param ... any # The message(s) to log.
+function Logging.debugNotify(...)
+    Logging.INSTANCE:debugNotify(...)
+end
+
+--- Display an informational message as a notification.
+---@param ... any # The message(s) to log.
+function Logging.infoNotify(...)
+    Logging.INSTANCE:infoNotify(...)
+end
+
+--- Display a warning message.
+---@param ... any # The message(s) to log.
+function Logging.warnNotify(...)
+    Logging.INSTANCE:warnNotify(...)
+end
+
+--- Display an error message.
+---@param ... any # The message(s) to log.
+function Logging.errorNotify(...)
+    Logging.INSTANCE:errorNotify(...)
+end
+
+--- Display a fatal error message as a notification.
+---@param ... any # The message(s) to log.
+function Logging.fatalNotify(...)
+    Logging.INSTANCE:fatalNotify(...)
+end
+
 return Logging

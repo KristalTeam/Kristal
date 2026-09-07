@@ -37,6 +37,8 @@ function Console:init()
     self.env = self:createEnv()
 
     Logging.registerListener(ConsoleOutputListener())
+
+    self.announcements = {}
 end
 
 function Console:update()
@@ -50,6 +52,18 @@ function Console:update()
         self.read_offset = self.read_offset - delta
         self.read_offset = math.max(self.read_offset, -#self.history + self.height)
         self.read_offset = math.min(self.read_offset, 0)
+    end
+
+    for i = #self.announcements, 1, -1 do
+        local announcement = self.announcements[i]
+        announcement.time = announcement.time + DT
+
+        if announcement.time > 5 then
+            announcement.alpha = announcement.alpha - (DT * 2)
+            if announcement.alpha < 0 then
+                table.remove(self.announcements, i)
+            end
+        end
     end
 end
 
@@ -121,9 +135,9 @@ function Console:createEnv()
     function env.giveItem(str)
         local success, result_text = Game.inventory:tryGiveItem(str)
         if success then
-            self.logger:info("Item has been added")
+            self.logger:infoNotify("Item has been added")
         else
-            self.logger:warn("Unable to add item (inventory full?)")
+            self.logger:warnNotify("Unable to add item (inventory full?)")
         end
     end
 
@@ -203,10 +217,13 @@ function Console:close()
     TextInput.endInput()
 end
 
-function Console:print(text, x, y, align)
+function Console:print(text, x, y, align, alpha)
     if text == nil then
         return
     end
+
+    alpha = alpha or 1
+
     align = align or 'left'
 
     local x_offset = 0
@@ -221,7 +238,9 @@ function Console:print(text, x, y, align)
     end
 
     for _, line in ipairs(text) do
-        Draw.setColor(self.color)
+        local r, g, b, a = unpack(ColorUtils.ensureAlpha(self.color))
+        Draw.setColor(r, g, b, a * alpha)
+
         if type(line) == "table" then
             self.color = line
         else
@@ -255,8 +274,40 @@ function Console:printOutlined(text, x, y )
 end
 
 function Console:draw()
-    if not self.is_open then return end
+    if self.is_open then
+        self:drawOpen()
+    elseif Kristal.isDevMode() then
+        self:drawOverlay()
+    end
+end
 
+function Console:drawOverlay()
+    local line_height = 18
+    love.graphics.setFont(self.font)
+
+    local max_lines = 12
+    local start_index = math.max(1, #self.announcements - max_lines + 1)
+
+    local max_alpha = 0
+    for i = start_index, #self.announcements do
+        local announcement = self.announcements[i]
+        max_alpha = math.max(max_alpha, announcement.alpha)
+    end
+
+    local max_bg_lines = math.min(max_lines, #self.announcements - start_index + 1)
+
+    love.graphics.setColor(0, 0, 0, 0.4 * max_alpha)
+    love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH / 2, line_height * max_bg_lines)
+
+    love.graphics.setColor(1, 1, 1, 1)
+
+    for i = start_index, #self.announcements do
+        local announcement = self.announcements[i]
+        self:print(announcement.content, 8, (i - start_index) * line_height, "left", announcement.alpha)
+    end
+end
+
+function Console:drawOpen()
     local line_height = 18
     love.graphics.setFont(self.font)
 
@@ -582,6 +633,29 @@ function Console:push(str)
 
     for _, line in ipairs(lines) do
         table.insert(self.history, { line })
+    end
+end
+
+function Console:announce(str)
+    if str == nil then
+        return
+    end
+
+    if type(str) == "table" then
+        -- This is a fancy formatting table, so let's wrap it
+
+        local _, wrappedtext = self:getWrappedLines(str, SCREEN_WIDTH / 2 - 8)
+        for _, line in ipairs(wrappedtext) do
+            table.insert(self.announcements, { content = line, time = 0, alpha = 1 })
+        end
+
+        return
+    end
+
+    local _, lines = self.font:getWrap(str, SCREEN_WIDTH / 2 - 8)
+
+    for _, line in ipairs(lines) do
+        table.insert(self.announcements, { content = { line }, time = 0, alpha = 1 })
     end
 end
 

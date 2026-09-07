@@ -52,6 +52,7 @@ function MainMenuDefaultName:onLeave(new_state)
     self.file_namer = nil
 
     self.menu.heart.visible = true
+    Kristal.saveConfig()
 end
 
 return MainMenuDefaultName

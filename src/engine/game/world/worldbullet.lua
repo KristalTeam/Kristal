@@ -74,7 +74,7 @@ function WorldBullet:getInvulnFrames()
     local deprecated_time = self.inv_timer
 
     if deprecated_time ~= nil then
-        Logging.warn("Deprecated use of \"inv_time\". Use \"inv_frames\" instead.")
+        Logging.warnNotify("Deprecated use of \"inv_time\". Use \"inv_frames\" instead.")
         return deprecated_time * 30
     end
 
