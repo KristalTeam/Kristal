@@ -50,6 +50,7 @@ function Logger:outputMessage(prefix, prefix_formatting, message, announce)
             content = message,
             logger_name = formatted_name,
             prefix = formatted_prefix,
+            prefix_string = prefix,
             announce = announce
         })
     end

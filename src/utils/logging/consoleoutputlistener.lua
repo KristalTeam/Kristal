@@ -28,6 +28,10 @@ function ConsoleOutputListener:receive(data)
     Kristal.Console:push(self:outputTableToConsoleTable(data.full_message:getTable()))
 
     if data.announce then
+        if Kristal.Config["loggerOnlyWarns"] and TableUtils.contains({ "DEBUG", "INFO" }, data.prefix_string) then
+            return
+        end
+
         Kristal.Console:announce(self:outputTableToConsoleTable(data.prefix:add(" "):add(data.content):getTable()))
     end
 end

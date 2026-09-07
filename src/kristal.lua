@@ -1886,7 +1886,8 @@ function Kristal.getDefaultConfig()
         rightStickDeadzone = 0.2,
         defaultName = "",
         skipNameEntry = false,
-        verboseLoader = false
+        verboseLoader = false,
+        loggerOnlyWarns = false
     }
 
     return config

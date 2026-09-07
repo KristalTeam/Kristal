@@ -2,6 +2,7 @@
 ---@field full_message FormatString # The full message, including prefixes.
 ---@field content FormatString # The content of the log message.
 ---@field prefix FormatString # The prefix of the log message.
+---@field prefix_string string # The prefix of the log message as a string.
 ---@field announce boolean # Whether the message should be announced.
 
 ---@class LoggingOutputListener : Class

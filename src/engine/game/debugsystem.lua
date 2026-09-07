@@ -1137,6 +1137,18 @@ function DebugSystem:registerDefaults()
 
     self:registerOption(
         "main",
+        "Logger Popups",
+        function()
+            return string.format("Whether or not the logger's pop-ups are only warnings or not. (%s)", Kristal.Config["loggerOnlyWarns"] and "Warnings Only" or "All")
+        end,
+        function()
+            Kristal.Config["loggerOnlyWarns"] = not Kristal.Config["loggerOnlyWarns"]
+            Kristal.saveConfig()
+        end
+    )
+
+    self:registerOption(
+        "main",
         "Hotswap",
         "Swap out code from the files. Might be unstable.",
         function()
