@@ -746,9 +746,20 @@ end
 ---@return string[]|string? text
 function EnemyBattler:onShortAct(battler, name) end
 
---- *(Override)* Called at the start of every new turn in battle
+--- *(Override)* Called at the start of every new battle turn.
+---
+--- This is called when the turn starts, before the party and enemies have taken their turns.
+---
+--- This is NOT the start of this enemy's turn.
+---
+--- Functionally, this ends up being almost the same as [`EnemyBattler:onTurnEnd()`](lua://EnemyBattler.onTurnEnd).
 function EnemyBattler:onTurnStart() end
---- *(Override)* Called at the end of every turn in battle
+
+--- *(Override)* Called at the end of every battle turn.
+---
+--- This is called after the party and enemies have taken their turns, but before the next turn starts.
+---
+--- Functionally, this ends up being almost the same as [`EnemyBattler:onTurnStart()`](lua://EnemyBattler.onTurnStart).
 function EnemyBattler:onTurnEnd() end
 
 --- Retrieves the data of an act on this enemy by its `name`
