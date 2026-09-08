@@ -109,6 +109,8 @@ function love.load(args)
     Logging.registerDefaultListeners()
     Logging.createSystemLogger()
 
+    Debug.init()
+
     Hotswapper.init()
 
     -- load the version
@@ -590,8 +592,6 @@ function Kristal.onKeyPressed(key, is_repeat)
 
     if not is_repeat and Input.shouldProcess(key) then
         if Kristal.isDevMode() then
-            local debug_logger = Kristal.DebugSystem and Kristal.DebugSystem.logger or Logging.INSTANCE
-
             -- Developer hotkeys
             if key == "f2" or (Input.is("fast_forward", key) and not console_open) then
                 FAST_FORWARD = not FAST_FORWARD
@@ -1240,6 +1240,7 @@ function Kristal.clearModState()
     Mod = nil
 
     Kristal.resetDevMode()
+    Debug.reset()
 
     -- Close the console or debug menu if open
     -- (We don't care much if someone "smuggles" them out of the Game state, but we'll try to close them if we can)
@@ -1389,6 +1390,7 @@ function Kristal.quickReload(mode)
                 if Kristal.preInitMod(mod_id) then
                     Kristal.setDesiredWindowTitleAndIcon()
                     Kristal.setState("Game", save_id)
+                    Debug.reset()
                     Kristal.resetDevMode()
                     if Kristal.isDevMode() then
                         DEBUG_OVERRIDE = dev_debug_override
@@ -1516,6 +1518,7 @@ function Kristal.loadMod(id, save_id, save_name, after)
             Kristal.setDesiredWindowTitleAndIcon()
             Kristal.setState("Game", save_id, save_name)
             Kristal.resetDevMode()
+            Debug.reset()
         end
     end)
 

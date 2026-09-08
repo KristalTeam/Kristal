@@ -41,6 +41,8 @@ FormatString = require("src.utils.logging.formatstring")
 Logger = require("src.utils.logging.logger")
 Logging = require("src.utils.logging.logging")
 
+Debug = require("src.utils.debug")
+
 ColorUtils = require("src.utils.colorutils")
 MathUtils = require("src.utils.mathutils")
 StringUtils = require("src.utils.stringutils")

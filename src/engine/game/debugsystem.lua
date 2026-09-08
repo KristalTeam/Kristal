@@ -19,8 +19,6 @@ function DebugSystem:init()
     super.init(self, 0, 0)
     self.layer = 10000000 - 2
 
-    self.logger = Logger("Debug", ConsoleFormats.MAGENTA)
-
     self.font_size = 32
     self.font_name = "main"
 
