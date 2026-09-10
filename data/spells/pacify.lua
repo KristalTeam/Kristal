@@ -33,7 +33,7 @@ end
 
 function spell:getCastMessage(user, target)
     local message = super.getCastMessage(self, user, target)
-    if target.tired then
+    if target:isTired() then
         return message
     elseif target.mercy < 100 then
         return message.."\n[wait:0.25s]* But the enemy wasn't [color:blue]TIRED[color:reset]..."
@@ -43,7 +43,7 @@ function spell:getCastMessage(user, target)
 end
 
 function spell:onCast(user, target)
-    if target.tired then
+    if target:isTired() then
         target:spare(true)
         if not Game:getConfig("oldPacify") then
             Assets.playSound("spell_pacify")

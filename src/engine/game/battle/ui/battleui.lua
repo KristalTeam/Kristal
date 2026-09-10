@@ -459,12 +459,12 @@ function BattleUI:drawState()
 
                 local spare_icon = false
                 local tired_icon = false
-                if enemy.tired and enemy:canSpare() then
+                if enemy:isTired() and enemy:canSpare() then
                     Draw.draw(self.sparestar, 80 + font:getWidth(enemy.name) + 20, 60 + y_off)
                     Draw.draw(self.tiredmark, 80 + font:getWidth(enemy.name) + 40, 60 + y_off)
                     spare_icon = true
                     tired_icon = true
-                elseif enemy.tired then
+                elseif enemy:isTired() then
                     Draw.draw(self.tiredmark, 80 + font:getWidth(enemy.name) + 40, 60 + y_off)
                     tired_icon = true
                 elseif enemy.mercy >= 100 then

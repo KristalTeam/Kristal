@@ -43,7 +43,7 @@ function spell:onCast(user, targets)
             Game.battle.timer:after((10 * (count - 1)) / 30, function()
                 local effect_x, effect_y = target:getRelativePos(target.width / 2, target.height / 2)
 
-                local effect = ScythemareEffect(effect_x, effect_y, target.tired, {
+                local effect = ScythemareEffect(effect_x, effect_y, target:isTired(), {
                     index = count,
                     joker = user.chara:checkWeapon("devilsknife"),
                     on_finish_func = function(effect)
