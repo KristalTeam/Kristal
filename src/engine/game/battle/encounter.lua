@@ -353,6 +353,13 @@ function Encounter:hasReducedTension()
     return self.reduced_tension
 end
 
+--- *(Override)* Whether or not the party should grow stronger after this encounter.
+--- Returns the default setting defined in the chapter config.
+---@return boolean
+function Encounter:shouldGrowStronger()
+    return Game:getConfig("growStronger")
+end
+
 --- Returns the tension gained from defending.
 --- Returns 2% if reduced tension, otherwise 16%.
 ---@param battler PartyBattler The current battler about to defend.
