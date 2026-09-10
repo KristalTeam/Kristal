@@ -46,12 +46,14 @@ function DamageNumber:init(type, arg, x, y, color, delay)
     self.kill_condition_succeed = false
 end
 
-function DamageNumber:setDisplay(type, arg)
+function DamageNumber:setDisplay(type, arg, color)
     self.amount = nil
     self.message = nil
     self.texture = nil
     self.text = nil
     self.darken = false
+
+    self.color = color or self.color
 
     self.type = type or "msg"
     if self.type == "msg" then

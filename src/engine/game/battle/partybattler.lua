@@ -174,7 +174,7 @@ function PartyBattler:hurt(amount, exact, color, options)
     end
 
     if (self.chara:getHealth() <= 0) then
-        self:statusMessage("msg", swoon and "swoon" or "down", color, true)
+        self:statusMessage("msg", swoon and "swoon" or "down", COLORS.red, true)
     else
         self:statusMessage("damage", amount, color, true)
     end
@@ -314,12 +314,12 @@ function PartyBattler:heal(amount, sparkle_color, show_up, playsound)
     self:checkHealth(false)
 
     if max_hp then
-        self:statusMessage("msg", "max", nil, nil, 8)
+        self:statusMessage("msg", "max", COLORS.lime, nil, 8)
     else
         if show_up and was_down ~= self.is_down then
-            self:statusMessage("msg", "up", nil, nil, 1)
+            self:statusMessage("msg", "up", COLORS.lime, nil, 1)
         else
-            self:statusMessage("heal", amount, { 0, 1, 0 }, nil, show_up and 1 or 8)
+            self:statusMessage("heal", amount, COLORS.lime, nil, show_up and 1 or 8)
         end
     end
 

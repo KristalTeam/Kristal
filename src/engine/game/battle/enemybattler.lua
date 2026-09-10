@@ -194,14 +194,14 @@ function EnemyBattler:setTired(bool, hide_message)
             -- Enemies can't spawn TIRED messages safely until fully initialised and parented.
             -- To keep this function safe to use in `init()`, we must therefore check `self.parent` exists before trying to spawn the message.
             if self.parent then
-                self:statusMessage("msg", "tired")
+                self:statusMessage("msg", "tired", ColorUtils.mergeColor(COLORS.aqua, COLORS.blue, 0.3))
                 Assets.playSound("spellcast", 0.5, 0.9)
             end
         end
     else
         self.comment = ""
         if Game:getConfig("awakeMessages") and old_tired and not hide_message then
-            if self.parent then self:statusMessage("msg", "awake") end
+            if self.parent then self:statusMessage("msg", "awake", ColorUtils.mergeColor(COLORS.aqua, COLORS.blue, 0.3)) end
         end
     end
 end
@@ -501,7 +501,7 @@ function EnemyBattler:addMercy(amount)
                 src:setPitch(pitch)
             end
 
-            self:statusMessage("mercy", amount)
+            self:statusMessage("mercy", amount, amount == 100 and COLORS.lime or COLORS.white)
         end
     end
 end
@@ -526,15 +526,15 @@ function EnemyBattler:addTemporaryMercy(amount, play_sound, clamp, kill_conditio
     if Game:getConfig("mercyMessages") then
         if self.temporary_mercy == 0 then
             if not self.temporary_mercy_percent then
-                self.temporary_mercy_percent = self:statusMessage("msg", "miss")
+                self.temporary_mercy_percent = self:statusMessage("msg", "miss", COLORS.white)
                 self.temporary_mercy_percent.kill_condition = kill_condition
                 self.temporary_mercy_percent.kill_others = true
             else
-                self.temporary_mercy_percent:setDisplay("msg", "miss")
+                self.temporary_mercy_percent:setDisplay("msg", "miss", COLORS.white)
             end
         else
             if not self.temporary_mercy_percent then
-                self.temporary_mercy_percent = self:statusMessage("mercy", self.temporary_mercy)
+                self.temporary_mercy_percent = self:statusMessage("mercy", self.temporary_mercy, self.temporary_mercy == 100 and COLORS.lime or COLORS.white)
                 self.temporary_mercy_percent.kill_condition = kill_condition
                 self.temporary_mercy_percent.kill_others = true
 
@@ -551,7 +551,7 @@ function EnemyBattler:addTemporaryMercy(amount, play_sound, clamp, kill_conditio
                     end
                 end
             else
-                self.temporary_mercy_percent:setDisplay("mercy", self.temporary_mercy)
+                self.temporary_mercy_percent:setDisplay("mercy", self.temporary_mercy, self.temporary_mercy == 100 and COLORS.lime or COLORS.white)
             end
         end
     end
@@ -976,9 +976,9 @@ function EnemyBattler:heal(amount, sparkle_color)
 
     if self.health >= self.max_health then
         self.health = self.max_health
-        self:statusMessage("msg", "max", nil, nil, 8)
+        self:statusMessage("msg", "max", COLORS.lime, nil, 8)
     else
-        self:statusMessage("heal", amount, { 0, 1, 0 }, nil, 8)
+        self:statusMessage("heal", amount, COLORS.lime, nil, 8)
     end
 
     self:healEffect(unpack(sparkle_color or {}))
