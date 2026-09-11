@@ -250,6 +250,7 @@ KRISTAL_EVENT = {
     onBattleMenuSelect = "onBattleMenuSelect", -- overrides default menu select / at: Battle:onKeyPressed(key) / passes: string:state_reason, table:menu_item, bool:can_select / returns: bool
     onBattlePartyCancel = "onBattlePartyCancel", -- overrides default party member selection cancellation / at: Battle:onKeyPressed(key) / passes: string:state_reason, int:current_menu_y / returns: bool
     onBattlePartySelect = "onBattlePartySelect", -- overrides default party member select / at: Battle:onKeyPressed(key) / passes: string:state_reason, int:current_menu_y / returns: bool
+    registerActionButtons = "registerActionButtons", -- called when action buttons are registered / passes: NONE / returns: NONE
 
     --text events--
     isTextStyleAnimated = "isTextStyleAnimated", -- determines if `style` is animated text/ at: Text:isStyleAnimated(style) / passes: string:style, Text:self / returns: bool

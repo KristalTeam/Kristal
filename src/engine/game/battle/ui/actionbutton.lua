@@ -1,232 +1,96 @@
+--- An ActionButton is a button you can select in battles.
+---
+--- If you make a subclass of this, consider registering it through `Game.battle:registerActionButton`.
 ---@class ActionButton : Object
+---
+---@field battler PartyBattler # The party member this button belongs to.
+---@field disabled boolean # Whether or not this button is disabled (gray and unselectable).
+---@field hovered boolean # Whether or not this button is currently being hovered
+---
 ---@overload fun(...) : ActionButton
 local ActionButton, super = Class(Object)
 
-function ActionButton:init(type, battler, x, y)
-    super.init(self, x, y)
+---@param battler PartyBattler
+---@param x number
+---@param y number
+function ActionButton:init(battler, x, y)
+    super.init(self, x, y, 31, 32)
 
-    self.type = type
     self.battler = battler
 
-    self.texture = Assets.getTexture("ui/battle/btn/" .. type)
-    self.hovered_texture = Assets.getTexture("ui/battle/btn/" .. type .. "_h")
-    self.special_texture = Assets.getTexture("ui/battle/btn/" .. type .. "_a")
-    self.disabled_texture = Assets.getTexture("ui/battle/btn/" .. type .. "_d")
-
-    self.width = self.texture:getWidth()
-    self.height = self.texture:getHeight()
-
-    self:setOriginExact(self.width / 2, 13)
+    self:setOrigin(0.5, 13 / 32)
 
     self.hovered = false
-    self.selectable = true
     self.disabled = false
 end
 
-function ActionButton:registerXActions()
-    if Game.battle.encounter.default_xactions and self.battler.chara:hasXAct() then
-        local spell = {
-            ["name"] = Game.battle.enemies[1]:getXAction(self.battler),
-            ["target"] = "xact",
-            ["id"] = 0,
-            ["default"] = true,
-            ["party"] = {},
-            ["tp"] = 0
-        }
-
-        Game.battle:addMenuItem({
-            ["name"] = self.battler.chara:getXActName() or "X-Action",
-            ["tp"] = 0,
-            ["color"] = { self.battler.chara:getXActColor() },
-            ["data"] = spell,
-            ["callback"] = function(menu_item)
-                Game.battle.selected_xaction = spell
-                Game.battle:setState("ENEMYSELECT", "XACT")
-            end
-        })
-    end
-
-    for id, action in ipairs(Game.battle.xactions) do
-        if action.party == self.battler.chara.id then
-            local spell = {
-                ["name"] = action.name,
-                ["target"] = "xact",
-                ["id"] = id,
-                ["default"] = false,
-                ["party"] = {},
-                ["tp"] = action.tp or 0
-            }
-
-            Game.battle:addMenuItem({
-                ["name"] = action.name,
-                ["tp"] = action.tp or 0,
-                ["description"] = action.description,
-                ["color"] = action.color or { 1, 1, 1, 1 },
-                ["data"] = spell,
-                ["callback"] = function(menu_item)
-                    Game.battle.selected_xaction = spell
-                    Game.battle:setState("ENEMYSELECT", "XACT")
-                end
-            })
-        end
-    end
+--- Sets the PartyBattler this button belongs to.
+---
+---@param battler PartyBattler
+function ActionButton:setPartyBattler(battler)
+    self.battler = battler
 end
 
-function ActionButton:registerSpells()
-    for _, spell in ipairs(self.battler.chara:getSpells()) do
-        ---@type table|function
-        local color = spell.color or { 1, 1, 1, 1 }
-        if spell:hasTag("spare_tired") then
-            local has_tired = false
-            for _, enemy in ipairs(Game.battle:getActiveEnemies()) do
-                if enemy.tired then
-                    has_tired = true
-                    break
-                end
-            end
-            if has_tired then
-                color = { 0, 178 / 255, 1, 1 }
-                if Game:getConfig("pacifyGlow") then
-                    color = function()
-                        return ColorUtils.mergeColor({ 0, 0.7, 1, 1 }, COLORS.white, 0.5 + math.sin(Game.battle.pacify_glow_timer / 4) * 0.5)
-                    end
-                end
-            end
-        end
-        Game.battle:addMenuItem({
-            ["name"] = spell:getName(),
-            ["tp"] = spell:getTPCost(self.battler.chara),
-            ["unusable"] = not spell:isUsable(self.battler.chara),
-            ["description"] = spell:getBattleDescription(),
-            ["party"] = spell.party,
-            ["color"] = color,
-            ["data"] = spell,
-            ["callback"] = function(menu_item)
-                Game.battle.selected_spell = menu_item
-
-                if not spell:getTarget() or spell:getTarget() == "none" then
-                    Game.battle:pushAction("SPELL", nil, menu_item)
-                elseif spell:getTarget() == "ally" then
-                    Game.battle:setState("PARTYSELECT", "SPELL")
-                elseif spell:getTarget() == "enemy" then
-                    Game.battle:setState("ENEMYSELECT", "SPELL")
-                elseif spell:getTarget() == "party" then
-                    Game.battle:pushAction("SPELL", Game.battle.party, menu_item)
-                elseif spell:getTarget() == "enemies" then
-                    Game.battle:pushAction("SPELL", Game.battle:getActiveEnemies(), menu_item)
-                end
-            end
-        })
-    end
+--- *(Override)* The button's normal texture.
+---@return love.Image
+function ActionButton:getTexture()
+    return Assets.getTexture("ui/battle/btn/fight")
 end
 
-function ActionButton:onMagicSelect()
-    Game.battle:clearMenuItems()
-
-    self:registerXActions()
-    self:registerSpells()
-
-    if #Game.battle.menu_items > 0 then
-        Game.battle:setState("MENUSELECT", "SPELL")
-    end
+--- *(Override)* The texture to use when the button is currently "hovered" (the player is over it, but hasn't selected it yet)
+---@return love.Image
+function ActionButton:getHoveredTexture()
+    return Assets.getTexture("ui/battle/btn/fight_h")
 end
 
-function ActionButton:onItemSelect()
-    Game.battle:clearMenuItems()
-    for i, item in ipairs(Game.inventory:getStorage("items")) do
-        Game.battle:addMenuItem({
-            ["name"] = item:getName(),
-            ["unusable"] = item.usable_in ~= "all" and item.usable_in ~= "battle",
-            ["description"] = item:getBattleDescription(),
-            ["data"] = item,
-            ["callback"] = function(menu_item)
-                Game.battle.selected_item = menu_item
-
-                if not item:getTarget() or item:getTarget() == "none" then
-                    Game.battle:pushAction("ITEM", nil, menu_item)
-                elseif item:getTarget() == "ally" then
-                    Game.battle:setState("PARTYSELECT", "ITEM")
-                elseif item:getTarget() == "enemy" then
-                    Game.battle:setState("ENEMYSELECT", "ITEM")
-                elseif item:getTarget() == "party" then
-                    Game.battle:pushAction("ITEM", Game.battle.party, menu_item)
-                elseif item:getTarget() == "enemies" then
-                    Game.battle:pushAction("ITEM", Game.battle:getActiveEnemies(), menu_item)
-                end
-            end
-        })
-    end
-    if #Game.battle.menu_items > 0 then
-        Game.battle:setState("MENUSELECT", "ITEM")
-    end
+--- *(Override)* The texture to use when the button is glowing.
+---@return love.Image
+function ActionButton:getSpecialTexture()
+    return Assets.getTexture("ui/battle/btn/fight_a")
 end
 
+--- *(Override)* The texture to use when the button is disabled.
+---@return love.Image
+function ActionButton:getDisabledTexture()
+    return Assets.getTexture("ui/battle/btn/fight_d")
+end
+
+--- *(Override)* Called when this button is selected.
 function ActionButton:select()
-    if Game.battle.encounter:onActionSelect(self.battler, self) then return end
-    if Kristal.callEvent(KRISTAL_EVENT.onActionSelect, self.battler, self) then return end
-    if self.type == "fight" then
-        Game.battle:setState("ENEMYSELECT", "ATTACK")
-    elseif self.type == "act" then
-        Game.battle:setState("ENEMYSELECT", "ACT")
-    elseif self.type == "magic" then
-        self:onMagicSelect()
-    elseif self.type == "item" then
-        self:onItemSelect()
-    elseif self.type == "spare" then
-        Game.battle:setState("ENEMYSELECT", "SPARE")
-    elseif self.type == "defend" then
-        Game.battle:pushAction("DEFEND", nil, { tp = -Game.battle:getDefendTension(self.battler) })
-    end
+    Logging.warnNotify("Unhandled button select!")
 end
 
+--- *(Override)* Called when this button is unselected. Most of the time, this isn't needed.
 function ActionButton:unselect()
-    -- Do nothing ?
 end
 
+--- *(Override)* Whether or not this button should be glowing.
+---
+--- In DR, Ralsei's magic button glows when an enemy is TIRED, and the spare button glows when an enemy's mercy is 100%.
+---
+---@return boolean
 function ActionButton:hasSpecial()
-    if self.type == "magic" then
-        if self.battler then
-            local has_tired = false
-            for _, enemy in ipairs(Game.battle:getActiveEnemies()) do
-                if enemy.tired then
-                    has_tired = true
-                    break
-                end
-            end
-            if has_tired then
-                local has_pacify = false
-                for _, spell in ipairs(self.battler.chara:getSpells()) do
-                    if spell and spell:hasTag("spare_tired") then
-                        if spell:isUsable(self.battler.chara) and spell:getTPCost(self.battler.chara) <= Game:getTension() then
-                            has_pacify = true
-                            break
-                        end
-                    end
-                end
-                return has_pacify
-            end
-        end
-    elseif self.type == "spare" then
-        for _, enemy in ipairs(Game.battle:getActiveEnemies()) do
-            if enemy.mercy >= 100 then
-                return true
-            end
-        end
-    end
     return false
+end
+
+--- Whether or not the button belongs to the current active party member.
+---@protected
+---@return boolean
+function ActionButton:isActive()
+    return self.battler == Game.battle.party[Game.battle.current_selecting]
 end
 
 function ActionButton:draw()
     if self.disabled then
-        Draw.draw(self.disabled_texture or self.texture)
-    elseif self.selectable and self.hovered then
-        Draw.draw(self.hovered_texture or self.texture)
+        Draw.draw(self:getDisabledTexture())
+    elseif self:isActive() and self.hovered then
+        Draw.draw(self:getHoveredTexture())
     else
-        Draw.draw(self.texture)
-        if self.selectable and self.special_texture and self:hasSpecial() then
+        Draw.draw(self:getTexture())
+        if self:isActive() and self:hasSpecial() then
             local r, g, b, a = self:getDrawColor()
             Draw.setColor(r, g, b, a * (0.4 + math.sin((Kristal.getTime() * 30) / 6) * 0.4))
-            Draw.draw(self.special_texture)
+            Draw.draw(self:getSpecialTexture())
         end
     end
 

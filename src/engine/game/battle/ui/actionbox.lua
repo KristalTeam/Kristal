@@ -12,8 +12,6 @@ function ActionBox:init(x, y, index, battler)
 
     self.selected_button = 1
 
-    self.revert_to = 40
-
     self.data_offset = 0
 
     self.box = ActionBoxDisplay(self)
@@ -22,10 +20,11 @@ function ActionBox:init(x, y, index, battler)
 
     self.head_offset_x, self.head_offset_y = battler.chara:getHeadIconOffset()
 
-    self.head_sprite = Sprite(battler.chara:getHeadIcons().."/"..battler:getHeadIcon(), 13 + self.head_offset_x, 11 + self.head_offset_y)
+    self.head_sprite = Sprite(battler.chara:getHeadIcons() .. "/" .. battler:getHeadIcon(), 13 + self.head_offset_x, 11 + self.head_offset_y)
     if not self.head_sprite:getTexture() then
-        self.head_sprite:setSprite(battler.chara:getHeadIcons().."/head")
+        self.head_sprite:setSprite(battler.chara:getHeadIcons() .. "/head")
     end
+
     self.force_head_sprite = false
 
     if battler.chara:getNameSprite() then
@@ -77,18 +76,25 @@ function ActionBox:createButtons()
         start_x = start_x - 5.5
     end
 
-    for i, btn in ipairs(btn_types) do
-        if type(btn) == "string" then
-            local button = ActionButton(btn, self.battler, math.floor(start_x + ((i - 1) * 35)) + 0.5, 21)
-            button.actbox = self
+    for i, button in ipairs(btn_types) do
+        local button_x = math.floor(start_x + ((i - 1) * 35)) + 0.5
+        local button_y = 21
+
+        if type(button) == "string" then
+            -- It's a string, we should create this
+            local new_button = Game.battle:createActionButton(button, self.battler, button_x, button_y)
+            table.insert(self.buttons, new_button)
+            self:addChild(new_button)
+        elseif isClass(button) and button:includes(ActionButton) then
+            -- We're passing in an ActionButton instance, so...
+            button:setPosition(button_x, button_y)
+            button:setPartyBattler(self.battler)
             table.insert(self.buttons, button)
             self:addChild(button)
-        elseif type(btn) ~= "boolean" then -- nothing if a boolean value, used to create an empty space
-            btn:setPosition(math.floor(start_x + ((i - 1) * 35)) + 0.5, 21)
-            btn.battler = self.battler
-            btn.actbox = self
-            table.insert(self.buttons, btn)
-            self:addChild(btn)
+        elseif type(button) == "boolean" then
+            -- Nothing, just an empty space
+        else
+            Logging.warnNotify("Attempted to create invalid action button: ", button)
         end
     end
 
@@ -98,22 +104,22 @@ end
 function ActionBox:setHeadIcon(icon)
     self.force_head_sprite = true
 
-    local full_icon = self.battler.chara:getHeadIcons().."/"..icon
+    local full_icon = self.battler.chara:getHeadIcons() .. "/" .. icon
     if self.head_sprite:hasSprite(full_icon) then
         self.head_sprite:setSprite(full_icon)
     else
-        self.head_sprite:setSprite(self.battler.chara:getHeadIcons().."/head")
+        self.head_sprite:setSprite(self.battler.chara:getHeadIcons() .. "/head")
     end
 end
 
 function ActionBox:resetHeadIcon()
     self.force_head_sprite = false
 
-    local full_icon = self.battler.chara:getHeadIcons().."/"..self.battler:getHeadIcon()
+    local full_icon = self.battler.chara:getHeadIcons() .. "/" .. self.battler:getHeadIcon()
     if self.head_sprite:hasSprite(full_icon) then
         self.head_sprite:setSprite(full_icon)
     else
-        self.head_sprite:setSprite(self.battler.chara:getHeadIcons().."/head")
+        self.head_sprite:setSprite(self.battler.chara:getHeadIcons() .. "/head")
     end
 end
 
@@ -141,10 +147,8 @@ function ActionBox:update()
 
     for i, button in ipairs(self:getSelectableButtons()) do
         if (Game.battle.current_selecting == self.index) then
-            button.selectable = true
             button.hovered = (self.selected_button == i)
         else
-            button.selectable = false
             button.hovered = false
         end
     end
@@ -169,7 +173,19 @@ end
 
 function ActionBox:select()
     local buttons = self:getSelectableButtons()
-    buttons[self.selected_button]:select()
+
+    local button = buttons[self.selected_button]
+    local party = Game.battle.party[Game.battle.current_selecting]
+
+    if Game.battle.encounter:onActionSelect(party, button) then
+        return
+    end
+
+    if Kristal.callEvent(KRISTAL_EVENT.onActionSelect, party, button) then
+        return
+    end
+
+    button:select()
 end
 
 function ActionBox:unselect()

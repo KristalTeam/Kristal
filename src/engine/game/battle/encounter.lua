@@ -115,6 +115,9 @@ function Encounter:onGameOver() end
 ---@param events Character  A list of enemy events in the world that are linked to the enemies in battle.
 function Encounter:onReturnToWorld(events) end
 
+--- *(Override)* Called when it's time to register [`ActionButton`](lua://ActionButton)s.
+function Encounter:registerActionButtons() end
+
 --- *(Override)* Called whenever dialogue is about to start, if this returns a value, it will be unpacked and passed
 --- into [`Battle:startCutscene(...)`](lua://Battle.startCutscene), as an alternative to standard dialogue.
 ---@return string|BattleCutsceneFunc?, any
