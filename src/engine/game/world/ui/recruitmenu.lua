@@ -246,14 +246,14 @@ function RecruitMenu:draw()
 
                 love.graphics.setFont(self.font)
 
-                for j, value in ipairs({ "LIKE", "DISLIKE", "?????", "?????" }) do
+                for j, value in ipairs({ "LIKE", "DISLIKE", "WISH", "?????" }) do
                     local x_scale = 1
                     if self.font:getWidth(value) >= 60 then
                         x_scale = 80 / self.font:getWidth(value)
                     end
                     love.graphics.print(value, 80, 200 + j * 40, 0, x_scale, 1)
                 end
-                for j, value in ipairs({ Game:hasRecruit(recruit.id) and recruit:getLike() or "?", Game:hasRecruit(recruit.id) and recruit:getDislike() or "?", "?????????", "?????????" }) do
+                for j, value in ipairs({ Game:hasRecruit(recruit.id) and recruit:getLike() or "?", Game:hasRecruit(recruit.id) and recruit:getDislike() or "?", Game:hasRecruit(recruit.id) and recruit:getWish() or "?", "?????????" }) do
                     local x_scale = 1
                     if self.font:getWidth(value) >= 290 then
                         x_scale = 290 / self.font:getWidth(value)
