@@ -6,7 +6,7 @@
 ---
 ---@field graze_tp_factor   number          A multiplier for the TP earned from grazing by the soul (Defaults to `1`, plus the sum of all party members effective `graze_tp` stats, capped at `3`)
 ---@field graze_time_factor number          A multiplier for the wave time depleted from grazing by the soul (Defaults to `1`, plus the sum of all party members effective `graze_time` stats, capped at `3`)
----@field graze_size_factor  number          A multiplier for the size of the soul's graze hitbox (Defaults to `1`, plus the sum of all party members effective `graze_size` stats, capped at `3`)
+---@field graze_size_factor number          A multiplier for the size of the soul's graze hitbox (Defaults to `1`, plus the sum of all party members effective `graze_size` stats, capped at `3`)
 ---
 ---@field sprite            Sprite          The Soul's `Sprite` objcet instance
 ---@field graze_sprite      GrazeSprite     The Soul's `GrazeSprite` object instance
@@ -48,6 +48,7 @@
 ---
 ---@field can_move          boolean         Whether the player is able to move the soul
 ---@field allow_focus       boolean         Whether the player is able to focus with the soul (hold Cancel key for 1/2 speed)
+---@field can_graze         boolean         Whether the soul can graze bullets
 ---
 ---@field target_alpha      number?         The target alpha of the soul
 ---
@@ -68,7 +69,7 @@ function Soul:init(x, y, color)
 
     self.layer = BATTLE_LAYERS["soul"]
 
-    self.graze_tp_factor   = 1
+    self.graze_tp_factor = 1
     self.graze_time_factor = 1
     self.graze_size_factor = 1
     for _, party in ipairs(Game.party) do
@@ -130,6 +131,7 @@ function Soul:init(x, y, color)
 
     self.can_move = true
     self.allow_focus = true
+    self.can_graze = true
 
     self.target_alpha = nil
 end
@@ -425,6 +427,10 @@ end
 ---@param old_graze boolean
 function Soul:onGraze(bullet, old_graze) end
 
+function Soul:canGraze()
+    return self.can_graze
+end
+
 --- *(Override)* Whether the soul should decrease the invulnerability timer.
 ---
 --- By default, this returns `true` unless the soul is currently transitioning.
@@ -502,7 +508,7 @@ function Soul:update()
             table.insert(collided_bullets, bullet)
         end
         if not Game:hasInvulnerability() then
-            if bullet:canGraze() and bullet:meetsCollider(self.graze_collider) then
+            if self:canGraze() and bullet:canGraze() and bullet:meetsCollider(self.graze_collider) then
                 local old_graze = bullet.grazed
                 if bullet.grazed then
                     Game:giveTension(bullet:getGrazeTension() * DT * self.graze_tp_factor)
