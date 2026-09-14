@@ -930,7 +930,7 @@ end
 --- Creates a reaction text on a party member's healthbar (usually used for equipment and items)
 ---@param party_member  string|PartyMember  The party member who will react
 ---@param text          string              The text to display for the reaction
----@param display_time? number              The display time, in seconds, of the reaction (defaults to 5/3 seconds)
+---@param display_time  number?              The display time, in seconds, of the reaction (defaults to 5/3 seconds)
 function World:partyReact(party_member, text, display_time)
     local action_box = self:getActionBox(party_member)
     if action_box then
@@ -940,9 +940,9 @@ end
 
 --- Gets a specific event present in the current map.
 ---
---- If multiple objects are found (if you pass in a name), only the first will be returned. Use `Map:getEvents` to get all of them.
+--- If multiple objects are found (if you pass in a name), only the first will be returned. Use [`getEvents`](lua://World.getEvents) to get all of them.
 ---@param id string|number|TiledObjectRef The id of the event to search for, either as a string or a number
----@return Event event The name of the event, the unique numerical ID, or a Tiled object reference.
+---@return Event? event The name of the event, the unique numerical ID, or a Tiled object reference.
 function World:getEvent(id)
     return self.map:getEvent(id)
 end

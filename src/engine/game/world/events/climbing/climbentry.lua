@@ -50,7 +50,7 @@ function ClimbEntry:onLoad()
     end
 
     -- Unfortunately we have to grab our target now (instead of init).
-    local target = Game.world.map:getEvent(self.target_identifier)
+    local target = Game.world:getEvent(self.target_identifier)
 
     if target ~= nil and isClass(target) and target:includes(ClimbExit) then
         self.target = target --[[@as ClimbExit]]

@@ -29,7 +29,7 @@ function ToggleController:onLoad()
     self.targets = {}
     self.target_colliders = {}
     for _, obj in ipairs(self.target_objs) do
-        local target = self.world.map:getEvent(obj.id)
+        local target = self.world:getEvent(obj.id)
         if target then
             table.insert(self.targets, target)
         else
