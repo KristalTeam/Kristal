@@ -74,14 +74,15 @@ function Spell:getTarget() return self.target end
 
 --- *(Override)* Gets whether the spell can be cast in the world \
 --- *(Always false by default)*
----@param chara PartyMember The `PartyMember` the check is being run for
+---@param user PartyMember The `PartyMember` this spell belongs to
 ---@return boolean
-function Spell:hasWorldUsage(chara) return false end
+function Spell:hasWorldUsage(user) return false end
 
 --- *(Override)* Called whenever the spell is cast in the overworld \
 --- Code that controls the effect of the spell when cast in the overworld goes here
----@param chara PartyMember
-function Spell:onWorldCast(chara) end
+---@param user PartyMember The user of the spell
+---@param target PartyMember|PartyMember[]? The target of the spell, if applicable
+function Spell:onWorldCast(user, target) end
 
 --- Checks whether the spell has a specific tag attached to it
 ---@param tag string

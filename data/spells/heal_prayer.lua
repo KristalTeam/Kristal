@@ -36,12 +36,12 @@ function spell:onCast(user, target)
     target:heal(heal_amount)
 end
 
-function spell:hasWorldUsage(chara)
+function spell:hasWorldUsage(user)
     return true
 end
 
-function spell:onWorldCast(chara)
-    Game.world:heal(chara, 100)
+function spell:onWorldCast(user, target)
+    Game.world:heal(target, 100)
 end
 
 return spell

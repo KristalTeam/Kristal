@@ -64,6 +64,7 @@ function DarkPowerMenu:getSpellLimit()
     return 6
 end
 
+---@return Spell[] spells
 function DarkPowerMenu:getSpells()
     local spells = {}
     local party = self.party:getSelected()
@@ -141,8 +142,10 @@ function DarkPowerMenu:update()
 
                     self:selectParty(target_type, spell)
                 else
-                    Game:removeTension(spell:getTPCost())
-                    spell:onWorldCast()
+                    local user = self.party:getSelected()
+
+                    Game:removeTension(spell:getTPCost(user))
+                    spell:onWorldCast(user)
                     self.state = "SPELLS"
                 end
             end
@@ -174,7 +177,7 @@ function DarkPowerMenu:selectParty(target_type, spell)
     Game.world.menu:partySelect(target_type, function(success, party)
         if success then
             Game:removeTension(spell:getTPCost())
-            spell:onWorldCast(party)
+            spell:onWorldCast(self.party:getSelected(), party)
             if self:canCast(spell) then
                 self:selectParty(target_type, spell)
             else
