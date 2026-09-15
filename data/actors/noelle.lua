@@ -221,7 +221,7 @@ function actor:init()
     }
 
     -- The x and y offsets of the "target" sprite
-    self.target_offset = { -2, 0 }
+    self.target_offset = { 0, 0 }
 
     -- The x and y offsets of the ReviveSong spotlight
     self.spotlight_offset = { 0, 0 }
