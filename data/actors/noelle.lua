@@ -160,19 +160,20 @@ function actor:init()
         -- Battle offsets
         ["battle/idle"] = {-3, 0},
 
-        ["battle/attack"] = {-8, 0},
+        ["battle/attack"] = {-6, 0},
         ["battle/attackready"] = {0, 0},
-        ["battle/act"] = {0, 0},
-        ["battle/actend"] = {-3, 0},
-        ["battle/actready"] = {0, 0},
-        ["battle/spell"] = {-3, 0},
+        ["battle/act"] = {-1, 0},
+        ["battle/actend"] = {-1, 0},
+        ["battle/actready"] = {-1, 0},
+        ["battle/spell"] = {-2, 0},
+        ["battle/spellend"] = {-2, 0},
         ["battle/spellready"] = {0, 0},
         ["battle/item"] = {-2, 0},
         ["battle/itemready"] = {0, 0},
-        ["battle/defend"] = {-9, 0},
+        ["battle/defend"] = {-7, 0},
 
         ["battle/defeat"] = {0, 0},
-        ["battle/hurt"] = {-9, 0},
+        ["battle/hurt"] = {-7, 0},
 
         ["battle/intro"] = {-11, -7},
         ["battle/victory"] = {0, 0},
@@ -183,7 +184,7 @@ function actor:init()
         ["battle_alt/intro"] = {-11, -7},
         ["battle_alt/float"] = {-11, -7},
         ["battle_alt/pray"] = {-3, 0},
-        ["battle_alt/spell_special"] = {-5, -1},
+        ["battle_alt/spell_special"] = {-4, 1},
 
         -- Cutscene offsets
         ["blush"] = {0, 0},
