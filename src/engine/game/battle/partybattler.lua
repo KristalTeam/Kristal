@@ -53,7 +53,8 @@ function PartyBattler:init(chara, x, y)
     self.darken_timer = 0
     self.darken_fx = self:addFX(RecolorFX())
 
-    self.target_sprite = Sprite("ui/battle/chartarget")
+    local offset_x, offset_y = self.actor:getTargetSpriteOffset()
+    self.target_sprite = Sprite("ui/battle/chartarget", offset_x, offset_y)
     self.target_sprite:play(10 / 30)
     self.target_sprite.visible = false
     self:addChild(self.target_sprite)
