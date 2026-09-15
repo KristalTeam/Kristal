@@ -160,6 +160,9 @@ function actor:init()
         self.animations["battle/transition"] = {"walk/right", 0, true}
     end
 
+    -- The x and y offsets of the "target" sprite
+    self.target_offset = { -2, -1 }
+
     -- The x and y offsets of the ReviveSong spotlight
     self.spotlight_offset = { -2, -5 }
 end
