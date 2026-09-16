@@ -195,7 +195,7 @@ function actor:init()
 
         ["laugh"] = {0, 0},
 
-        ["point_up"] = {-4, 1},
+        ["point_up"] = {-3, 1},
 
         ["shocked"] = {0, 0},
         ["shocked_behind"] = {0, 0},
