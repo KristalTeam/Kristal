@@ -399,7 +399,31 @@ function PartyBattler:resetSprite()
     end
 end
 
---- Sets the battler's sprite for performing ACTs, including the additional flash effect
+--- Creates an "acting effect" (flash and two afterimages)
+---@param sprite?   string
+---@param ox?       number
+---@param oy?       number
+function PartyBattler:actEffect(sprite, ox, oy)
+    local x = self.x - (self.actor:getWidth() / 2 - ox) * 2
+    local y = self.y - (self.actor:getHeight() - oy) * 2
+    local flash = FlashFade(sprite, x, y)
+    flash:setOrigin(0, 0)
+    flash:setScale(self:getScale())
+    self.parent:addChild(flash)
+
+    local afterimage1 = AfterImage(self, 1)
+    local afterimage2 = AfterImage(self, 0.6)
+    afterimage1.physics.speed_x = 2.5
+    afterimage2.physics.speed_x = 5
+
+    afterimage1.layer = afterimage1.layer - 1
+    afterimage2.layer = afterimage1.layer - 1
+
+    self:addChild(afterimage1)
+    self:addChild(afterimage2)
+end
+
+--- Sets the battler's sprite for performing ACTs, including the additional acting effect
 --- Acts as a shorthand of [`ActorSprite:setCustomSprite()`](lua://ActorSprite.setCustomSprite) and [`ActorSprite:play()`](lua://ActorSprite.play)
 ---@param sprite?   string
 ---@param ox?       number
@@ -408,25 +432,8 @@ end
 ---@param loop?     boolean
 ---@param after?    fun(ActorSprite)
 function PartyBattler:setActSprite(sprite, ox, oy, speed, loop, after)
-
     self:setCustomSprite(sprite, ox, oy, speed, loop, after)
-
-    local x = self.x - (self.actor:getWidth() / 2 - ox) * 2
-    local y = self.y - (self.actor:getHeight() - oy) * 2
-    local flash = FlashFade(sprite, x, y)
-    flash:setOrigin(0, 0)
-    flash:setScale(self:getScale())
-    self.parent:addChild(flash)
-
-    local afterimage1 = AfterImage(self, 0.5)
-    local afterimage2 = AfterImage(self, 0.6)
-    afterimage1.physics.speed_x = 2.5
-    afterimage2.physics.speed_x = 5
-
-    afterimage2.layer = afterimage1.layer - 1
-
-    self:addChild(afterimage1)
-    self:addChild(afterimage2)
+    self:actEffect(sprite, ox, oy)
 end
 
 --- Shorthand for [`ActorSprite:setSprite()`](lua://ActorSprite.setSprite) and [`ActorSprite:play()`](lua://ActorSprite.play)
