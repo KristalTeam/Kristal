@@ -432,6 +432,8 @@ function love.update(dt)
                     end
                 elseif msg.status == "loading" then
                     Kristal.Loader.message = msg.path
+                elseif msg.status == "warning" then
+                    Logging.warnNotify(msg.message)
                 end
             end
         end
