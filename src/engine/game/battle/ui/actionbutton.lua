@@ -34,25 +34,41 @@ end
 --- *(Override)* The button's normal texture.
 ---@return love.Image
 function ActionButton:getTexture()
-    return Assets.getTexture("ui/battle/btn/fight")
+    if Debug.once("actionbutton_texture") then
+        Logging.warnNotify("ActionButton:getTexture() is not overridden!")
+    end
+
+    return Assets.getTexture("ui/battle/btn/exclamation")
 end
 
 --- *(Override)* The texture to use when the button is currently "hovered" (the player is over it, but hasn't selected it yet)
 ---@return love.Image
 function ActionButton:getHoveredTexture()
-    return Assets.getTexture("ui/battle/btn/fight_h")
+    if Debug.once("actionbutton_hovered_texture") then
+        Logging.warnNotify("ActionButton:getHoveredTexture() is not overridden!")
+    end
+
+    return Assets.getTexture("ui/battle/btn/exclamation_h")
 end
 
 --- *(Override)* The texture to use when the button is glowing.
 ---@return love.Image
 function ActionButton:getSpecialTexture()
-    return Assets.getTexture("ui/battle/btn/fight_a")
+    if Debug.once("actionbutton_special_texture") then
+        Logging.warnNotify("ActionButton:getSpecialTexture() is not overridden!")
+    end
+
+    return Assets.getTexture("ui/battle/btn/exclamation_a")
 end
 
 --- *(Override)* The texture to use when the button is disabled.
 ---@return love.Image
 function ActionButton:getDisabledTexture()
-    return Assets.getTexture("ui/battle/btn/fight_d")
+    if Debug.once("actionbutton_disabled_texture") then
+        Logging.warnNotify("ActionButton:getDisabledTexture() is not overridden!")
+    end
+
+    return Assets.getTexture("ui/battle/btn/exclamation_d")
 end
 
 --- *(Override)* Called when this button is selected.
