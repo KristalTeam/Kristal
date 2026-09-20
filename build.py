@@ -139,7 +139,7 @@ ignorefiles = [
     ".github",
     ".git",
     ".vscode",
-    ".venv", # for pip stuff
+    ".venv",
     "docs",
     "lib",
     "build",
