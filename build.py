@@ -180,12 +180,12 @@ if args.love:
     else:
         fatal("Error: LÖVE not found at passed directory.")
 else:
-    print("Finding LÖVE by checking PATH...")
+    print("Finding LÖVE...")
+    print("Checking PATH...")
     path_var = os.getenv('PATH')
     if path_var is None:
-        fatal("Error: PATH not found! Please create a variable called \"Path\" in your system environment variables program.")
+        fatal("Error: PATH not found! Please specify the path to LÖVE with --love.")
     for path in path_var.split(";"):
-        #print(f"DEBUG! {path}") for (tiny) nerdsss
         if path == "":
             continue
         if os.path.isfile(os.path.join(path, "love.exe")):
@@ -193,7 +193,7 @@ else:
             print(f"LÖVE found: {path}")
             break
     else:
-        fatal("Error: LÖVE not found! Please add the directory of LÖVE to your PATH variable.")
+        fatal("Error: LÖVE not found! Please specify the path to LÖVE with --love.")
 
 # Search PATH
 
