@@ -239,6 +239,13 @@ function Game:registerBuiltInEvents()
             one_way = data.properties.one_way
         })
     end)
+
+    registry:register("coinbowl", function(data)
+        return CoinBowl(data.x, data.y, {
+            value = data.properties.value,
+            accurate_hitbox = data.properties.accurate_hitbox
+        })
+    end)
 end
 
 function Game:leave()

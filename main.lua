@@ -263,6 +263,7 @@ ClimbArea = require("src.engine.game.world.events.climbing.climbarea")
 ClimbUnsafe = require("src.engine.game.world.events.climbing.climbunsafe")
 FallingClimbArea = require("src.engine.game.world.events.climbing.fallingclimbarea")
 ClimbMover = require("src.engine.game.world.events.climbing.climbmover")
+CoinBowl = require("src.engine.game.world.events.climbing.coinbowl")
 
 ToggleController = require("src.engine.game.world.events.controllers.togglecontroller")
 FountainShadowController = require("src.engine.game.world.events.controllers.fountainshadowcontroller")
