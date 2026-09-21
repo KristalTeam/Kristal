@@ -116,8 +116,9 @@ end
 function CoinBowl:spawnCoinText()
     local world_x, world_y = self:getRelativePos(20, 20, Game.world)
 
-    -- Silly DR bug: The $ doesn't exist in the font, so nothing shows up
-    local text = Game.world:addChild(Text(string.format("+%s$", self.value), world_x, world_y, {
+    -- DIFFERENCE: In DELTARUNE, the coin text ends with $, but chapter 4 does not have that character in the font.
+    -- Technically, if these showed up in chapter 5, it'd display properly... but for now, let's just not show the $.
+    local text = Game.world:addChild(Text(string.format("+%s", self.value), world_x, world_y, {
         font = "goldnumbers",
         auto_size = true
     }))
