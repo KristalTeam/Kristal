@@ -49,7 +49,12 @@ end
 
 function item:onWorldUse()
     Game.world:startCutscene(function(cutscene)
-        Assets.playSound("phone", 0.7)
+        local vol = 0.7
+        if Game.chapter == 1 then
+            vol = 1
+        end
+        Assets.playSound("phone", vol)
+
         cutscene:text("* (You tried to call on the Cell\nPhone.)", nil, nil, {advance = false})
         cutscene:wait(40/30)
         local was_playing = Game.world.music:isPlaying()
