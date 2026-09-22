@@ -35,7 +35,7 @@ end
 ---@return love.Image
 function ActionButton:getTexture()
     if Debug.once("actionbutton_texture") then
-        Logging.warnNotify("ActionButton:getTexture() is not overridden!")
+        Logging.warnNotify(ClassUtils.getClassName(self) .. ":getTexture() is not overridden!")
     end
 
     return Assets.getTexture("ui/battle/btn/exclamation")
@@ -45,7 +45,7 @@ end
 ---@return love.Image
 function ActionButton:getHoveredTexture()
     if Debug.once("actionbutton_hovered_texture") then
-        Logging.warnNotify("ActionButton:getHoveredTexture() is not overridden!")
+        Logging.warnNotify(ClassUtils.getClassName(self) .. ":getHoveredTexture() is not overridden!")
     end
 
     return Assets.getTexture("ui/battle/btn/exclamation_h")
@@ -55,7 +55,7 @@ end
 ---@return love.Image
 function ActionButton:getSpecialTexture()
     if Debug.once("actionbutton_special_texture") then
-        Logging.warnNotify("ActionButton:getSpecialTexture() is not overridden!")
+        Logging.warnNotify(ClassUtils.getClassName(self) .. ":getSpecialTexture() is not overridden!")
     end
 
     return Assets.getTexture("ui/battle/btn/exclamation_a")
@@ -65,7 +65,7 @@ end
 ---@return love.Image
 function ActionButton:getDisabledTexture()
     if Debug.once("actionbutton_disabled_texture") then
-        Logging.warnNotify("ActionButton:getDisabledTexture() is not overridden!")
+        Logging.warnNotify(ClassUtils.getClassName(self) .. ":getDisabledTexture() is not overridden!")
     end
 
     return Assets.getTexture("ui/battle/btn/exclamation_d")
@@ -73,7 +73,7 @@ end
 
 --- *(Override)* Called when this button is selected.
 function ActionButton:select()
-    Logging.warnNotify("Unhandled button select!")
+    Logging.warnNotify("Unhandled button select for " .. ClassUtils.getClassName(self) .. "!")
 end
 
 --- *(Override)* Called when this button is unselected. Most of the time, this isn't needed.
