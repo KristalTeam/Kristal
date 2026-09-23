@@ -354,8 +354,7 @@ function World:showHealthBars()
     if self.healthbar then
         self.healthbar:transitionIn()
     else
-        self.healthbar = HealthBar()
-        self:addChild(self.healthbar)
+        self.healthbar = self:addChild(HealthBar())
     end
 end
 
