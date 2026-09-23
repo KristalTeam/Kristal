@@ -5,7 +5,7 @@ local HealthBar, super = Class(Object)
 function HealthBar:init()
     super.init(self, 0, -80)
 
-    self.layer = 1 -- TODO
+    self.layer = WORLD_LAYERS["ui"]
 
     self.parallax_x = 0
     self.parallax_y = 0
