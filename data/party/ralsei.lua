@@ -198,6 +198,11 @@ function character:init()
         "This is not\nyour fate...!",
         "Please,[wait:5]\ndon't give up!"
     }
+
+    -- Character flags (saved to the save file)
+    self.flags = {
+        ["serious"] = false
+    }
 end
 
 function character:getTitle()
