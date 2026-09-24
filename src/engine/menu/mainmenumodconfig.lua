@@ -205,6 +205,7 @@ function MainMenuModConfig:registerOptions()
     self:registerOption("storageSlots", "Storage Slots", "The amount of storage slots in the dark world inventory", "selection", { nil, 0, 12, 24, 36 }) -- unhardcode
     self:registerOption("enableRecruits", "Enable Recruits", "Enable recruit messages and menu", "selection", { nil, true, false })
     self:registerOption("recruitsProgressSpaces", "Recruits Progress Spaces", "Whether the recruits progress in the menu will have spaces between the amounts", "selection", { nil, true, false })
+    self:registerOption("recruitWishes", "Recruit Wishes", "Whether the recruits have \"WISH\" in the menu or not", "selection", { nil, true, false })
     self:registerOption("smallSaveMenu", "Small Save Menu", "Single-file save menu with no storage/recruits options", "selection", { nil, true, false })
     self:registerOption("lessEquipments", "Less Equipments", "Reduces the amount of available weapons and armor slots in the inventory", "selection", { nil, true, false })
     self:registerOption("partyActions", "X-Actions", "Whether X-Actions appear in spell menu by default", "selection", { nil, true, false })
