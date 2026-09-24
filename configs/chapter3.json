@@ -19,6 +19,7 @@
     "oldRudeBuster": false,          // Old Rude Buster damage calculation and effect
     "oldPacify": false,              // Removes the animation from the Pacify spell
     "oldDualHealFormula": false,     // Old Dual Heal amount calculation
+    "oldSpareText": true,            // Determines if unsuccessful spare attempt points out the enemy's name not being yellow or their mercy not being 100%
 
     "speechBubble": "cyber",         // Default enemy speech bubble style
     "lightTextboxStyle": "light",    // Textbox style used in the light world (by default)
