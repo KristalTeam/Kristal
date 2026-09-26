@@ -45,10 +45,13 @@ end
 
 function Character:getDebugInfo()
     local info = super.getDebugInfo(self)
-    table.insert(info, "Actor: " .. self.actor.name)
+
+    table.insert(info, "Actor: " .. self.actor.id)
+
     if self.party then
         table.insert(info, "Party Member: " .. self.party)
     end
+
     table.insert(info, "Noclip: " .. (self.noclip and "True" or "False"))
     return info
 end
