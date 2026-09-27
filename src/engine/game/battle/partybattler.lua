@@ -93,12 +93,12 @@ function PartyBattler:calculateDamage(amount)
     return math.max(amount, 1)
 end
 
---- Less complex damage calculation than [`PartyBattler:calculateDamage()`](lua://PartyBattler.calculateDamage) \
---- (unused?)
+--- Less complex damage calculation than [`PartyBattler:calculateDamage()`](lua://PartyBattler.calculateDamage), used in chapter 1 
 ---@param amount number
 ---@return integer
 function PartyBattler:calculateDamageSimple(amount)
-    return math.ceil(amount - (self.chara:getStat("defense") * 3))
+    local damage = math.ceil(amount - (self.chara:getStat("defense") * 3))
+    return math.max(damage, 1)
 end
 
 --- Gets the damage reduction multiplier for damage of a particular element
@@ -141,7 +141,11 @@ function PartyBattler:hurt(amount, exact, color, options)
     if not options["all"] then
         Assets.playSound("hurt")
         if not exact then
-            amount = self:calculateDamage(amount)
+            if Game:getConfig("oldDefenseFormula") then
+                amount = self:calculateDamageSimple(amount)
+            else
+                amount = self:calculateDamage(amount)
+            end
             if self.defending then
                 amount = math.ceil((2 * amount) / 3)
             end
@@ -157,7 +161,11 @@ function PartyBattler:hurt(amount, exact, color, options)
     else
         -- We're targeting everyone.
         if not exact then
-            amount = self:calculateDamage(amount)
+            if Game:getConfig("oldDefenseFormula") then
+                amount = self:calculateDamageSimple(amount)
+            else
+                amount = self:calculateDamage(amount)
+            end
             -- we don't have elements right now
             local element = 0
             amount = math.ceil((amount * self:getElementReduction(element)))
