@@ -265,7 +265,7 @@ function BattleUI:drawState()
         local x = 0
         local y = 0
         Draw.setColor(Game.battle.encounter:getSoulColor())
-        Draw.draw(self.heart_sprite, 5 + ((Game.battle.current_menu_x - 1) * 230), 30 + ((Game.battle.current_menu_y - (page * 3)) * 30))
+        Draw.draw(self.heart_sprite, 5 + ((Game.battle.current_menu_x - 1) * 225), 30 + ((Game.battle.current_menu_y - (page * 3)) * 30))
 
         local font = Assets.getFont("main")
         love.graphics.setFont(font)
