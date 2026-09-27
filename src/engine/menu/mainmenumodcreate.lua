@@ -244,10 +244,10 @@ function MainMenuModCreate:onStateChange(old_state, state)
     if state == "MENU" then
         self.menu.heart_target_x = 45
     elseif state == "NAME" then
-        self.menu.heart_target_x = 45 + 167
+        self.menu.heart_target_x = 45 + 240
         self:openInput("name")
     elseif state == "ID" then
-        self.menu.heart_target_x = 45 + 167
+        self.menu.heart_target_x = 45 + 240
         self:openInput("id", function(letter)
             local disallowed = { "/", "\\", "*", ".", "?", ":", "\"", "<", ">", "|" }
             if TableUtils.contains(disallowed, letter) then
@@ -257,7 +257,7 @@ function MainMenuModCreate:onStateChange(old_state, state)
             return letter:lower()
         end)
     elseif state == "CHAPTER" then
-        self.menu.heart_target_x = 45 + 167 + 64
+        self.menu.heart_target_x = 45 + 231
     end
 end
 

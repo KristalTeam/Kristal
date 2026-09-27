@@ -419,6 +419,37 @@ function Draw.printShadow(text, x, y, offset, align, limit)
     love.graphics.printf(text, x, y, limit or width, align or "left")
 end
 
+---
+--- Draws text with a black drop shadow behind it.
+---
+---@param text string|table     # A text string, or table of color-formatted text.
+---@param x? number             # The position on the x-axis.
+---@param y? number             # The position on the y-axis.
+---@param x_scale? number       # The scale of the text on the x-axis.
+---@param y_scale? number       # The scale of the text on the y-axis. Defaults to x_scale.
+---@param offset? number        # The offset of the drop shadow. (Defaults to 2)
+---@param align? love.AlignMode # The alignment.
+---@param limit? number         # Wrap the line after this many horizontal pixels.
+---
+function Draw.printShadowScaled(text, x, y, x_scale, y_scale, offset, align, limit)
+    x, y = x or 0, y or 0
+    offset = offset or 2
+
+    local r, g, b, a = love.graphics.getColor()
+
+    local width = love.graphics.getFont():getWidth(Utils.getCombinedText(text))
+
+    width = width * (x_scale or 1)
+
+    -- Draw the shadow, offset by a given amount of pixels to the bottom right
+    love.graphics.setColor(0, 0, 0, 1)
+    love.graphics.printf(text, x + offset, y + offset, limit or width, align or "left", 0, x_scale or 1, y_scale or x_scale or 1)
+
+    -- Draw the main text
+    love.graphics.setColor(r, g, b, a)
+    love.graphics.printf(text, x, y, limit or width, align or "left", 0, x_scale or 1, y_scale or x_scale or 1)
+end
+
 --- Modes: `none`
 --- - `none`: Creates a canvas based on object size and draws the object at 0,0 (not transformed)
 ---

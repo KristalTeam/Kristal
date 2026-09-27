@@ -42,7 +42,7 @@ function MainMenuModConfig:onEnter(old_state)
     self.scroll_target_y = 0
     self.scroll_y = 0
 
-    self.menu.heart_target_x = 64 - 19
+    self.menu.heart_target_x = 45
     self.menu.heart_target_y = 128 + 19
 end
 
@@ -87,7 +87,7 @@ function MainMenuModConfig:onKeyPressed(key, is_repeat)
                 Assets.stopAndPlaySound("ui_select")
                 return
             else
-                self.menu.heart_target_x = self.menu.heart_target_x + 45 + 167 + 140
+                self.menu.heart_target_x = 416
                 self.editing = true
                 Assets.stopAndPlaySound("ui_select")
             end
@@ -146,7 +146,9 @@ function MainMenuModConfig:draw()
 
         local x = menu_x + x_off
         local y = menu_y + y_off
-        Draw.printShadow(config_option.name, x, y, 2, "left", 640)
+
+        local str, scale = StringUtils.squishAndTrunc(config_option.name, menu_font, 320)
+        Draw.printShadowScaled(str, x, y, scale, 1, 2, "left", 640)
 
         local option = config_option.options[config_option.selected]
         local option_text = option
