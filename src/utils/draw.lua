@@ -420,7 +420,7 @@ function Draw.printShadow(text, x, y, offset, align, limit)
 end
 
 ---
---- Draws text with a black drop shadow behind it.
+--- Draws text with a black drop shadow behind it, scaled.
 ---
 ---@param text string|table     # A text string, or table of color-formatted text.
 ---@param x? number             # The position on the x-axis.
