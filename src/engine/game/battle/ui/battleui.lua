@@ -351,19 +351,16 @@ function BattleUI:drawState()
         -- Print information about currently selected item
         local current_item = Game.battle.menu_items[Game.battle:getItemIndex()]
         if current_item then
-            local tp_offset, _ = 0, nil --initialize placeholdder variable so it doenst go in global scope
             if current_item.description then
                 Draw.setColor(COLORS.gray)
                 love.graphics.print(current_item.description, 260 + 240, 50)
                 Draw.setColor(1, 1, 1, 1)
-                _, tp_offset = current_item.description:gsub('\n', '\n')
-                tp_offset = tp_offset + 1
             end
 
             if current_item.tp and current_item.tp ~= 0 then
                 Draw.setColor(Game.battle and Game.battle:hasReducedTension() and PALETTE["tension_desc_reduced"] or PALETTE["tension_desc"])
                 love.graphics.print(
-                    math.floor((current_item.tp / Game:getMaxTension()) * 100) .. "% " .. Game:getConfig("tpName"), 260 + 240, 50 + (tp_offset * 32)
+                    math.floor((current_item.tp / Game:getMaxTension()) * 100) .. "% " .. Game:getConfig("tpName"), 260 + 240, 115
                 )
                 Game:setTensionPreview(current_item.tp)
             else
