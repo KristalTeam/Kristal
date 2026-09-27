@@ -39,7 +39,7 @@ function MainMenuCredits:init(menu)
                 "Agent 7",
                 "AlexGamingSW",
                 "Archie-osu",
-                "Azrael",
+                "Azzy Fazzy",
                 "Bor",
                 "CosmicPikachu001",
                 "DiamondDeltahedron"
