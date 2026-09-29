@@ -1,34 +1,3 @@
---- The Text object, made for displaying formatted text.
----
---- If you're looking for text which writes itself out over time, see [`DialogueText`](lua://DialogueText).
----@class Text : Object
----
----@field text string The raw text string, with modifiers.
----@field display_text string The displayed text, without modifiers.
----@field nodes TextNode[] The text nodes.
----@field state TextState The current state of the text, used for processing modifiers and drawing the text.
----
----@overload fun(...) : Text
-local Text, super = Class(Object)
-
---- The default modifiers which exist. Can be extended with the `registerTextCommands` event.
-Text.COMMANDS = { "color", "font", "style", "shake", "wave", "image", "bind", "button", "offset", "indent", "spacing" }
-
---- The default colors available for text modifiers. Can be extended with the `onTextColor` event.
----@type table<string, Color>
-Text.COLORS = {
-    ["red"] = COLORS.red,
-    ["blue"] = COLORS.blue,
-    ["yellow"] = COLORS.yellow,
-    ["green"] = COLORS.lime,
-    ["white"] = COLORS.white,
-    ["black"] = COLORS.black,
-    ["purple"] = COLORS.purple,
-    ["maroon"] = COLORS.maroon,
-    ["pink"] = { 1, 0.5, 1 },
-    ["lime"] = { 0.5, 1, 0.5 }
-}
-
 --- A class representing a "text node".
 ---@class TextNode
 ---@field type string The type of the node, either "character" or "modifier".
@@ -85,6 +54,60 @@ Text.COLORS = {
 ---@field indent_string string? The string to use for indented lines. Defaults to "* ".
 ---@field preprocess boolean? Whether to preprocess the text to calculate line breaks and alignment before drawing. This can be set to false if you don't care about alignment or wrapping,
 
+--- The Text object, made for displaying formatted text.
+---
+--- If you're looking for text which writes itself out over time, see [`DialogueText`](lua://DialogueText).
+---@class Text : Object
+---
+---@field text string The raw text string, with modifiers.
+---@field display_text string The displayed text, without modifiers.
+---@field nodes TextNode[] The text nodes.
+---@field state TextState The current state of the text, used for processing modifiers and drawing the text.
+---@field indent_string string The string to use for indented lines.
+---@field wrap boolean Whether to wrap text that exceeds the width of the object.
+---@field timer number The amount of time (in 30 FPS frames) the text has existed for
+---@field draw_every_frame boolean Whether to draw the text every frame, used for animated text styles.
+---@field canvas love.Canvas The canvas to draw the text to, if not drawing directly to the screen. Used to speed up text rendering when the text is not animated.
+---@field auto_size boolean Whether to automatically resize the text's width/height to fit the text.
+---@field custom_commands table<string, fun(node: TextNode, dry: boolean): nil> A table of custom text commands.
+---@field custom_command_dry table<string, boolean> A table specifying whether or not a custom text command should be processed even during a dry run
+---@field preprocess boolean Whether to preprocess the text (to calculate line breaks and alignment) before drawing.
+---@field width number The width of the text.
+---@field height number The height of the text.
+---@field default_width number The default width of the text, used for auto-sizing.
+---@field default_height number The default height of the text, used for auto-sizing.
+---@field font love.Font The font to use for the text.
+---@field font_size number The size of the font to use for the text.
+---@field text_color Color The color of the text.
+---@field text_width number The width of the text (when preprocessed)
+---@field text_height number The height of the text (when preprocessed)
+---@field alignment_offset table<integer, number> A table of alignment offsets for each line of text, used for center/right alignment.
+---@field align string The alignment of the text. Can be "left", "center", or "right".
+---@field COMMANDS string[] The default modifiers which exist. Can be extended with the `registerTextCommands` event.
+---@field COLORS table<string, Color> The default colors available for text modifiers. Can be extended with the `onTextColor` event.
+---@field nodes_to_draw TextNode[] The nodes which have been processed and are ready to be drawn.
+---@field set_text_without_stage boolean Whether the text was set before the object was added to the stage. If true, the text will be processed when the object is added to the stage.
+---@field sprites Sprite[] The sprites which have been added to the text, such as images or buttons.
+---@field line_offset number The amount of pixels to add between lines. Defaults to 0.
+---
+---@overload fun(...) : Text
+local Text, super = Class(Object)
+
+Text.COMMANDS = { "color", "font", "style", "shake", "wave", "image", "bind", "button", "offset", "indent", "spacing" }
+
+Text.COLORS = {
+    ["red"] = COLORS.red,
+    ["blue"] = COLORS.blue,
+    ["yellow"] = COLORS.yellow,
+    ["green"] = COLORS.lime,
+    ["white"] = COLORS.white,
+    ["black"] = COLORS.black,
+    ["purple"] = COLORS.purple,
+    ["maroon"] = COLORS.maroon,
+    ["pink"] = { 1, 0.5, 1 },
+    ["lime"] = { 0.5, 1, 0.5 }
+}
+
 ---@param text string The text to display.
 ---@param x number The X position of the text.
 ---@param y number The Y position of the text.
@@ -123,7 +146,6 @@ function Text:init(text, x, y, w, h, options)
     self.align = options["align"] or "left"
     self.canvas = love.graphics.newCanvas(w, h)
     self.line_offset = options["line_offset"] or 0
-    self.last_shake = 0
 
     self.auto_size = options["auto_size"] or false
     self.indent_string = options["indent_string"] or "* "
