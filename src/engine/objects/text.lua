@@ -630,9 +630,11 @@ function Text:processNode(node, dry)
             if node.character == StringUtils.sub(self.state.indent_string, 1, 1) then
                 if self.state.indent_mode and self.state.newline then
                     self.state.current_x = 0
-                    self.state.newline = false
                 end
             end
+
+            self.state.newline = false
+
             --print("INSERTING " .. node.character .. " AT " .. self.state.current_x .. ", " .. self.state.current_y)
             if not dry then
                 local cloned = self:cloneState(self.state)
