@@ -89,7 +89,7 @@ def setInfo(key, value):
 
 build_path = "build"
 output_path = "output"
-kristal_path = "Kristal"
+kristal_path = "./"
 
 try:
     os.makedirs(os.path.join(build_path, "executable"))
@@ -139,6 +139,7 @@ ignorefiles = [
     ".github",
     ".git",
     ".vscode",
+    ".venv",
     "docs",
     "lib",
     "build",
@@ -150,12 +151,13 @@ if not is_standalone:
     ignorefiles.append("mods")
 
 try:
+    print("+Note that existing files will get overwritten")
     for file in os.listdir(kristal_path):
         if not file in ignorefiles:
             if os.path.isfile(os.path.join(kristal_path, file)):
-                shutil.copy(os.path.join(kristal_path, file), os.path.join(build_path, "kristal"))
+                shutil.copy2(os.path.join(kristal_path, file), os.path.join(build_path, "kristal"))
             elif os.path.isdir(os.path.join(kristal_path, file)):
-                shutil.copytree(os.path.join(kristal_path, file), os.path.join(build_path, "kristal", file))
+                shutil.copytree(os.path.join(kristal_path, file), os.path.join(build_path, "kristal", file), dirs_exist_ok=True)
 except FileNotFoundError:
     fatal("Error: \"kristal\" folder missing! Please place a clean copy of Kristal's source code next to this script in a folder titled \"kristal\".")
 
@@ -176,7 +178,7 @@ if args.love:
     if os.path.isfile(os.path.join(love2d_path, "love.exe")):
         print("LÖVE found!")
     else:
-        fatal("Error: LÖVE not found at passed directory")
+        fatal("Error: LÖVE not found at passed directory.")
 else:
     print("Finding LÖVE...")
     print("Checking PATH...")
