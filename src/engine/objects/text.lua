@@ -89,6 +89,7 @@
 ---@field set_text_without_stage boolean Whether the text was set before the object was added to the stage. If true, the text will be processed when the object is added to the stage.
 ---@field sprites Sprite[] The sprites which have been added to the text, such as images or buttons.
 ---@field line_offset number The amount of pixels to add between lines. Defaults to 0.
+---@field style string The style of the text. Can be "none", "menu", "dark", "dark_menu", "GONER", or any custom style registered with the `onDrawText` event. Defaults to "none".
 ---
 ---@overload fun(...) : Text
 local Text, super = Class(Object)
