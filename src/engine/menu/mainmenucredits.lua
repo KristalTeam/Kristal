@@ -84,10 +84,11 @@ function MainMenuCredits:init(menu)
                 "prokube",
                 "raisinbrainguy",
                 "rfrx",
-                "Simbel"
+                "SAY-5"
             },
             {
                 { "GitHub Contributors", COLORS.silver },
+                "Simbel",
                 "sjl057",
                 "skarph",
                 "SuperOfSrb2",
@@ -95,7 +96,13 @@ function MainMenuCredits:init(menu)
                 "TFLTV",
                 "TheSkerch",
                 "Verozity",
-                "WIL-TZY",
+                "WIL-TZY"
+            }
+        },
+        {
+            "Kristal Engine",
+            {
+                { "GitHub Contributors", COLORS.silver },
                 "YeetusSnoopy"
             }
         }
