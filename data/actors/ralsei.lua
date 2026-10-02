@@ -81,7 +81,6 @@ function actor:initChapter1()
         ["sing_ready"]          = {"sing_1", 16/30, true},
         ["sing"]                = {"sing", 0.4, true},
         ["sit"]                 = {"sit", 0.1, false},
-
     }
 
     -- Tables of sprites to change into in mirrors
@@ -233,6 +232,22 @@ function actor:initChapter2()
         ["sing"]                = {"sing", 4/30, true}
     }
 
+    -- Alternate animations to use for Ralsei serious mode (false to disable the animation)
+    self.animations_alt = {
+        -- Battle animations
+        ["battle/idle"]         = {"battle_alt/idle", 1/6, true},
+
+        ["battle/attack"]       = {"battle_alt/attack", 1/15, false, next="battle/idle"},
+
+        ["battle/attack_ready"] = {"battle_alt/attackready", 0.2, true},
+        ["battle/defend_ready"] = {"battle_alt/defend", 1/15, false},
+
+        ["battle/hurt"]         = {"battle_alt/hurt", 1/15, false, temp=true, duration=0.5},
+        ["battle/defeat"]       = {"battle_alt/hurt", 1/15, false},
+
+        ["battle/intro"]        = {"battle_alt/intro", 1/15, false}
+    }
+
     -- Tables of sprites to change into in mirrors
     self.mirror_sprites = {
         ["walk/down"] = "walk/up",
@@ -292,6 +307,14 @@ function actor:initChapter2()
         ["battle/intro"] = {-2, -6},
         ["battle/victory"] = {0, -6},
 
+        ["battle_alt/intro"] = {-4, 0},
+        ["battle_alt/idle"] = {-2, -6},
+        ["battle_alt/attack"] = {-10, -6},
+        ["battle_alt/attackready"] = {-10, -6},
+        ["battle_alt/defeat"] = {-3, 0},
+        ["battle_alt/hurt"] = {-3, 0},
+        ["battle_alt/defend"] = {-1, -9},
+
         -- Cutscene offsets
         ["pose"] = {-1, -1},
 
@@ -319,6 +342,14 @@ function actor:initChapter2()
 
     -- The x and y offsets of the ReviveSong spotlight
     self.spotlight_offset = { 10, -5 }
+end
+
+function actor:getAnimation(anim)
+    if Game:getPartyMember("ralsei"):getFlag("serious", false) and self.animations_alt[anim] ~= nil then
+        return self.animations_alt[anim] or nil
+    else
+        return super.getAnimation(self, anim)
+    end
 end
 
 return actor
