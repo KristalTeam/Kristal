@@ -135,8 +135,8 @@ function Game:enter(previous_state, save_id, save_name, fade)
 end
 
 --- Register a new event class with the given ID.
----@param id string                    The ID of the event.
----@param constructor fun(data):Event  A constructor function that takes event data and returns an event instance.
+---@param id string The ID of the event.
+---@param constructor fun(data):Object A constructor function that takes event data and returns an object instance.
 function Game:registerEvent(id, constructor)
     self.event_registry:register(id, constructor)
 end
