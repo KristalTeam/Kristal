@@ -9,8 +9,8 @@ function EventRegistry:init()
 end
 
 --- Register a new event with the given ID.
----@param id string                    The ID of the event.
----@param constructor fun(data):Event  A constructor function that takes event data and returns an event instance.
+---@param id string The ID of the event.
+---@param constructor fun(data):Object A constructor function that takes event data and returns an object instance.
 function EventRegistry:register(id, constructor)
     if self.events[id] then
         Logging.warn("Replacing already-registered event '" .. id .. "'...")
