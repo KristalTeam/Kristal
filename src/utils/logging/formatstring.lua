@@ -1,7 +1,7 @@
 --- A formatted string, for use with logging.
 ---
 --- If you're looking for anything that isn't a part of the logging system, you should look elsewhere.
----@class FormatString
+---@class FormatString : Class
 ---@field private parts FormatStringPart[]
 local FormatString = Class()
 

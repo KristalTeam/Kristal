@@ -2,7 +2,7 @@
 ---
 --- Requires an RGB color, and a list of ANSI escape sequences.
 ---
----@class ConsoleFormatting
+---@class ConsoleFormatting : Class
 ---
 ---@field private color Color
 ---@field private escape_sequences EscapeSequence[]
