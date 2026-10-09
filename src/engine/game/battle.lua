@@ -3436,7 +3436,7 @@ function Battle:addSpellMenuItems(battler)
         if spell:hasTag("spare_tired") then
             local has_tired = false
             for _, enemy in ipairs(Game.battle:getActiveEnemies()) do
-                if enemy.tired then
+                if enemy:isTired() then
                     has_tired = true
                     break
                 end

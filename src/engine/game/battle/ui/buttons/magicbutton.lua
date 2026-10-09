@@ -36,7 +36,7 @@ function MagicButton:hasSpecial()
 
     local has_tired = false
     for _, enemy in ipairs(Game.battle:getActiveEnemies()) do
-        if enemy.tired then
+        if enemy:isTired() then
             has_tired = true
             break
         end
