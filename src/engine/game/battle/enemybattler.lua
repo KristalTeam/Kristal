@@ -428,7 +428,8 @@ function EnemyBattler:getSpareText(battler, success)
         return "* " .. battler.chara:getName() .. " spared " .. self.name .. "!"
     else
         ---@type string|string[]
-        local text = "* " .. battler.chara:getName() .. " spared " .. self.name .. "!\n* But its name wasn't [color:yellow]YELLOW[color:reset]..."
+        local but = Game:getConfig("oldSpareText") and "* But its name wasn't [color:yellow]YELLOW[color:reset]..." or "* But MERCY was not 100%!"
+        local text = "* " .. battler.chara:getName() .. " spared " .. self.name .. "![wait:10]\n" .. but
         if self.tired then
             local found_spell = nil
             for _, party in ipairs(Game.battle.party) do
