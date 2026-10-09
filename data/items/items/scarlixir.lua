@@ -57,8 +57,8 @@ end
 function item:getBattleHealAmountModified(id, caster, target)
     local amount = self:getBattleHealAmount(id)
 
-    -- For accuracy, only apply heal bonuses when used on Noelle
-    if id == "noelle" then
+    -- For accuracy, only apply heal bonuses when used on Noelle (but only in Chapter 4)
+    if Game.chapter ~= 4 or id == "noelle" then
         return Game.battle:applyHealBonuses(amount, caster, target)
     else
         return amount
@@ -84,7 +84,12 @@ function item:onBattleUse(user, target)
         local kris_battler = Game.battle:getPartyBattler("kris")
 
         if kris_battler then
-            kris_battler:heal(self.heal_amount_last_drop)
+            -- But apply heal bonuses only when outside of Chapter 4...
+            if Game.chapter == 4 then
+                kris_battler:heal(self.heal_amount_last_drop)
+            else
+                kris_battler:heal(Game.battle:applyHealBonuses(self.heal_amount_last_drop, user.chara, target))
+            end
         end
     end
 end
