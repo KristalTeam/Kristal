@@ -49,6 +49,7 @@ function MainMenuCredits:init(menu)
             "Kristal Engine",
             {
                 { "GitHub Contributors", COLORS.silver },
+                "dignitysr",
                 "Dobby233Liu",
                 "Elioze",
                 "Eribetra",
@@ -56,11 +57,11 @@ function MainMenuCredits:init(menu)
                 "Gabrielcito",
                 "HmmNoPls",
                 "HUECYCLES",
-                "Hyperboid",
-                "isakube"
+                "Hyperboid"
             },
             {
                 { "GitHub Contributors", COLORS.silver },
+                "isakube",
                 "J.A.R.U.",
                 "Jogla",
                 "Lionmeow",
@@ -68,14 +69,14 @@ function MainMenuCredits:init(menu)
                 "Maks7594",
                 "MaybeSamo",
                 "MCdeDaxia",
-                "MihBoss96",
-                "mpjasonreal"
+                "MihBoss96"
             }
         },
         {
             "Kristal Engine",
             {
                 { "GitHub Contributors", COLORS.silver },
+                "mpjasonreal",
                 "MrOinky",
                 "NakuAutumn",
                 "NelleMonelle",
@@ -84,10 +85,11 @@ function MainMenuCredits:init(menu)
                 "prokube",
                 "raisinbrainguy",
                 "rfrx",
-                "Simbel"
             },
             {
                 { "GitHub Contributors", COLORS.silver },
+                "SAY-5",
+                "Simbel",
                 "sjl057",
                 "skarph",
                 "SuperOfSrb2",
@@ -95,9 +97,18 @@ function MainMenuCredits:init(menu)
                 "TFLTV",
                 "TheSkerch",
                 "Verozity",
+            },
+        },
+        {
+            "Kristal Engine",
+            {
+                { "GitHub Contributors", COLORS.silver },
                 "WIL-TZY",
-                "YeetusSnoopy",
-                "dignitysr"
+                "YeetusSnoopy"
+            },
+            {
+                { "GitHub Contributors", COLORS.silver },
+                ""
             }
         }
     }
