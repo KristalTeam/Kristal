@@ -34,6 +34,7 @@ function MainMenuCredits:init(menu)
             },
             {
                 { "GitHub Contributors", COLORS.silver },
+                "A1Asriel",
                 "Abbe",
                 "AcousticJamm",
                 "Agent 7",
@@ -41,14 +42,14 @@ function MainMenuCredits:init(menu)
                 "Archie-osu",
                 "Azzy Fazzy",
                 "Bor",
-                "CosmicPikachu001",
-                "DiamondDeltahedron"
+                "CosmicPikachu001"
             }
         },
         {
             "Kristal Engine",
             {
                 { "GitHub Contributors", COLORS.silver },
+                "DiamondDeltahedron",
                 "dignitysr",
                 "Dobby233Liu",
                 "Elioze",
@@ -56,11 +57,11 @@ function MainMenuCredits:init(menu)
                 "FireRainV",
                 "Gabrielcito",
                 "HmmNoPls",
-                "HUECYCLES",
-                "Hyperboid"
+                "HUECYCLES"
             },
             {
                 { "GitHub Contributors", COLORS.silver },
+                "Hyperboid",
                 "isakube",
                 "J.A.R.U.",
                 "Jogla",
@@ -68,14 +69,14 @@ function MainMenuCredits:init(menu)
                 "Luna",
                 "Maks7594",
                 "MaybeSamo",
-                "MCdeDaxia",
-                "MihBoss96"
+                "MCdeDaxia"
             }
         },
         {
             "Kristal Engine",
             {
                 { "GitHub Contributors", COLORS.silver },
+                "MihBoss96",
                 "mpjasonreal",
                 "MrOinky",
                 "NakuAutumn",
@@ -83,11 +84,11 @@ function MainMenuCredits:init(menu)
                 "Nextop",
                 "nightpool",
                 "prokube",
-                "raisinbrainguy",
-                "rfrx",
+                "raisinbrainguy"
             },
             {
                 { "GitHub Contributors", COLORS.silver },
+                "rfrx",
                 "SAY-5",
                 "Simbel",
                 "sjl057",
@@ -95,14 +96,14 @@ function MainMenuCredits:init(menu)
                 "SuperOfSrb2",
                 "SweetSylveon",
                 "TFLTV",
-                "TheSkerch",
-                "Verozity",
+                "TheSkerch"
             },
         },
         {
             "Kristal Engine",
             {
                 { "GitHub Contributors", COLORS.silver },
+                "Verozity",
                 "WIL-TZY",
                 "YeetusSnoopy"
             },
