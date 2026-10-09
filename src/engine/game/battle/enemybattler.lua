@@ -885,12 +885,18 @@ function EnemyBattler:onHurt(damage, battler)
     if not self:getActiveSprite():setAnimation("hurt") then
         self:toggleOverlay(false)
     end
-    self:getActiveSprite():shake(9, 0, 1, 2 / 30, true)
+
+    self:applyDamageShake()
 
     if self.health <= (self.max_health * self.tired_percentage) then
         -- If `tired_percentage` is set to 0 (or less?), treat that as an indication to hide the message.
         self:setTired(true, self.tired_percentage <= 0)
     end
+end
+
+--- Responsible for shaking the enemy's sprite when they're hurt. If this isn't desired, override the function and leave it empty.
+function EnemyBattler:applyDamageShake()
+    self:getActiveSprite():shake(9, 0, 1, 2 / 30, true)
 end
 
 --- *(Override)* Called when this enemy finishes hurting \
