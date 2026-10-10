@@ -23,100 +23,124 @@ function MainMenuCredits:init(menu)
                 { "Lead Developers", COLORS.silver },
                 "NyakoFox",
                 "SylviBlossom",
+                "",
+                { "Developers", COLORS.silver },
                 "vitellary",
                 "",
-                { "Assets", COLORS.silver },
+            },
+            {
+                { "DELTARUNE Assets", COLORS.silver },
                 "Toby Fox",
                 "Temmie Chang",
-                "DELTARUNE team",
+                "The DELTARUNE team",
                 "",
-                ""
-            },
-            {
-                { "GitHub Contributors", COLORS.silver },
-                "A1Asriel",
-                "Abbe",
-                "AcousticJamm",
-                "Agent 7",
-                "AlexGamingSW",
-                "Archie-osu",
-                "Azzy Fazzy",
-                "Bor",
-                "CosmicPikachu001"
-            }
-        },
-        {
-            "Kristal Engine",
-            {
-                { "GitHub Contributors", COLORS.silver },
-                "DiamondDeltahedron",
-                "dignitysr",
-                "Dobby233Liu",
-                "Elioze",
-                "Eribetra",
-                "FireRainV",
-                "Gabrielcito",
-                "HmmNoPls",
-                "HUECYCLES"
-            },
-            {
-                { "GitHub Contributors", COLORS.silver },
-                "Hyperboid",
-                "isakube",
-                "J.A.R.U.",
-                "Jogla",
-                "Lionmeow",
-                "Luna",
-                "Maks7594",
-                "MaybeSamo",
-                "MCdeDaxia"
-            }
-        },
-        {
-            "Kristal Engine",
-            {
-                { "GitHub Contributors", COLORS.silver },
-                "MihBoss96",
-                "mpjasonreal",
-                "MrOinky",
-                "NakuAutumn",
-                "NelleMonelle",
-                "Nextop",
-                "nightpool",
-                "prokube",
-                "raisinbrainguy"
-            },
-            {
-                { "GitHub Contributors", COLORS.silver },
-                "rfrx",
-                "SAY-5",
-                "Simbel",
-                "sjl057",
-                "skarph",
-                "SuperOfSrb2",
-                "SweetSylveon",
-                "TFLTV",
-                "TheSkerch"
-            },
-        },
-        {
-            "Kristal Engine",
-            {
-                { "GitHub Contributors", COLORS.silver },
-                "Verozity",
-                "WIL-TZY",
-                "YeetusSnoopy"
-            },
-            {
-                { "GitHub Contributors", COLORS.silver },
-                ""
+                { "Special Thanks", COLORS.silver },
+                "The UNITALE team",
+                "The CYF team",
+                "Team Forecasted",
+                "The CrockerFan team"
             }
         }
     }
+
+    self:generateContributorPages()
+
     self.selected_page = 1
 
     self.scroll_direction = "right"
     self.scroll_timer = 0
+end
+
+--- The function responsible for generating the contributors pages in the credits.
+function MainMenuCredits:generateContributorPages()
+    -- Please add yourself here under the name you'd like to be credited as.
+    -- Try to keep it in alphabetical order!
+
+    local contributors = {
+        "A1Asriel",
+        "Abbe",
+        "AcousticJamm",
+        "Agent 7",
+        "AlexGamingSW",
+        "Archie-osu",
+        "Azzy Fazzy",
+        "Bor",
+        "CosmicPikachu001",
+        "DiamondDeltahedron",
+        "dignitysr",
+        "Dobby233Liu",
+        "Elioze",
+        "Eribetra",
+        "FireRainV",
+        "Gabrielcito",
+        "HmmNoPls",
+        "HUECYCLES",
+        "Hyperfae",
+        "isakube",
+        "J.A.R.U.",
+        "Jogla",
+        "Lionmeow",
+        "Luna",
+        "Maks7594",
+        "MaybeSamo",
+        "MCdeDaxia",
+        "MihBoss96",
+        "mpjasonreal",
+        "MrOinky",
+        "NakuAutumn",
+        "NelleMonelle",
+        "Nextop",
+        "nightpool",
+        "prokube",
+        "raisinbrainguy",
+        "rfrx",
+        "SAY-5",
+        "Simbel",
+        "sjl057",
+        "skarph",
+        "SuperOfSrb2",
+        "SweetSylveon",
+        "TFLTV",
+        "TheSkerch",
+        "Verozity",
+        "WIL-TZY",
+        "YeetusSnoopy"
+    }
+
+    local pages = {}
+
+    while #contributors > 0 do
+        local page = {
+            "Kristal Engine",
+            {
+                { "GitHub Contributors", COLORS.silver },
+            },
+            {
+                { "GitHub Contributors", COLORS.silver },
+            }
+        }
+
+        for _ = 1, 9 do
+            if #contributors <= 0 then
+                break
+            end
+
+            table.insert(page[2], table.remove(contributors, 1))
+        end
+
+        for _ = 1, 9 do
+            if #contributors <= 0 then
+                break
+            end
+            table.insert(page[3], table.remove(contributors, 1))
+        end
+
+        table.insert(self.pages, page)
+    end
+
+    for _, page in ipairs(pages) do
+        table.insert(self.pages, page)
+    end
 end
 
 function MainMenuCredits:registerEvents(master)
