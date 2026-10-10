@@ -202,7 +202,7 @@ end
 
 --- Makes a character look in a specific direction.
 ---@param chara?    Character|string    The Character or id of the character that should face down. (Defaults to the player)
----@param dir?      string              The direction the character should face. Must be either "up", "dowm", "left", or "right". (Defaults to "down")
+---@param dir?      string              The direction the character should face. Must be either "up", "down", "left", or "right". (Defaults to "down")
 function WorldCutscene:look(chara, dir)
     if not dir then
         ---@diagnostic disable-next-line: cast-local-type
