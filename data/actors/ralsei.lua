@@ -245,7 +245,8 @@ function actor:initChapter2()
 
         ["sing_ready"]          = {"sing_1", 16/30, true},
         ["sing"]                = {"sing", 4/30, true},
-        ["pirouette"]           = {"pirouette", 4/30, true}
+        ["pirouette"]           = {"pirouette", 4/30, true},
+        ["dance"]               = {"dance", 1/5, true}
     }
 
     -- Tables of sprites to change into in mirrors
@@ -340,7 +341,8 @@ function actor:initChapter2()
 
         ["sing_ready"] = {-10, -2},
         ["sing"] = {-2, -2},
-        ["pirouette"] = {1, -1}
+        ["pirouette"] = {1, -1},
+        ["dance"] = {0, 0}
     }
 
     -- The x and y offsets of the "target" sprite
