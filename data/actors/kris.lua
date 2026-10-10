@@ -70,6 +70,8 @@ function actor:init()
         ["jump_fall"]           = {"fall", 1/5, true},
         ["jump_ball"]           = {"ball", 1/15, true},
         ["jump_ball_slow"]      = {"ball", 4/30, true},
+        ["pirouette"]           = {"pirouette", 4/30, true},
+        ["dance"]               = {"dance", 1/5, true}
     }
 
     -- Tables of sprites to change into in mirrors
@@ -148,6 +150,11 @@ function actor:init()
         ["sit"] = {-3, 0},
 
         ["t_pose"] = {-4, 0},
+
+        ["pirouette"] = {-7, -1},
+        ["dance"] = {0, 0},
+
+        ["splat"] = {-6, 14},
     }
 
     if Game.chapter <= 2 then

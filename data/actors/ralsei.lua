@@ -73,6 +73,9 @@ function actor:initChapter1()
         ["battle/transition_out"] = {"battle/transition_out", 1/15, false},
 
         -- Cutscene animations
+        ["jump_ball"]           = {"ball", 1/15, true},
+        ["jump_ball_slow"]      = {"ball", 4/30, true},
+
         ["hood"]                = {"hood", 0.25, true},
         ["pullhat"]             = {"pullhat", 0.25, true},
         ["removehood"]          = {"removehood", 0.25, false, next="walk/down"},
@@ -138,13 +141,21 @@ function actor:initChapter1()
         ["battle/victory"] = {-3, -2},
 
         -- Cutscene offsets
+        ["pose"] = {-7, 1},
+
+        ["ball"] = {0, 9},
+        ["landed"] = {-3, -6},
+
         ["hood"] = {-2, -1},
         ["pullhat"] = {-1, -2},
         ["removehood"] = {-2, -1},
         ["reveal"] = {-2, -2},
         ["sing"] = {-10, -2},
         ["sit"] = {0, 0},
+
         ["shock"] = {-17, -4},
+        ["shocked_behind"] = {-8, 3},
+
         ["fallen"] = {-8, 20}
     }
 
@@ -233,7 +244,9 @@ function actor:initChapter2()
         ["wave_down"]           = {"wave_down", 5/30, true},
 
         ["sing_ready"]          = {"sing_1", 16/30, true},
-        ["sing"]                = {"sing", 4/30, true}
+        ["sing"]                = {"sing", 4/30, true},
+        ["pirouette"]           = {"pirouette", 4/30, true},
+        ["dance"]               = {"dance", 1/5, true}
     }
 
     -- Tables of sprites to change into in mirrors
@@ -252,6 +265,11 @@ function actor:initChapter2()
         ["walk_blush/up"] = "walk_blush/down",
         ["walk_blush/left"] = "walk_blush/left",
         ["walk_blush/right"] = "walk_blush/right",
+
+        ["walk_sad/down"] = "walk_sad/up",
+        ["walk_sad/up"] = "walk_sad/down",
+        ["walk_sad/left"] = "walk_sad/left",
+        ["walk_sad/right"] = "walk_sad/right",
     }
 
     -- Table of sprite offsets (indexed by sprite name)
@@ -271,6 +289,11 @@ function actor:initChapter2()
         ["walk_unhappy/left"] = {0, 0},
         ["walk_unhappy/right"] = {0, 0},
         ["walk_unhappy/up"] = {0, 0},
+
+        ["walk_sad/down"] = {0, 0},
+        ["walk_sad/left"] = {-1, 0},
+        ["walk_sad/right"] = {-1, 0},
+        ["walk_sad/up"] = {0, 0},
 
         ["slide"] = {-2, 2},
 
@@ -317,7 +340,9 @@ function actor:initChapter2()
         ["stool"] = {-11, 18},
 
         ["sing_ready"] = {-10, -2},
-        ["sing"] = {-2, -2}
+        ["sing"] = {-2, -2},
+        ["pirouette"] = {1, -1},
+        ["dance"] = {0, 0}
     }
 
     -- The x and y offsets of the "target" sprite
