@@ -405,6 +405,10 @@ end
 ---@param ox?       number
 ---@param oy?       number
 function PartyBattler:actEffect(sprite, ox, oy)
+    sprite = sprite or self:getActiveSprite():getTexture()
+    local offsets = self:getActiveSprite():getOffset()
+    ox, oy = ox or offsets[1], oy or offsets[2]
+
     local x = self.x - (self.actor:getWidth() / 2 - ox) * 2
     local y = self.y - (self.actor:getHeight() - oy) * 2
     local flash = FlashFade(sprite, x, y)
