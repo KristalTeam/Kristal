@@ -240,12 +240,11 @@ function Battler:spawnSpeechBubble(text, options)
         options["style"] = self.dialogue_bubble
     end
     local x, y
-    local spr = self.sprite or self
     if not options["right"] then
-        x, y = spr:getRelativePos(0, spr.height/2, Game.battle)
+        x, y = self:getRelativePos(0, self.height / 2, Game.battle)
         x, y = x + self.dialogue_offset[1], y + self.dialogue_offset[2]
     else
-        x, y = spr:getRelativePos(spr.width, spr.height/2, Game.battle)
+        x, y = self:getRelativePos(self.width, self.height / 2, Game.battle)
         x, y = x - self.dialogue_offset[1], y + self.dialogue_offset[2]
     end
     bubble = SpeechBubble(text, x, y, options, self)
