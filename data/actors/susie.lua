@@ -156,7 +156,7 @@ function actor:init(style)
         ["battle/item"] = {-22, -1},
         ["battle/itemready"] = {-22, -1},
         ["battle/defend"] = {-20, -23},
-        ["battle/swooned"] = {0, 0},
+        ["battle/swooned"] = {-3, -1},
 
         ["battle/defeat"] = {-22, -1},
         ["battle/hurt"] = {-22, -1},
