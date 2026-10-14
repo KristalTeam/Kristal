@@ -285,9 +285,10 @@ function SaveMenu:draw()
             love.graphics.print(data.name, x + (w / 2) - self.font:getWidth(data.name) / 2, y)
             love.graphics.print("LV " .. data.level, x, y)
 
-            local minutes = math.floor(data.playtime / 60)
+            local hours = math.floor(data.playtime / 3600)
+            local minutes = math.floor(data.playtime / 60 % 60)
             local seconds = math.floor(data.playtime % 60)
-            local time_text = string.format("%d:%02d", minutes, seconds)
+            local time_text = string.format("%d:%02d:%02d", hours, minutes, seconds)
             love.graphics.print(time_text, x + w - self.font:getWidth(time_text), y)
 
             -- Room name
@@ -352,9 +353,10 @@ function SaveMenu:drawSaveFile(index, data, x, y, selected, header)
 
         love.graphics.print(data.name, x + (493 / 2) - self.font:getWidth(data.name) / 2, y + 6)
 
-        local minutes = math.floor(data.playtime / 60)
+        local hours = math.floor(data.playtime / 3600)
+        local minutes = math.floor(data.playtime / 60 % 60)
         local seconds = math.floor(data.playtime % 60)
-        local time_text = string.format("%d:%02d", minutes, seconds)
+        local time_text = string.format("%d:%02d:%02d", hours, minutes, seconds)
         love.graphics.print(time_text, x + 467 - self.font:getWidth(time_text), y + 6)
 
         love.graphics.print(data.room_name, x + (493 / 2) - self.font:getWidth(data.room_name) / 2, y + 38)
