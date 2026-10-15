@@ -28,10 +28,15 @@ end
 -------------------------------------------------------------------------------
 
 function PlayerSlideBaseState:onEnter(old_state)
-    self.slide_sound:play()
+    self:startSlideSound()
+
     self.player:setFacing("down")
     self.player.sprite:setAnimation("slide")
     self.player.auto_moving = true
+end
+
+function PlayerSlideBaseState:startSlideSound()
+    self.slide_sound:play()
 end
 
 function PlayerSlideBaseState:updateDust()
