@@ -3,6 +3,7 @@
 local EditorTileButton, super = Class(EditorObject)
 EditorTileButton.fixed_shape = "rectangle"
 EditorTileButton.scaling_mode = "scale"
+EditorTileButton.getPropertyBounds = EditorObject.getSpriteBounds
 
 EditorTileButton.sprite_property = "sprite"
 function EditorTileButton:getEditorSprite(data)

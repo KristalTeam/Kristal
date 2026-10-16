@@ -7,6 +7,7 @@ EditorSpriteObject.sprite_property = "texture"
 EditorSpriteObject.scaling_mode = "scale"
 EditorSpriteObject.fixed_shape = "rectangle"
 EditorSpriteObject.sprite_alignment = "top_left"
+EditorSpriteObject.getPropertyBounds = EditorObject.getSpriteBounds
 
 function EditorSpriteObject:getSpriteScale()
     return self.properties.scalex or 2, self.properties.scaley or 2

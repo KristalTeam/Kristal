@@ -18,6 +18,7 @@
 ---@field scale_x number
 ---@field scale_y number
 ---@field sprite string?
+---@field preview_sprite string?
 ---@field sprite_alignment "center"|"top_left"
 ---@field editor_sprite string?
 ---@field editor_name string?
@@ -25,7 +26,6 @@
 ---@field editor_hidden boolean?
 ---@field runtime_object_id string?
 ---@field sprite_property string?
----@field sprite_properties string[]?
 ---@field visible boolean
 ---@field width number
 ---@field x number
@@ -108,8 +108,9 @@ function EditorObject:init(data, options)
     self.scale_y = data.scale_y or 1
     self.rotation = math.rad(data.rotation or 0)
     self.visible = data.visible ~= false
-    self.sprite = self:getPreviewSprite(options.sprite)
-    if not options.runtime then self:applyDefaultShape(options.map_data) end
+    self.preview_sprite = options.sprite
+    self.sprite = self:getPreviewSprite(self.preview_sprite)
+    if not options.runtime and not options.legacy then self:applyDefaultShape(options.map_data) end
 end
 
 ---@param map_data table?
@@ -119,6 +120,7 @@ function EditorObject:applyDefaultShape(map_data)
     local data = self.data
     local old_x, old_y = data.x or 0, data.y or 0
     local was_point = data.shape == "point" or data.point == true
+    local property_width, property_height = self:getPropertyBounds()
     if shape == "point" then
         if not was_point then
             local x, y = self.width / 2, self.height / 2
@@ -126,6 +128,13 @@ function EditorObject:applyDefaultShape(map_data)
             data.y = (data.y or 0) + x * math.sin(self.rotation) + y * math.cos(self.rotation)
         end
         data.width, data.height = 0, 0
+    elseif property_width ~= nil then
+        if was_point and self.sprite_alignment ~= "top_left" then
+            local x, y = property_width / 2, property_height / 2
+            data.x = (data.x or 0) - x * math.cos(self.rotation) + y * math.sin(self.rotation)
+            data.y = (data.y or 0) - x * math.sin(self.rotation) - y * math.cos(self.rotation)
+        end
+        data.width, data.height = nil, nil
     elseif was_point or self.width <= 0 or self.height <= 0 then
         local texture = self:getTexture()
         local sx, sy = self:getSpriteScale()
@@ -133,7 +142,7 @@ function EditorObject:applyDefaultShape(map_data)
             or map_data and (map_data.grid_width or map_data.tilewidth) or 40
         data.height = texture and texture:getHeight() * math.abs(sy)
             or map_data and (map_data.grid_height or map_data.tileheight) or 40
-        if was_point then
+        if was_point and self.sprite_alignment ~= "top_left" then
             local x, y = data.width / 2, data.height / 2
             data.x = (data.x or 0) - x * math.cos(self.rotation) + y * math.sin(self.rotation)
             data.y = (data.y or 0) - x * math.sin(self.rotation) - y * math.cos(self.rotation)
@@ -141,17 +150,18 @@ function EditorObject:applyDefaultShape(map_data)
     end
     self.x = self.x + (data.x or 0) - old_x
     self.y = self.y + (data.y or 0) - old_y
-    self.width, self.height = data.width, data.height
+    self.width, self.height = data.width or 0, data.height or 0
     data.shape = shape
     data.point, data.ellipse, data.polygon, data.polyline, data.shape_data = nil, nil, nil, nil, nil
 end
 
 function EditorObject:getShapeData()
-    return { self.data.width, self.data.height, self.data.polygon }
+    local width, height = self:getBounds()
+    return { width, height, self.data.polygon }
 end
 
 function EditorObject:getRectData()
-    return { self.data.width, self.data.height }
+    return { self:getBounds() }
 end
 
 function EditorObject:getCharacterPosition(map)
@@ -169,11 +179,31 @@ function EditorObject:createObject(map, context)
     error(ClassUtils.getClassName(self) .. ":createObject() must be overridden", 2)
 end
 
-function EditorObject:getBoundsSize()
-    if self.scaling_mode == "scale" then
-        return self.width * math.abs(self.scale_x), self.height * math.abs(self.scale_y)
+--- ** Override ** 
+--- Determines the bounds of an object in editor. NPC/Sprite override this to set the dimensions to match their actor/sprite property.
+---@return number? width
+---@return number? height
+function EditorObject:getPropertyBounds()
+end
+
+---@return number width
+---@return number height
+function EditorObject:getBounds()
+    if not self.data.gid and not (self.data.tileset and self.data.tile_id ~= nil) then
+        local width, height = self:getPropertyBounds()
+        if width ~= nil then return width, height end
     end
-    return self.width, self.height
+    return self.data.width or self.width or 0, self.data.height or self.height or 0
+end
+
+---@return number width
+---@return number height
+function EditorObject:getBoundsSize()
+    local width, height = self:getBounds()
+    if self.scaling_mode == "scale" then
+        return width * math.abs(self.data.scale_x or 1), height * math.abs(self.data.scale_y or 1)
+    end
+    return width, height
 end
 
 function EditorObject:getSortPosition()
@@ -247,34 +277,33 @@ end
 function EditorObject:getPreviewSpriteScale()
     local scale_x, scale_y = self:getSpriteScale()
     if self.scaling_mode == "scale" then
-        scale_x = scale_x * self.scale_x
-        scale_y = scale_y * self.scale_y
+        scale_x = scale_x * (self.data.scale_x or 1)
+        scale_y = scale_y * (self.data.scale_y or 1)
     end
     return scale_x, scale_y
 end
 
-function EditorObject:adoptSpriteBounds(property_id)
-    if property_id ~= self.sprite_property
-        and not TableUtils.contains(self.sprite_properties or {}, property_id) then return false end
-    if self.data.shape == "point" or self.data.point == true or self.data.ellipse == true
-        or self.data.polygon or self.data.polyline then return false end
-    self.sprite = self:getPreviewSprite()
+---@return number width
+---@return number height
+function EditorObject:getSpriteBounds()
+    self.sprite = self:getPreviewSprite(self.preview_sprite)
     local frames = self.sprite and Assets.getFramesOrTexture(self.sprite)
     local texture = frames and frames[1]
-    if not texture then return false end
+    if not texture then return 40, 40 end
     local scale_x, scale_y = self:getSpriteScale()
-    local width = texture:getWidth() * math.abs(scale_x)
-    local height = texture:getHeight() * math.abs(scale_y)
-    if self.data.width == width and self.data.height == height then return false end
-    self.data.width, self.data.height = width, height
-    self.width, self.height = width, height
-    return true
+    return texture:getWidth() * math.abs(scale_x), texture:getHeight() * math.abs(scale_y)
+end
+
+---@param map_data? table
+function EditorObject:convertLegacyBounds(map_data)
+    self:applyDefaultShape(map_data)
 end
 
 function EditorObject:getTexture()
+    self.sprite = self:getPreviewSprite(self.preview_sprite)
     local frames = self.sprite and Assets.getFramesOrTexture(self.sprite)
     if frames and frames[1] then return frames[1], false end
-    if self.width == 0 and self.height == 0 then
+    if self.fixed_shape ~= "rectangle" and self.width == 0 and self.height == 0 then
         return Assets.getTexture("editor/marker"), true
     end
     return nil, false
@@ -310,7 +339,7 @@ function EditorObject:draw(alpha)
             texture:getWidth() / 2, texture:getHeight())
     elseif self.sprite_alignment == "top_left" then
         Draw.draw(texture, 0, 0, 0, scale_x, scale_y)
-    elseif self.width ~= 0 or self.height ~= 0 then
+    elseif width ~= 0 or height ~= 0 then
         Draw.draw(texture, width / 2, height / 2, 0, scale_x, scale_y,
             texture:getWidth() / 2, texture:getHeight() / 2)
     else
@@ -335,7 +364,8 @@ function EditorObject:drawPreviewIcon(x, y, width, height, alpha)
 end
 
 function EditorObject:drawBounds(alpha, line_width)
-    if self.width == 0 and self.height == 0
+    local width, height = self:getBoundsSize()
+    if width == 0 and height == 0
         and not self.data.polygon and not self.data.polyline then return end
     alpha = alpha or 1
     local previous_width = love.graphics.getLineWidth()
@@ -344,7 +374,6 @@ function EditorObject:drawBounds(alpha, line_width)
     love.graphics.translate(self.x, self.y)
     love.graphics.rotate(self.rotation)
     local thickness = self.data.shape_data and tonumber(self.data.shape_data.thickness)
-    local width, height = self:getBoundsSize()
     love.graphics.setLineWidth(math.max(line_width or 1, (thickness or 1) * (line_width or 1)))
     Draw.setColor(color[1] or 1, color[2] or 1, color[3] or 1,
         math.min(color[4] or 1, 0.9) * alpha)

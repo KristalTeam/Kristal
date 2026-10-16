@@ -4,9 +4,10 @@ local EditorChaserEnemy, super = Class(EditorObject)
 EditorChaserEnemy.editor_sprite = "editor/enemy"
 EditorChaserEnemy.scaling_mode = "scale"
 EditorChaserEnemy.fixed_shape = "rectangle"
-EditorChaserEnemy.sprite_properties = EditorNPC.sprite_properties
+EditorChaserEnemy.getPropertyBounds = EditorNPC.getPropertyBounds
 
 EditorChaserEnemy.getEditorSprite = EditorNPC.getEditorSprite
+EditorChaserEnemy.convertLegacyBounds = EditorNPC.convertLegacyBounds
 function EditorChaserEnemy:init(data, options)
     super.init(self, data, options)
     self:registerProperty("actor", "chooser", {

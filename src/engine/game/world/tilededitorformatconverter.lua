@@ -290,7 +290,10 @@ function TiledEditorFormatConverter.convertMap(data, options)
     converted.layers = converted_layers
     if Registry.editor_objects then
         MapUtils.walkObjects(converted.layers, function(object)
-            Registry.createEditorObject(object.type, object, { map_id = converted.id })
+            local editor_object = Registry.createEditorObject(object.type, object, {
+                map_id = converted.id, map_data = converted, legacy = true
+            })
+            editor_object:convertLegacyBounds(converted)
         end)
     end
     EditorFormat.assignLegacyLayerDepthOffsets(converted.layers)

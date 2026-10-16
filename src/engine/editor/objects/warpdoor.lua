@@ -3,6 +3,7 @@
 local EditorWarpDoor, super = Class(EditorObject)
 EditorWarpDoor.scaling_mode = "scale"
 EditorWarpDoor.fixed_shape = "rectangle"
+EditorWarpDoor.getPropertyBounds = EditorObject.getSpriteBounds
 
 function EditorWarpDoor:getEditorSprite(data)
     return data.properties.open == false and "world/events/shortcut_door_off"

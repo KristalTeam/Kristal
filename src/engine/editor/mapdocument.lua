@@ -1488,7 +1488,13 @@ function EditorMapDocument:findObjectAt(world_x, world_y, options)
     end
 end
 
-function EditorMapDocument:getObjectLocalRect(selection)
+---@param selection table
+---@param unscaled boolean?
+---@return number x
+---@return number y
+---@return number width
+---@return number height
+function EditorMapDocument:getObjectLocalRect(selection, unscaled)
     local data = selection.data
     if data.gid then
         local preview = self:getPreview(selection.entry)
@@ -1503,8 +1509,10 @@ function EditorMapDocument:getObjectLocalRect(selection)
                 (data.y or 0) - origin[2] * height, width, height
         end
     end
+    local object = self:getEditorObject(selection)
     local width, height = data.width or 0, data.height or 0
-    if self:getObjectScalingMode(selection) == "scale" then
+    if object then width, height = object:getBounds() end
+    if not unscaled and self:getObjectScalingMode(selection) == "scale" then
         width = width * math.abs(data.scale_x or 1)
         height = height * math.abs(data.scale_y or 1)
     end

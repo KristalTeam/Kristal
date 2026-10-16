@@ -289,6 +289,15 @@ end
 
 function operations.loadRuntimeObject(self, source, layer, depth, layer_type, runtime_type)
     local v = TableUtils.copy(source, true)
+    local obj_type = self:getObjectType(v)
+    local object_class = Registry.getEditorObject(obj_type)
+    local editor_object
+    if not self.reader.LEGACY_FORMAT and not v.gid and not (v.tileset and v.tile_id ~= nil)
+        and object_class and object_class.getPropertyBounds ~= EditorObject.getPropertyBounds then
+        editor_object = Registry.createEditorObject(obj_type, v, { map = self, map_id = self.id, runtime = true })
+        local width, height = editor_object:getPropertyBounds()
+        if width ~= nil then v.width, v.height = width, height end
+    end
     v.width = v.width or 0
     v.height = v.height or 0
     local rotation = math.rad(tonumber(v.rotation) or 0)
@@ -319,14 +328,14 @@ function operations.loadRuntimeObject(self, source, layer, depth, layer_type, ru
         v.center_y = ty + th / 2
     end
 
-    local obj_type = self:getObjectType(v)
     local uid = self:getUniqueID() .. "#" .. tostring(v.properties["uid"] or v.id)
     if not Game:getFlag(uid .. ":dont_load") and self:shouldLoadObject(v, layer) then
         local runtime_context = {
             layer_type = layer_type,
             layer = layer,
             depth = depth,
-            reader = self.reader
+            reader = self.reader,
+            editor_object = editor_object
         }
         local obj
         if runtime_type == "controller" then
@@ -427,7 +436,7 @@ function operations.loadObject(self, name, data, context)
     local editor_object_class = Registry.getEditorObject(name)
     local tile_object = data.gid or data.tileset and data.tile_id ~= nil
     if editor_object_class or tile_object then
-        local editor_object = Registry.createEditorObject(name, data, {
+        local editor_object = context and context.editor_object or Registry.createEditorObject(name, data, {
             map = self,
             map_id = self.id,
             runtime = true
@@ -476,7 +485,7 @@ function operations.loadController(self, name, data, context)
     end
     local editor_object_class = Registry.getEditorObject(name)
     if editor_object_class then
-        local editor_object = Registry.createEditorObject(name, data, {
+        local editor_object = context and context.editor_object or Registry.createEditorObject(name, data, {
             map = self,
             map_id = self.id,
             runtime = true

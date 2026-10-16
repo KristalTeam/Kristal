@@ -3,6 +3,7 @@
 local EditorPushBlock, super = Class(EditorObject)
 EditorPushBlock.fixed_shape = "rectangle"
 EditorPushBlock.scaling_mode = "scale"
+EditorPushBlock.getPropertyBounds = EditorObject.getSpriteBounds
 
 EditorPushBlock.sprite_property = "sprite"
 function EditorPushBlock:getEditorSprite(data)

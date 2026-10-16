@@ -2792,6 +2792,7 @@ function EditorMapView:onMousePressed(x, y, button, presses)
             if resize_selection then
                 local object_x, object_y = self.document:getObjectWorldPosition(resize_selection)
                 local _, _, width, height = self.document:getObjectLocalRect(resize_selection)
+                local _, _, base_width, base_height = self.document:getObjectLocalRect(resize_selection, true)
                 local rotation = math.rad(resize_selection.data.rotation or 0)
                 local opposite_x = (resize_corner == "nw" or resize_corner == "sw") and width or 0
                 local opposite_y = (resize_corner == "nw" or resize_corner == "ne") and height or 0
@@ -2802,8 +2803,8 @@ function EditorMapView:onMousePressed(x, y, button, presses)
                     resize_corner = resize_corner,
                     resize_cursor = self:getResizeCursor(resize_selection, resize_corner),
                     scaling_mode = self.document:getObjectScalingMode(resize_selection),
-                    base_width = resize_selection.data.width or 0,
-                    base_height = resize_selection.data.height or 0,
+                    base_width = base_width,
+                    base_height = base_height,
                     fixed_x = object_x + opposite_x * math.cos(rotation) - opposite_y * math.sin(rotation),
                     fixed_y = object_y + opposite_x * math.sin(rotation) + opposite_y * math.cos(rotation)
                 }
@@ -3078,9 +3079,9 @@ function EditorMapView:onMouseMoved(x, y, dx, dy)
                 self:snapObjectDragValue(right and local_x or -local_x, tile_width))
             local height = math.max(0,
                 self:snapObjectDragValue(bottom and local_y or -local_y, tile_height))
-            if drag.scaling_mode == "scale" and drag.base_width > 0 and drag.base_height > 0 then
-                data.scale_x = width / drag.base_width
-                data.scale_y = height / drag.base_height
+            if drag.scaling_mode == "scale" then
+                if drag.base_width > 0 then data.scale_x = width / drag.base_width else width = 0 end
+                if drag.base_height > 0 then data.scale_y = height / drag.base_height else height = 0 end
             else
                 data.width, data.height = width, height
             end

@@ -404,13 +404,8 @@ function EditorMapInteraction:getMapObjectPropertiesTarget(selection)
         property_types = data.__editor_property_types,
         property_set = editor_object.property_set,
         fx_sections = fx_sections,
-        on_changed = function(name)
-            local resized = editor_object:adoptSpriteBounds(name)
+        on_changed = function()
             selection.document:invalidatePreview(selection.map_id)
-            if resized then
-                self:setPropertiesTarget(self:getMapObjectPropertiesTarget(selection), self)
-            end
-            return resized
         end
     }
 end

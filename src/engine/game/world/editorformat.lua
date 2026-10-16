@@ -713,8 +713,15 @@ end
 
 encodeObject = function(object, context)
     local result = copySerializable(object)
-    TableUtils.clearFields(result, { "class", "point", "ellipse", "polygon", "polyline", "shape_data", "__editor_fx" })
+    TableUtils.clearFields(result, {
+        "class", "point", "ellipse", "polygon", "polyline", "shape_data", "__editor_fx", "center_x", "center_y"
+    })
     result.type = object.type or object.class
+    local object_class = Registry.getEditorObject(result.type)
+    if object_class and object_class.getPropertyBounds ~= EditorObject.getPropertyBounds
+        and not object.gid and not (object.tileset and object.tile_id ~= nil) then
+        result.width, result.height = nil, nil
+    end
     context.object_ids = context.object_ids or {}
     context.object_id_state = context.object_id_state or { next_id = 1 }
     result.id = nextNumericId(object.id, context.object_ids, context.object_id_state)
