@@ -194,11 +194,16 @@ function Game:registerBuiltInEvents()
     registry:register("darkfountain", function(data) return DarkFountain(data.x, data.y, data.properties) end)
     registry:register("fountainfloor", function(data) return FountainFloor(data.x, data.y, getRectData(data)) end)
     registry:register("quicksave", function(data) return QuicksaveEvent(data.x, data.y, getShapeData(data), data.properties["marker"]) end)
+
     registry:register("sprite", function(data)
         local sprite = Sprite(data.properties["texture"], data.x, data.y)
         sprite:play(data.properties["speed"], true)
         sprite:setScale(data.properties["scalex"] or 2, data.properties["scaley"] or 2)
-        sprite:setOrigin(data.properties["originx"] or 0, data.properties["originy"] or 0)
+        if data.properties["originexact"] then
+            sprite:setOriginExact(data.properties["originx"] or 0, data.properties["originy"] or 0)
+        else
+            sprite:setOrigin(data.properties["originx"] or 0, data.properties["originy"] or 0)
+        end
         return sprite
     end)
 
