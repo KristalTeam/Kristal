@@ -5,6 +5,7 @@
 ---@field object_region_drag any
 ---@field object_interaction_drag table
 ---@field explosions table
+---@field image_layer_drag table?
 ---@field is_game_preview boolean
 ---@field is_map_view boolean
 ---@field map_drag table
@@ -169,6 +170,76 @@ function EditorMapView:isTileLayerActive(map_id)
     return self:getSelectedLayerKind(map_id) == "tile"
 end
 
+function EditorMapView:getSelectedImageLayer()
+    local map_id = self:getFocusedMapId()
+    local entry = self.document.map_lookup[map_id]
+    local uid = self.document:getSelectedLayer(map_id)
+    local layer = uid and self.document:findEditableLayer(uid, map_id)
+    if not entry or not layer or Registry.layer_types:getLayerKind(layer) ~= "image"
+        or self.document:isLayerLocked(layer, map_id) then return nil end
+    local preview = self.document:getPreview(entry)
+    if not preview or preview.layer_visibility[uid] == false then return nil end
+    local sprite = preview.map.image_layers[layer.name]
+    if not sprite or not sprite.texture then return nil end
+    local width, height = sprite.texture:getDimensions()
+    local x1, y1 = sprite:getRelativePos(0, 0)
+    local x2, y2 = sprite:getRelativePos(width, height)
+    return {
+        map_id = map_id, entry = entry, layer = layer,
+        x = entry.x + math.min(x1, x2), y = entry.y + math.min(y1, y2),
+        width = math.abs(x2 - x1), height = math.abs(y2 - y1),
+        repeat_x = sprite.wrap_texture_x, repeat_y = sprite.wrap_texture_y
+    }
+end
+
+function EditorMapView:getImageLayerAt(world_x, world_y)
+    local selection = self:getSelectedImageLayer()
+    if not selection then return nil end
+    local left, top = selection.x, selection.y
+    local right, bottom = left + selection.width, top + selection.height
+    local entry = selection.entry
+    if selection.repeat_x then
+        left, right = math.min(left, entry.x), math.max(right, entry.x + entry.width)
+    end
+    if selection.repeat_y then
+        top, bottom = math.min(top, entry.y), math.max(bottom, entry.y + entry.height)
+    end
+    if world_x >= left and world_x <= right and world_y >= top and world_y <= bottom then
+        return selection
+    end
+end
+
+function EditorMapView:drawSelectedImageLayer()
+    if self.editor.active_tool ~= "select" then return end
+    local selection = self:getSelectedImageLayer()
+    if not selection then return end
+    love.graphics.setLineWidth(2 / self.view_zoom)
+    Draw.setColor(1, 0.84, 0.2, 0.95)
+    love.graphics.rectangle("line", selection.x, selection.y, selection.width, selection.height)
+end
+
+function EditorMapView:finishImageLayerMove(cancel)
+    local drag = self.image_layer_drag
+    if not drag then return false end
+    self.image_layer_drag = nil
+    local layer = drag.selection.layer
+    if cancel then
+        layer.offsetx, layer.offsety = drag.offset_x, drag.offset_y
+        self.document:invalidatePreview(drag.selection.map_id)
+        self.editor:cancelHistoryTransaction()
+    else
+        if (layer.offsetx or 0) ~= (drag.offset_x or 0) or (layer.offsety or 0) ~= (drag.offset_y or 0) then
+            self.editor:markHistoryChanged()
+        end
+        self.editor:commitHistoryTransaction()
+    end
+    if self.editor.properties_browser and self.editor.layers_browser
+        and self.editor.properties_target_owner == self.editor.layers_browser then
+        self.editor.properties_browser:rebuild()
+    end
+    return true
+end
+
 function EditorMapView:getEffectiveTool()
     local tool = self.editor and self.editor.active_tool
     if tool == "select" and self:isTileLayerActive() then return "tile_select_rect" end
@@ -181,6 +252,9 @@ function EditorMapView:focusInteractionMap(world_x, world_y, tool, can_manipulat
     if focused and world_x >= focused.x and world_y >= focused.y
         and world_x <= focused.x + (focused.width or 0)
         and world_y <= focused.y + (focused.height or 0) then
+        return focused
+    end
+    if focused and tool == "select" and self:getImageLayerAt(world_x, world_y) then
         return focused
     end
     if focused and (can_manipulate_objects or tool == "link" or tool == "eraser") then
@@ -275,6 +349,7 @@ function EditorMapView:drawDocument()
     self:drawTileSelection()
     self:drawTileToolPreview()
     self:drawObjectLinks()
+    self:drawSelectedImageLayer()
     self:drawSelectedObject()
     self:drawSelectionMarquee()
     self:drawShapePreview()
@@ -2510,6 +2585,7 @@ function EditorMapView:onMousePressed(x, y, button, presses)
         end
         local tool = self:getEffectiveTool()
         can_manipulate_objects = self:canManipulateObjectSelection()
+        if button == 2 and self:finishImageLayerMove(true) then return true end
         if button == 2 and self:cancelMapResize() then return true end
         if self.tile_paste_preview then
             if button == 2 then return self:cancelTilePaste() end
@@ -2523,6 +2599,18 @@ function EditorMapView:onMousePressed(x, y, button, presses)
                 end
                 return self:commitTilePaste()
             end
+        end
+        if button == 1 and tool == "select" and self:getSelectedLayerKind() == "image" then
+            local selection = self:getImageLayerAt(world_x, world_y)
+            if selection then
+                self.image_layer_drag = {
+                    selection = selection,
+                    start_x = world_x, start_y = world_y,
+                    offset_x = selection.layer.offsetx, offset_y = selection.layer.offsety
+                }
+                self.editor:beginHistoryTransaction("Move Image Layer", self.document)
+            end
+            return true
         end
         if button == 1 and tool == "world_select" then
             local entry, handle = self:getMapResizeHandleAt(world_x, world_y)
@@ -2859,6 +2947,19 @@ function EditorMapView:onMouseMoved(x, y, dx, dy)
         return self.editor.game_preview:onMouseMoved(x, y, dx, dy)
     end
     local world_x, world_y = self:getMapCoordinates(x, y)
+    if self.image_layer_drag then
+        local drag = self.image_layer_drag
+        local entry, layer = drag.selection.entry, drag.selection.layer
+        local offset_x = (drag.offset_x or 0)
+            + self:snapObjectDragValue(world_x - drag.start_x, entry.tile_width or 40)
+        local offset_y = (drag.offset_y or 0)
+            + self:snapObjectDragValue(world_y - drag.start_y, entry.tile_height or 40)
+        if offset_x ~= (layer.offsetx or 0) or offset_y ~= (layer.offsety or 0) then
+            layer.offsetx, layer.offsety = offset_x, offset_y
+            self.document:invalidatePreview(drag.selection.map_id)
+        end
+        return true
+    end
     if self.tile_paste_preview then return self:updateTilePastePreview(world_x, world_y) end
     if self.map_resize_drag then
         local drag = self.map_resize_drag
@@ -3029,6 +3130,7 @@ function EditorMapView:onMouseReleased(x, y, button, presses)
     if self.editor and self.editor.live_document == self.document then
         return self.editor.game_preview:onMouseReleased(x, y, button, presses)
     end
+    if button == 1 and self:finishImageLayerMove() then return true end
     if button == 1 and self.map_resize_drag then
         local drag = self.map_resize_drag
         self.map_resize_drag = nil
@@ -3204,7 +3306,7 @@ function EditorMapView:getCursorType(x, y)
     if self.map_resize_drag then return self:getMapResizeCursor(self.map_resize_drag.handle) end
     if self.object_interaction_drag then return self.object_interaction_drag.interaction.cursor or "resize_all" end
     if self.object_drag then return self.object_drag.resize_cursor or "grab" end
-    if self.map_drag or self.dragging_canvas then return "grab" end
+    if self.map_drag or self.image_layer_drag or self.dragging_canvas then return "grab" end
     if self.polygon_vertex_drag then return "resize_all" end
     if self.rotation_drag then return "resize_all" end
     if self.tile_paste_preview then return "crosshair" end
@@ -3221,6 +3323,9 @@ function EditorMapView:getCursorType(x, y)
     local _, map_resize_handle = self:getMapResizeHandleAt(world_x, world_y)
     if map_resize_handle then return self:getMapResizeCursor(map_resize_handle) end
     local tool = self:getEffectiveTool()
+    if tool == "select" and self:getSelectedLayerKind() == "image" then
+        return self:getImageLayerAt(world_x, world_y) and "grab" or "default"
+    end
     if tool == "tile_select_rect" or tool == "tile_select_wand" or tool == "tile_select_same"
         or tool == "terrain_region_select" then
         local target = self:getTileEditTarget(world_x, world_y, {
@@ -3265,6 +3370,7 @@ function EditorMapView:getCursorType(x, y)
 end
 
 function EditorMapView:onKeyPressed(key, is_repeat)
+    if not is_repeat and key == "escape" and self:finishImageLayerMove(true) then return true end
     if not is_repeat and key == "escape" and self:cancelMapResize() then return true end
     if not is_repeat and key == "escape" and self:cancelTilePaste() then return true end
     if not is_repeat and key == "escape" and self.editor and self.editor.placement_object_id then

@@ -823,8 +823,8 @@ encodeLayer = function(source, context)
     result.kind = kind
     context.layer_ids = context.layer_ids or {}
     result.id = EditorFormat.uniqueSlug(source.name or source.id, context.layer_ids, "layer")
-    result.x = source.x or source.offsetx
-    result.y = source.y or source.offsety
+    result.x = source.offsetx or source.x
+    result.y = source.offsety or source.y
     result.depth = tonumber(source._editor_depth_offset) or tonumber(source.depth) or 0
     result.alpha = source.alpha or source.opacity
     result.visible = source._editor_visible == nil and source.visible or source._editor_visible

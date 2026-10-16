@@ -246,9 +246,10 @@ function EditorLayersPanel:selectLayer(layer)
     local layer_type = layer and self:getLayerType(layer)
     local layer_kind = layer_type and layer_type.kind
     local view = self.document and self.document.map_view
-    if layer_kind == "tile" then
+    if layer_kind == "tile" or layer_kind == "image" then
         self.editor:selectMapObjects({})
-    elseif view then
+    end
+    if layer_kind ~= "tile" and view then
         view.tile_selection = nil
         view.tile_paste_preview = nil
     end
@@ -312,6 +313,8 @@ function EditorLayersPanel:getPropertiesTarget(layer)
             get = function() return layer.image or "" end,
             set = function(value) return self:setLayerImage(layer, value) end
         })
+        table.insert(fields, 2, EditorPropertyFields.number(layer, "Offset X", "offsetx"))
+        table.insert(fields, 3, EditorPropertyFields.number(layer, "Offset Y", "offsety"))
     end
     return {
         title = (layer.name or "Unnamed Layer") .. " (" .. (layer_type and layer_type.name or "Unknown") .. ")",
