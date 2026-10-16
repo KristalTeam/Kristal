@@ -198,6 +198,7 @@ function Game:registerBuiltInEvents()
         local sprite = Sprite(data.properties["texture"], data.x, data.y)
         sprite:play(data.properties["speed"], true)
         sprite:setScale(data.properties["scalex"] or 2, data.properties["scaley"] or 2)
+        sprite:setOrigin(data.properties["originx"] or 0, data.properties["originy"] or 0)
         return sprite
     end)
 
