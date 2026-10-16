@@ -1288,7 +1288,7 @@ function Kristal.switchEditorProject(id)
     Kristal.clearModState()
     Kristal.loadAssets("", "mods", "", function()
         if not Kristal.loadModIntoEditor(id) then
-            Kristal.Console:error("Failed to switch editor project to '" .. id .. "'")
+            Logging.error("Failed to switch editor project to '" .. id .. "'")
             Kristal.setDesiredWindowTitleAndIcon()
             Kristal.setState(MainMenu)
         end

@@ -1397,7 +1397,7 @@ function Registry.initEditorObjects()
         fountainfloor = EditorFountainFloor, quicksave = EditorQuicksave, sprite = EditorSpriteObject,
         climbentry = EditorClimbEntry, climbexit = EditorClimbExit, climblanding = EditorClimbLanding,
         climbarea = EditorClimbArea, fallingclimbarea = EditorFallingClimbArea,
-        climbunsafe = EditorClimbUnsafe, climbmover = EditorClimbMover,
+        climbunsafe = EditorClimbUnsafe, climbmover = EditorClimbMover, coinbowl = EditorCoinBowl,
         toggle = EditorToggleController, fountainshadow = EditorFountainShadowController
     }
     for id, object in pairs(builtins) do self.registerEditorObject(id, object) end

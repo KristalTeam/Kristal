@@ -291,8 +291,9 @@ function EditorMapInteraction:getMapObjectPropertiesTarget(selection)
             })
         end
     end
-    local function numberField(label, key)
+    local function numberField(label, key, default)
         local field = EditorPropertyFields.number(data, label, key, {
+            default = default,
             on_set = function() selection.document:invalidatePreview(selection.map_id) end
         })
         field.id = key
@@ -354,7 +355,7 @@ function EditorMapInteraction:getMapObjectPropertiesTarget(selection)
             set = function(value) data.flip_y = value == true return true end,
             choices = { { value = false, label = "No" }, { value = true, label = "Yes" } }
         })
-    else
+    elseif not editor_object.fixed_shape then
         table.insert(fields, {
             id = "shape",
             label = "Shape",
@@ -371,11 +372,13 @@ function EditorMapInteraction:getMapObjectPropertiesTarget(selection)
             rebuild = true
         })
     end
-    table.insert(fields, numberField("Width", "width"))
-    table.insert(fields, numberField("Height", "height"))
+    if tile_object or not editor_object.fixed_shape then
+        table.insert(fields, numberField("Width", "width"))
+        table.insert(fields, numberField("Height", "height"))
+    end
     if not tile_object and editor_object.scaling_mode == "scale" then
-        table.insert(fields, numberField("Scale X", "scale_x"))
-        table.insert(fields, numberField("Scale Y", "scale_y"))
+        table.insert(fields, numberField("Scale X", "scale_x", 1))
+        table.insert(fields, numberField("Scale Y", "scale_y", 1))
     end
     table.insert(fields, numberField("Rotation", "rotation"))
     table.insert(fields, {
@@ -503,8 +506,9 @@ function EditorMapInteraction:getMapObjectBatchPropertiesTarget(selections)
     }
 end
 
-function EditorMapInteraction:selectMapObjects(selections, primary)
+function EditorMapInteraction:selectMapObjects(selections, primary, options)
     local self = self.editor
+    options = options or {}
     local unique, result = {}, {}
     for _, selection in ipairs(selections or {}) do
         local key = selection.document and tostring(selection.document) .. ":" .. tostring(selection.data)
@@ -524,7 +528,7 @@ function EditorMapInteraction:selectMapObjects(selections, primary)
     end
     self.selected_map_objects = result
     self.selected_map_object = result[1]
-    if self.selected_map_object then
+    if self.selected_map_object and not options.preserve_context then
         local selection = self.selected_map_object
         if selection.document.map_view then
             selection.document.map_view.active_map_id = selection.map_id
@@ -534,6 +538,7 @@ function EditorMapInteraction:selectMapObjects(selections, primary)
             self.layers_browser:focusLayer(selection.document, selection.map_id, selection.layer)
         end
     end
+    if options.update_properties == false then return #result > 0 end
     if #result == 1 then
         self:setPropertiesTarget(self:getMapObjectPropertiesTarget(result[1]), self)
     elseif #result > 1 then

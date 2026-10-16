@@ -1,6 +1,8 @@
 ---@class EditorForcefield : EditorObject
 ---@overload fun(data?: table, options?: table): EditorForcefield
 local EditorForcefield, super = Class(EditorObject)
+EditorForcefield.fixed_shape = "rectangle"
+EditorForcefield.scaling_mode = "scale"
 EditorForcefield.editor_sprite = "world/events/forcefield/single"
 function EditorForcefield:init(data, options)
     super.init(self, data, options)

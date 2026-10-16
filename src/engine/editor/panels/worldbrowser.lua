@@ -69,7 +69,8 @@ function EditorWorldBrowser:selectWorldMap(entry)
     return true
 end
 
-function EditorWorldBrowser:refresh(selected_id)
+function EditorWorldBrowser:refresh(selected_id, silent)
+    local scroll_row = self.list.scroll_row
     local items = {}
     for id, world in pairs(Registry.editor_worlds or {}) do
         table.insert(items, {
@@ -81,10 +82,11 @@ function EditorWorldBrowser:refresh(selected_id)
     self.list:setItems(items)
     for index, item in ipairs(self.list.filtered_items) do
         if item.id == (selected_id or self.editor.active_world_id) then
-            self.list:select(index)
+            self.list:select(index, false, not silent)
             break
         end
     end
+    if silent then self.list.scroll_row = scroll_row self.list:clampScroll() end
 end
 
 function EditorWorldBrowser:selectWorld(world)
@@ -102,6 +104,7 @@ function EditorWorldBrowser:selectWorld(world)
     local document = self.editor:findWorldDocument(world.id)
     self.editor:setPropertiesTarget({
         title = "World: " .. (world.name or world.id),
+        world_id = world.id,
         history_owner = document,
         property_set = property_set,
         properties = world.properties,

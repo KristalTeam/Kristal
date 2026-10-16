@@ -137,7 +137,7 @@ end
 ---@return boolean registered
 function Game:registerEvent(id, constructor)
     if Registry.getEditorObject(id) then
-        Kristal.Console:warn("Ignoring fallback event '" .. id
+        Logging.warn("Ignoring fallback event '" .. id
             .. "' because an EditorObject is already registered for that type")
         return false
     end

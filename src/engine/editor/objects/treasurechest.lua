@@ -3,6 +3,7 @@
 local EditorTreasureChest, super = Class(EditorObject)
 EditorTreasureChest.editor_sprite = "world/events/treasure_chest"
 EditorTreasureChest.scaling_mode = "scale"
+EditorTreasureChest.fixed_shape = "rectangle"
 function EditorTreasureChest:init(data, options)
     super.init(self, data, options)
     self:registerProperty("item", "chooser", {

@@ -5,6 +5,7 @@ local EditorSpriteObject, super = Class(EditorObject)
 EditorSpriteObject.editor_sprite = "editor/sprite"
 EditorSpriteObject.sprite_property = "texture"
 EditorSpriteObject.scaling_mode = "scale"
+EditorSpriteObject.fixed_shape = "rectangle"
 EditorSpriteObject.sprite_alignment = "top_left"
 
 function EditorSpriteObject:getSpriteScale()

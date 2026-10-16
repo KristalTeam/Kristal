@@ -166,7 +166,7 @@ end
 
 function EditorTilesetPanel:setDocument(document, options)
     options = options or {}
-    local state = options.view_state
+    local state = options.view_state or options.preserve_selection and self:captureViewState()
     local selected = options.preserve_selection and self.selected_item or nil
     local mode = state and state.mode
         or options.preserve_mode and self.mode or "tileset"
@@ -199,12 +199,23 @@ function EditorTilesetPanel:setDocument(document, options)
         self.tile_grid:setSelection(self.animation_source_tile_id,
             self.animation_source_tile_id, false)
     end
+    if state then
+        self.properties.scroll_y = state.properties_scroll or 0
+        self.list.scroll_row = state.list_scroll or 0
+        self.list:clampScroll()
+        self.tile_grid.scroll_row = state.grid_scroll_row or self.tile_grid.scroll_row
+        self.tile_grid.scroll_column = state.grid_scroll_column or self.tile_grid.scroll_column
+    end
 end
 
 function EditorTilesetPanel:captureViewState()
     local state = {
         mode = self.mode,
-        tile_id = self.tile and self.tile.id or 0
+        tile_id = self.tile and self.tile.id or 0,
+        properties_scroll = self.properties.scroll_y,
+        list_scroll = self.list.scroll_row,
+        grid_scroll_row = self.tile_grid.scroll_row,
+        grid_scroll_column = self.tile_grid.scroll_column
     }
     if self.mode == "animation" then
         state.animation_source_tile_id = self.animation_source_tile_id
@@ -227,6 +238,8 @@ function EditorTilesetPanel:captureViewState()
             if tag == item.tag then selection.tag_index = index break end
         end
     else
+        selection.terrain_id = item.terrain and item.terrain.id
+        selection.variant_id = item.variant and item.variant.id
         for index, terrain in ipairs(self.document:getTerrainSets()) do
             if terrain == item.terrain then selection.terrain_index = index break end
         end
@@ -250,12 +263,17 @@ function EditorTilesetPanel:resolveViewSelection(selection)
         local tag = self.document:getTerrainTags()[selection.tag_index]
         return tag and { kind = "tag", value = tag, tag = tag } or nil
     end
-    local terrain = self.document:getTerrainSets()[selection.terrain_index]
+    local terrain
+    for _, candidate in ipairs(self.document:getTerrainSets()) do
+        if candidate.id == selection.terrain_id then terrain = candidate break end
+    end
+    terrain = terrain or not selection.terrain_id and self.document:getTerrainSets()[selection.terrain_index]
     if not terrain then return nil end
     if selection.kind == "terrain" then
         return { kind = "terrain", value = terrain, terrain = terrain }
     end
-    local variant = terrain.terrain_variants and terrain.terrain_variants[selection.variant_index]
+    local variant = selection.variant_id and self.document:getTerrainVariant(terrain, selection.variant_id)
+        or not selection.variant_id and terrain.terrain_variants and terrain.terrain_variants[selection.variant_index]
     if selection.kind == "variant" then
         return variant and { kind = "variant", value = variant,
             terrain = terrain, variant = variant } or nil

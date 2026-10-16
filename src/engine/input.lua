@@ -108,7 +108,7 @@ Input.order = {
     "editor_tool_tile_select_wand", "editor_tool_tile_select_same", "editor_tool_tile_stamp",
     "editor_tool_terrain_brush", "editor_tool_terrain_region_rect", "editor_tool_terrain_region_select",
     "editor_tool_tile_fill", "editor_tool_eraser",
-    "editor_tool_link", "mod_rebind"
+    "editor_tool_link", "project_rebind"
 }
 
 Input.required_binds = {
@@ -257,7 +257,7 @@ function Input.resetBinds(gamepad, mod_id)
             ["editor_tool_tile_fill"] = { "f" },
             ["editor_tool_eraser"] = { "e" },
             ["editor_tool_link"] = { "l" },
-            ["mod_rebind"] = { "/" },
+            ["project_rebind"] = { "/" },
         }
         local gamepad_bindings = {
             ["up"] = { "gamepad:dpup", "gamepad:lsup" },
@@ -294,7 +294,7 @@ function Input.resetBinds(gamepad, mod_id)
             ["editor_tool_tile_fill"] = {},
             ["editor_tool_eraser"] = {},
             ["editor_tool_link"] = {},
-            ["mod_rebind"] = { "gamepad:x" },
+            ["project_rebind"] = { "gamepad:x" },
         }
         if gamepad ~= true then TableUtils.merge(Input.key_bindings, key_bindings) end
         if gamepad ~= false then TableUtils.merge(Input.gamepad_bindings, gamepad_bindings) end
@@ -368,7 +368,7 @@ function Input.resetBinds(gamepad, mod_id)
             ["editor_tool_tile_fill"] = { "f" },
             ["editor_tool_eraser"] = { "e" },
             ["editor_tool_link"] = { "l" },
-            ["mod_rebind"] = { "/" },
+            ["project_rebind"] = { "/" },
         }
         for _, mod in ipairs(Kristal.Mods.getMods()) do
             if mod.keybinds then
@@ -437,7 +437,7 @@ function Input.resetBinds(gamepad, mod_id)
             ["editor_tool_tile_fill"] = {},
             ["editor_tool_eraser"] = {},
             ["editor_tool_link"] = {},
-            ["mod_rebind"] = { "gamepad:x" },
+            ["project_rebind"] = { "gamepad:x" },
         }
         for _, mod in ipairs(Kristal.Mods.getMods()) do
             if mod.keybinds then

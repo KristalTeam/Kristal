@@ -1,6 +1,8 @@
 ---@class EditorClimbMover : EditorObject
 ---@overload fun(data?: table, options?: table): EditorClimbMover
 local EditorClimbMover, super = Class(EditorObject)
+EditorClimbMover.fixed_shape = "rectangle"
+EditorClimbMover.scaling_mode = "scale"
 
 EditorClimbMover.editor_sprite = "world/events/climb_mover"
 function EditorClimbMover:init(data, options)

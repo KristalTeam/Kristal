@@ -286,17 +286,7 @@ function EditorProjectIO:saveMapDocumentToProject(document, options)
     if not document then return false end
     if not self:commitFocusedTextInput() then return false end
     options = options or {}
-    local selected_references = {}
-    local selected_primary
-    for index, selection in ipairs(self:getSelectedMapObjects(document)) do
-        selected_references[index] = {
-            map_id = selection.map_id,
-            object_id = selection.object_id or document:getObjectId(selection.data)
-        }
-        if selection == self.selected_map_object then selected_primary = index end
-    end
-    local layer_properties_active = self.properties_target_owner == self.layers_browser
-    local map_properties_active = self.properties_target_owner == self.map_browser
+    local editing_state = self.document_manager:captureEditingState()
     local ids, seen = {}, {}
     local function add(id)
         if id and not seen[id] then seen[id] = true table.insert(ids, id) end
@@ -358,24 +348,12 @@ function EditorProjectIO:saveMapDocumentToProject(document, options)
     end
     if not options.defer_mark_saved then self.history:markSaved(document) end
     self:clearDiagnostics("editor_save")
-    if self.map_browser then self.map_browser:refresh({ silent = not map_properties_active }) end
+    if self.map_browser then self.map_browser:refresh({ silent = true }) end
     if self.layers_browser and self.active_document == document then
         local map_id = self.layers_browser.map_id or document.primary_map_id
-        self.layers_browser:refreshList(document:getSelectedLayer(map_id), not layer_properties_active)
+        self.layers_browser:refreshList(document:getSelectedLayer(map_id), true)
     end
-    if #selected_references > 0 then
-        local selections = {}
-        local primary
-        for index, reference in ipairs(selected_references) do
-            local selection = document:resolveObjectReference(reference)
-            if selection then
-                selection.view = document.map_view
-                table.insert(selections, selection)
-                if index == selected_primary then primary = selection end
-            end
-        end
-        self:selectMapObjects(selections, primary or selections[1])
-    end
+    self.document_manager:restoreEditingState(editing_state)
     return true
 end
 
@@ -428,7 +406,7 @@ function EditorProjectIO:saveTilesetDocumentToProject(document)
     document:adoptSavedTileset(tileset)
     self.history:markSaved(document)
     self:clearDiagnostics("editor_save")
-    if self.tileset_browser then self.tileset_browser:refresh(document.id) end
+    if self.tileset_browser then self.tileset_browser:refresh(self.active_tileset_id, true) end
     return true
 end
 
@@ -469,7 +447,7 @@ function EditorProjectIO:saveWorldToProject(world)
     world.virtual = false
     Registry.registerEditorWorld(world.id, world)
     self:clearDiagnostics("editor_save")
-    if self.world_browser then self.world_browser:refresh(world.id) end
+    if self.world_browser then self.world_browser:refresh(self.active_world_id, true) end
     if self.message_bar then self.message_bar:setStatus("Saved world: " .. tostring(world.name or world.id)) end
     return true
 end

@@ -1,6 +1,8 @@
 ---@class EditorTileButton : EditorObject
 ---@overload fun(data?: table, options?: table): EditorTileButton
 local EditorTileButton, super = Class(EditorObject)
+EditorTileButton.fixed_shape = "rectangle"
+EditorTileButton.scaling_mode = "scale"
 
 EditorTileButton.sprite_property = "sprite"
 function EditorTileButton:getEditorSprite(data)

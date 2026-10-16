@@ -249,7 +249,7 @@ function MapUtils.colliderFromShape(parent, data, x, y, properties)
     properties = properties or {}
     local mode = {
         invert = properties.inverted or properties.outside or false,
-        inside = properties.inside or properties.outside or false
+        inner = properties.inner or properties.inside or properties.outside or false
     }
     local rotation = math.rad((tonumber(data.rotation) or 0) % 360)
     local cosine, sine = math.cos(rotation), math.sin(rotation)

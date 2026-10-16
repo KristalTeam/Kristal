@@ -4,6 +4,8 @@ local EditorToggleController, super = Class(EditorObject)
 
 EditorToggleController.editor_sprite = "editor/toggle"
 EditorToggleController.runtime_type = "controller"
+EditorToggleController.placement_shape = "point"
+EditorToggleController.fixed_shape = "point"
 
 function EditorToggleController:init(data, options)
     super.init(self, data, options)

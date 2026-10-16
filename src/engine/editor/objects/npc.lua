@@ -3,6 +3,7 @@
 local EditorNPC, super = Class(EditorObject)
 EditorNPC.editor_sprite = "editor/npc"
 EditorNPC.scaling_mode = "scale"
+EditorNPC.fixed_shape = "rectangle"
 EditorNPC.sprite_properties = { "actor", "sprite", "animation" }
 
 function EditorNPC:getEditorSprite(data)

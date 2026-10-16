@@ -221,6 +221,9 @@ function EditorMapBrowser:refresh(options)
     local previous_id = previous_node and previous_node.type == "map" and previous_node.registry_id
     local previous_folder = previous_node and previous_node.type == "folder"
         and nodeRegistryId(previous_node) or nil
+    local scroll_row = self.tree.scroll_row
+    local expanded = {}
+    for id, node in pairs(self.folder_nodes) do expanded[id] = node.expanded end
     self.tree:clear()
     local folders = { [""] = self.tree.root }
     local maps = {}
@@ -245,10 +248,14 @@ function EditorMapBrowser:refresh(options)
     for _, id in ipairs(ordered_folders) do
         local parent_id = id:match("^(.*)/[^/]+$") or ""
         local parent = folders[parent_id] or self.tree.root
-        folders[id] = self.tree:createFolder(parent, id:match("([^/]+)$"), {
+        local node = self.tree:newNode("folder", id:match("([^/]+)$"), {
             registry_id = id,
-            virtual = false
+            virtual = false,
+            expanded = expanded[id] ~= false
         })
+        node.parent = parent
+        table.insert(parent.children, node)
+        folders[id] = node
     end
     for _, id in ipairs(registered_ids) do
         local parts = StringUtils.split(id, "/", true)
@@ -256,12 +263,14 @@ function EditorMapBrowser:refresh(options)
         local parent = folders[parent_id] or self.tree.root
         local reader_class = Registry.getMapReader(id)
         local legacy_format = reader_class and reader_class.LEGACY_FORMAT == true
-        local node = self.tree:createMap(parent, parts[#parts] or id, {
+        local node = self.tree:newNode("map", parts[#parts] or id, {
             registry_id = id,
             virtual = false,
             badge_text = legacy_format and "*" or nil,
             badge_color = legacy_format and { 1, 0.82, 0.16, 1 } or nil
         })
+        node.parent = parent
+        table.insert(parent.children, node)
         maps[id] = node
     end
     self.folder_nodes = folders
@@ -276,6 +285,8 @@ function EditorMapBrowser:refresh(options)
             self.tree:selectNode(selected_node)
         end
     end
+    self.tree.scroll_row = scroll_row
+    self.tree:clampScroll()
 end
 
 function EditorMapBrowser:createFolder(parent)

@@ -126,7 +126,7 @@ function EditorTreeList:newNode(node_type, name, options)
         type = node_type,
         name = tostring(name or (node_type == "folder" and "New Folder" or "New Map")),
         children = container and {} or nil,
-        expanded = container and options.expanded ~= false or nil,
+        expanded = container and options.expanded ~= false,
         registry_id = options.registry_id,
         virtual = options.virtual == true,
         badge_text = options.badge_text,

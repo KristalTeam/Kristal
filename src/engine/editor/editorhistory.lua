@@ -286,6 +286,7 @@ end
 
 function EditorHistory:undo()
     if not self:canUndo() then return false end
+    local editing_state = self.editor.document_manager:captureEditingState()
     local command = self.commands[self.index]
     if command.kind == "callbacks" then
         command.undo()
@@ -294,12 +295,13 @@ function EditorHistory:undo()
         restore(command, command.before, command.before_revisions)
     end
     self.index = self.index - 1
-    self.editor:onHistoryChanged(command.owners, true, command, "undo")
+    self.editor:onHistoryChanged(command.owners, true, command, "undo", editing_state)
     return true
 end
 
 function EditorHistory:redo()
     if not self:canRedo() then return false end
+    local editing_state = self.editor.document_manager:captureEditingState()
     local command = self.commands[self.index + 1]
     if command.kind == "callbacks" then
         command.redo()
@@ -308,7 +310,7 @@ function EditorHistory:redo()
         restore(command, command.after, command.after_revisions)
     end
     self.index = self.index + 1
-    self.editor:onHistoryChanged(command.owners, true, command, "redo")
+    self.editor:onHistoryChanged(command.owners, true, command, "redo", editing_state)
     return true
 end
 

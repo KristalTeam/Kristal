@@ -227,6 +227,9 @@ function EditorLayersPanel:refreshList(selected_uid, silent)
             self:selectLayer(nil)
         end
     end
+    if silent and self.document then
+        self.document:setSelectedLayer(self.selected_layer and self.selected_layer._editor_uid, self.map_id)
+    end
 end
 
 function EditorLayersPanel:toggleGroup(layer)

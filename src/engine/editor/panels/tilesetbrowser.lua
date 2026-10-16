@@ -38,7 +38,8 @@ function EditorTilesetBrowser:init(editor)
     self:refresh()
 end
 
-function EditorTilesetBrowser:refresh(selected_id)
+function EditorTilesetBrowser:refresh(selected_id, silent)
+    local scroll_row = self.list.scroll_row
     local items = {}
     for _, document in ipairs(self.editor.tileset_documents or {}) do
         table.insert(items, { id = document.id, label = document:getName(), data = document,
@@ -47,8 +48,12 @@ function EditorTilesetBrowser:refresh(selected_id)
     table.sort(items, function(a, b) return a.label:lower() < b.label:lower() end)
     self.list:setItems(items)
     for index, item in ipairs(self.list.filtered_items) do
-        if item.id == (selected_id or self.editor.active_tileset_id) then self.list:select(index) break end
+        if item.id == (selected_id or self.editor.active_tileset_id) then
+            self.list:select(index, false, not silent)
+            break
+        end
     end
+    if silent then self.list.scroll_row = scroll_row self.list:clampScroll() end
 end
 
 function EditorTilesetBrowser:createTileset()

@@ -3,6 +3,7 @@
 local EditorDarkFountain, super = Class(EditorObject)
 EditorDarkFountain.editor_sprite = "editor/darkfountain"
 EditorDarkFountain.scaling_mode = "scale"
+EditorDarkFountain.fixed_shape = "rectangle"
 function EditorDarkFountain:init(data, options)
     super.init(self, data, options)
     self:registerProperty("narrow", "boolean")

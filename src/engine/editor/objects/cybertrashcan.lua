@@ -3,6 +3,7 @@
 local EditorCyberTrashCan, super = Class(EditorObject)
 EditorCyberTrashCan.editor_sprite = "world/events/cyber_trash"
 EditorCyberTrashCan.scaling_mode = "scale"
+EditorCyberTrashCan.fixed_shape = "rectangle"
 function EditorCyberTrashCan:init(data, options)
     super.init(self, data, options)
     self:registerProperty("item", "chooser", {

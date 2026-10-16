@@ -4,8 +4,95 @@
 ---@overload fun(editor: Editor): EditorDocumentManager
 local EditorDocumentManager = Class()
 
+---@class EditorEditingState
+---@field selections table[]
+---@field tile_selections table[]
+---@field properties_owner EditorControl|Editor|nil
+---@field properties_target table?
+---@field properties_scroll number?
+---@field tileset_document EditorTilesetDocument?
+---@field tileset_view table?
+
 function EditorDocumentManager:init(editor)
     self.editor = editor
+end
+
+---@return EditorEditingState
+function EditorDocumentManager:captureEditingState()
+    local editor = self.editor
+    local selections = {}
+    for _, selection in ipairs(editor:getSelectedMapObjects()) do
+        table.insert(selections, {
+            document = selection.document,
+            map_id = selection.map_id,
+            object_id = selection.document:getObjectId(selection.data),
+            view = selection.view
+        })
+    end
+    local tile_selections = {}
+    for _, document in ipairs(editor.map_documents or {}) do
+        local selection = document.map_view and document.map_view.tile_selection
+        if selection then
+            table.insert(tile_selections, {
+                document = document, selection = selection,
+                layer_uid = selection.layer._editor_uid
+            })
+        end
+    end
+    return {
+        selections = selections,
+        tile_selections = tile_selections,
+        properties_owner = editor.properties_target_owner,
+        properties_target = editor.properties_browser and editor.properties_browser.target,
+        properties_scroll = editor.properties_browser and editor.properties_browser.scroll_y,
+        tileset_document = editor.tileset_editor and editor.tileset_editor.document,
+        tileset_view = editor.tileset_editor and editor.tileset_editor:captureViewState()
+    }
+end
+
+---@param state EditorEditingState
+function EditorDocumentManager:restoreEditingState(state)
+    local editor = self.editor
+    local selections = {}
+    for _, reference in ipairs(state.selections) do
+        local selection = reference.document:resolveObjectReference(reference)
+        if selection then
+            selection.view = reference.view
+            table.insert(selections, selection)
+        end
+    end
+    editor.map_interaction:selectMapObjects(selections, nil, {
+        preserve_context = true,
+        update_properties = state.properties_owner == editor
+    })
+    for _, saved in ipairs(state.tile_selections) do
+        local layer = saved.document:findEditableLayer(saved.layer_uid, saved.selection.map_id)
+        saved.selection.layer = layer
+        saved.document.map_view.tile_selection = layer and saved.selection or nil
+    end
+    local owner, target = state.properties_owner, state.properties_target
+    if owner == editor.layers_browser and owner then
+        local layer = owner.selected_layer
+        editor:setPropertiesTarget(layer and owner:getPropertiesTarget(layer), owner)
+    elseif owner == editor.map_browser and owner then
+        owner:selectNode(owner.tree.selected_node)
+    elseif owner == editor.world_browser and owner and target then
+        local world = target.history_owner and target.history_owner.world
+            or Registry.getEditorWorld(target.world_id)
+        if world then
+            if target.world_map_id then
+                local entry = world.map_lookup[target.world_map_id]
+                if entry then owner:selectWorldMap(entry) else owner:selectWorld(world) end
+            else
+                owner:selectWorld(world)
+            end
+        else
+            editor:clearPropertiesTarget(owner)
+        end
+    end
+    if editor.properties_browser then
+        editor.properties_browser.scroll_y = state.properties_scroll or 0
+    end
 end
 
 function EditorDocumentManager:getNextDocumentPanelId()

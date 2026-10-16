@@ -134,7 +134,7 @@ function operations.loadLayer(self, layer, depth)
         end
         self:loadShapes(layer)
     else
-        Kristal.Console:warn(string.format("Unhandled or unknown Tiled layer type \"%s\", ignoring", layer.type))
+        Logging.warn(string.format("Unhandled or unknown Tiled layer type \"%s\", ignoring", layer.type))
     end
 end
 

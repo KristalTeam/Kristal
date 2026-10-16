@@ -4,6 +4,8 @@ local EditorFountainShadowController, super = Class(EditorObject)
 
 EditorFountainShadowController.editor_sprite = "editor/fountainshadow"
 EditorFountainShadowController.runtime_type = "controller"
+EditorFountainShadowController.placement_shape = "point"
+EditorFountainShadowController.fixed_shape = "point"
 
 function EditorFountainShadowController:init(data, options)
     super.init(self, data, options)

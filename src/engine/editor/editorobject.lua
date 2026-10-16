@@ -32,6 +32,7 @@
 ---@field y number
 ---@field placement_shape "rectangle"|"point"|"region"
 ---@field scaling_mode "resize"|"scale"
+---@field fixed_shape "rectangle"|"point"|nil
 ---@field runtime_type "event"|"controller"|"marker"|"path"|"player"
 ---@overload fun(data?: table, options?: table): EditorObject
 local EditorObject = Class()
@@ -108,6 +109,41 @@ function EditorObject:init(data, options)
     self.rotation = math.rad(data.rotation or 0)
     self.visible = data.visible ~= false
     self.sprite = self:getPreviewSprite(options.sprite)
+    if not options.runtime then self:applyDefaultShape(options.map_data) end
+end
+
+---@param map_data table?
+function EditorObject:applyDefaultShape(map_data)
+    local shape = self.fixed_shape
+    if not shape or self.data.gid or self.data.tileset and self.data.tile_id ~= nil then return end
+    local data = self.data
+    local old_x, old_y = data.x or 0, data.y or 0
+    local was_point = data.shape == "point" or data.point == true
+    if shape == "point" then
+        if not was_point then
+            local x, y = self.width / 2, self.height / 2
+            data.x = (data.x or 0) + x * math.cos(self.rotation) - y * math.sin(self.rotation)
+            data.y = (data.y or 0) + x * math.sin(self.rotation) + y * math.cos(self.rotation)
+        end
+        data.width, data.height = 0, 0
+    elseif was_point or self.width <= 0 or self.height <= 0 then
+        local texture = self:getTexture()
+        local sx, sy = self:getSpriteScale()
+        data.width = texture and texture:getWidth() * math.abs(sx)
+            or map_data and (map_data.grid_width or map_data.tilewidth) or 40
+        data.height = texture and texture:getHeight() * math.abs(sy)
+            or map_data and (map_data.grid_height or map_data.tileheight) or 40
+        if was_point then
+            local x, y = data.width / 2, data.height / 2
+            data.x = (data.x or 0) - x * math.cos(self.rotation) + y * math.sin(self.rotation)
+            data.y = (data.y or 0) - x * math.sin(self.rotation) - y * math.cos(self.rotation)
+        end
+    end
+    self.x = self.x + (data.x or 0) - old_x
+    self.y = self.y + (data.y or 0) - old_y
+    self.width, self.height = data.width, data.height
+    data.shape = shape
+    data.point, data.ellipse, data.polygon, data.polyline, data.shape_data = nil, nil, nil, nil, nil
 end
 
 function EditorObject:getShapeData()

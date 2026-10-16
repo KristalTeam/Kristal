@@ -1,6 +1,8 @@
 ---@class EditorPushBlock : EditorObject
 ---@overload fun(data?: table, options?: table): EditorPushBlock
 local EditorPushBlock, super = Class(EditorObject)
+EditorPushBlock.fixed_shape = "rectangle"
+EditorPushBlock.scaling_mode = "scale"
 
 EditorPushBlock.sprite_property = "sprite"
 function EditorPushBlock:getEditorSprite(data)

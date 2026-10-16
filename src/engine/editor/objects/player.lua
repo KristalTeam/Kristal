@@ -4,6 +4,7 @@ local EditorPlayer, super = Class(EditorObject)
 
 EditorPlayer.editor_name = "Player"
 EditorPlayer.placement_shape = "point"
+EditorPlayer.fixed_shape = "point"
 EditorPlayer.runtime_type = "player"
 
 function EditorPlayer:init(data, options)

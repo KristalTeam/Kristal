@@ -119,6 +119,13 @@ end
 function EditorMapDocument:restoreHistoryState(state)
     if not state then return false end
     local selected_layers = self.selected_layers
+    local expanded_layers = {}
+    for id, layers in pairs(self.editable_layers) do
+        expanded_layers[id] = {}
+        MapUtils.walkLayers(layers, function(layer)
+            expanded_layers[id][layer._editor_uid] = layer._editor_expanded
+        end)
+    end
     self.previous_world_id = self.world and self.world.id
     local world = EditorWorld(state.world_id)
     world.name = state.world_name or state.world_id
@@ -155,8 +162,12 @@ function EditorMapDocument:restoreHistoryState(state)
         end
     end
     self.editable_layers = TableUtils.copy(state.editable_layers or {}, true)
-    for _, layers in pairs(self.editable_layers) do
-        MapUtils.walkLayers(layers, setupLayerProperties)
+    for id, layers in pairs(self.editable_layers) do
+        MapUtils.walkLayers(layers, function(layer)
+            setupLayerProperties(layer)
+            local expanded = expanded_layers[id] and expanded_layers[id][layer._editor_uid]
+            if expanded ~= nil then layer._editor_expanded = expanded end
+        end)
     end
     self.selected_layers = selected_layers or {}
     self.next_layer_uid = state.next_layer_uid or 1
@@ -181,22 +192,23 @@ end
 
 function EditorMapDocument:adoptSavedMapData(id, data)
     local selected_uid = self.selected_layers[id]
-    local selected_layer = selected_uid and self:findEditableLayer(selected_uid, id)
-    local selected_id = selected_layer and selected_layer.id
-    local selected_name = selected_layer and selected_layer.name
+    local previous_layers = self:getFlatEditableLayers(id, false)
     self.editable_layers[id] = nil
-    self.selected_layers[id] = nil
     self:getEditableLayers(id)
-    if selected_layer then
-        for _, entry in ipairs(self:getFlatEditableLayers(id, false)) do
-            local layer = entry.layer
-            if (selected_id and layer.id == selected_id)
-                or (not selected_id and selected_name and layer.name == selected_name) then
-                self.selected_layers[id] = layer._editor_uid
+    local matched = {}
+    for _, entry in ipairs(self:getFlatEditableLayers(id, false)) do
+        local layer = entry.layer
+        for _, previous in ipairs(previous_layers) do
+            local old = previous.layer
+            if not matched[old] and (old.id ~= nil and old.id == layer.id or old.name == layer.name) then
+                layer._editor_uid = old._editor_uid
+                layer._editor_expanded = old._editor_expanded
+                matched[old] = true
                 break
             end
         end
     end
+    self.selected_layers[id] = selected_uid
     self:invalidatePreview(id)
 end
 
@@ -1351,6 +1363,8 @@ end
 
 function EditorMapDocument:setObjectShape(selection, shape)
     if not selection or selection.document ~= self then return false end
+    local object_class = Registry.getEditorObject(self:getEditorObjectType(selection.data, selection.map_id))
+    if object_class and object_class.fixed_shape then return false end
     if shape ~= "point" and shape ~= "rectangle" and shape ~= "ellipse"
         and shape ~= "line" and shape ~= "polygon" and shape ~= "polyline" then return false end
     local data = selection.data

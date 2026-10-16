@@ -711,8 +711,7 @@ function Editor:redo()
     return self.history and self.history:redo() or false
 end
 
-function Editor:onHistoryChanged(owners, restored, command, direction)
-    if restored then self:selectMapObjects({}) end
+function Editor:onHistoryChanged(owners, restored, command, direction, editing_state)
     if restored and command and direction and self.message_bar then
         local verb = direction == "undo" and "Undid" or "Redid"
         self.message_bar:setStatus(verb .. ": " .. tostring(command.label or "Edit"))
@@ -754,16 +753,8 @@ function Editor:onHistoryChanged(owners, restored, command, direction)
                 self.active_editor_world = owner.world
             end
             if self.world_browser then
-                self.world_browser:refresh(owner.world.id)
-                self.world_browser:refreshMaps(owner.world)
-                if restored and world_was_active then
-                    self.world_browser:selectWorld(owner.world)
-                elseif self.properties_browser and self.properties_browser.target
-                    and self.properties_browser.target.world_id == owner.world.id
-                    and self.properties_browser.target.world_map_id then
-                    local entry = owner.world.map_lookup[self.properties_browser.target.world_map_id]
-                    if entry then self.world_browser:selectWorldMap(entry) end
-                end
+                self.world_browser:refresh(self.active_world_id, true)
+                if world_was_active then self.world_browser:refreshMaps(owner.world) end
             end
         end
         if owner.panel then
@@ -771,25 +762,23 @@ function Editor:onHistoryChanged(owners, restored, command, direction)
                 .. (owner:isDirty() and " *" or "")
         end
         if restored and self.active_document == owner and self.layers_browser then
-            self.layers_browser:setDocument(nil)
-            self.layers_browser:setDocument(owner)
+            local map_id = self.layers_browser.map_id or owner.primary_map_id
+            self.layers_browser:refreshList(owner:getSelectedLayer(map_id), true)
         end
         if owner == self.active_tileset_document then
             if self.tileset_panel then
                 self.tileset_panel.title = "Tileset Editor" .. (owner:isDirty() and " *" or "")
             end
             if restored then
-                self.tile_palette:setTilesetDocument(nil)
-                self.tile_palette:setTilesetDocument(owner)
-                self.terrain_palette:setDocument(nil)
-                self.terrain_palette:setDocument(owner)
+                self.terrain_palette:setDocument(owner, true)
                 self.tileset_editor:setDocument(owner, {
-                    preserve_mode = true,
-                    preserve_tile = true
+                    view_state = editing_state and editing_state.tileset_document == owner
+                        and editing_state.tileset_view or self.tileset_editor:captureViewState()
                 })
             end
         end
     end
+    if editing_state then self.document_manager:restoreEditingState(editing_state) end
     self:clearDiagnostics("unsaved_changes")
     local dirty = 0
     for _, document in ipairs(self.map_documents or {}) do

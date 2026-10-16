@@ -1,6 +1,8 @@
 ---@class EditorMagicGlass : EditorObject
 ---@overload fun(data?: table, options?: table): EditorMagicGlass
 local EditorMagicGlass, super = Class(EditorObject)
+EditorMagicGlass.fixed_shape = "rectangle"
+EditorMagicGlass.scaling_mode = "scale"
 function EditorMagicGlass:getEditorSprite(data)
     return data.properties.new_sprite and "world/events/magical_glass_new"
         or "world/events/magical_glass"

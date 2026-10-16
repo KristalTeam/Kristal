@@ -3,6 +3,7 @@
 local EditorSavepoint, super = Class(EditorObject)
 EditorSavepoint.editor_sprite = "world/events/savepoint"
 EditorSavepoint.scaling_mode = "scale"
+EditorSavepoint.fixed_shape = "rectangle"
 
 function EditorSavepoint:init(data, options)
     super.init(self, data, options)
