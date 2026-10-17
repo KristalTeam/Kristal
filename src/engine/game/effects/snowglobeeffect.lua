@@ -48,7 +48,7 @@ function SnowglobeEffect:draw()
     if major >= 12 then
         love.graphics.clear(false, true, false)
         love.graphics.setStencilMode("draw", 1, "replace")
-        self:drawStencil()
+        drawStencil()
         love.graphics.setStencilMode("test", 0, "greater")
     else
         love.graphics.stencil(drawStencil, "replace", 1)
