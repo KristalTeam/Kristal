@@ -146,22 +146,38 @@ end
 function EditorPropertySet:normalizeObjectReferences(default_map_id)
     for _, definition in ipairs(self:getProperties()) do
         if definition.type == "marker_reference" then definition.type = "object_reference" end
-        if definition.type == "object_reference" and self.values[definition.id] ~= nil then
-            local map_id = default_map_id
-            if definition.target_map_property then
-                local map_key = definition.target_map_property
-                if definition.group_index then map_key = map_key .. tostring(definition.group_index) end
-                map_id = self.values[map_key] or map_id
-            end
-            local reference = EditorObjectReference.from(self.values[definition.id], map_id)
-            if definition.allowed_types
-                and MapUtils.isObjectTypeAllowed("marker", definition.allowed_types) then
-                reference = MapUtils.resolveMarkerReference(map_id, self.values[definition.id])
-            end
-            self.values[definition.id] = reference
-            self.types[definition.id] = "object_reference"
+        if self.values[definition.id] ~= nil then
+            self.values[definition.id] = Registry.editor_properties:normalizeObjectReferences(
+                self.values[definition.id], definition, default_map_id, self.values)
+            self.types[definition.id] = definition.type
         end
     end
+end
+
+---@return table[]
+function EditorPropertySet:getReferenceFields()
+    local result = {}
+    for _, definition in ipairs(self:getProperties()) do
+        Registry.editor_properties:collectReferenceFields(self.values[definition.id], definition,
+            { definition.id }, definition.name or definition.id, result)
+    end
+    for _, field in ipairs(result) do field.property_set = self end
+    return result
+end
+
+---@param path table
+---@param value any
+---@return boolean
+function EditorPropertySet:setValueAtPath(path, value)
+    if #path == 1 then return self:setValue(path[1], value) end
+    local root = TableUtils.copy(self:getValue(path[1]) or {}, true)
+    local target = root
+    for index = 2, #path - 1 do
+        target[path[index]] = target[path[index]] or {}
+        target = target[path[index]]
+    end
+    target[path[#path]] = value
+    return self:setValue(path[1], root)
 end
 
 function EditorPropertySet:addProperty(id, property_type, options)

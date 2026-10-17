@@ -39,6 +39,10 @@ function EditorChaserEnemy:init(data, options)
         name = "Pace Type", choices = { "wander", "randomwander", "verticalswing", "horizontalswing" }
     })
     self:registerProperty("paceinterval", "number", { name = "Pace Interval", default = 24 })
+    self:registerProperty("marker", "table", {
+        name = "Patrol Markers", array = true, entry_type = "object_reference",
+        entry_options = { allowed_types = { "marker", "player" }, map_id = self.map_id }
+    })
     self:registerProperty("pacereturn", "boolean", { name = "Pace Return", default = true })
     self:registerProperty("pacespeed", "number", { name = "Pace Speed", default = 4 })
     self:registerProperty("swingdiv", "number", { name = "Swing Divisor", default = 24 })

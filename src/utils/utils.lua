@@ -1566,9 +1566,9 @@ end
 ---@param properties table # The properties table of a Tiled event's data.
 ---@return table result    # The list of property values found.
 ---
----@deprecated Use `MapUtils.parsePropertyList` instead.
+---@deprecated Use `TiledUtils.parsePropertyList` for legacy Tiled properties instead.
 function Utils.parsePropertyList(id, properties)
-    return MapUtils.parsePropertyList(id, properties)
+    return TiledUtils.parsePropertyList(id, properties)
 end
 
 ---
@@ -1582,9 +1582,9 @@ end
 ---@param properties table # The properties table of a Tiled event's data.
 ---@return table result    # The list of property values found.
 ---
----@deprecated Use `MapUtils.parsePropertyMultiList` instead.
+---@deprecated Use `TiledUtils.parsePropertyMultiList` for legacy Tiled properties instead.
 function Utils.parsePropertyMultiList(id, properties)
-    return MapUtils.parsePropertyMultiList(id, properties)
+    return TiledUtils.parsePropertyMultiList(id, properties)
 end
 
 ---

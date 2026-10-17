@@ -2001,7 +2001,7 @@ function EditorMapView:getPolygonVertexAt(world_x, world_y)
     end
 end
 
-function EditorMapView:getResizeCornerAt(selection, world_x, world_y)
+function EditorMapView:getResizeHandleAt(selection, world_x, world_y)
     if not selection or selection.data.polygon or selection.data.shape == "line"
         or selection.data.shape == "polyline" then return nil end
     local _, _, width, height = self.document:getObjectLocalRect(selection)
@@ -2020,22 +2020,30 @@ function EditorMapView:getResizeCornerAt(selection, world_x, world_y)
         if math.abs(local_x - corner.x) <= distance
             and math.abs(local_y - corner.y) <= distance then return corner.id end
     end
+    if local_y >= 0 and local_y <= height then
+        if math.abs(local_x) <= distance then return "w" end
+        if math.abs(local_x - width) <= distance then return "e" end
+    end
+    if local_x >= 0 and local_x <= width then
+        if math.abs(local_y) <= distance then return "n" end
+        if math.abs(local_y - height) <= distance then return "s" end
+    end
 end
 
-function EditorMapView:getSelectedResizeCornerAt(world_x, world_y)
+function EditorMapView:getSelectedResizeHandleAt(world_x, world_y)
     local selections = self.editor and self.editor:getSelectedMapObjects(self.document) or {}
     if #selections ~= 1 then return nil end
-    local corner = self:getResizeCornerAt(selections[1], world_x, world_y)
-    if corner then return selections[1], corner end
+    local handle = self:getResizeHandleAt(selections[1], world_x, world_y)
+    if handle then return selections[1], handle end
 end
 
-function EditorMapView:getResizeCursor(selection, corner)
-    local _, _, width, height = self.document:getObjectLocalRect(selection)
-    local corner_x = (corner == "ne" or corner == "se") and width or 0
-    local corner_y = (corner == "sw" or corner == "se") and height or 0
-    local angle = math.atan2(corner_y - height / 2, corner_x - width / 2)
+function EditorMapView:getResizeCursor(selection, handle)
+    local x = handle:find("e", 1, true) and 1 or handle:find("w", 1, true) and -1 or 0
+    local y = handle:find("s", 1, true) and 1 or handle:find("n", 1, true) and -1 or 0
+    local angle = math.atan2(y, x)
         + math.rad(selection.data.rotation or 0)
-    return math.sin(angle * 2) >= 0 and "resize_diag_l" or "resize_diag_r"
+    local direction = MathUtils.round(angle / (math.pi / 4)) % 4
+    return ({ "resize_hori", "resize_diag_l", "resize_vert", "resize_diag_r" })[direction + 1]
 end
 
 ---@param selection table
@@ -2170,6 +2178,10 @@ function EditorMapView:drawSelectedObject()
                 love.graphics.rectangle("fill", width - handle / 2, -handle / 2, handle, handle)
                 love.graphics.rectangle("fill", -handle / 2, height - handle / 2, handle, handle)
                 love.graphics.rectangle("fill", width - handle / 2, height - handle / 2, handle, handle)
+                love.graphics.rectangle("fill", width / 2 - handle / 2, -handle / 2, handle, handle)
+                love.graphics.rectangle("fill", width / 2 - handle / 2, height - handle / 2, handle, handle)
+                love.graphics.rectangle("fill", -handle / 2, height / 2 - handle / 2, handle, handle)
+                love.graphics.rectangle("fill", width - handle / 2, height / 2 - handle / 2, handle, handle)
             end
         end
         love.graphics.pop()
@@ -2788,20 +2800,22 @@ function EditorMapView:onMousePressed(x, y, button, presses)
             return true
         end
         if button == 1 and can_manipulate_objects then
-            local resize_selection, resize_corner = self:getSelectedResizeCornerAt(world_x, world_y)
+            local resize_selection, resize_handle = self:getSelectedResizeHandleAt(world_x, world_y)
             if resize_selection then
                 local object_x, object_y = self.document:getObjectWorldPosition(resize_selection)
                 local _, _, width, height = self.document:getObjectLocalRect(resize_selection)
                 local _, _, base_width, base_height = self.document:getObjectLocalRect(resize_selection, true)
                 local rotation = math.rad(resize_selection.data.rotation or 0)
-                local opposite_x = (resize_corner == "nw" or resize_corner == "sw") and width or 0
-                local opposite_y = (resize_corner == "nw" or resize_corner == "ne") and height or 0
+                local opposite_x = resize_handle:find("w", 1, true) and width or 0
+                local opposite_y = resize_handle:find("n", 1, true) and height or 0
                 self.object_drag = {
                     selection = resize_selection,
                     selections = {},
                     resize = true,
-                    resize_corner = resize_corner,
-                    resize_cursor = self:getResizeCursor(resize_selection, resize_corner),
+                    resize_handle = resize_handle,
+                    resize_cursor = self:getResizeCursor(resize_selection, resize_handle),
+                    width = width,
+                    height = height,
                     scaling_mode = self.document:getObjectScalingMode(resize_selection),
                     base_width = base_width,
                     base_height = base_height,
@@ -3073,20 +3087,26 @@ function EditorMapView:onMouseMoved(x, y, dx, dy)
             local relative_x, relative_y = world_x - drag.fixed_x, world_y - drag.fixed_y
             local local_x = relative_x * math.cos(inverse) - relative_y * math.sin(inverse)
             local local_y = relative_x * math.sin(inverse) + relative_y * math.cos(inverse)
-            local right = drag.resize_corner == "ne" or drag.resize_corner == "se"
-            local bottom = drag.resize_corner == "sw" or drag.resize_corner == "se"
-            local width = math.max(0,
-                self:snapObjectDragValue(right and local_x or -local_x, tile_width))
-            local height = math.max(0,
-                self:snapObjectDragValue(bottom and local_y or -local_y, tile_height))
+            local left = drag.resize_handle:find("w", 1, true)
+            local right = drag.resize_handle:find("e", 1, true)
+            local top = drag.resize_handle:find("n", 1, true)
+            local bottom = drag.resize_handle:find("s", 1, true)
+            local width = (left or right) and math.max(0,
+                self:snapObjectDragValue(right and local_x or -local_x, tile_width)) or drag.width
+            local height = (top or bottom) and math.max(0,
+                self:snapObjectDragValue(bottom and local_y or -local_y, tile_height)) or drag.height
             if drag.scaling_mode == "scale" then
-                if drag.base_width > 0 then data.scale_x = width / drag.base_width else width = 0 end
-                if drag.base_height > 0 then data.scale_y = height / drag.base_height else height = 0 end
+                if left or right then
+                    if drag.base_width > 0 then data.scale_x = width / drag.base_width else width = 0 end
+                end
+                if top or bottom then
+                    if drag.base_height > 0 then data.scale_y = height / drag.base_height else height = 0 end
+                end
             else
                 data.width, data.height = width, height
             end
-            local opposite_x = right and 0 or width
-            local opposite_y = bottom and 0 or height
+            local opposite_x = left and width or 0
+            local opposite_y = top and height or 0
             local origin_x = drag.fixed_x - opposite_x * math.cos(rotation) + opposite_y * math.sin(rotation)
             local origin_y = drag.fixed_y - opposite_x * math.sin(rotation) - opposite_y * math.cos(rotation)
             data.x = origin_x - drag.selection.entry.x - (drag.selection.layer.offsetx or 0)
@@ -3339,8 +3359,8 @@ function EditorMapView:getCursorType(x, y)
     if self:canManipulateObjectSelection() then
         local _, _, interaction = self:getEditorInteractionAt(world_x, world_y)
         if interaction then return interaction.cursor or "resize_all" end
-        local resize_selection, resize_corner = self:getSelectedResizeCornerAt(world_x, world_y)
-        if resize_selection then return self:getResizeCursor(resize_selection, resize_corner) end
+        local resize_selection, resize_handle = self:getSelectedResizeHandleAt(world_x, world_y)
+        if resize_selection then return self:getResizeCursor(resize_selection, resize_handle) end
         if self:getPolygonVertexAt(world_x, world_y) then return "resize_all" end
         if self:isRotationHandleAt(world_x, world_y) then return "resize_all" end
         local selection = self:findObjectAt(world_x, world_y)

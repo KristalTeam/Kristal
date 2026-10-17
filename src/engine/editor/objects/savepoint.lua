@@ -7,6 +7,7 @@ EditorSavepoint.fixed_shape = "rectangle"
 
 function EditorSavepoint:init(data, options)
     super.init(self, data, options)
+    self:registerProperty("text", "table", { name = "Dialogue", array = true })
     self:registerProperty("marker", "object_reference", { allowed_types = { "marker", "player" } })
     self:registerProperty("simple", "boolean")
     self:registerProperty("text_once", "string", { name = "Text Once" })

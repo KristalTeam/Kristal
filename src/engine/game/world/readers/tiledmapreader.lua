@@ -109,6 +109,12 @@ function operations.getObjectType(self, data)
     return nil
 end
 
+function operations.loadRuntimeObject(self, source, layer, depth, layer_type, runtime_type)
+    local object = TableUtils.copy(source, true)
+    TiledUtils.convertObjectProperties(object, self:getObjectType(object))
+    return MapReader.operations.loadRuntimeObject(self, object, layer, depth, layer_type, runtime_type)
+end
+
 function operations.loadLayer(self, layer, depth)
     if layer.type == "tilelayer" then
         self:loadTiles(layer, depth)

@@ -184,6 +184,7 @@ function EditorPropertiesPanel:createValueControl(name, definition, value)
     elseif control_type == "table" or type(value) == "table" then
         return self:addGeneratedControl(EditorTableInput(self.editor, value, {
             mixed = mixed,
+            definition = definition,
             on_changed = function(table_value)
                 return self:setPropertyValue(name, table_value, definition)
             end
@@ -243,6 +244,7 @@ function EditorPropertiesPanel:createSectionValueControl(section, definition)
         return self:addGeneratedControl(EditorObjectReferenceControl(self.editor, value, options))
     elseif property_type.control == "table" or type(value) == "table" then
         return self:addGeneratedControl(EditorTableInput(self.editor, value, {
+            definition = definition,
             on_changed = function(table_value) return changed(table_value) end
         }))
     elseif property_type.control == "boolean" then
@@ -515,11 +517,11 @@ function EditorPropertiesPanel:addPropertyGroup(group_id)
     local group = self.target and self.target.property_set and self.target.property_set.groups[group_id]
     if not properties or not group then return false end
     self:beginTargetHistory("Add Property Group")
-    local index = group:addInstance(properties, property_types)
+    group:addInstance(properties, property_types)
     self:notifyChanged("properties")
     self:finishTargetHistory(true)
     self:rebuild()
-    self:focusProperty(group:getStorageKey(group.primary or group.order[1], index), "value")
+    self:focusProperty(group.id, "value")
     return true
 end
 

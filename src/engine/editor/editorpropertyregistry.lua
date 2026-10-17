@@ -393,7 +393,94 @@ end
 function EditorPropertyRegistry:getDefault(type_id, definition)
     local value = definition and definition.default
     if value == nil then value = self:getType(type_id).default end
-    return type(value) == "table" and TableUtils.copy(value, true) or value
+    value = type(value) == "table" and TableUtils.copy(value, true) or value
+    if type_id == "table" and definition and definition.fields then
+        value = value or {}
+        for id, field in pairs(definition.fields) do
+            if value[id] == nil then value[id] = self:getDefault(field.type, field) end
+        end
+    end
+    return value
+end
+
+---@param definition table?
+---@param key string|number
+---@param values table
+---@return table
+function EditorPropertyRegistry:getTableEntryDefinition(definition, key, values)
+    definition = definition or {}
+    local field = TableUtils.copy(definition.fields and definition.fields[key]
+        or definition.entry_options or {}, true)
+    field.type = field.type or definition.entry_type or "value"
+    if field.type == "value" and isObjectReference(values[key]) then field.type = "object_reference" end
+    if field.target_map_property and values[field.target_map_property] ~= nil
+        and values[field.target_map_property] ~= "" then
+        field.map_id = values[field.target_map_property]
+    end
+    return field
+end
+
+---@param value any
+---@param definition table
+---@param default_map_id string?
+---@param values table?
+---@param seen table?
+---@return any
+function EditorPropertyRegistry:normalizeObjectReferences(value, definition, default_map_id, values, seen)
+    seen = seen or {}
+    if definition.type == "object_reference" or definition.type == "marker_reference" then
+        local map_id = definition.map_id or default_map_id
+        if definition.target_map_property and values then
+            local target_map = values[definition.target_map_property]
+            if target_map ~= nil and target_map ~= "" then map_id = target_map end
+        end
+        if definition.allowed_types and MapUtils.isObjectTypeAllowed("marker", definition.allowed_types) then
+            return MapUtils.resolveMarkerReference(map_id, value)
+        end
+        return EditorObjectReference.from(value, map_id)
+    elseif type(value) == "table" and not isObjectReference(value) then
+        if seen[value] then return value end
+        seen[value] = true
+        for key, child in pairs(value) do
+            local field = self:getTableEntryDefinition(definition, key, value)
+            value[key] = self:normalizeObjectReferences(child, field, default_map_id, value, seen)
+        end
+    end
+    return value
+end
+
+---@param value any
+---@param definition table
+---@param path table
+---@param name string
+---@param result table
+---@param seen table?
+function EditorPropertyRegistry:collectReferenceFields(value, definition, path, name, result, seen)
+    if definition.unavailable then return end
+    if definition.type == "object_reference" or definition.type == "marker_reference" or isObjectReference(value) then
+        table.insert(result, { id = path[1], path = path, name = name, value = value, definition = definition })
+    elseif type(value) == "table" or definition.type == "table" then
+        value = type(value) == "table" and value or {}
+        seen = seen or {}
+        if seen[value] then return end
+        seen[value] = true
+        local keys = TableUtils.getSortedKeys(value)
+        local included = {}
+        for _, key in ipairs(keys) do included[key] = true end
+        for _, key in ipairs(definition.field_order or {}) do
+            if not included[key] then table.insert(keys, key) included[key] = true end
+        end
+        if definition.array and definition.entry_type == "object_reference" then table.insert(keys, #value + 1) end
+        for _, key in ipairs(keys) do
+            local field = self:getTableEntryDefinition(definition, key, value)
+            local child_path = TableUtils.copy(path)
+            table.insert(child_path, key)
+            local label = field.name or tostring(key)
+            if definition.array and key == #value + 1 then label = "New" end
+            self:collectReferenceFields(value[key], field, child_path, name .. " / " .. label, result, seen)
+        end
+        seen[value] = nil
+    end
 end
 
 return EditorPropertyRegistry

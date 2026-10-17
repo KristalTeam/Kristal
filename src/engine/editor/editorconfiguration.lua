@@ -307,6 +307,15 @@ function EditorConfiguration:registerEditorSettings(session)
     })
 
     editor.settings:registerPage("editing", "Editing")
+    editor.settings:registerSetting("editing", "editing.select_all_layers", {
+        name = "Select on Any Layer", type = "boolean", default = true,
+        set = function(value, editor)
+            editor.select_all_layers = value
+            if editor.layers_browser and editor.layers_browser.select_all_toggle then
+                editor.layers_browser.select_all_toggle:setValue(value, true)
+            end
+        end
+    })
     editor.settings:registerSetting("editing", "editing.history_limit", {
         name = "Undo History Limit", type = "integer", default = EditorHistory.DEFAULT_LIMIT,
         minimum = 1, maximum = 10000,

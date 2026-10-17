@@ -277,6 +277,7 @@ function TiledEditorFormatConverter.convertMap(data, options)
                     object.type = object == player_spawn and "player"
                         or Registry.layer_types:getLegacyTiledObjectType(layer, object)
                         or object.type or ""
+                    TiledUtils.convertObjectProperties(object, object.type)
                     local success, object_reason = convertTileObject(object)
                     if not success then return nil, object_reason end
                 end

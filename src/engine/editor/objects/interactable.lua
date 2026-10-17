@@ -6,6 +6,7 @@ EditorInteractable.editor_sprite = "editor/interactable"
 function EditorInteractable:init(data, options)
     super.init(self, data, options)
     self:registerProperty("solid", "boolean")
+    self:registerProperty("text", "table", { name = "Dialogue", array = true })
     self:registerProperty("cutscene", "script_path", {
         path_root = "scripts/world/cutscenes", strip_extension = true,
         extensions = { "lua" }, registry = "world_cutscenes"

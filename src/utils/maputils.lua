@@ -161,49 +161,6 @@ function MapUtils.parseMarkerProperty(obj, target, name)
     return Game.world.map:getMarker(target)
 end
 
---- Reads a list property.
-function MapUtils.parsePropertyList(id, properties)
-    properties = properties or {}
-    if properties[id] ~= nil then
-        if type(properties[id]) == "table" and TableUtils.isArray(properties[id]) then
-            return properties[id]
-        end
-        return { properties[id] }
-    end
-    local result, index = {}, 1
-    while properties[id .. index] ~= nil do
-        table.insert(result, properties[id .. index])
-        index = index + 1
-    end
-    return result
-end
-
---- Reads a nested list property.
-function MapUtils.parsePropertyMultiList(id, properties)
-    properties = properties or {}
-    if type(properties[id]) == "table" and TableUtils.isArray(properties[id]) then
-        for _, value in ipairs(properties[id]) do
-            if not (type(value) == "table" and TableUtils.isArray(value)) then
-                return { properties[id] }
-            end
-        end
-        return properties[id]
-    end
-    local single = MapUtils.parsePropertyList(id, properties)
-    if #single > 0 then return { single } end
-    local result, outer = {}, 1
-    while properties[id .. outer .. "_1"] ~= nil do
-        local list, inner = {}, 1
-        while properties[id .. outer .. "_" .. inner] ~= nil do
-            table.insert(list, properties[id .. outer .. "_" .. inner])
-            inner = inner + 1
-        end
-        table.insert(result, list)
-        outer = outer + 1
-    end
-    return result
-end
-
 function MapUtils.parseFlagProperties(flag, inverted, value, default_value, properties)
     properties = properties or {}
     local result_inverted = false

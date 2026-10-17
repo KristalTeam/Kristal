@@ -11,10 +11,10 @@
 ---@field open          boolean     *[Property `open`]* Whether the door is open (Defaults to `true`)
 ---@field open_flag     string      *[Property `openflag`]* The name of a flag that will be used to control the state of the door
 ---
----@field maps          string[]    *[Property list `map`]* A list of available maps to travel to
----@field names         string[]    *[Property list `name`]* A list of display names for each map in the warp choice
----@field markers       string[]    *[Property list `marker`]* A list of markers used when warping to each map
----@field flags         string[]    *[Property list `flag`]* A list of flags checked to decide whether a map can be warped to
+---@field maps          table<string, string> Maps from the `destinations` array, keyed by display name.
+---@field names         string[] Destination display names.
+---@field markers       table<string, MarkerRef> Destination markers, keyed by display name.
+---@field flags         string[] Flags controlling destination availability.
 ---
 ---@overload fun(...) : WarpDoor
 local WarpDoor, super = Class(Event, "warpdoor")
@@ -44,21 +44,19 @@ function WarpDoor:init(x, y, properties)
     self.names = {}
     self.markers = {}
     self.flags = {}
-    local i = 1
-    while properties["map"..i] do
-        if properties["name"..i] then
-            self.names[i] = properties["name"..i]
+    for i, destination in ipairs(properties.destinations or {}) do
+        if destination.name and destination.name ~= "" then
+            self.names[i] = destination.name
         else
-            self.names[i] = StringUtils.titleCase(properties["map"..i])
+            self.names[i] = StringUtils.titleCase(destination.map or "")
         end
-        if properties["flag"..i] then
-            self.flags[i] = properties["flag"..i]
+        if destination.flag and destination.flag ~= "" then
+            self.flags[i] = destination.flag
         end
-        local marker = properties["marker"..i]
+        local marker = destination.marker
         local marker_map = type(marker) == "table" and (marker.map_id or marker.map) or nil
-        self.maps[self.names[i]] = marker_map or properties["map"..i]
+        self.maps[self.names[i]] = marker_map or destination.map
         self.markers[self.names[i]] = marker
-        i = i + 1
     end
 end
 

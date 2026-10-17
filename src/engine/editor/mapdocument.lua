@@ -239,6 +239,7 @@ function EditorMapDocument:getEditableLayers(id)
                 for _, object in ipairs(layer.objects or {}) do
                     object.type = Registry.layer_types:getLegacyTiledObjectType(layer, object)
                         or object.type
+                    TiledUtils.convertObjectProperties(object, object.type)
                 end
             end
             layer._editor_type_id = layer_type and layer_type.id or "default"
@@ -319,7 +320,7 @@ function EditorMapDocument:getSelectedLayer(id)
 end
 
 function EditorMapDocument:isLayerSelectable(layer, id)
-    if not layer or not self.editor or self.editor.darken_unselected_layers == false then return true end
+    if not layer or not self.editor or self.editor.select_all_layers ~= false then return true end
     id = id or self.primary_map_id
     local selected_uid = self:getSelectedLayer(id)
     if selected_uid == nil then return true end
@@ -1642,11 +1643,8 @@ function EditorMapDocument:getObjectReferenceValues(selection)
     local result = {}
     local success, object = pcall(Registry.createEditorObject, object_id, data, { map_id = selection.map_id })
     if success and object then
-        for _, definition in ipairs(object.property_set:getProperties()) do
-            if definition.type == "object_reference" or definition.type == "marker_reference" then
-                local value = object.property_set.values[definition.id]
-                if value ~= nil then table.insert(result, value) end
-            end
+        for _, field in ipairs(object.property_set:getReferenceFields()) do
+            if field.value ~= nil then table.insert(result, field.value) end
         end
     end
     for name, type_id in pairs(data.__editor_property_types or {}) do

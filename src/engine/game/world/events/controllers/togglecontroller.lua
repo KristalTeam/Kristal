@@ -22,7 +22,7 @@ function ToggleController:init(properties)
 
     self.flag, self.inverted, self.value = MapUtils.parseFlagProperties("flag", "inverted", "value", nil, properties)
 
-    self.target_objs = MapUtils.parsePropertyList("target", properties)
+    self.target_objs = properties.target or {}
 end
 
 function ToggleController:onLoad()

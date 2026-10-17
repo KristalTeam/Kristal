@@ -37,6 +37,7 @@ local EditorDockSpace = Class()
 local REGIONS = { "top", "bottom", "left", "right", "center" }
 local HEADER_HEIGHT = 28
 local TAB_SCROLL_BUTTON_WIDTH = 22
+local CLOSE_BUTTON_WIDTH = 24
 local SPLITTER_SIZE = 5
 local EDGE_TARGET_SIZE = 64
 local FLOATING_RESIZE_SIZE = 6
@@ -378,7 +379,7 @@ function EditorDockSpace:layoutStackContent(stack)
     local tab_widths = {}
     local total_width = 0
     for index, panel in ipairs(stack.panels) do
-        local width = math.min(math.max(72, font:getWidth(panel.title) + 20), math.max(72, stack.width))
+        local width = math.min(math.max(72, font:getWidth(panel.title) + 20 + CLOSE_BUTTON_WIDTH), math.max(72, stack.width))
         tab_widths[index] = width
         total_width = total_width + width
     end
@@ -462,6 +463,30 @@ function EditorDockSpace:update(dt)
     end
 end
 
+---@param rect table
+---@return table
+function EditorDockSpace:getCloseButtonRect(rect)
+    return { x = rect.x + rect.width - CLOSE_BUTTON_WIDTH, y = rect.y,
+        width = CLOSE_BUTTON_WIDTH, height = HEADER_HEIGHT }
+end
+
+---@param panel EditorPanel
+---@param rect table
+function EditorDockSpace:drawPanelTitle(panel, rect)
+    local font = EditorFont.get(16)
+    love.graphics.setFont(font)
+    love.graphics.setColor(self.theme.text)
+    withScissor({ x = rect.x + 10, y = rect.y,
+        width = math.max(0, rect.width - CLOSE_BUTTON_WIDTH - 12), height = HEADER_HEIGHT }, function()
+        love.graphics.print(panel.title, rect.x + 10, rect.y + math.floor((HEADER_HEIGHT - font:getHeight()) / 2))
+    end)
+    local close = self:getCloseButtonRect(rect)
+    local x, y = close.x + close.width / 2, close.y + close.height / 2
+    love.graphics.setLineWidth(1)
+    love.graphics.line(x - 4, y - 4, x + 4, y + 4)
+    love.graphics.line(x + 4, y - 4, x - 4, y + 4)
+end
+
 function EditorDockSpace:drawStack(stack)
     if stack:isEmpty() or stack.width <= 0 or stack.height <= 0 then return end
     love.graphics.setColor(self.theme.panel)
@@ -474,10 +499,7 @@ function EditorDockSpace:drawStack(stack)
             love.graphics.setLineWidth(1)
             love.graphics.setColor(self.theme.border)
             love.graphics.rectangle("line", rect.x + 0.5, rect.y + 0.5, rect.width - 1, rect.height - 1)
-            love.graphics.setColor(self.theme.text)
-            love.graphics.setFont(EditorFont.get(16))
-            love.graphics.print(panel.title, rect.x + 10,
-                rect.y + math.floor((HEADER_HEIGHT - EditorFont.get(16):getHeight()) / 2))
+            self:drawPanelTitle(panel, rect)
         end
     end)
     if stack.tab_scroll_left_rect then
@@ -513,10 +535,7 @@ function EditorDockSpace:drawFloating(panel)
     love.graphics.rectangle("fill", rect.x, rect.y, rect.width, rect.height)
     love.graphics.setColor(self.theme.header)
     love.graphics.rectangle("fill", rect.x, rect.y, rect.width, HEADER_HEIGHT)
-    love.graphics.setColor(self.theme.text)
-    local font = EditorFont.get(16)
-    love.graphics.setFont(font)
-    love.graphics.print(panel.title, rect.x + 10, rect.y + math.floor((HEADER_HEIGHT - font:getHeight()) / 2))
+    self:drawPanelTitle(panel, rect)
     self:drawPanelContent(panel, rect)
     love.graphics.setLineWidth(1)
     love.graphics.setColor(self.theme.border)
@@ -552,6 +571,7 @@ function EditorDockSpace:getTabAt(x, y)
         local panel = self.floating[index]
         local rect = { x = panel.floating.x, y = panel.floating.y, width = panel.floating.width, height = HEADER_HEIGHT }
         if pointInRect(x, y, rect) then return panel, rect end
+        if pointInRect(x, y, panel.floating) then return nil end
     end
     for _, stack in ipairs(self:getStacks()) do
         if stack.tab_view_rect and pointInRect(x, y, stack.tab_view_rect) then
@@ -699,6 +719,8 @@ function EditorDockSpace:getCursorType(x, y)
         return self.captured_control:getCursorType(local_x, local_y)
     end
 
+    local close_panel, close_rect = self:getTabAt(x, y)
+    if close_panel and pointInRect(x, y, self:getCloseButtonRect(close_rect)) then return "select" end
     local _, _, floating_cursor = self:getFloatingResizeAt(x, y)
     if floating_cursor then return floating_cursor end
     local stack_splitter = self:getStackSplitterAt(x, y)
@@ -763,7 +785,7 @@ function EditorDockSpace:openPanelContextMenu(panel, x, y)
     end
     table.insert(items, { label = "Dock", children = dock_items })
     table.insert(items, {
-        label = panel.recoverable and "Close Panel" or "Remove Panel",
+        label = "Close",
         action = function() self:closePanelFromContext(panel) end
     })
 
@@ -1156,6 +1178,12 @@ function EditorDockSpace:onMousePressed(x, y, button, presses)
         end
     end
     if button == 1 then
+        local close_panel, close_rect = self:getTabAt(x, y)
+        if close_panel and pointInRect(x, y, self:getCloseButtonRect(close_rect)) then
+            self.tab_close_mouse_button = button
+            self:closePanelFromContext(close_panel)
+            return true
+        end
         local navigation_stack, direction = self:getTabNavigationAt(x, y)
         if navigation_stack then
             self:activateAdjacentTab(navigation_stack, direction)

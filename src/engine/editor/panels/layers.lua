@@ -1,6 +1,7 @@
 --- Displays the layers in the active map.
 ---@class EditorLayersPanel : EditorControl
 ---@field darken_toggle EditorCheckbox
+---@field select_all_toggle EditorCheckbox
 ---@field detail_y number
 ---@field document EditorMapDocument?
 ---@field editor Editor
@@ -21,6 +22,10 @@ function EditorLayersPanel:init(editor)
     self.updating_fields = false
     self.detail_y = 0
 
+    self.select_all_toggle = self:addChild(EditorCheckbox("Select on Any Layer",
+        editor.select_all_layers ~= false, function(value)
+            editor.settings:setValue("editing.select_all_layers", value)
+        end))
     self.darken_toggle = self:addChild(EditorCheckbox("Darken Unselected Layers",
         editor.darken_unselected_layers ~= false, function(value)
             if editor.settings and editor.settings:getSetting("appearance.darken_unselected_layers") then
@@ -528,10 +533,11 @@ end
 
 function EditorLayersPanel:update(dt)
     local padding = 8
-    self.darken_toggle:setBounds(padding, 6, math.max(0, self.width - padding * 2), 28)
-    self.new_button:setBounds(padding, 38, math.max(0, self.width - padding * 2), 28)
-    local list_height = math.max(0, self.height - 82)
-    self.list:setBounds(padding, 74, math.max(0, self.width - padding * 2), list_height)
+    self.select_all_toggle:setBounds(padding, 6, math.max(0, self.width - padding * 2), 28)
+    self.darken_toggle:setBounds(padding, 38, math.max(0, self.width - padding * 2), 28)
+    self.new_button:setBounds(padding, 70, math.max(0, self.width - padding * 2), 28)
+    local list_height = math.max(0, self.height - 114)
+    self.list:setBounds(padding, 106, math.max(0, self.width - padding * 2), list_height)
     super.update(self, dt)
 end
 

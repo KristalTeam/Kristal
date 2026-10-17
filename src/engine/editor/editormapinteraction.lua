@@ -829,19 +829,7 @@ function EditorMapInteraction:getObjectLinkProperties(selection)
         map_id = selection.map_id
     })
     if not success or not object then return {} end
-    local result = {}
-    for _, definition in ipairs(object.property_set:getProperties()) do
-        if (definition.type == "object_reference" or definition.type == "marker_reference")
-            and not definition.unavailable then
-            table.insert(result, {
-                id = definition.id,
-                name = definition.name or StringUtils.titleCase(definition.id:gsub("_", " ")),
-                definition = definition,
-                property_set = object.property_set
-            })
-        end
-    end
-    return result
+    return object.property_set:getReferenceFields()
 end
 
 function EditorMapInteraction:startObjectLink(selection, property)
@@ -849,6 +837,7 @@ function EditorMapInteraction:startObjectLink(selection, property)
     self.object_link = {
         source = selection,
         property_id = property.id,
+        property_path = property.path or { property.id },
         property_name = property.name,
         property_set = property.property_set,
         definition = property.definition
@@ -905,7 +894,7 @@ function EditorMapInteraction:finishObjectLink(target)
     end
     local reference = link.source.document:createObjectReference(target)
     local changed = self:performHistoryEdit("Link " .. link.property_name, link.source.document, function()
-        if not link.property_set:setValue(link.property_id, reference) then return false end
+        if not link.property_set:setValueAtPath(link.property_path, reference) then return false end
         link.source.document:invalidatePreview(link.source.map_id)
         return true
     end)

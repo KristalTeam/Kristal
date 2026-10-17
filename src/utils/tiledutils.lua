@@ -47,9 +47,20 @@ end
 ---@param properties table # The properties table of a Tiled event's data.
 ---@return table result    # The list of property values found.
 ---
----@deprecated Use `MapUtils.parsePropertyList` instead.
 function TiledUtils.parsePropertyList(id, properties)
-    return MapUtils.parsePropertyList(id, properties)
+    properties = properties or {}
+    if properties[id] ~= nil then
+        if type(properties[id]) == "table" and TableUtils.isArray(properties[id]) then
+            return properties[id]
+        end
+        return { properties[id] }
+    end
+    local result, index = {}, 1
+    while properties[id .. index] ~= nil do
+        table.insert(result, properties[id .. index])
+        index = index + 1
+    end
+    return result
 end
 
 ---
@@ -63,9 +74,84 @@ end
 ---@param properties table # The properties table of a Tiled event's data.
 ---@return table result    # The list of property values found.
 ---
----@deprecated Use `MapUtils.parsePropertyMultiList` instead.
 function TiledUtils.parsePropertyMultiList(id, properties)
-    return MapUtils.parsePropertyMultiList(id, properties)
+    properties = properties or {}
+    if type(properties[id]) == "table" and TableUtils.isArray(properties[id]) then
+        for _, value in ipairs(properties[id]) do
+            if not (type(value) == "table" and TableUtils.isArray(value)) then
+                return { properties[id] }
+            end
+        end
+        return properties[id]
+    end
+    local single = TiledUtils.parsePropertyList(id, properties)
+    if #single > 0 then return { single } end
+    local result, outer = {}, 1
+    while properties[id .. outer .. "_1"] ~= nil do
+        local list, inner = {}, 1
+        while properties[id .. outer .. "_" .. inner] ~= nil do
+            table.insert(list, properties[id .. outer .. "_" .. inner])
+            inner = inner + 1
+        end
+        table.insert(result, list)
+        outer = outer + 1
+    end
+    return result
+end
+
+---@param object table
+---@param id string
+---@param nested boolean?
+function TiledUtils.convertPropertyList(object, id, nested)
+    local properties = object.properties
+    local values = nested and TiledUtils.parsePropertyMultiList(id, properties)
+        or TiledUtils.parsePropertyList(id, properties)
+    local present = properties[id] ~= nil or #values > 0
+    for key in pairs(properties) do
+        if type(key) == "string" and (key:match("^" .. id .. "%d+$")
+            or nested and key:match("^" .. id .. "%d+_%d+$")) then
+            properties[key] = nil
+            if object.__editor_property_types then object.__editor_property_types[key] = nil end
+        end
+    end
+    if present then
+        properties[id] = values
+        object.__editor_property_types = object.__editor_property_types or {}
+        object.__editor_property_types[id] = "table"
+    end
+end
+
+---@param object table
+---@param object_type string?
+function TiledUtils.convertObjectProperties(object, object_type)
+    object.properties = object.properties or {}
+    local properties = object.properties
+    if object_type == "npc" or object_type == "interactable" or object_type == "savepoint" then
+        TiledUtils.convertPropertyList(object, "text", true)
+    elseif object_type == "enemy" then
+        TiledUtils.convertPropertyList(object, "marker")
+    elseif object_type == "toggle" then
+        TiledUtils.convertPropertyList(object, "target")
+    elseif object_type == "warpdoor" then
+        if properties.destinations == nil then
+            local destinations, index = {}, 1
+            while properties["map" .. index] ~= nil do
+                local destination = {}
+                for _, key in ipairs({ "map", "name", "marker", "flag" }) do
+                    destination[key] = properties[key .. index]
+                    properties[key .. index] = nil
+                    if object.__editor_property_types then object.__editor_property_types[key .. index] = nil end
+                end
+                table.insert(destinations, destination)
+                index = index + 1
+            end
+            if #destinations > 0 then
+                properties.destinations = destinations
+                object.__editor_property_types = object.__editor_property_types or {}
+                object.__editor_property_types.destinations = "table"
+            end
+        end
+    end
 end
 
 ---

@@ -16,8 +16,7 @@ function EditorWarpDoor:init(data, options)
     self:registerProperty("openflag", "string", { name = "Open Flag" })
     local destinations = self:registerPropertyGroup("destinations", {
         name = "Destination",
-        indexed = true,
-        primary = "map"
+        indexed = true
     })
     destinations:registerProperty("map", "chooser", {
         choices = Registry.editor_properties:registryChoices({ "maps", "map_data" })

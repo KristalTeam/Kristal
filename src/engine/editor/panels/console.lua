@@ -8,12 +8,6 @@
 ---@overload fun(editor: table): EditorConsolePanel
 local EditorConsolePanel, super = Class(EditorControl)
 
-local function flattenConsoleLine(line)
-    local text = ""
-    for _, part in ipairs(line or {}) do if type(part) == "string" then text = text .. part end end
-    return text
-end
-
 function EditorConsolePanel:init(editor)
     super.init(self, 0, 0, 720, 240)
     self.editor = editor
@@ -101,8 +95,8 @@ function EditorConsolePanel:drawSelf()
     local last = math.min(#history, first + self:getVisibleRows())
     local y = 4
     for index = first, last do
-        Draw.setColor(0.84, 0.84, 0.87, 1)
-        love.graphics.print(flattenConsoleLine(history[index]), 8, y)
+        Draw.setColor(1, 1, 1, 1)
+        love.graphics.print(history[index], 8, y)
         y = y + font:getHeight()
     end
     Draw.setColor(1, 1, 1, 1)

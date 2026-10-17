@@ -405,7 +405,7 @@ function operations.loadObjects(self, layer, depth, layer_type)
         elseif runtime_type == "path" then
             operations.loadPath(self, source, layer)
         else
-            operations.loadRuntimeObject(self, source, layer, depth, layer_type, runtime_type)
+            self.reader:call("loadRuntimeObject", source, layer, depth, layer_type, runtime_type)
         end
     end
 end

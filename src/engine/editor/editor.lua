@@ -35,6 +35,7 @@
 ---@field tile_editing_mode boolean
 ---@field show_tile_grid boolean
 ---@field darken_unselected_layers boolean
+---@field select_all_layers boolean
 ---@field darken_unselected_maps boolean
 ---@field game_faulted boolean
 ---@field game_fault_trace string?
