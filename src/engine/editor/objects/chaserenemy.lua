@@ -56,4 +56,11 @@ function EditorChaserEnemy:createObject(map, context)
     return ChaserEnemy(self.data.properties.actor, x, y, self.data.properties)
 end
 
+---@param object ChaserEnemy
+---@param context table
+function EditorChaserEnemy:applyRuntimePlacement(object, context)
+    super.applyRuntimePlacement(self, object, context)
+    object.spawn_x, object.spawn_y = object.x, object.y
+end
+
 return EditorChaserEnemy

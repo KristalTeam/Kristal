@@ -358,6 +358,9 @@ function operations.loadRuntimeObject(self, source, layer, depth, layer_type, ru
             obj:setScale(scale_x, scale_y)
             obj.x = obj.x + (layer.offsetx or 0)
             obj.y = obj.y + (layer.offsety or 0)
+            if not self.reader.LEGACY_FORMAT and runtime_context.editor_object then
+                runtime_context.editor_object:applyRuntimePlacement(obj, runtime_context)
+            end
             obj:setParallax((obj.parallax_x or 1) * layer.parallaxx, (obj.parallax_y or 1) * layer.parallaxy)
             if not obj.object_id then obj.object_id = v.id end
             if not obj.unique_id then obj.unique_id = v.properties["uid"] end
@@ -441,6 +444,7 @@ function operations.loadObject(self, name, data, context)
             map_id = self.id,
             runtime = true
         })
+        if context then context.editor_object = editor_object end
         return editor_object:createObject(self, context)
     end
 
@@ -490,6 +494,7 @@ function operations.loadController(self, name, data, context)
             map_id = self.id,
             runtime = true
         })
+        if context then context.editor_object = editor_object end
         return editor_object:createObject(self, context)
     end
 end

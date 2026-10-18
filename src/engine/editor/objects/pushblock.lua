@@ -35,4 +35,11 @@ function EditorPushBlock:createObject(map, context)
     return PushBlock(self.data.x, self.data.y, self:getRectData(), self.data.properties)
 end
 
+---@param object PushBlock
+---@param context table
+function EditorPushBlock:applyRuntimePlacement(object, context)
+    super.applyRuntimePlacement(self, object, context)
+    object.start_x, object.start_y = object.x, object.y
+end
+
 return EditorPushBlock

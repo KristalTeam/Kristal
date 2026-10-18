@@ -179,6 +179,26 @@ function EditorObject:createObject(map, context)
     error(ClassUtils.getClassName(self) .. ":createObject() must be overridden", 2)
 end
 
+---@param object Object
+---@param context {layer: table}
+function EditorObject:applyRuntimePlacement(object, context)
+    if self.fixed_shape ~= "rectangle" or self.scaling_mode ~= "scale"
+        or self.sprite_alignment ~= "center" or not self:hasExportPreview() then return end
+    if self.data.gid or self.data.tileset and self.data.tile_id ~= nil then return end
+    local sprite = object.sprite
+    if not sprite or not sprite.texture then return end
+    local width, height = self:getBoundsSize()
+    local x, y = width / 2, height / 2
+    local sprite_x, sprite_y = sprite:getRelativePos(sprite.texture:getWidth() / 2,
+        sprite.texture:getHeight() / 2)
+    sprite_x, sprite_y = object:getRelativePos(sprite_x, sprite_y)
+    local target_x = (self.data.x or 0) + (context.layer.offsetx or 0)
+        + x * math.cos(self.rotation) - y * math.sin(self.rotation)
+    local target_y = (self.data.y or 0) + (context.layer.offsety or 0)
+        + x * math.sin(self.rotation) + y * math.cos(self.rotation)
+    object:setPosition(object.x + target_x - sprite_x, object.y + target_y - sprite_y)
+end
+
 --- ** Override ** 
 --- Determines the bounds of an object in editor. NPC/Sprite override this to set the dimensions to match their actor/sprite property.
 ---@return number? width

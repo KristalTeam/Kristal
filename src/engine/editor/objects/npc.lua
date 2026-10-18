@@ -62,18 +62,35 @@ function EditorNPC:createObject(map, context)
     return NPC(self.data.properties.actor, x, y, self.data.properties)
 end
 
+---@param map_data table?
 function EditorNPC:convertLegacyBounds(map_data)
     local width, height = self.data.width or 0, self.data.height or 0
-    local was_point = self.data.shape == "point" or self.data.point == true
+    local old_x, old_y = self.data.x or 0, self.data.y or 0
     super.convertLegacyBounds(self, map_data)
-    if was_point or self.data.gid or self.data.tileset and self.data.tile_id ~= nil then return end
+    if self.data.gid or self.data.tileset and self.data.tile_id ~= nil then return end
     local new_width, new_height = self:getBounds()
-    local x, y = (width - new_width) / 2, (height - new_height) / 2
+    local x, y = (width - new_width) / 2, height / 2 - new_height
+    local success, sprite_x, sprite_y = pcall(function()
+        local actor = Registry.createActor(self.properties.actor)
+        local sprite = actor:createSprite()
+        if self.properties.sprite then
+            sprite:setSprite(self.properties.sprite)
+        elseif self.properties.animation then
+            sprite:setAnimation(self.properties.animation)
+        end
+        sprite:setFacing(self.properties.facing or "down")
+        local center_x, center_y = sprite:getRelativePos(sprite.texture:getWidth() / 2,
+            sprite.texture:getHeight() / 2)
+        return (center_x - actor:getWidth() / 2) * 2, (center_y - actor:getHeight()) * 2
+    end)
+    if success then
+        x, y = (width - new_width) / 2 + sprite_x, (height - new_height) / 2 + sprite_y
+    end
     local offset_x = x * math.cos(self.rotation) - y * math.sin(self.rotation)
     local offset_y = x * math.sin(self.rotation) + y * math.cos(self.rotation)
-    self.data.x = (self.data.x or 0) + offset_x
-    self.data.y = (self.data.y or 0) + offset_y
-    self.x, self.y = self.x + offset_x, self.y + offset_y
+    self.x = self.x + old_x + offset_x - (self.data.x or 0)
+    self.y = self.y + old_y + offset_y - (self.data.y or 0)
+    self.data.x, self.data.y = old_x + offset_x, old_y + offset_y
 end
 
 return EditorNPC
