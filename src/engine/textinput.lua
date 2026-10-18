@@ -19,6 +19,7 @@
 ---@field pressed_callback (fun(key:string):boolean?)? # A callback that is called when a key is pressed.
 ---@field text_callback fun(text:string)? # A callback that is called when text is inputted.
 ---@field escape_callback fun()? # A callback that is called when escape is pressed.
+---@field cancelled_callback fun()? # A callback that is called when the input is cancelled.
 ---
 ---@field multiline boolean # Whether this input is multiline.
 ---@field enter_submits boolean # Whether pressing enter submits the input.
@@ -53,6 +54,7 @@ function TextInput.init()
     TextInput.pressed_callback = nil
     TextInput.text_callback = nil
     TextInput.escape_callback = nil
+    TextInput.cancelled_callback = nil
 
     TextInput.setOptions(nil)
     TextInput.reset()
@@ -87,6 +89,10 @@ end
 ---@param tbl string[]
 ---@param options TextInput.inputOptions?
 function TextInput.attachInput(tbl, options)
+    if TextInput.active and TextInput.cancelled_callback ~= nil then
+        TextInput.cancelled_callback()
+    end
+
     Kristal.showCursor()
     TextInput.active = true
     love.keyboard.setTextInput(true)
@@ -102,6 +108,7 @@ function TextInput.attachInput(tbl, options)
     TextInput.pressed_callback = nil
     TextInput.text_callback = nil
     TextInput.escape_callback = nil
+    TextInput.cancelled_callback = nil
 end
 
 ---@param tbl string[]
