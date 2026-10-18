@@ -4,13 +4,14 @@ function spell:init()
     super.init(self)
 
     -- Display name
-    self.name = "BetterHeal"
+    if Game.chapter <= 4 then
+        self.name = "BetterHeal"
+    else
+        self.name = "Heal"
+    end
     -- Name displayed when cast (optional)
-
     if Game.chapter == 4 then
         self.cast_name = "BetterHeal"
-    else
-        self.cast_name = "BETTERHEAL"
     end
 
     -- Battle description
@@ -56,6 +57,28 @@ function spell:onCast(user, target)
     base_heal = base_heal + (2 * healing_used)
 
     local heal_amount = math.ceil(Game.battle:applyHealBonuses(base_heal, user.chara, target.chara))
+
+    -- Hidden Chapter 5 mechanic
+    -- The spell restores extra hp if the target's health is below 0
+    if Game.chapter >= 5 and target.chara:getHealth() < 0 then
+        local bonus_heal = heal_amount
+        local bonus_heal2 = heal_amount
+        if bonus_heal + bonus_heal2 < 1 then
+            heal_amount = bonus_heal + bonus_heal2
+        else
+            bonus_heal2 = 0
+            for i = 1, heal_amount do
+                if bonus_heal + bonus_heal2 + target.chara:getHealth() > 0 then
+                    break
+                end
+                if bonus_heal2 >= heal_amount then
+                    break
+                end
+                bonus_heal2 = bonus_heal2 + 1
+            end
+            heal_amount = bonus_heal + bonus_heal2
+        end
+    end
 
     target:heal(heal_amount)
 end
