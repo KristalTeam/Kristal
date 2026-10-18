@@ -2099,10 +2099,13 @@ function DebugSystem:draw()
 
         Draw.setColor(1, 1, 1, 1)
 
+        local texture_found = {}
         local textures = {}
+
         for _, id in pairs(Assets.texture_ids) do
-            if StringUtils.startsWith(id, "face/") then
+            if StringUtils.startsWith(id, "face/") and not texture_found[id] then
                 table.insert(textures, id:sub(6))
+                texture_found[id] = true
             end
         end
 
