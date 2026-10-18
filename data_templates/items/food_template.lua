@@ -1,4 +1,5 @@
 -- Create a healing item and specify its ID (id is optional, defaults to file path)
+---@class TemplateFoodItem : HealItem
 local item, super = Class(HealItem, "test_food")
 
 function item:init()
@@ -11,6 +12,8 @@ function item:init()
 
     -- Item type (item, key, weapon, armor)
     self.type = "item"
+    self.icon = nil
+    self.light = false
 
     -- Battle description
     self.effect = "Heals\n100HP"
@@ -18,14 +21,22 @@ function item:init()
     self.shop = "Example\nfood\nheals 100HP"
     -- Menu description
     self.description = "Example food. +100HP"
+    self.check = "Heals 100HP"
 
     -- Amount healed (HealItem variable)
     self.heal_amount = 100
+    self.world_heal_amount = nil
+    self.battle_heal_amount = nil
+    self.heal_amounts = {}
+    self.world_heal_amounts = {}
+    self.battle_heal_amounts = {}
 
     -- Default shop price (sell price is halved)
     self.price = 0
     -- Whether the item can be sold
     self.can_sell = true
+    self.buy_price = nil
+    self.sell_price = nil
 
     -- Consumable target mode (ally, party, enemy, enemies, or none)
     self.target = "ally"
@@ -35,6 +46,13 @@ function item:init()
     self.result_item = nil
     -- Will this item be instantly consumed in battles?
     self.instant = false
+
+    -- Equip bonuses (available when using this as equipment)
+    self.bonuses = {}
+    self.bonus_name = nil
+    self.bonus_icon = nil
+    self.bonus_color = PALETTE["world_ability_icon"]
+    self.can_equip = {}
 
     -- Character reactions (key = party member id)
     self.reactions = {}

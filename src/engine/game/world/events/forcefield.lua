@@ -42,7 +42,7 @@ function Forcefield:init(x, y, shape, properties)
 
     self.always_visible = properties["visible"] or false
 
-    self.flag, self.inverted, self.flag_value = TiledUtils.parseFlagProperties("flag", "inverted", "value", nil, properties)
+    self.flag, self.inverted, self.flag_value = MapUtils.parseFlagProperties("flag", "inverted", "value", nil, properties)
 
     self:updateActive()
 end

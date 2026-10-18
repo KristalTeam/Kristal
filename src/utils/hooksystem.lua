@@ -2,11 +2,12 @@
 local HookSystem = {}
 
 HookSystem.__MOD_HOOKS = {}
+HookSystem.__CURRENT_OWNER = nil
 
 ---
 --- Replaces a function within a class with a new function. \
 --- Also allows calling the original function, allowing you to add code to the beginning or end of existing functions. \
---- `HookSystem.hook()` should always be called in `Mod:init()`. An example of how to hook a function is as follows:
+--- `HookSystem.hook()` should be called while a mod, library, or editor plugin is initializing. An example of how to hook a function is as follows:
 --- ```lua
 --- -- this code will hook 'Object:setPosition(x, y)', and will be run whenever that function is called
 --- -- all class functions receive the object instance as the first argument. in this function, i name that argument 'obj', and it refers to whichever object is calling 'setPosition()'
@@ -30,8 +31,11 @@ function HookSystem.hook(target, name, hook, exact_func)
     local orig = target[name]
 
     -- If a mod is currently loaded, store information about the hook so it can be disabled later.
-    if Mod then
-        table.insert(HookSystem.__MOD_HOOKS, 1, { target = target, name = name, hook = hook, orig = orig })
+    if Mod or HookSystem.__CURRENT_OWNER then
+        table.insert(HookSystem.__MOD_HOOKS, 1, {
+            target = target, name = name, hook = hook, orig = orig,
+            owner = HookSystem.__CURRENT_OWNER
+        })
     end
 
     local orig_func = orig or function() end
@@ -61,7 +65,7 @@ end
 HookSystem.HOOKSCRIPT_MT = {
     __newindex = function(self, k, v)
         self.__hookscript_super[k] = self.__hookscript_super[k] or self.__hookscript_class[k]
-        assert(Mod)
+        assert(Mod or HookSystem.__CURRENT_OWNER)
         HookSystem.hook(self.__hookscript_class, k, v, true)
     end
 }
@@ -85,6 +89,28 @@ function HookSystem.hookScript(include)
     local super = { super = include.__super }
     local class = setmetatable({ __hookscript_super = super, __hookscript_class = include }, HookSystem.HOOKSCRIPT_MT)
     return class, super
+end
+
+function HookSystem.withOwner(owner, callback, ...)
+    local previous = HookSystem.__CURRENT_OWNER
+    HookSystem.__CURRENT_OWNER = owner
+    local arguments = { ... }
+    local result = { xpcall(function() return callback(unpack(arguments)) end, debug.traceback) }
+    HookSystem.__CURRENT_OWNER = previous
+    if not result[1] then error(result[2], 2) end
+    return unpack(result, 2, table.maxn(result))
+end
+
+function HookSystem.clearOwnedHooks(predicate)
+    local remaining = {}
+    for _, hook in ipairs(HookSystem.__MOD_HOOKS) do
+        if hook.owner and predicate(hook.owner) then
+            hook.target[hook.name] = hook.orig
+        else
+            table.insert(remaining, hook)
+        end
+    end
+    HookSystem.__MOD_HOOKS = remaining
 end
 
 ---

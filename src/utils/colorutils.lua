@@ -215,12 +215,26 @@ end
 --- Converts a color to a hex color string.
 ---
 ---@param red number   # The red value of the color, between 0 and 1.
----@param blue number  # The blue value of the color, between 0 and 1.
 ---@param green number # The green value of the color, between 0 and 1.
+---@param blue number  # The blue value of the color, between 0 and 1.
 ---@return string hex  # The converted hex string. Formatted with a # at the start, eg. "#ff00ff".
 ---
-function ColorUtils.RGBToHex(red, blue, green)
-    return string.format("#%02X%02X%02X", red * 255, blue * 255, green * 255)
+function ColorUtils.RGBToHex(red, green, blue)
+    return string.format("#%02X%02X%02X", red * 255, green * 255, blue * 255)
+end
+
+function ColorUtils.RGBAToHex(color)
+    local function byte(value)
+        return MathUtils.clamp(MathUtils.round((value or 1) * 255), 0, 255)
+    end
+    return string.format("#%02X%02X%02X%02X",
+        byte(color[1]), byte(color[2]), byte(color[3]), byte(color[4]))
+end
+
+function ColorUtils.tryHexToRGB(value)
+    if type(value) ~= "string" then return nil end
+    local success, color = pcall(ColorUtils.hexToRGB, value)
+    return success and color or nil
 end
 
 ---
