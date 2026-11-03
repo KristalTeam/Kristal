@@ -5,7 +5,8 @@
 ---@field world             World
 ---@field battle            Battle
 ---@field shop              Shop
----@field gameover          GameOver
+---@field gameover          GameOver|OldGameOver|LightGameOver
+---@field custom_gameovers   table<string, string|Class|(fun(x?: number, y?: number): Object)>?
 ---@field legend            Legend
 ---@field inventory         DarkInventory|LightInventory
 ---@field dark_inventory    DarkInventory
@@ -765,15 +766,66 @@ end
 ---@param y number The y position of where the soul will spawn in the GameOver screen
 ---@return GameOver gameover The gameover object
 function Game:createGameOver(x, y)
-    local gameover
-    if Game:isLight() then
-        gameover = LightGameOver(x, y)
-    elseif Game:getConfig("oldGameOver") then
-        gameover = OldGameOver(x, y)
-    else
-        gameover = GameOver(x, y)
+
+    local constructor = nil
+    if self.custom_gameovers then
+        local current_type = Game:isLight() and "light" or "dark"
+        constructor = self.custom_gameovers[current_type] or self.custom_gameovers["all"]
+    end
+
+    local gameover = nil
+    if constructor then
+        if type(constructor) == "string" then
+            gameover = Registry.createObject(constructor, x, y)
+        elseif type(constructor) == "function" or isClass(constructor) then
+            gameover = constructor(x, y)
+        end
+    end
+    if gameover == nil then
+        if Game:isLight() then
+            gameover = LightGameOver(x, y)
+        elseif Game:getConfig("oldGameOver") == true then
+            gameover = OldGameOver(x, y)
+        else
+            gameover = GameOver(x, y)
+        end
     end
     return gameover
+end
+
+---Overwrites the default GameOver sequence with a custom one
+---@param target_type? "all"|"light"|"dark" Marks if the custom GameOver should only be used while the player is in the Light World ["light"], the Dark World ["dark"], or both ["all"]. Uses all by default
+---@param constructor string|Class|fun(x: number, y: number): Object A constructor function that takes the x and y position of the soul and returns an object instance that manages the GameOver. \
+---It can also be the id or the Class
+function Game:registerCustomGameOver(target_type, constructor)
+    if constructor == nil then
+        constructor = target_type
+        target_type = "all"
+    end
+    if not self.custom_gameovers then
+        self.custom_gameovers = {}
+    end
+    if target_type ~= "all" and target_type ~= "light" and target_type ~= "dark" then
+        target_type = "all"
+    end
+    self.custom_gameovers[target_type] = constructor
+end
+
+---Resets a custom GameOver sequence back to the defaults ones of Kristal
+---@param target_type? "all"|"light"|"dark" Tells which custom gameover should be reset. ["all"] by default
+function Game:resetGameOver(target_type)
+    if target_type == nil or (target_type ~= "all" and target_type ~= "light" and target_type ~= "dark") then
+        target_type = "all"
+    end
+    if self.custom_gameovers then
+        if target_type == "all" then
+            self.custom_gameovers["all"] = nil
+            self.custom_gameovers["light"] = nil
+            self.custom_gameovers["dark"] = nil
+        else
+            self.custom_gameovers[target_type] = nil
+        end
+    end
 end
 
 ---@param cutscene          string
