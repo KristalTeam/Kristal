@@ -740,8 +740,9 @@ function Game:convertToDark()
     end
 end
 
----@param x? number
----@param y? number
+---Creates the GameOver sequence object
+---@param x? number The x position of where the soul will spawn in the GameOver screen
+---@param y? number The y position of where the soul will spawn in the GameOver screen
 function Game:gameOver(x, y)
     x, y = x or 0, y or 0
     if Kristal.callEvent(KRISTAL_EVENT.onGameOver, x, y) then
@@ -755,8 +756,24 @@ function Game:gameOver(x, y)
         child:remove()
     end
 
-    self.gameover = GameOver(x, y)
+    self.gameover = self:createGameOver(x, y)
     self.stage:addChild(self.gameover)
+end
+
+---Creates the corresponding GameOver object, depending on the project config and if the map is in the LightWorld or not
+---@param x number The x position of where the soul will spawn in the GameOver screen
+---@param y number The y position of where the soul will spawn in the GameOver screen
+---@return GameOver gameover The gameover object
+function Game:createGameOver(x, y)
+    local gameover
+    if Game:isLight() then
+        gameover = LightGameOver(x, y)
+    elseif Game:getConfig("oldGameOver") then
+        gameover = OldGameOver(x, y)
+    else
+        gameover = GameOver(x, y)
+    end
+    return gameover
 end
 
 ---@param cutscene          string
@@ -1395,7 +1412,7 @@ function Game:onKeyPressed(key, is_repeat)
             self.world:onKeyPressed(key)
         end
     elseif self.state == "GAMEOVER" then
-        if self.gameover then
+        if self.gameover and self.gameover.onKeyPressed then
             self.gameover:onKeyPressed(key)
         end
     end
