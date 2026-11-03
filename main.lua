@@ -330,6 +330,8 @@ Border = require("src.engine.border")
 ImageBorder = require("src.engine.imageborder")
 
 GameOver = require("src.engine.game.gameover")
+LightGameOver = require("src.engine.game.lightgameover")
+OldGameOver = require("src.engine.game.oldgameover")
 
 Legend = require("src.engine.game.legend")
 
