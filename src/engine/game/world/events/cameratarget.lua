@@ -51,7 +51,7 @@ end
 ---@return number y
 function CameraTarget:getTargetPosition()
     if self.target_marker then
-        return self.world.map:getMarker(self.target_marker)
+        return MapUtils.parseMarkerProperty(self, self.target_marker, "marker")
     else
         return self.target_x or (self.x + self.width / 2), self.target_y or (self.y + self.height / 2)
     end

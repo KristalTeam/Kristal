@@ -222,6 +222,26 @@ function Draw.scissorPoints(x1, y1, x2, y2)
     end
 end
 
+---@param x number
+---@param y number
+---@param width number
+---@param height number
+---@param size? number
+---@param first_color? number[]
+---@param second_color? number[]
+function Draw.checkerboard(x, y, width, height, size, first_color, second_color)
+    size = size or 8
+    first_color = first_color or { 0.72, 0.72, 0.72, 1 }
+    second_color = second_color or { 0.42, 0.42, 0.42, 1 }
+    for row = 0, math.ceil(height / size) - 1 do
+        for column = 0, math.ceil(width / size) - 1 do
+            Draw.setColor((row + column) % 2 == 0 and first_color or second_color)
+            love.graphics.rectangle("fill", x + column * size, y + row * size,
+                math.min(size, width - column * size), math.min(size, height - row * size))
+        end
+    end
+end
+
 ---@param shader love.Shader|string
 ---@return love.Shader
 function Draw.pushShader(shader, vars)

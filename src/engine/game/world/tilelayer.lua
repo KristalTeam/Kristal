@@ -10,7 +10,6 @@ local TileLayer, super = Class(Object)
 ---@param map Map
 function TileLayer:init(map, data)
     data = data or {}
-    assert(data.encoding == "lua", "Tile layer format \"" .. data.encoding .. "\" is not supported. Please set the format to CSV in the map properties.")
 
     self.map_width = data.width or map.width
     self.map_height = data.height or map.height
@@ -33,7 +32,8 @@ function TileLayer:init(map, data)
     end
 
     self.tile_data = data.data
-    self.tile_opacity = data.opacity or 1
+    self.tile_opacity = (data.opacity or 1)
+        * (data.tintcolor and (data.tintcolor[4] or 255) / 255 or 1)
 
     if not self.tile_data then
         self.tile_data = {}
@@ -55,14 +55,15 @@ function TileLayer:setTile(x, y, tileset, ...)
     if type(tileset) == "number" then
         self.tile_data[index] = tileset
     elseif type(tileset) == "string" then
-        local tiles, first_id = self.map:getTileset(tileset)
-
         local args = { ... }
+        local tile_id
         if #args == 2 then -- x, y
-            self.tile_data[index] = first_id + (args[1] + (args[2] * tiles.columns))
+            local tiles = self.map:getTileset(tileset)
+            tile_id = args[1] + (args[2] * tiles.columns)
         else -- tile index
-            self.tile_data[index] = first_id + args[1]
+            tile_id = args[1]
         end
+        self.tile_data[index] = self.map:encodeTileData(tileset, tile_id)
     end
     self:markTilesDirty()
 end
@@ -97,7 +98,7 @@ function TileLayer:regenerateTiles()
         local tx = ((i - 1) % self.map_width) * grid_w
         local ty = math.floor((i - 1) / self.map_width) * grid_h
 
-        local gid, flip_x, flip_y, flip_diag = TiledUtils.parseTileGid(xid)
+        local gid, flip_x, flip_y, flip_diag = self.map:decodeTileData(xid)
         local tileset, id = self.map:getTileset(gid)
         if tileset then
             if tileset.texture == nil or tileset:getAnimation(id) ~= nil then

@@ -1,6 +1,31 @@
 ---@class StringUtils
 local StringUtils = {}
 
+---@param value string
+---@param cursor number?
+---@return number cursor
+function StringUtils.clampByteCursor(value, cursor)
+    return MathUtils.clamp(cursor or (#value + 1), 1, #value + 1)
+end
+
+---@param value string
+---@param cursor number?
+---@return number cursor
+function StringUtils.previousCodepoint(value, cursor)
+    cursor = StringUtils.clampByteCursor(value, cursor)
+    if cursor <= 1 then return 1 end
+    return utf8.offset(value, -1, cursor) or 1
+end
+
+---@param value string
+---@param cursor number?
+---@return number cursor
+function StringUtils.nextCodepoint(value, cursor)
+    cursor = StringUtils.clampByteCursor(value, cursor)
+    if cursor > #value then return #value + 1 end
+    return utf8.offset(value, 2, cursor) or (#value + 1)
+end
+
 ---
 --- Returns the length of a string, while being UTF-8 aware.
 ---
@@ -191,6 +216,12 @@ function StringUtils.titleCase(str)
     return table.concat(buf, " ")
 end
 
+---@param value any
+---@return string label
+function StringUtils.humanizeIdentifier(value)
+    return tostring(value or ""):gsub("_", " "):gsub("^%l", string.upper)
+end
+
 ---
 --- Strips a string of padding whitespace.
 ---
@@ -314,6 +345,19 @@ function StringUtils.squishAndTrunc(str, font, max_width, def_scale, min_scale, 
         end
     end
     return str, scale
+end
+
+---@param value any
+---@param font love.Font
+---@param max_width number
+---@param suffix? string|false
+---@return string text
+function StringUtils.truncateToWidth(value, font, max_width, suffix)
+    if max_width <= 0 then return "" end
+    local affix = suffix == nil and "..." or suffix
+    if affix ~= false and font:getWidth(affix) >= max_width then return "" end
+    local text = StringUtils.squishAndTrunc(tostring(value or ""), font, max_width, 1, 1, suffix)
+    return text
 end
 
 return StringUtils
