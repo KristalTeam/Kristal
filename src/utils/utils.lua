@@ -17,6 +17,7 @@ local Utils = {}
 ---
 ---@deprecated Use StringUtils.sub instead
 function Utils.sub(input, from, to)
+    Kristal.markDeprecated(2, "Utils.sub", "function", "renamed", "StringUtils.sub")
     return StringUtils.sub(input, from, to)
 end
 
@@ -28,6 +29,7 @@ end
 ---
 ---@deprecated Use StringUtils.len instead
 function Utils.len(input)
+    Kristal.markDeprecated(2, "Utils.len", "function", "renamed", "StringUtils.len")
     return StringUtils.len(input)
 end
 
@@ -41,6 +43,7 @@ end
 ---
 ---@deprecated Use TableUtils.all OR TableUtils.every instead
 function Utils.all(tbl, func)
+    Kristal.markDeprecated(2, "Utils.all", "function", "replaced", "TableUtils.all OR TableUtils.every")
     if func == nil then
         return TableUtils.all(tbl)
     else
@@ -58,6 +61,7 @@ end
 ---
 ---@deprecated Use `TableUtils.any` OR `TableUtils.some` instead
 function Utils.any(tbl, func)
+    Kristal.markDeprecated(2, "Utils.any", "function", "replaced", "TableUtils.any OR TableUtils.some")
     if func == nil then
         return TableUtils.any(tbl)
     else
@@ -76,6 +80,7 @@ end
 ---
 ---@deprecated Use `TableUtils.copy` instead
 function Utils.copy(tbl, deep, seen)
+    Kristal.markDeprecated(2, "Utils.copy", "function", "renamed", "TableUtils.copy")
     return TableUtils.copy(tbl, deep, seen)
 end
 
@@ -89,6 +94,7 @@ end
 ---
 ---@deprecated Use `TableUtils.copyInto` instead
 function Utils.copyInto(new_tbl, tbl, deep, seen)
+    Kristal.markDeprecated(2, "Utils.copyInto", "function", "renamed", "TableUtils.copyInto")
     return TableUtils.copyInto(new_tbl, tbl, deep, seen)
 end
 
@@ -99,6 +105,7 @@ end
 ---
 ---@deprecated Use `TableUtils.clear` instead
 function Utils.clear(tbl)
+    Kristal.markDeprecated(2, "Utils.clear", "function", "renamed", "TableUtils.clear")
     return TableUtils.clear(tbl)
 end
 
@@ -112,6 +119,7 @@ end
 ---
 ---@deprecated Use `ClassUtils.getClassName` instead
 function Utils.getClassName(class, parent_check)
+    Kristal.markDeprecated(2, "Utils.getClassName", "function", "renamed", "ClassUtils.getClassName")
     return ClassUtils.getClassName(class, parent_check)
 end
 
@@ -123,6 +131,7 @@ end
 ---
 ---@deprecated Use `TableUtils.dump` instead
 function Utils.dump(o)
+    Kristal.markDeprecated(2, "Utils.dump", "function", "renamed", "ClassUtils.dump")
     return TableUtils.dump(o)
 end
 
@@ -136,6 +145,7 @@ end
 ---
 ---@deprecated Use `TableUtils.unpack` instead
 function Utils.unpack(t)
+    Kristal.markDeprecated(2, "Utils.unpack", "function", "renamed", "TableUtils.unpack")
     return TableUtils.unpack(t)
 end
 
@@ -164,6 +174,7 @@ end
 ---
 ---@deprecated Use `StringUtils.split` instead
 function Utils.split(input, separator, remove_empty)
+    Kristal.markDeprecated(2, "Utils.split", "function", "renamed", "StringUtils.split")
     return StringUtils.split(input, separator, remove_empty)
 end
 
@@ -191,6 +202,7 @@ end
 ---
 ---@deprecated Use `HookSystem.hook` instead
 function Utils.hook(target, name, hook, exact_func)
+    Kristal.markDeprecated(2, "Utils.hook", "function", "renamed", "HookSystem.hook")
     return HookSystem.hook(target, name, hook, exact_func)
 end
 
@@ -203,6 +215,7 @@ end
 ---
 ---@deprecated Use `HookSystem.hookScript` instead
 function Utils.hookScript(include)
+    Kristal.markDeprecated(2, "Utils.hookScript", "function", "renamed", "HookSystem.hookScript")
     return HookSystem.hookScript(include)
 end
 
@@ -217,6 +230,7 @@ end
 ---
 ---@deprecated Use `HookSystem.override` instead
 function Utils.override(old_func, new_func)
+    Kristal.markDeprecated(2, "Utils.override", "function", "renamed", "HookSystem.override")
     return HookSystem.override(old_func, new_func)
 end
 
@@ -267,6 +281,7 @@ end
 ---
 ---@deprecated Use `FileSystemUtils.getFilesRecursive` instead
 function Utils.getFilesRecursive(dir, ext)
+    Kristal.markDeprecated(2, "Utils.getFilesRecursive", "function", "renamed", "FileSystemUtils.getFilesRecursive")
     return FileSystemUtils.getFilesRecursive(dir, ext)
 end
 
@@ -302,6 +317,7 @@ end
 ---
 ---@deprecated Use `ColorUtils.HSLToRGB` instead
 function Utils.hslToRgb(h, s, l)
+    Kristal.markDeprecated(2, "Utils.hslToRgb", "function", "renamed", "ColorUtils.HSLToRGB")
     return ColorUtils.HSLToRGB(h, s, l)
 end
 
@@ -317,6 +333,7 @@ end
 ---
 ---@deprecated Use `ColorUtils.RGBToHSL` instead
 function Utils.rgbToHsl(r, g, b)
+    Kristal.markDeprecated(2, "Utils.rgbToHsl", "function", "renamed", "ColorUtils.RGBToHSL")
     return ColorUtils.RGBToHSL(r, g, b)
 end
 
@@ -332,6 +349,7 @@ end
 ---
 ---@deprecated Use `ColorUtils.HSVToRGB` instead
 function Utils.hsvToRgb(h, s, v)
+    Kristal.markDeprecated(2, "Utils.hsvToRgb", "function", "renamed", "ColorUtils.HSVToRGB")
     return ColorUtils.HSVToRGB(h, s, v)
 end
 
@@ -344,6 +362,7 @@ end
 ---
 ---@deprecated Use `ColorUtils.hexToRGB` instead
 function Utils.hexToRgb(hex, value)
+    Kristal.markDeprecated(2, "Utils.hexToRgb", "function", "renamed", "ColorUtils.hexToRGB")
     local color = ColorUtils.hexToRGB(hex)
     return {
         color[1],
@@ -361,6 +380,7 @@ end
 ---
 ---@deprecated Use `ColorUtils.RGBToHex` instead
 function Utils.rgbToHex(rgb)
+    Kristal.markDeprecated(2, "Utils.rgbToHex", "function", "renamed", "ColorUtils.RGBToHex")
     return ColorUtils.RGBToHex(rgb[1], rgb[2], rgb[3])
 end
 
@@ -372,6 +392,7 @@ end
 ---
 ---@deprecated Use `TiledUtils.parseColorProperty` instead
 function Utils.parseColorProperty(property)
+    Kristal.markDeprecated(2, "Utils.parseColorProperty", "function", "renamed", "TiledUtils.parseColorProperty")
     return TiledUtils.parseColorProperty(property)
 end
 
@@ -385,6 +406,7 @@ end
 ---
 ---@deprecated Use `TableUtils.merge` instead
 function Utils.merge(tbl, other, deep)
+    Kristal.markDeprecated(2, "Utils.merge", "function", "renamed", "TableUtils.merge")
     return TableUtils.merge(tbl, other, deep)
 end
 
@@ -396,6 +418,7 @@ end
 ---
 ---@deprecated Use `TableUtils.mergeMany` instead
 function Utils.mergeMultiple(...)
+    Kristal.markDeprecated(2, "Utils.mergeMultiple", "function", "renamed", "TableUtils.mergeMany")
     return TableUtils.mergeMany(...)
 end
 
@@ -409,6 +432,7 @@ end
 ---
 ---@deprecated Use `TableUtils.removeDuplicates` instead
 function Utils.removeDuplicates(tbl, deep)
+    Kristal.markDeprecated(2, "Utils.removeDuplicates", "function", "renamed", "TableUtils.removeDuplicates")
     return TableUtils.removeDuplicates(tbl, deep)
 end
 
@@ -420,6 +444,7 @@ end
 ---
 ---@deprecated Use `TableUtils.isArray` instead
 function Utils.isArray(tbl)
+    Kristal.markDeprecated(2, "Utils.isArray", "function", "renamed", "TableUtils.isArray")
     return TableUtils.isArray(tbl)
 end
 
@@ -433,6 +458,7 @@ end
 ---
 ---@deprecated Use `TableUtils.removeValue` instead
 function Utils.removeFromTable(tbl, val)
+    Kristal.markDeprecated(2, "Utils.removeFromTable", "function", "renamed", "TableUtils.removeValue")
     return TableUtils.removeValue(tbl, val)
 end
 
@@ -445,6 +471,7 @@ end
 ---
 ---@deprecated Use `TableUtils.contains` instead
 function Utils.containsValue(tbl, val)
+    Kristal.markDeprecated(2, "Utils.containsValue", "function", "renamed", "TableUtils.contains")
     return TableUtils.contains(tbl, val)
 end
 
@@ -540,6 +567,7 @@ end
 ---
 ---@deprecated Use `math.floor` or `MathUtils.floorToMultiple` instead.
 function Utils.floor(value, to)
+    Kristal.markDeprecated(2, "Utils.floor", "function", "replaced", "math.floor or MathUtils.floorToMultiple")
     if not to then
         return math.floor(value)
     else
@@ -556,6 +584,7 @@ end
 ---
 ---@deprecated Use `math.ceil` or `MathUtils.ceilToMultiple` instead.
 function Utils.ceil(value, to)
+    Kristal.markDeprecated(2, "Utils.ceil", "function", "replaced", "math.ceil or MathUtils.ceilToMultiple")
     if not to then
         return math.ceil(value)
     else
@@ -572,6 +601,7 @@ end
 ---
 ---@deprecated Use `MathUtils.round` or `MathUtils.roundToMultiple` instead.
 function Utils.round(value, to)
+    Kristal.markDeprecated(2, "Utils.round", "function", "replaced", "MathUtils.round or MathUtils.roundToMultiple")
     if not to then
         return MathUtils.round(value)
     else
@@ -587,6 +617,7 @@ end
 ---
 ---@deprecated Use `MathUtils.roundToZero` instead.
 function Utils.roundToZero(value)
+    Kristal.markDeprecated(2, "Utils.roundToZero", "function", "renamed", "MathUtils.roundToZero")
     return MathUtils.roundToZero(value)
 end
 
@@ -598,6 +629,7 @@ end
 ---
 ---@deprecated Use `MathUtils.roundFromZero` instead.
 function Utils.roundFromZero(value)
+    Kristal.markDeprecated(2, "Utils.roundFromZero", "function", "renamed", "MathUtils.roundFromZero")
     return MathUtils.roundFromZero(value)
 end
 
@@ -622,6 +654,7 @@ end
 ---
 ---@deprecated Use `MathUtils.clamp` instead
 function Utils.clamp(val, min, max)
+    Kristal.markDeprecated(2, "Utils.clamp", "function", "renamed", "MathUtils.clamp")
     return MathUtils.clamp(val, min, max)
 end
 
@@ -633,6 +666,7 @@ end
 ---
 ---@deprecated Use `MathUtils.sign` instead
 function Utils.sign(num)
+    Kristal.markDeprecated(2, "Utils.sign", "function", "renamed", "MathUtils.sign")
     return MathUtils.sign(num)
 end
 
@@ -647,6 +681,7 @@ end
 ---
 ---@deprecated Use `MathUtils.approach` instead
 function Utils.approach(val, target, amount)
+    Kristal.markDeprecated(2, "Utils.approach", "function", "renamed", "MathUtils.approach")
     return MathUtils.approach(val, target, amount)
 end
 
@@ -661,6 +696,7 @@ end
 ---
 ---@deprecated Use `MathUtils.approachAngle` instead
 function Utils.approachAngle(val, target, amount)
+    Kristal.markDeprecated(2, "Utils.approachAngle", "function", "renamed", "MathUtils.approachAngle")
     return MathUtils.approachAngle(val, target, amount)
 end
 
@@ -677,6 +713,7 @@ end
 ---
 ---@deprecated Use `MathUtils.lerp` or `TableUtils.lerp` instead. As they do not clamp by default, clamp the percentage yourself if needed.
 function Utils.lerp(a, b, t, oob)
+    Kristal.markDeprecated(2, "Utils.lerp", "function", "replaced", "MathUtils.lerp or TableUtils.lerp")
     local percentage = oob and t or MathUtils.clamp(t, 0, 1)
 
     if type(a) == "table" and type(b) == "table" then
@@ -700,6 +737,7 @@ end
 ---
 ---@deprecated Use `MathUtils.lerpPoint` instead. As it does not clamp by default, clamp the percentage yourself if needed.
 function Utils.lerpPoint(x1, y1, x2, y2, t, oob)
+    Kristal.markDeprecated(2, "Utils.lerpPoint", "function", "replaced", "MathUtils.lerpPoint")
     local percentage = oob and t or MathUtils.clamp(t, 0, 1)
     return MathUtils.lerpPoint(x1, y1, x2, y2, percentage)
 end
@@ -809,6 +847,7 @@ end
 ---
 ---@deprecated Use `MathUtils.rangeMap`, `Utils.ease` and `MathUtils.clamp` instead
 function Utils.clampMap(val, min_a, max_a, min_b, max_b, mode)
+    Kristal.markDeprecated(2, "Utils.clampMap", "function", "replaced", "MathUtils.rangeMap, Utils.ease, MathUtils.clamp")
     if min_a > max_a then
         min_a, max_a = max_a, min_a
         min_b, max_b = max_b, min_b
@@ -869,6 +908,7 @@ end
 ---
 ---@deprecated Use `ColorUtils.mergeColor` instead
 function Utils.mergeColor(start_color, end_color, amount)
+    Kristal.markDeprecated(2, "Utils.mergeColor", "function", "renamed", "ColorUtils.mergeColor")
     return ColorUtils.mergeColor(start_color, end_color, amount)
 end
 
@@ -880,6 +920,7 @@ end
 ---
 ---@deprecated Use `ShapeUtils.getPolygonEdges` instead
 function Utils.getPolygonEdges(points)
+    Kristal.markDeprecated(2, "Utils.getPolygonEdges", "function", "renamed", "ShapeUtils.getPolygonEdges")
     return ShapeUtils.getPolygonEdges(points)
 end
 
@@ -891,6 +932,7 @@ end
 ---
 ---@deprecated Use `ShapeUtils.isPolygonClockwise` instead
 function Utils.isPolygonClockwise(points)
+    Kristal.markDeprecated(2, "Utils.isPolygonClockwise", "function", "renamed", "ShapeUtils.isPolygonClockwise")
     return ShapeUtils.isPolygonClockwise(points)
 end
 
@@ -912,6 +954,7 @@ end
 ---
 ---@deprecated Use `ShapeUtils.getLineIntersect` instead
 function Utils.getLineIntersect(x1, y1, x2, y2, x3, y3, x4, y4, seg1, seg2)
+    Kristal.markDeprecated(2, "Utils.getLineIntersect", "function", "renamed", "ShapeUtils.getLineIntersect")
     return ShapeUtils.getLineIntersect(x1, y1, x2, y2, x3, y3, x4, y4, seg1, seg2)
 end
 
@@ -924,6 +967,7 @@ end
 ---
 ---@deprecated Use `ShapeUtils.getPolygonOffset` instead
 function Utils.getPolygonOffset(points, dist)
+    Kristal.markDeprecated(2, "Utils.getPolygonOffset", "function", "renamed", "ShapeUtils.getPolygonOffset")
     return ShapeUtils.getPolygonOffset(points, dist)
 end
 
@@ -935,6 +979,7 @@ end
 ---
 ---@deprecated Use `ShapeUtils.unpackPolygon` instead
 function Utils.unpackPolygon(points)
+    Kristal.markDeprecated(2, "Utils.unpackPolygon", "function", "renamed", "ShapeUtils.unpackPolygon")
     return ShapeUtils.unpackPolygon(points)
 end
 
@@ -948,6 +993,7 @@ end
 ---
 ---@deprecated Use `ShapeUtils.getPolygonBounds` instead
 function Utils.getPolygonBounds(points)
+    Kristal.markDeprecated(2, "Utils.getPolygonBounds", "function", "renamed", "ShapeUtils.getPolygonBounds")
     return ShapeUtils.getPolygonBounds(points)
 end
 
@@ -962,6 +1008,7 @@ end
 ---@return number height # The height of the bounding box.
 ---@deprecated Use `ShapeUtils.getLineBounds` instead
 function Utils.getLineBounds(x1, y1, x2, y2)
+    Kristal.markDeprecated(2, "Utils.getLineBounds", "function", "renamed", "ShapeUtils.getLineBounds")
     return ShapeUtils.getLineBounds(x1, y1, x2, y2)
 end
 
@@ -975,6 +1022,7 @@ end
 ---@return number height # The height of the bounding box.
 ---@deprecated Use `ShapeUtils.getCircleBounds` instead
 function Utils.getCircleBounds(x, y, radius)
+    Kristal.markDeprecated(2, "Utils.getCircleBounds", "function", "renamed", "ShapeUtils.getCircleBounds")
     return ShapeUtils.getCircleBounds(x, y, radius)
 end
 
@@ -989,6 +1037,7 @@ end
 ---
 ---@deprecated Use `ColorUtils.unpackColor` instead
 function Utils.unpackColor(color)
+    Kristal.markDeprecated(2, "Utils.unpackColor", "function", "renamed", "ColorUtils.unpackColor")
     return ColorUtils.unpackColor(color)
 end
 
@@ -1006,6 +1055,7 @@ end
 ---
 ---@deprecated Use the random functions in `MathUtils` instead
 function Utils.random(a, b, c)
+    Kristal.markDeprecated(2, "Utils.random", "function", "replaced", "MathUtils.random, MathUtils.randomInt")
     if not a then
         return love.math.random()
     elseif not b then
@@ -1071,6 +1121,7 @@ end
 ---
 ---@deprecated Use `TableUtils.filter` instead
 function Utils.filter(tbl, filter)
+    Kristal.markDeprecated(2, "Utils.filter", "function", "renamed", "TableUtils.filter")
     return TableUtils.filter(tbl, filter)
 end
 
@@ -1083,6 +1134,7 @@ end
 ---
 ---@deprecated Use `TableUtils.filterInPlace` instead
 function Utils.filterInPlace(tbl, filter)
+    Kristal.markDeprecated(2, "Utils.filterInPlace", "function", "renamed", "TableUtils.filterInPlace")
     TableUtils.filterInPlace(tbl, filter)
 end
 
@@ -1097,6 +1149,7 @@ end
 ---
 ---@deprecated Use `TableUtils.pick`, `TableUtils.filter` and `TableUtils.removeValue` instead.
 function Utils.pick(tbl, sort, remove)
+    Kristal.markDeprecated(2, "Utils.pick", "function", "replaced", "TableUtils.pick, TableUtils.filter, TableUtils.removeValue")
     if sort then
         local indexes = {}
         for i, v in ipairs(tbl) do
@@ -1156,6 +1209,7 @@ end
 ---
 ---@deprecated Use `TableUtils.shuffle` instead
 function Utils.shuffle(tbl)
+    Kristal.markDeprecated(2, "Utils.shuffle", "function", "renamed", "TableUtils.shuffle")
     return TableUtils.shuffle(tbl)
 end
 
@@ -1194,6 +1248,7 @@ end
 ---
 ---@deprecated Use `TableUtils.flatten` instead
 function Utils.flatten(tbl, deep)
+    Kristal.markDeprecated(2, "Utils.flatten", "function", "renamed", "TableUtils.flatten")
     return TableUtils.flatten(tbl, deep)
 end
 
@@ -1262,6 +1317,7 @@ end
 ---
 ---@deprecated Use `MathUtils.angleDiff` instead.
 function Utils.angleDiff(a, b)
+    Kristal.markDeprecated(2, "Utils.angleDiff", "function", "renamed", "MathUtils.angleDiff")
     return MathUtils.angleDiff(a, b)
 end
 
@@ -1276,6 +1332,7 @@ end
 ---
 ---@deprecated Use `MathUtils.dist` instead.
 function Utils.dist(x1, y1, x2, y2)
+    Kristal.markDeprecated(2, "Utils.dist", "function", "renamed", "MathUtils.dist")
     return MathUtils.dist(x1, y1, x2, y2)
 end
 
@@ -1288,6 +1345,7 @@ end
 ---
 ---@deprecated Use `StringUtils.contains` instead.
 function Utils.contains(str, filter)
+    Kristal.markDeprecated(2, "Utils.contains", "function", "renamed", "StringUtils.contains")
     return StringUtils.contains(str, filter)
 end
 
@@ -1303,6 +1361,7 @@ end
 ---
 ---@deprecated Use `StringUtils.startsWith` or `TableUtils.startsWith` instead.
 function Utils.startsWith(value, prefix)
+    Kristal.markDeprecated(2, "Utils.startsWith", "function", "replaced", "StringUtils.startsWith, TableUtils.startsWith")
     if type(value) == "string" then
         return StringUtils.startsWith(value, prefix)
     elseif type(value) == "table" then
@@ -1323,6 +1382,7 @@ end
 ---
 ---@deprecated Use `StringUtils.endsWith` or `TableUtils.endsWith` instead.
 function Utils.endsWith(value, suffix)
+    Kristal.markDeprecated(2, "Utils.endsWith", "function", "replaced", "StringUtils.endsWith, TableUtils.endsWith")
     if type(value) == "string" then
         return StringUtils.endsWith(value, suffix)
     elseif type(value) == "table" then
@@ -1346,6 +1406,7 @@ end
 ---
 ---@deprecated Use `TiledUtils.relativePathToAssetId` instead.
 function Utils.absoluteToLocalPath(target_dir, asset_path, source_dir)
+    Kristal.markDeprecated(2, "Utils.absoluteToLocalPath", "function", "renamed", "TiledUtils.relativePathToAssetId")
     local success, result = TiledUtils.relativePathToAssetId(target_dir, asset_path, source_dir)
     return success and result or nil
 end
@@ -1358,6 +1419,7 @@ end
 ---
 ---@deprecated Use `StringUtils.titleCase` instead.
 function Utils.titleCase(str)
+    Kristal.markDeprecated(2, "Utils.titleCase", "function", "renamed", "StringUtils.titleCase")
     return StringUtils.titleCase(str)
 end
 
@@ -1369,6 +1431,7 @@ end
 ---
 ---@deprecated Use `StringUtils.trim` instead.
 function Utils.trim(str)
+    Kristal.markDeprecated(2, "Utils.trim", "function", "renamed", "StringUtils.trim")
     return StringUtils.trim(str)
 end
 
@@ -1380,6 +1443,7 @@ end
 ---
 ---@deprecated Use `TableUtils.getKeyCount` instead.
 function Utils.tableLength(t)
+    Kristal.markDeprecated(2, "Utils.tableLength", "function", "renamed", "TableUtils.getKeyCount")
     return TableUtils.getKeyCount(t)
 end
 
@@ -1393,6 +1457,7 @@ end
 ---
 ---@deprecated Use `TableUtils.getIndex` instead.
 function Utils.getIndex(t, value)
+    Kristal.markDeprecated(2, "Utils.getIndex", "function", "renamed", "TableUtils.getIndex")
     return TableUtils.getIndex(t, value)
 end
 
@@ -1406,6 +1471,7 @@ end
 ---
 ---@deprecated Use `TableUtils.getKey` instead.
 function Utils.getKey(t, value)
+    Kristal.markDeprecated(2, "Utils.getKey", "function", "renamed", "TableUtils.getKey")
     return TableUtils.getKey(t, value)
 end
 
@@ -1418,6 +1484,7 @@ end
 ---
 ---@deprecated Use `TableUtils.getKeys` instead.
 function Utils.getKeys(t)
+    Kristal.markDeprecated(2, "Utils.getKeys", "function", "renamed", "TableUtils.getKeys")
     return TableUtils.getKeys(t)
 end
 
@@ -1448,6 +1515,7 @@ end
 ---
 ---@deprecated Use `MathUtils.absClamp` instead.
 function Utils.absClamp(value, min, max)
+    Kristal.markDeprecated(2, "Utils.absClamp", "function", "renamed", "MathUtils.absClamp")
     return MathUtils.absClamp(value, min, max)
 end
 
@@ -1460,6 +1528,7 @@ end
 ---
 ---@deprecated Use `MathUtils.absMin` instead.
 function Utils.absMin(a, b)
+    Kristal.markDeprecated(2, "Utils.absMin", "function", "renamed", "MathUtils.absMin")
     return MathUtils.absMin(a, b)
 end
 
@@ -1472,6 +1541,7 @@ end
 ---
 ---@deprecated Use `MathUtils.absMax` instead.
 function Utils.absMax(a, b)
+    Kristal.markDeprecated(2, "Utils.absMax", "function", "renamed", "MathUtils.absMax")
     return MathUtils.absMax(a, b)
 end
 
@@ -1555,6 +1625,7 @@ end
 ---
 ---@deprecated Use `StringUtils.insert` instead.
 function Utils.stringInsert(str1, str2, pos)
+    Kristal.markDeprecated(2, "Utils.stringInsert", "function", "renamed", "StringUtils.insert")
     return StringUtils.insert(str1, str2, pos)
 end
 
@@ -1568,6 +1639,7 @@ end
 ---
 ---@deprecated Use `TiledUtils.parsePropertyList` instead.
 function Utils.parsePropertyList(id, properties)
+    Kristal.markDeprecated(2, "Utils.parsePropertyList", "function", "renamed", "TiledUtils.parsePropertyList")
     return TiledUtils.parsePropertyList(id, properties)
 end
 
@@ -1584,6 +1656,7 @@ end
 ---
 ---@deprecated Use `TiledUtils.parsePropertyMultiList` instead.
 function Utils.parsePropertyMultiList(id, properties)
+    Kristal.markDeprecated(2, "Utils.parsePropertyMultiList", "function", "renamed", "TiledUtils.parsePropertyMultiList")
     return TiledUtils.parsePropertyMultiList(id, properties)
 end
 
@@ -1601,6 +1674,7 @@ end
 ---
 ---@deprecated Use `TiledUtils.parseFlagProperties` instead.
 function Utils.parseFlagProperties(flag, inverted, value, default_value, properties)
+    Kristal.markDeprecated(2, "Utils.parseFlagProperties", "function", "renamed", "TiledUtils.parseFlagProperties")
     return TiledUtils.parseFlagProperties(flag, inverted, value, default_value, properties)
 end
 
@@ -1660,12 +1734,14 @@ end
 ---
 ---@deprecated Use `StringUtils.format` instead.
 function Utils.format(str, tbl)
+    Kristal.markDeprecated(2, "Utils.format", "function", "renamed", "StringUtils.format")
     return StringUtils.format(str, tbl)
 end
 
 -- TODO: Merge with getFilesRecursive?
 ---@deprecated Use `FileSystemUtils.getFilesRecursive` instead.
 function Utils.findFiles(folder, base, path)
+    Kristal.markDeprecated(2, "Utils.findFiles", "function", "renamed", "FileSystemUtils.getFilesRecursive")
     return FileSystemUtils.findFiles(folder, base, path)
 end
 
@@ -1680,6 +1756,7 @@ end
 ---
 ---@deprecated Use `TiledUtils.parseTileGid` instead.
 function Utils.parseTileGid(id)
+    Kristal.markDeprecated(2, "Utils.parseTileGid", "function", "renamed", "TiledUtils.parseTileGid")
     return TiledUtils.parseTileGid(id)
 end
 
@@ -1695,6 +1772,7 @@ end
 ---
 ---@deprecated Use `TiledUtils.colliderFromShape` instead.
 function Utils.colliderFromShape(parent, data, x, y, properties)
+    Kristal.markDeprecated(2, "Utils.colliderFromShape", "function", "renamed", "TiledUtils.colliderFromShape")
     x, y = x or 0, y or 0
     properties = properties or {}
 
@@ -1756,6 +1834,7 @@ end
 ---
 ---@deprecated Use `StringUtils.pad` instead.
 function Utils.padString(str, len, beginning, with)
+    Kristal.markDeprecated(2, "Utils.padString", "function", "renamed", "StringUtils.pad")
     return StringUtils.pad(str, len, beginning, with)
 end
 
@@ -1774,6 +1853,7 @@ end
 ---@return number scale             # The scale the `result` string should be printed at to fit within the specified width.
 ---@deprecated Use `StringUtils.squishAndTrunc` instead.
 function Utils.squishAndTrunc(str, font, max_width, def_scale, min_scale, trunc_affix)
+    Kristal.markDeprecated(2, "Utils.squishAndTrunc", "function", "renamed", "StringUtils.squishAndTrunc")
     return StringUtils.squishAndTrunc(str, font, max_width, def_scale, min_scale, trunc_affix)
 end
 
@@ -1789,6 +1869,7 @@ end
 ---
 ---@deprecated Use `MathUtils.wrap` or `MathUtils.wrapIndex` instead.
 function Utils.clampWrap(val, min, max)
+    Kristal.markDeprecated(2, "Utils.clampWrap", "function", "replaced", "MathUtils.wrap, MathUtils.wrapIndex")
     if not max then
         max = min
         min = 1
@@ -1858,6 +1939,7 @@ end
 ---@see https://stackoverflow.com/a/12191225
 ---@deprecated Use `FileSystemUtils.getDirname` instead.
 function Utils.getDirname(path)
+    Kristal.markDeprecated(2, "Utils.getDirname", "function", "renamed", "FileSystemUtils.getDirname")
     return FileSystemUtils.getDirname(path)
 end
 
@@ -1868,6 +1950,7 @@ end
 ---@return (fun(table: table<K, V>, index?: K):K, V), T
 ---@deprecated Use `ClassUtils.iterClass` instead
 function Utils.iterClass(class)
+    Kristal.markDeprecated(2, "Utils.iterClass", "function", "renamed", "ClassUtils.iterClass")
     return ClassUtils.iterClass(class)
 end
 
@@ -1876,6 +1959,7 @@ end
 ---@return boolean
 ---@deprecated Use `MathUtils.isNaN` instead
 function Utils.isNaN(v)
+    Kristal.markDeprecated(2, "Utils.isNaN", "function", "renamed", "MathUtils.isNaN")
     return MathUtils.isNaN(v)
 end
 
@@ -1884,6 +1968,7 @@ end
 ---@return boolean
 ---@deprecated Use `MathUtils.xor` instead
 function Utils.xor(...)
+    Kristal.markDeprecated(2, "Utils.xor", "function", "renamed", "MathUtils.xor")
     return MathUtils.xor(...)
 end
 
