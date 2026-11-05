@@ -250,6 +250,7 @@ KRISTAL_EVENT = {
     onBattleMenuSelect = "onBattleMenuSelect", -- overrides default menu select / at: Battle:onKeyPressed(key) / passes: string:state_reason, table:menu_item, bool:can_select / returns: bool
     onBattlePartyCancel = "onBattlePartyCancel", -- overrides default party member selection cancellation / at: Battle:onKeyPressed(key) / passes: string:state_reason, int:current_menu_y / returns: bool
     onBattlePartySelect = "onBattlePartySelect", -- overrides default party member select / at: Battle:onKeyPressed(key) / passes: string:state_reason, int:current_menu_y / returns: bool
+    onBattleMusic = "onBattleMusic", -- intercept music for this encounter / at: Battle:onActionSelectState() / passes: Encounter:encounter, string:encounter_music / returns: string
     registerActionButtons = "registerActionButtons", -- called when action buttons are registered / passes: NONE / returns: NONE
 
     --text events--
@@ -272,8 +273,11 @@ KRISTAL_EVENT = {
     --map events--
     loadLayer = "loadLayer", -- overrides the map loading the tile layer data on layer depth, when true / at: Map:loadMapData(data) / passes: Map:self, table:layer, number:depth / returns: bool
     onMapBorder = "onMapBorder", -- intercept game border for this map / at: World:setupMap(map, ...), World:mapTransition(...) / passes: Map:map, string:map_border / returns: string
-    onMapMusic = "onMapMusic", -- intercept game border for this map / at: World:setupMap(map, ...), World:mapTransition(...) / passes: Map:map, string:map_music / returns: string
+    onMapMusic = "onMapMusic", -- intercept music for this map / at: World:setupMap(map, ...), World:mapTransition(...) / passes: Map:map, string:map_music / returns: string
     loadObject = "loadObject", -- overrides loading an object / at: Map:loadObjects(data) / passes: World:self, name:string, table:data / returns: Event?
+
+    --shop events--
+    onShopMusic = "onShopMusic", -- intercept music for this shop / at: Shop:onEnter() / passes: Shop:shop, string:shop_music / returns: string
 
     --debug events--
     registerDebugContext = "registerDebugContext", -- new debug ContextMenu created / at: DebugSystem:onMousePressed(x, y, button, istouch, presses), DebugSystem:openObjectContext(object) / passes: ContextMenu:context, Object:selected_object / return: NONE

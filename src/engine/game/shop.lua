@@ -354,7 +354,7 @@ function Shop:onEnter()
     self:setDialogueText(self.encounter_text)
     -- Play music
     if self.shop_music and self.shop_music ~= "" then
-        self.music:play(self.shop_music)
+        self.music:play(Kristal.callEvent(KRISTAL_EVENT.onShopMusic, self, self.shop_music) or self.shop_music)
     end
 end
 

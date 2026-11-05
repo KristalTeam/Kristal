@@ -572,7 +572,7 @@ function Battle:onActionSelectState()
         end
 
         if self.encounter.music then
-            self.music:play(self.encounter.music)
+            self.music:play(Kristal.callEvent(KRISTAL_EVENT.onBattleMusic, self.encounter, self.encounter.music) or self.encounter.music)
         end
     end
 
