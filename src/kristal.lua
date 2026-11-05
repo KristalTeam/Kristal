@@ -2231,6 +2231,9 @@ end
 --- Should not be specified if deprecation_type is "noreplacement".
 ---@overload fun(level:integer, name:string, api_type: API_TYPE, deprecation_type: "noreplacement")
 function Kristal.markDeprecated(level, name, api_type, deprecation_type, new_name)
+    if not Debug.once("kristal-markDeprecated:" .. name) then
+        return
+    end
     local api_name_type = ""
     if api_type == "functionvariant" then
         api_name_type = "function variant " .. name
