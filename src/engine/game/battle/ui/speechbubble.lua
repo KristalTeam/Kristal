@@ -18,7 +18,11 @@ function SpeechBubble:init(text, x, y, options, speaker)
     self.text_width = 1
     self.text_height = 1
 
-    self.right = options["right"]
+    -- This is the position of the arrow, relative to the bubble.
+    self.direction = options["direction"]
+    if self.direction == nil then
+        self.direction = (options["right"] and "left" or "right") or "right"
+    end
 
     self.speaker = speaker
     self.actor = options["actor"]
@@ -83,13 +87,13 @@ function SpeechBubble:setStyle(style)
 
     if self.bubble_data["origin"] then
         self:setOrigin(self.bubble_data["origin"][1], self.bubble_data["origin"][2])
-    elseif self.right then
+    elseif self.direction == "left" then
         self:setOrigin(0, 0.5)
     else
         self:setOrigin(1, 0.5)
     end
 
-    if self.right and self.auto then
+    if self.direction == "left" and self.auto then
         local left_width, _ = self:getSpriteSize("left")
         self.text.x = self:getTailWidth() + self.padding["left"] + left_width + 1
     end
@@ -163,10 +167,10 @@ function SpeechBubble:setLineCallback(callback)
     self.text.line_callback = callback
 end
 
-function SpeechBubble:setRight(right)
-    self.right = right
+function SpeechBubble:setDirection(direction)
+    self.direction = direction
     if not self.bubble_data["origin"] then
-        if self.right then
+        if self.direction == "left" then
             self:setOrigin(0, 0.5)
         else
             self:setOrigin(1, 0.5)
@@ -174,7 +178,7 @@ function SpeechBubble:setRight(right)
     end
     self.text.x = self.text_bounds["left"] or 0
     self.text.y = self.text_bounds["top"]  or 0
-    if self.right and self.auto then
+    if self.direction == "left" and self.auto then
         local left_width, _ = self:getSpriteSize("left")
         self.text.x = self:getTailWidth() + self.padding["left"] + left_width + 1
     end
@@ -274,7 +278,7 @@ function SpeechBubble:draw()
         local inner_height = self.padding["top"] + inner_bottom
 
         local offset = 0
-        if self.right then
+        if self.direction == "left" then
             local left_width, _ = self:getSpriteSize("left")
             offset = self:getTailWidth() + self.padding["left"] + left_width + 1
         end
@@ -312,12 +316,19 @@ function SpeechBubble:draw()
         end
 
         if sprite_tail then
-            if not self.right then
+            if self.direction == "right" then
                 local right, _ = self:getSpriteSize("right")
                 Draw.draw(sprite_tail, inner_right + right, (self.text_height / 2 - 1 - (sprite_tail:getHeight() / 2)) * scale, 0, 1, scale)
-            else
+            elseif self.direction == "left" then
                 local left, _ = self:getSpriteSize("left")
                 Draw.draw(sprite_tail, offset + inner_left - left, (self.text_height / 2 - 1 - (sprite_tail:getHeight() / 2)) * scale, 0, -1, scale)
+            elseif self.direction == "up" then
+                -- never seen in DR so it's just down flipped
+                local top, _ = self:getSpriteSize("top")
+                Draw.draw(sprite_tail, (self.text_width / 2 - (sprite_tail:getWidth() / 2)), inner_top - 5, math.rad(-90), 1, scale)
+            elseif self.direction == "down" then
+                local bottom, _ = self:getSpriteSize("bottom")
+                Draw.draw(sprite_tail, (self.text_width / 2 - (sprite_tail:getWidth() / 2)), inner_bottom + 5, math.rad(-90), -1, scale)
             end
         end
     end
