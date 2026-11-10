@@ -19,7 +19,6 @@
 ---@field like              string          The dislike of this recruit, shown on its details page
 ---@field dislike           string          The like of this recruit, shown on its details page
 ---
----@field box_gradient_type     "bright"|"dark" The type of box gradient the recruit uses, either `"bright"` or `"dark"`
 ---@field box_gradient_color    table           The color used for drawing the box gradient
 ---
 --- Controls the recruit sprite shown in the recruit menu box \
@@ -57,8 +56,6 @@ function Recruit:init()
     self.element = "UNSET"
     self.like = "Undefined"
     self.dislike = "Undefined"
-
-    self.box_gradient_type = "bright"
 
     self.box_gradient_color = { 1, 1, 1, 1 }
 
@@ -98,7 +95,6 @@ function Recruit:getElement() return self.element end
 function Recruit:getLike() return self.like end
 function Recruit:getDislike() return self.dislike end
 
-function Recruit:getBoxGradientType() return self.box_gradient_type end
 function Recruit:getBoxGradientColor() return self.box_gradient_color end
 function Recruit:getBoxSprite() return self.box_sprite end
 

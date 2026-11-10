@@ -60,9 +60,6 @@ function RecruitMenu:updateRecruitBox(selected)
     local bx, by = self:getRecruitBoxPosition()
     local bw, bh = self:getRecruitBoxSize()
     local r, g, b, a = ColorUtils.unpackColor(recruit:getBoxGradientColor())
-    if recruit:getBoxGradientType() == "dark" then
-        r, g, b = r * 0.5, g * 0.5, b * 0.5
-    end
     self.recruit_box:setVertices({
         { bx, by, 0, 0, 0, 0, 0, 1 },
         { bx + bw, by, 0, 0, 0, 0, 0, 1 },
