@@ -29,8 +29,13 @@ function RecruitMenu:init()
     self.selected_page = 1
     self.old_selection = self.selected
 
-    self.recruit_box = Sprite("ui/menu/recruit/gradient_bright", 370, 75)
-    self:addChild(self.recruit_box)
+    local vertices = {
+        { 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0 }
+    }
+    self.recruit_box = love.graphics.newMesh(vertices, "fan")
 
     self:setRecruitInBox(self.selected)
 end
@@ -40,13 +45,43 @@ function RecruitMenu:setRecruitInBox(selected)
         self.recruit_sprite:remove()
     end
     local recruit = self.recruits[selected]
-    self.recruit_box:setSprite("ui/menu/recruit/gradient_" .. recruit:getBoxGradientType())
-    self.recruit_box:setColor(recruit:getBoxGradientColor())
-    self.recruit_sprite = Sprite(recruit:getBoxSprite()[1], self.recruit_box.width / 2 + recruit:getBoxSprite()[2], self.recruit_box.height / 2 + recruit:getBoxSprite()[3])
+    local bx, by = self:getRecruitBoxPosition()
+    local bw, bh = self:getRecruitBoxSize()
+    self.recruit_sprite = Sprite(recruit:getBoxSprite()[1], bx + bw / 2 + recruit:getBoxSprite()[2], by + bh / 2 + recruit:getBoxSprite()[3])
     self.recruit_sprite:setScale(2)
     self.recruit_sprite:setOrigin(0.5, 0.5)
     self.recruit_sprite:play(recruit:getBoxSprite()[4])
-    self.recruit_box:addChild(self.recruit_sprite)
+    self:addChild(self.recruit_sprite)
+    self:updateRecruitBox(selected)
+end
+
+function RecruitMenu:updateRecruitBox(selected)
+    local recruit = self.recruits[selected]
+    local bx, by = self:getRecruitBoxPosition()
+    local bw, bh = self:getRecruitBoxSize()
+    local r, g, b, a = ColorUtils.unpackColor(recruit:getBoxGradientColor())
+    if recruit:getBoxGradientType() == "dark" then
+        r, g, b = r * 0.5, g * 0.5, b * 0.5
+    end
+    self.recruit_box:setVertices({
+        { bx, by, 0, 0, 0, 0, 0, 1 },
+        { bx + bw, by, 0, 0, 0, 0, 0, 1 },
+        { bx + bw, by + bh, 0, 0, r, g, b, a },
+        { bx, by + bh, 0, 0, r, g, b, a }
+    })
+    self.recruit_sprite:setPosition(bx + bw / 2 + recruit:getBoxSprite()[2], by + bh / 2 + recruit:getBoxSprite()[3])
+end
+
+function RecruitMenu:getRecruitBoxPosition()
+    if self.state == "INFO" then
+        return 80, 70
+    end
+
+    return 370, 75
+end
+
+function RecruitMenu:getRecruitBoxSize()
+    return 205 + 1, 150 + 1
 end
 
 function RecruitMenu:getLimit()
@@ -127,7 +162,7 @@ function RecruitMenu:update()
     if Input.pressed("confirm", false) then
         if self.state == "SELECT" then
             self.state = "INFO"
-            self.recruit_box:setPosition(80, 70)
+            self:updateRecruitBox(self.selected)
         end
     end
     if Input.pressed("cancel", false) then
@@ -137,7 +172,7 @@ function RecruitMenu:update()
         else
             self.state = "SELECT"
             self.selected_page = math.ceil(self.selected / self:getLimit())
-            self.recruit_box:setPosition(370, 75)
+            self:updateRecruitBox(self.selected)
         end
     end
 
@@ -286,9 +321,13 @@ function RecruitMenu:draw()
         error("Unknown state in recruit menu: \"" .. self.state .. "\"")
     end
 
+    Draw.setColor(COLORS["white"])
+    Draw.draw(self.recruit_box)
     love.graphics.setLineWidth(1)
     Draw.setColor(PALETTE["world_border"])
-    love.graphics.rectangle("line", self.recruit_box.x, self.recruit_box.y, self.recruit_box.width + 1, self.recruit_box.height + 1)
+    local x, y = self:getRecruitBoxPosition()
+    local w, h = self:getRecruitBoxSize()
+    love.graphics.rectangle("line", x, y, w + 1, h + 1)
 
     super.draw(self)
 end
