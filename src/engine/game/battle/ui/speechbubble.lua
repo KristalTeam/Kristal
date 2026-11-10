@@ -324,11 +324,11 @@ function SpeechBubble:draw()
                 Draw.draw(sprite_tail, offset + inner_left - left, (self.text_height / 2 - 1 - (sprite_tail:getHeight() / 2)) * scale, 0, -1, scale)
             elseif self.direction == "up" then
                 -- never seen in DR so it's just down flipped
-                local top, _ = self:getSpriteSize("top")
-                Draw.draw(sprite_tail, (self.text_width / 2 - (sprite_tail:getWidth() / 2)), inner_top - 5, math.rad(-90), 1, scale)
+                local _, top = self:getSpriteSize("top")
+                Draw.draw(sprite_tail, (self.text_width / 2 - (sprite_tail:getWidth() / 2)), inner_top - top, math.rad(-90), 1, scale)
             elseif self.direction == "down" then
-                local bottom, _ = self:getSpriteSize("bottom")
-                Draw.draw(sprite_tail, (self.text_width / 2 - (sprite_tail:getWidth() / 2)), inner_bottom + 5, math.rad(-90), -1, scale)
+                local _, bottom = self:getSpriteSize("bottom")
+                Draw.draw(sprite_tail, (self.text_width / 2 - (sprite_tail:getWidth() / 2)), inner_bottom + bottom, math.rad(-90), -1, scale)
             end
         end
     end
