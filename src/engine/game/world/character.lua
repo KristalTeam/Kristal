@@ -690,17 +690,17 @@ function Character:updateEquipment()
     end
 end
 
+function Character:updateWalkSpeed()
+    if self.moved <= 0 then return end
+    self.sprite.walk_speed = math.max(4, self.moved)
+end
+
 function Character:updateWalking()
     if self.moved > 0 then
         self.sprite.walking = true
     else
         self.sprite.walking = false
     end
-end
-
-function Character:updateWalkSpeed()
-    if self.moved <= 0 then return end
-    self.sprite.walk_speed = math.max(4, self.moved)
 end
 
 function Character:updateMoved()
