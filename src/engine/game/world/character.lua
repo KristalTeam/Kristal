@@ -676,33 +676,44 @@ function Character:convertToEnemy(properties)
     return enemy
 end
 
-function Character:update()
-    self.actor:onWorldUpdate(self)
-
+function Character:updateEquipment()
     local party_member = self:getPartyMember()
-    if party_member then
-        if party_member:getWeapon() then
-            party_member:getWeapon():onWorldUpdate(self)
-        end
-        for i = 1, 2 do
-            if party_member:getArmor(i) then
-                party_member:getArmor(i):onWorldUpdate(self)
-            end
+    if not party_member then return end
+
+    if party_member:getWeapon() then
+        party_member:getWeapon():onWorldUpdate(self)
+    end
+    for i = 1, 2 do
+        if party_member:getArmor(i) then
+            party_member:getArmor(i):onWorldUpdate(self)
         end
     end
+end
 
+function Character:updateWalkSpeed()
+    if self.moved <= 0 then return end
+    self.sprite.walk_speed = math.max(4, self.moved)
+end
+
+function Character:updateWalking()
     if self.moved > 0 then
         self.sprite.walking = true
-        self.sprite.walk_speed = math.max(4, self.moved)
-        self.moved = 0
     else
         self.sprite.walking = false
     end
+end
 
-    if self.jumping then
-        self:processJump()
-    end
+function Character:updateMoved()
+    if self.moved <= 0 then return end
+    self.moved = 0
+end
 
+function Character:updateJumping()
+    if not self.jumping then return end
+    self:processJump()
+end
+
+function Character:updateSpin()
     if (self.spin_speed ~= 0) then
         self.spin_timer = self.spin_timer + (1 / self.spin_speed) * DTMULT
         local facing = self:getFacing()
@@ -736,18 +747,32 @@ function Character:update()
     else
         self.spin_timer = 0
     end
+end
 
-    if self.alert_timer > 0 then
-        self.alert_timer = MathUtils.approach(self.alert_timer, 0, DTMULT)
-        if self.alert_timer == 0 then
-            self.alert_icon:remove()
-            self.alert_icon = nil
-            if self.alert_callback then
-                self.alert_callback()
-                self.alert_callback = nil
-            end
-        end
+function Character:updateAlert()
+    if self.alert_timer <= 0 then return end
+
+    self.alert_timer = MathUtils.approach(self.alert_timer, 0, DTMULT)
+    if self.alert_timer ~= 0 then return end
+
+    self.alert_icon:remove()
+    self.alert_icon = nil
+    if self.alert_callback then
+        self.alert_callback()
+        self.alert_callback = nil
     end
+end
+
+function Character:update()
+    self.actor:onWorldUpdate(self)
+
+    self:updateEquipment()
+    self:updateWalkSpeed()
+    self:updateWalking()
+    self:updateMoved()
+    self:updateJumping()
+    self:updateSpin()
+    self:updateAlert()
 
     super.update(self)
 end
