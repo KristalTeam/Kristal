@@ -509,6 +509,7 @@ function Character:jumpTo(x, y, speed, time, jump_sprite, land_sprite)
     self.jumping = true
 end
 
+---@protected
 function Character:processJump()
     if (not self.jump_init) then
         self.jump_fake_gravity = (self.jump_speed / ((self.jump_time * 30) * 0.5))
@@ -625,6 +626,10 @@ function Character:recruitMessage(type, color)
     return message
 end
 
+--- Replaces this character object with a new [`Follower`](lua://Follower.init).
+---@param index integer The follower's index in the follower list.
+---@param save boolean Whether the follower should persist across rooms. (Defaults to `false`)
+---@return Follower
 function Character:convertToFollower(index, save)
     local follower = Follower(self.actor, self.x, self.y)
     follower.layer = self.layer
@@ -637,6 +642,8 @@ function Character:convertToFollower(index, save)
     return follower
 end
 
+--- Replaces this character object with a new [`Player`](lua://Player.init).
+---@return Player
 function Character:convertToPlayer()
     self.world:spawnPlayer(self.x, self.y, self.actor, self.party)
     local player = self.world.player
@@ -646,6 +653,8 @@ function Character:convertToPlayer()
     return player
 end
 
+--- Replaces this character object with a new [`NPC`](lua://NPC.init).
+---@return NPC
 function Character:convertToNPC(properties)
     local npc = NPC(self.actor, self.x, self.y, properties)
     npc.layer = self.layer
@@ -656,6 +665,8 @@ function Character:convertToNPC(properties)
     return npc
 end
 
+--- Replaces this character object with a new [`Character`](lua://Character.init).
+---@return Character
 function Character:convertToCharacter()
     local character = Character(self.actor, self.x, self.y)
     character.layer = self.layer
@@ -666,6 +677,9 @@ function Character:convertToCharacter()
     return character
 end
 
+--- Replaces this character object with a new [`ChaserEnemy`](lua://ChaserEnemy.init).
+---@param properties table? A table of properties to pass to the new enemy.
+---@return ChaserEnemy
 function Character:convertToEnemy(properties)
     local enemy = ChaserEnemy(self.actor, self.x, self.y, properties)
     enemy.layer = self.layer
@@ -676,13 +690,19 @@ function Character:convertToEnemy(properties)
     return enemy
 end
 
+--- Responsible for updating the equipment this character is currently using.
+---@protected
 function Character:updateEquipment()
     local party_member = self:getPartyMember()
-    if not party_member then return end
+
+    if not party_member then
+        return
+    end
 
     if party_member:getWeapon() then
         party_member:getWeapon():onWorldUpdate(self)
     end
+
     for i = 1, 2 do
         if party_member:getArmor(i) then
             party_member:getArmor(i):onWorldUpdate(self)
@@ -690,11 +710,18 @@ function Character:updateEquipment()
     end
 end
 
+--- Responsible for updating the walking speed of the ActorSprite.
+---@protected
 function Character:updateWalkSpeed()
-    if self.moved <= 0 then return end
+    if self.moved <= 0 then
+        return
+    end
+
     self.sprite.walk_speed = math.max(4, self.moved)
 end
 
+--- Responsible for updating the walking state of the ActorSprite.
+---@protected
 function Character:updateWalking()
     if self.moved > 0 then
         self.sprite.walking = true
@@ -703,16 +730,28 @@ function Character:updateWalking()
     end
 end
 
+--- Responsible for updating the moved timer.
+---@protected
 function Character:updateMoved()
-    if self.moved <= 0 then return end
+    if self.moved <= 0 then
+        return
+    end
+
     self.moved = 0
 end
 
+--- Responsible for updating the jumping state.
+---@protected
 function Character:updateJumping()
-    if not self.jumping then return end
+    if not self.jumping then
+        return
+    end
+
     self:processJump()
 end
 
+--- Responsible for updating the spinning state.
+---@protected
 function Character:updateSpin()
     if (self.spin_speed ~= 0) then
         self.spin_timer = self.spin_timer + (1 / self.spin_speed) * DTMULT
@@ -731,6 +770,7 @@ function Character:updateSpin()
 
             self.spin_timer = 0
         end
+
         if (self.spin_timer <= -1) then
             if (facing == "down") then
                 self:setFacing("right")
@@ -749,22 +789,36 @@ function Character:updateSpin()
     end
 end
 
+--- Responsible for updating the alert bubble above this character, if it exists.
+---@protected
 function Character:updateAlert()
-    if self.alert_timer <= 0 then return end
+    if self.alert_timer <= 0 then
+        return
+    end
 
     self.alert_timer = MathUtils.approach(self.alert_timer, 0, DTMULT)
-    if self.alert_timer ~= 0 then return end
+
+    if self.alert_timer > 0 then
+        return
+    end
 
     self.alert_icon:remove()
     self.alert_icon = nil
+
     if self.alert_callback then
         self.alert_callback()
         self.alert_callback = nil
     end
 end
 
-function Character:update()
+--- Responsible for updating the actor this character uses.
+---@protected
+function Character:updateActor()
     self.actor:onWorldUpdate(self)
+end
+
+function Character:update()
+    self:updateActor()
 
     self:updateEquipment()
     self:updateWalkSpeed()
