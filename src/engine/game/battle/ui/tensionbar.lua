@@ -15,15 +15,11 @@ local TensionBar, super = Class(Object)
 --[[
     Some quick notes about the tension bar:
 
-    "apparent" and "current" are still off of 250.
-    This is because of how Deltarune draws the tensionbar,
-    theres no way I would be able to keep accuracy if I didn't do it.
+    Certain variables are stored as 250, since DELTARUNE does that.
 
-    Max tension is now 100 by default.
-    Setting it to 1000 will make Heal Prayer cost 3.2% TP (displayed as 3% in the menu.)
-    Setting it to 1 will make Heal Prayer cost 3200% TP.
+    Max tension is 100 in Kristal, 250 in DELTARUNE.
 
-    Tension is no longer stored in the tensionbar, it is now stored in Game.
+    To convert DELTARUNE tension to Kristal tension, divide by 2.5.
 ]]
 
 function TensionBar:init(x, y, dont_animate)
@@ -34,7 +30,7 @@ function TensionBar:init(x, y, dont_animate)
 
     super.init(self, x or -25, y or 40)
 
-    self.layer = BATTLE_LAYERS["ui"] - 1
+    self.layer = BATTLE_LAYERS["tension_bar"]
 
     if Game:getConfig("oldTensionBar") then
         self.tp_bar_fill = Assets.getTexture("ui/battle/tp_bar_fill_old")
