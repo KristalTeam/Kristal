@@ -23,11 +23,13 @@ function item:init(inventory)
     self.result_item = nil
 
     -- The items that will be given to you on inventory conversion (defaults to {"lancer", "rouxls_kaard"} when empty)
-    self.cards = {}
+    self.flags = {
+        ["cards"] = {}
+    }
 end
 
 function item:getName()
-    if #self.cards == 1 then
+    if #self.flags["cards"] == 1 then
         return "Card"
     else
         return super.getName(self)
@@ -35,9 +37,9 @@ function item:getName()
 end
 
 function item:getCheck()
-    if TableUtils.contains(self.cards, "lancer") and not TableUtils.contains(self.cards, "rouxls_kaard") then
+    if TableUtils.contains(self.flags["cards"], "lancer") and not TableUtils.contains(self.flags["cards"], "rouxls_kaard") then
         return "The Jack of Spades."
-    elseif not TableUtils.contains(self.cards, "lancer") and TableUtils.contains(self.cards, "rouxls_kaard") then
+    elseif not TableUtils.contains(self.flags["cards"], "lancer") and TableUtils.contains(self.flags["cards"], "rouxls_kaard") then
         return "The Rules Card."
     else
         return super.getCheck(self)
@@ -45,7 +47,7 @@ function item:getCheck()
 end
 
 function item:onWorldUse()
-    if #self.cards == 1 then
+    if #self.flags["cards"] == 1 then
         Game.world:showText("* You held the card.[wait:5]\n* It felt flimsy between your\nfingers.")
     else
         Game.world:showText("* You held the cards.[wait:5]\n* They felt flimsy between your\nfingers.")
@@ -54,7 +56,7 @@ function item:onWorldUse()
 end
 
 function item:onToss()
-    if #self.cards == 1 then
+    if #self.flags["cards"] == 1 then
         Game.world:showText("* (You fumbled and caught it.[wait:5]\nYou can't throw it away!)")
     else
         Game.world:showText("* (You fumbled and caught them.[wait:5]\nYou can't throw these away!)")
@@ -63,7 +65,7 @@ function item:onToss()
 end
 
 function item:convertToDark(inventory)
-    return #self.cards > 0 and self.cards or {"lancer", "rouxls_kaard"}
+    return #self.flags["cards"] > 0 and self.flags["cards"] or {"lancer", "rouxls_kaard"}
 end
 
 return item
