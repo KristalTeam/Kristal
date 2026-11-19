@@ -1,4 +1,5 @@
 -- Create an item and specify its ID (id is optional, defaults to file path)
+---@class TemplateItem : Item
 local item, super = Class(Item, "test_item")
 
 function item:init()
@@ -13,6 +14,8 @@ function item:init()
     self.type = "item"
     -- Item icon (for equipment)
     self.icon = nil
+    -- Whether this item belongs to the Light World inventory
+    self.light = false
 
     -- Battle description
     self.effect = ""
@@ -20,11 +23,16 @@ function item:init()
     self.shop = ""
     -- Menu description
     self.description = "Example item."
+    -- Light World check text
+    self.check = "Example info"
 
     -- Default shop price (sell price is halved)
     self.price = 0
     -- Whether the item can be sold
     self.can_sell = true
+    -- Optional explicit shop prices
+    self.buy_price = nil
+    self.sell_price = nil
 
     -- Consumable target mode (ally, party, enemy, enemies, or none)
     self.target = "none"
@@ -40,6 +48,7 @@ function item:init()
     -- Bonus name and icon (displayed in equip menu)
     self.bonus_name = nil
     self.bonus_icon = nil
+    self.bonus_color = PALETTE["world_ability_icon"]
 
     -- Equippable characters (default true for armors, false for weapons)
     self.can_equip = {}

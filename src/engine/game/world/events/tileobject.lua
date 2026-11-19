@@ -28,7 +28,7 @@ function TileObject:init(tileset, tile, x, y, w, h, rotation, flip_x, flip_y)
 
     self.tileset = tileset
     self.tile = tile
-    self.rotation = rotation
+    self.rotation = rotation or 0
     self.tile_flip_x = flip_x
     self.tile_flip_y = flip_y
 

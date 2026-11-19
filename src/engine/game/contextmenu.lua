@@ -2,6 +2,11 @@
 ---@overload fun(...) : ContextMenu
 local ContextMenu, super = Class(Object)
 
+local function getCursorPosition()
+    if Kristal.DebugSystem then return Kristal.DebugSystem:getCursorPosition() end
+    return Input.getMousePosition()
+end
+
 function ContextMenu:init(name)
     super.init(self, 0, 0)
     self.layer = 10000000
@@ -31,6 +36,9 @@ end
 function ContextMenu:close()
     if Kristal.DebugSystem.context == self then
         Kristal.DebugSystem.context = nil
+    end
+    if Kristal.DebugSystem and Kristal.DebugSystem.state == "IDLE" then
+        OVERLAY_OPEN = false
     end
     self.closing = true
     self.anim_timer = 0.2
@@ -98,7 +106,7 @@ end
 function ContextMenu:adjustToCorner()
     self:calculateSize()
     local screen_left, screen_top, screen_right, screen_bottom = self:getScreenBounds()
-    local mouse_x, mouse_y = Input.getMousePosition()
+    local mouse_x, mouse_y = getCursorPosition()
     if screen_right > SCREEN_WIDTH then
         self:setScreenPos(mouse_x - (screen_right - screen_left), screen_top)
         screen_left, screen_top, screen_right, screen_bottom = self:getScreenBounds()
@@ -160,7 +168,7 @@ function ContextMenu:update()
         self.anim_timer = self.anim_timer + DT
     end
 
-    local mouse_x, mouse_y = Input.getMousePosition()
+    local mouse_x, mouse_y = getCursorPosition()
     if self.grabbing then
         self.x = mouse_x - self.grab_offset_x
         self.y = mouse_y - self.grab_offset_y
@@ -209,7 +217,7 @@ function ContextMenu:getInnerHeight()
 end
 
 function ContextMenu:getLocalMousePosition()
-    return self:screenToLocalPos(Input.getMousePosition())
+    return self:screenToLocalPos(getCursorPosition())
 end
 
 function ContextMenu:isMouseOver(x1, y1, x2, y2)

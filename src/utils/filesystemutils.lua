@@ -1,6 +1,94 @@
 ---@class FileSystemUtils
 local FileSystemUtils = {}
 
+---@param path any
+---@return string path
+function FileSystemUtils.normalizeSlashes(path)
+    path = tostring(path or ""):gsub("\\", "/")
+    local unc = path:sub(1, 2) == "//"
+    path = path:gsub("/+", "/")
+    return unc and ("/" .. path) or path
+end
+
+---@param first any
+---@param ... any
+---@return string path
+function FileSystemUtils.join(first, ...)
+    local result = FileSystemUtils.normalizeSlashes(first)
+    if result ~= "/" then result = result:gsub("/+$", "") end
+    for index = 1, select("#", ...) do
+        local segment = FileSystemUtils.normalizeSlashes(select(index, ...)):gsub("^/+", ""):gsub("/+$", "")
+        if segment ~= "" then
+            if result == "" then result = segment
+            elseif result == "/" then result = "/" .. segment
+            else result = result .. "/" .. segment end
+        end
+    end
+    return result
+end
+
+---@param path any
+---@return string path
+function FileSystemUtils.normalizeRealPath(path)
+    path = FileSystemUtils.normalizeSlashes(path):gsub("/+$", "")
+    return love.system.getOS() == "Windows" and path:lower() or path
+end
+
+---@param path any
+---@param root any
+---@return boolean within
+function FileSystemUtils.isPathWithin(path, root)
+    path = FileSystemUtils.normalizeRealPath(path)
+    root = FileSystemUtils.normalizeRealPath(root)
+    return path == root or StringUtils.startsWith(path, root .. "/")
+end
+
+---@param path any
+---@return string path
+function FileSystemUtils.encodeURLPath(path)
+    local encoded = tostring(path or ""):gsub("\\", "/"):gsub("([^%w%-%._~/:])", function(character)
+        return string.format("%%%02X", character:byte())
+    end)
+    return encoded
+end
+
+---@param path any
+---@return string url
+function FileSystemUtils.toFileURL(path)
+    local normalized = tostring(path or ""):gsub("\\", "/")
+    local unc = normalized:sub(1, 2) == "//"
+    normalized = normalized:gsub("/+", "/")
+    if unc then normalized = "/" .. normalized end
+    local encoded = FileSystemUtils.encodeURLPath(normalized)
+    if encoded:match("^%a:/") then return "file:///" .. encoded end
+    if encoded:sub(1, 2) == "//" then return "file:" .. encoded end
+    if encoded:sub(1, 1) == "/" then return "file://" .. encoded end
+    return "file:///" .. encoded
+end
+
+---@param uri any
+---@return string path
+function FileSystemUtils.fromFileURL(uri)
+    local source = tostring(uri or "")
+    local unc = source:match("^file://[^/]") ~= nil
+    local path = source:gsub("^file://", "")
+    path = path:gsub("%%(%x%x)", function(hex) return string.char(tonumber(hex, 16)) end)
+    if unc then path = "//" .. path end
+    if love.system.getOS() == "Windows" then
+        path = path:gsub("^/(%a:/)", "%1"):gsub("/", "\\")
+    end
+    return path
+end
+
+---@param path string
+---@return boolean exists
+function FileSystemUtils.isFile(path)
+    local file = io.open(path, "rb")
+    if not file then return false end
+    file:close()
+    return true
+end
+
 ---
 --- Returns a table of file names within the specified directory, checking subfolders as well.
 ---

@@ -44,12 +44,14 @@ function Transition:init(x, y, shape, properties)
 
     properties = properties or {}
 
+    local marker = properties.marker
+    local marker_map = type(marker) == "table" and (marker.map_id or marker.map) or nil
     self.target = {
-        map = properties.map,
+        map = marker_map or properties.map,
         shop = properties.shop,
         x = properties.x,
         y = properties.y,
-        marker = properties.marker,
+        marker = marker,
         facing = properties.facing,
     }
     self.sound = properties.sound or nil
@@ -66,7 +68,12 @@ function Transition:getDebugInfo()
     if self.target.shop then table.insert(info, "Shop: " .. self.target.shop) end
     if self.target.x then table.insert(info, "X: " .. self.target.x) end
     if self.target.y then table.insert(info, "Y: " .. self.target.y) end
-    if self.target.marker and type(self.target.marker) == "string" then table.insert(info, "Marker: " .. self.target.marker) end
+    if self.target.marker then
+        local marker = type(self.target.marker) == "table"
+            and (self.target.marker.object_id or self.target.marker.object or self.target.marker.id)
+            or self.target.marker
+        table.insert(info, "Marker: " .. tostring(marker))
+    end
     if self.target.facing then table.insert(info, "Facing: " .. self.target.facing) end
     return info
 end
