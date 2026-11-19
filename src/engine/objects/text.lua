@@ -167,6 +167,8 @@ function Text:init(text, x, y, w, h, options)
 
     self:setText(text)
     self.set_text_without_stage = true
+
+    self.snowgrave_mult = 1
 end
 
 function Text:getDebugRectangle()
@@ -308,6 +310,8 @@ function Text:setText(text)
     else
         self.set_text_without_stage = true
     end
+
+    self.snowgrave_mult = 1
 end
 
 function Text:forceRedraw()
@@ -919,7 +923,7 @@ function Text:drawChar(node, state, use_color)
         else
             love.graphics.setShader(last_shader)
         end
-        Draw.setColor(cr, cg, cb, ca)
+        Draw.setColor(cr, cg, cb, ca * self.snowgrave_mult)
         Draw.draw(canvas, x, y)
 
         if not white then

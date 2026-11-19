@@ -83,6 +83,24 @@ function SnowGraveSpell:createSnowflake(x, y)
     return snowflake
 end
 
+function SnowGraveSpell:onRemove(parent)
+    super.onRemove(self, parent)
+
+    self:setBattleTextAlpha(1)
+end
+
+--- Sets the alpha multiplier of the battle text. Used to recreate a DELTARUNE bug.
+---@param alpha number
+---@protected
+function SnowGraveSpell:setBattleTextAlpha(alpha)
+    -- This really sucks. Really sucks
+    if (Game.battle ~= nil) and (Game.battle.battle_ui ~= nil) and (Game.battle.battle_ui.encounter_text ~= nil) and (Game.battle.battle_ui.encounter_text.text ~= nil) then
+        local text = Game.battle.battle_ui.encounter_text.text
+        text.snowgrave_mult = alpha
+        text.draw_every_frame = true
+    end
+end
+
 function SnowGraveSpell:draw()
     super.draw(self)
 
@@ -133,6 +151,9 @@ function SnowGraveSpell:draw()
             self.bgalpha = self.bgalpha - 0.02 * DTMULT
         end
     end
+
+    self:setBattleTextAlpha(self.bgalpha)
+
     if (self.timer >= 120) then
         Game.battle:finishAction()
         self:remove()
