@@ -16,7 +16,7 @@ function BattleUI:init()
     self.encounter_text:setText("")
     self.encounter_text.debug_rect = { -30, -12, SCREEN_WIDTH + 1, 124 }
     Game.battle:addChild(self.encounter_text)
-    self.encounter_text.layer = self.layer + 10
+    self.encounter_text.layer = BATTLE_LAYERS["text"]
 
     self.choice_box = Choicebox(56, 49 + 325, 529, 103, true)
     self.choice_box.active = false

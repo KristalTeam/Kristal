@@ -34,7 +34,7 @@ end
 function spell:onCast(user, target)
     local object = SnowGraveSpell(user)
     object.damage = self:getDamage(user, target)
-    object.layer = BATTLE_LAYERS["above_ui"]
+    object.layer = BATTLE_LAYERS["below_text"] -- IN DR: Technically the same layer as text, but it ends up being below it due to draw order
     Game.battle:addChild(object)
 
     return false

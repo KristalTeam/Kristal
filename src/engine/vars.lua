@@ -40,11 +40,14 @@ BATTLE_LAYERS = {
     ["soul"]              = 500,
     ["above_soul"]        = 600, --┰-- 600
     ["below_tension_bar"] = 600, --┙
-    ["tension_bar"]       = 700,
-    ["above_tension_bar"] = 800, --┰-- 800
-    ["below_bullets"]     = 800, --┙
-    ["bullets"]           = 900,
-    ["above_bullets"]     = 950,
+    ["tension_bar"]       = 650,
+    ["above_tension_bar"] = 700, --┰-- 700
+    ["below_bullets"]     = 700, --┙
+    ["bullets"]           = 750,
+    ["above_bullets"]     = 800, --┰-- 800
+    ["below_text"]        = 800, --┙
+    ["text"]              = 900,
+    ["above_text"]        = 950,
     ["top"]               = 1000
 }
 
